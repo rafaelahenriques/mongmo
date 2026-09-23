@@ -1,9 +1,12 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from 'react-native';
+
+import MapView from '@/components/MapView';
+import { MOCK_CAFE_LOCATION, MOCK_POPUP_LOCATIONS } from '@/constants/mock-data';
 
 export default function MapScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Map Screen</Text>
+      <MapView cafeLoc={MOCK_CAFE_LOCATION} popupLocations={MOCK_POPUP_LOCATIONS} />
     </View>
   );
 }
@@ -11,11 +14,5 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  text: {
-    fontSize: 18,
-    fontWeight: "600",
   },
 });
