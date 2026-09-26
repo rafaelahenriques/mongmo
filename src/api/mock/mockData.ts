@@ -1,5 +1,13 @@
 import { MOCK_SCENARIO } from '@/constants/config';
-import type { PopUpEvent, Store, WeeklyHours } from '@/types';
+import type {
+  BadgeDefinition,
+  LeaderboardEntry,
+  PopUpEvent,
+  Reward,
+  Store,
+  UserProfile,
+  WeeklyHours,
+} from '@/types';
 
 /**
  * Mock data backing the API transport, modeled on the real Mongmo site
@@ -155,3 +163,106 @@ export function getMockEvents(): PopUpEvent[] {
   }
   return MOCK_EVENTS;
 }
+
+/* ------------------------------------------------------------------ *
+ * Profile / achievements / leaderboard mock content.                  *
+ * ------------------------------------------------------------------ */
+
+export const MOCK_PROFILE: UserProfile = {
+  id: 'user-me',
+  name: 'Rafaela H.',
+  bio: 'Design student in Kortrijk — always hunting the next pop-up 🧋',
+  avatarUrl:
+    'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
+  homeCity: 'Kortrijk',
+  memberSince: '2026-01-12',
+};
+
+/** Badge catalog; conditions are evaluated client-side in utils/achievements. */
+export const MOCK_BADGES: BadgeDefinition[] = [
+  {
+    id: 'first-check-in',
+    title: 'First steps',
+    description: 'Check in to your first pop-up',
+    emoji: '🎯',
+  },
+  {
+    id: 'streak-5',
+    title: 'Five-day streak',
+    description: 'Visit 5 days in a row 🔥',
+    emoji: '🔥',
+  },
+  {
+    id: 'ten-events',
+    title: 'Regular',
+    description: 'Attend 10 pop-ups',
+    emoji: '🎫',
+  },
+  {
+    id: 'two-cities',
+    title: 'City hopper',
+    description: 'Check in in 2 different cities',
+    emoji: '🏙️',
+  },
+  {
+    id: 'night-owl',
+    title: 'Night owl',
+    description: 'Check in after 21:00',
+    emoji: '🦉',
+  },
+  {
+    id: 'word-of-mouth',
+    title: 'Word of mouth',
+    description: 'Share an event with a friend',
+    emoji: '📣',
+  },
+];
+
+export const MOCK_REWARDS: Reward[] = [
+  {
+    id: 'sticker-pack',
+    title: 'Mongmo sticker pack',
+    description: 'Limited pop-up artwork, 4 pieces',
+    costPoints: 100,
+  },
+  {
+    id: 'discount-10',
+    title: '10% off your next order',
+    description: 'Pickup or delivery, one time use',
+    costPoints: 150,
+  },
+  {
+    id: 'free-coffee',
+    title: 'Free cà phê sữa đá',
+    description: 'Any size, on us',
+    costPoints: 200,
+  },
+  {
+    id: 'free-banh-mi',
+    title: 'Free bánh mì',
+    description: 'Grilled pork or tofu, your pick',
+    costPoints: 350,
+  },
+];
+
+/** Other members' scores; the signed-in user's row is merged in client-side. */
+export const MOCK_LEADERBOARD_ROWS: LeaderboardEntry[] = [
+  { userId: 'peer-minh', name: 'Minh Trần', points: 4120 },
+  { userId: 'peer-linh', name: 'Linh Pham', points: 3250 },
+  { userId: 'peer-jasper', name: 'Jasper V.', points: 2980 },
+  { userId: 'peer-sofie', name: 'Sofie D.', points: 1870 },
+  { userId: 'peer-bao', name: 'Bao Lê', points: 1560 },
+  { userId: 'peer-emma', name: 'Emma W.', points: 940 },
+  { userId: 'peer-thao', name: 'Thao Phan', points: 520 },
+];
+
+/** Weekly window of {@link MOCK_LEADERBOARD_ROWS} for period=weekly. */
+export const MOCK_LEADERBOARD_WEEKLY: LeaderboardEntry[] = [
+  { userId: 'peer-linh', name: 'Linh Pham', points: 420 },
+  { userId: 'peer-jasper', name: 'Jasper V.', points: 385 },
+  { userId: 'peer-minh', name: 'Minh Trần', points: 340 },
+  { userId: 'peer-sofie', name: 'Sofie D.', points: 265 },
+  { userId: 'peer-bao', name: 'Bao Lê', points: 190 },
+  { userId: 'peer-emma', name: 'Emma W.', points: 120 },
+  { userId: 'peer-thao', name: 'Thao Phan', points: 60 },
+];
