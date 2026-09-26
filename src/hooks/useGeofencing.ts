@@ -5,6 +5,7 @@ import * as Location from 'expo-location';
 import { GEOFENCE_RADIUS_M } from '@/constants/config';
 import { ensureNotificationPermission } from '@/services/notifications';
 import { useLocationStore } from '@/state/locationStore';
+import { useSettingsStore } from '@/state/settingsStore';
 import { GEOFENCE_TASK_NAME } from '@/tasks/geofenceTask';
 import { saveGeofenceMetas } from '@/utils/geofenceRegistry';
 import type { PopUpEvent } from '@/types';
@@ -25,8 +26,14 @@ const SKIP_PERMISSION_PROMPT = process.env.EXPO_PUBLIC_UI_TOUR === '1';
  */
 export function useGeofencing(events: PopUpEvent[] | undefined): void {
   const permission = useLocationStore((state) => state.permission);
+  const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
 
   useEffect(() => {
+    if (!notificationsEnabled) {
+      // Settings toggle off: tear regions down so no alert can fire.
+      Location.stopGeofencingAsync(GEOFENCE_TASK_NAME).catch(() => undefined);
+      return;
+    }
     if (permission !== 'granted') return;
     if (!events) return; // still loading — keep whatever was registered
     if (events.length === 0) {
@@ -71,5 +78,5 @@ export function useGeofencing(events: PopUpEvent[] | undefined): void {
     return () => {
       cancelled = true;
     };
-  }, [permission, events]);
+  }, [permission, events, notificationsEnabled]);
 }
