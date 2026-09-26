@@ -1,14 +1,15 @@
-import { Stack } from "expo-router";
+import { Stack } from 'expo-router';
 
 export default function PopupsLayout() {
   return (
     <Stack
       screenOptions={{
         headerShown: true,
-        headerTitle: "Upcoming Pop-ups",
+        headerTitle: 'Pop-ups',
       }}
     >
       <Stack.Screen name="index" />
+      <Stack.Screen name="event/[id]" options={{ headerTitle: 'Event' }} />
     </Stack>
   );
 }
