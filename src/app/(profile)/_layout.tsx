@@ -5,10 +5,11 @@ export default function ProfileLayout() {
     <Stack
       screenOptions={{
         headerShown: true,
-        headerTitle: "My Profile",
+        headerTitle: "Profile",
       }}
     >
       <Stack.Screen name="index" />
+      <Stack.Screen name="achievements" options={{ headerTitle: "Achievements" }} />
     </Stack>
   );
 }
