@@ -1,7 +1,15 @@
 import type { EventFilter, PopUpEvent } from '@/types';
 import { isThisWeek, isToday } from '@/utils/dateTime';
 import { ApiError } from '@/api/errors';
-import { getMockEvents, getMockStore } from '@/api/mock/mockData';
+import {
+  getMockEvents,
+  getMockStore,
+  MOCK_BADGES,
+  MOCK_LEADERBOARD_ROWS,
+  MOCK_LEADERBOARD_WEEKLY,
+  MOCK_PROFILE,
+  MOCK_REWARDS,
+} from '@/api/mock/mockData';
 
 /** Simulated network latency so loading states are actually exercised. */
 const MOCK_LATENCY_MS = 450;
@@ -87,6 +95,19 @@ export async function mockRequest(
       throw new ApiError(`Event "${id}" not found`, 404);
     }
     return event;
+  }
+
+  if (path === '/profile') {
+    return MOCK_PROFILE;
+  }
+
+  if (path === '/achievements') {
+    return { badges: MOCK_BADGES, rewards: MOCK_REWARDS };
+  }
+
+  if (path === '/leaderboard') {
+    const rows = params?.period === 'all' ? MOCK_LEADERBOARD_ROWS : MOCK_LEADERBOARD_WEEKLY;
+    return [...rows].sort((a, b) => b.points - a.points);
   }
 
   throw new ApiError(`No mock handler for GET ${path}`, 404);
