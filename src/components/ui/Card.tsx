@@ -1,66 +1,64 @@
 import type { PropsWithChildren } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/services/haptics';
 
 export type CardProps = PropsWithChildren<{
-  /** Makes the whole card a button that presses into its shadow. */
+  /** Makes the whole card a button (with a gentle press and a tap haptic). */
   onPress?: () => void;
+  disabled?: boolean;
   accessibilityLabel?: string;
   accessibilityHint?: string;
-  /** paper (default) · accent: Light Blue · highlight: yellow · primary: Bold Red. */
-  tone?: 'paper' | 'accent' | 'highlight' | 'primary';
+  /** default: white · muted: soft fill · brand: Bold Red · accent: Light Blue · primary: Cool Brown. */
+  tone?: 'default' | 'muted' | 'brand' | 'accent' | 'primary';
   style?: StyleProp<ViewStyle>;
 }>;
 
-const SHADOW_OFFSET = 3;
-
-/**
- * An outlined "label" card with a hard shadow, the app's main surface.
- * With `onPress` it behaves like a button (and presses into its shadow).
- */
+/** The app's main surface: a soft, rounded card with a faint shadow. */
 export function Card({
   children,
   onPress,
+  disabled = false,
   accessibilityLabel,
   accessibilityHint,
-  tone = 'paper',
+  tone = 'default',
   style,
 }: CardProps) {
   const theme = useTheme();
-  const backgroundColor =
-    tone === 'accent'
-      ? theme.accent
-      : tone === 'highlight'
-        ? theme.highlight
-        : tone === 'primary'
-          ? theme.primary
-          : theme.backgroundElement;
-  const base = [
+  const backgroundColor = {
+    default: theme.backgroundElement,
+    muted: theme.backgroundSelected,
+    brand: theme.brandFill,
+    accent: theme.accent,
+    primary: theme.primary,
+  }[tone];
+  const surface = [
     styles.card,
-    { backgroundColor, borderColor: theme.border },
+    {
+      backgroundColor,
+      boxShadow:
+        tone === 'default' ? `0px 1px 2px ${theme.shadow}, 0px 10px 28px ${theme.shadow}` : undefined,
+    },
   ];
-  const shadow = `${SHADOW_OFFSET}px ${SHADOW_OFFSET}px 0px ${theme.shadow}`;
 
   if (!onPress) {
-    return <View style={[base, { boxShadow: shadow }, style]}>{children}</View>;
+    return <View style={[surface, style]}>{children}</View>;
   }
 
   return (
     <Pressable
-      onPress={onPress}
+      onPress={() => {
+        haptics.tap();
+        onPress();
+      }}
+      disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={accessibilityHint}
-      style={({ pressed }) => [
-        base,
-        {
-          boxShadow: pressed ? undefined : shadow,
-          transform: pressed ? [{ translateX: SHADOW_OFFSET }, { translateY: SHADOW_OFFSET }] : [],
-        },
-        style,
-      ]}
+      accessibilityState={{ disabled }}
+      style={({ pressed }) => [surface, { transform: [{ scale: pressed && !disabled ? 0.98 : 1 }] }, style]}
     >
       {children}
     </Pressable>
@@ -69,11 +67,8 @@ export function Card({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 14,
-    borderWidth: 2,
-    padding: Spacing.three,
+    borderRadius: Radius.large,
+    padding: Spacing.three + Spacing.one,
     gap: Spacing.two,
-    marginRight: SHADOW_OFFSET,
-    marginBottom: SHADOW_OFFSET,
   },
 });

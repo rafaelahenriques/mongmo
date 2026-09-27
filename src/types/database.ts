@@ -153,7 +153,6 @@ type BadgeRow = {
   key: string;
   title: string;
   description: string;
-  emoji: string | null;
   points: number;
   sort_order: number;
 };

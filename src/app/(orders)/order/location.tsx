@@ -1,9 +1,11 @@
 import { useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
-import { Spacing } from '@/constants/theme';
+import { Card } from '@/components/ui/Card';
+import { ListRow } from '@/components/ui/ListRow';
+import { ScreenScroll, SectionHeader } from '@/components/ui/Screen';
 import { useEvents } from '@/hooks/useEvents';
 import { useEventsWithMenu } from '@/hooks/useEventsWithMenu';
 import { useStore } from '@/hooks/useStore';
@@ -40,9 +42,7 @@ export default function OrderLocationScreen() {
     [router],
   );
 
-  const isLoading = storeQuery.isPending || eventsQuery.isPending;
-
-  if (isLoading) {
+  if (storeQuery.isPending || eventsQuery.isPending) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
         <ActivityIndicator size="large" color={theme.text} />
@@ -51,47 +51,37 @@ export default function OrderLocationScreen() {
   }
 
   return (
-    <ScrollView
-      style={[styles.scroll, { backgroundColor: theme.background }]}
-      contentContainerStyle={styles.content}
-    >
+    <ScreenScroll>
+      <ThemedText type="subtitle">Where will you pick up?</ThemedText>
       <ThemedText type="small" themeColor="textSecondary">
         Pickup only — choose where you&apos;ll collect your order.
       </ThemedText>
 
       {storeQuery.data ? (
-        <Pressable
-          onPress={chooseStore}
-          accessibilityRole="button"
-          accessibilityLabel={`At Mongmo café, ${storeQuery.data.address}`}
-          style={({ pressed }) => [
-            styles.card,
-            { backgroundColor: theme.backgroundElement, borderColor: theme.border, opacity: pressed ? 0.85 : 1 },
-          ]}
-        >
-          <ThemedText type="smallBold">At Mongmo café</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {storeQuery.data.address}
-          </ThemedText>
-        </Pressable>
+        <Card>
+          <ListRow
+            title="At Mongmo café"
+            subtitle={storeQuery.data.address}
+            icon="store"
+            iconTone="primary"
+            onPress={chooseStore}
+            accessibilityLabel={`At Mongmo café, ${storeQuery.data.address}`}
+          />
+        </Card>
       ) : null}
 
+      {eventOptions.length > 0 ? <SectionHeader title="Pop-ups with a menu" /> : null}
       {eventOptions.map((event) => (
-        <Pressable
-          key={event.id}
-          onPress={() => chooseEvent(event.id, event.title)}
-          accessibilityRole="button"
-          accessibilityLabel={`At the pop-up, ${event.title}, ${event.venue}`}
-          style={({ pressed }) => [
-            styles.card,
-            { backgroundColor: theme.backgroundElement, borderColor: theme.border, opacity: pressed ? 0.85 : 1 },
-          ]}
-        >
-          <ThemedText type="smallBold">Pickup at the truck — {event.title}</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {event.venue}, {event.city}
-          </ThemedText>
-        </Pressable>
+        <Card key={event.id}>
+          <ListRow
+            title={event.title}
+            subtitle={`Pickup at the truck · ${event.venue}, ${event.city}`}
+            icon="takeout"
+            iconTone="brand"
+            onPress={() => chooseEvent(event.id, event.title)}
+            accessibilityLabel={`At the pop-up, ${event.title}, ${event.venue}`}
+          />
+        </Card>
       ))}
 
       {eventOptions.length === 0 ? (
@@ -99,27 +89,14 @@ export default function OrderLocationScreen() {
           No pop-up menus available right now — the café is always open for pickup.
         </ThemedText>
       ) : null}
-    </ScrollView>
+    </ScreenScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-  },
-  content: {
-    padding: Spacing.three,
-    gap: Spacing.three,
-  },
   state: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  card: {
-    borderRadius: 16,
-    borderWidth: 2,
-    padding: Spacing.three,
-    gap: Spacing.half,
   },
 });

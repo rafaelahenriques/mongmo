@@ -82,9 +82,9 @@ export function profileRowToUserProfile(row: ProfileRow): UserProfile {
 export function badgeRowToBadgeDefinition(row: BadgeRow): BadgeDefinition {
   return {
     id: row.id,
+    key: row.key,
     title: row.title,
     description: row.description,
-    emoji: row.emoji ?? '🏅',
   };
 }
 

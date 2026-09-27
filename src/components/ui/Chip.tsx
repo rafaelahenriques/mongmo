@@ -1,37 +1,49 @@
 import { memo } from 'react';
-import { StyleSheet, View, type ViewStyle } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
-import { Spacing } from '@/constants/theme';
+import { Icon, type IconName } from '@/components/ui/Icon';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
 export type ChipProps = {
   label: string;
   /**
-   * neutral: paper · success/danger/warning: semantic text on paper (AA) ·
-   * live: yellow sticker · info: Light Blue sticker.
+   * neutral: soft fill · dark: Cool Brown · live: Bold Red with a dot ·
+   * info: Light Blue · success/danger/warning: soft fill, semantic label (AA).
    */
-  tone?: 'neutral' | 'success' | 'danger' | 'warning' | 'live' | 'info';
-  style?: ViewStyle;
+  tone?: 'neutral' | 'dark' | 'live' | 'info' | 'success' | 'danger' | 'warning';
+  icon?: IconName;
+  style?: StyleProp<ViewStyle>;
 };
 
-/** Small outlined "sticker" for status and metadata on cards and detail screens. */
-function ChipComponent({ label, tone = 'neutral', style }: ChipProps) {
+/** Small pill for status and metadata. */
+function ChipComponent({ label, tone = 'neutral', icon, style }: ChipProps) {
   const theme = useTheme();
-  const backgroundColor =
-    tone === 'live' ? theme.highlight : tone === 'info' ? theme.accent : theme.backgroundElement;
+  const background =
+    tone === 'dark'
+      ? theme.primary
+      : tone === 'live'
+        ? theme.brandFill
+        : tone === 'info'
+          ? theme.accent
+          : theme.backgroundSelected;
   const color =
-    tone === 'live'
-      ? theme.onHighlight
-      : tone === 'info'
-        ? theme.onAccent
-        : tone === 'neutral'
-          ? theme.text
-          : theme[tone];
+    tone === 'dark'
+      ? theme.onPrimary
+      : tone === 'live'
+        ? theme.onBrand
+        : tone === 'info'
+          ? theme.onAccent
+          : tone === 'neutral'
+            ? theme.text
+            : theme[tone];
 
   return (
-    <View style={[styles.chip, { backgroundColor, borderColor: theme.border }, style]}>
-      <ThemedText type="label" numberOfLines={1} style={[styles.text, { color }]}>
+    <View style={[styles.chip, { backgroundColor: background }, style]}>
+      {tone === 'live' ? <View style={[styles.dot, { backgroundColor: theme.onBrand }]} /> : null}
+      {icon ? <Icon name={icon} size={12} color={color} /> : null}
+      <ThemedText type="smallBold" numberOfLines={1} style={[styles.text, { color }]}>
         {label}
       </ThemedText>
     </View>
@@ -42,12 +54,18 @@ export default memo(ChipComponent);
 
 const styles = StyleSheet.create({
   chip: {
-    borderRadius: 999,
-    borderWidth: 1.5,
-    paddingHorizontal: Spacing.two,
-    paddingVertical: 1,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: Spacing.one + 1,
+    borderRadius: Radius.pill,
+    paddingHorizontal: Spacing.two + 2,
+    paddingVertical: Spacing.one,
+    alignSelf: 'flex-start',
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   text: {
     fontSize: 12,

@@ -1,14 +1,15 @@
 import { useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
-import { ArrowRight, Coffee, Sparkles } from 'lucide-react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import EventCard from '@/components/events/EventCard';
 import { ThemedText } from '@/components/ThemedText';
-import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import Chip from '@/components/ui/Chip';
-import { Spacing } from '@/constants/theme';
+import { Icon } from '@/components/ui/Icon';
+import { IconBadge } from '@/components/ui/IconBadge';
+import { LargeHeader, ScreenScroll, SectionHeader } from '@/components/ui/Screen';
+import { Radius, Spacing } from '@/constants/theme';
 import { useActiveOrder } from '@/hooks/useActiveOrder';
 import { useEvents } from '@/hooks/useEvents';
 import { useProfile } from '@/hooks/useProfile';
@@ -30,8 +31,8 @@ const ORDER_STATUS_LABEL: Record<string, string> = {
 };
 
 /**
- * Home tab: nearby pop-ups, whatever's in progress (an active order or the
- * live event right now), and a quick entry into ordering the usual.
+ * Home tab: whatever's in progress (an active order or the live pop-up),
+ * quick actions, and the nearest pop-ups.
  */
 export default function HomeScreen() {
   const theme = useTheme();
@@ -71,70 +72,85 @@ export default function HomeScreen() {
   }, [router, storeQuery.data]);
 
   const firstName = profile.data?.name.split(' ')[0] ?? '';
+  const orderStatus = activeOrder.data
+    ? (ORDER_STATUS_LABEL[activeOrder.data.status] ?? activeOrder.data.status)
+    : null;
 
   return (
-    <ScrollView
-      style={[styles.scroll, { backgroundColor: theme.background }]}
-      contentContainerStyle={styles.content}
-    >
-      <ThemedText type="title" style={styles.greeting}>
-        {firstName ? `Hi, ${firstName}` : 'Hi there'}
-      </ThemedText>
-      <ThemedText type="label" themeColor="textSecondary" style={styles.tagline}>
-        Discover the next flavour
-      </ThemedText>
+    <ScreenScroll topInset>
+      <LargeHeader eyebrow="Discover the next flavour" title={firstName ? `Hi, ${firstName}` : 'Hi there'} />
 
-      {/* Continue: whichever is more relevant right now — an order in
-          flight, or a pop-up that's actually live. */}
+      {/* Continue: whichever matters more right now — an order in flight,
+          or a pop-up that's actually live. */}
       {activeOrder.data ? (
         <Card
-          tone="accent"
+          tone="primary"
           onPress={() => router.push('/(orders)')}
-          accessibilityLabel={`Your order is ${ORDER_STATUS_LABEL[activeOrder.data.status] ?? activeOrder.data.status}. View order.`}
-          style={styles.row}
+          accessibilityLabel={`Your order is ${orderStatus}. View order.`}
+          style={styles.hero}
         >
-          <Coffee size={22} color={theme.onAccent} />
-          <View style={styles.cardTexts}>
-            <ThemedText type="section" style={{ color: theme.onAccent }}>
-              {ORDER_STATUS_LABEL[activeOrder.data.status] ?? activeOrder.data.status}
-            </ThemedText>
-            <ThemedText type="small" style={{ color: theme.onAccent }}>
-              Your order is on its way — tap to view status.
-            </ThemedText>
+          <View style={styles.heroTop}>
+            <Chip label="Your order" tone="info" icon="takeout" />
+            <DetailsPill label="View" dark />
           </View>
-          <ArrowRight size={20} color={theme.onAccent} />
+          <ThemedText type="subtitle" style={{ color: theme.onPrimary }}>
+            {orderStatus}
+          </ThemedText>
+          <ThemedText type="small" style={{ color: theme.onPrimary, opacity: 0.8 }}>
+            We&apos;ll let you know the moment it&apos;s ready.
+          </ThemedText>
         </Card>
       ) : liveEvent ? (
         <Card
-          tone="highlight"
+          tone="brand"
           onPress={() => onSelectEvent(liveEvent.id)}
           accessibilityLabel={`${liveEvent.title} is live now in ${liveEvent.city}. Open event.`}
-          style={styles.row}
+          style={styles.hero}
         >
-          <Sparkles size={22} color={theme.onHighlight} />
-          <View style={styles.cardTexts}>
-            <Chip label="Live now" tone="neutral" style={styles.liveChip} />
-            <ThemedText type="section" style={{ color: theme.onHighlight }}>
-              {liveEvent.title}
-            </ThemedText>
-            <ThemedText type="small" style={{ color: theme.onHighlight }}>
-              In {liveEvent.city} — check in and complete a challenge.
+          <View style={styles.heroTop}>
+            <View style={[styles.livePill, { backgroundColor: theme.onBrand }]}>
+              <View style={[styles.liveDot, { backgroundColor: theme.brandFill }]} />
+              <ThemedText type="smallBold" style={{ color: theme.brandFill }}>
+                Live now
+              </ThemedText>
+            </View>
+            <DetailsPill label="Details" />
+          </View>
+          <ThemedText type="title" style={{ color: theme.onBrand }} numberOfLines={2}>
+            {liveEvent.title}
+          </ThemedText>
+          <View style={styles.heroMeta}>
+            <Icon name="pin" size={14} color={theme.onBrand} />
+            <ThemedText type="small" style={{ color: theme.onBrand }}>
+              {liveEvent.city} · check in for points
             </ThemedText>
           </View>
-          <ArrowRight size={20} color={theme.onHighlight} />
         </Card>
       ) : null}
 
-      <Button
-        label="Order your usual"
-        accessibilityLabel="Order your usual from the café menu"
-        icon={<Coffee size={20} color={theme.onPrimary} />}
-        onPress={onOrderUsual}
-      />
+      <View style={styles.quickRow}>
+        <Card
+          tone="accent"
+          onPress={onOrderUsual}
+          accessibilityLabel="Order your usual from the café menu"
+          style={styles.quick}
+        >
+          <IconBadge name="coffee" tone="card" size={44} />
+          <ThemedText type="smallBold" style={{ color: theme.onAccent }}>
+            Order your usual
+          </ThemedText>
+        </Card>
+        <Card
+          onPress={() => router.push('/(explore)')}
+          accessibilityLabel="Explore pop-ups on the map"
+          style={styles.quick}
+        >
+          <IconBadge name="map" tone="muted" size={44} />
+          <ThemedText type="smallBold">Explore the map</ThemedText>
+        </Card>
+      </View>
 
-      <ThemedText type="section" style={styles.sectionTitle}>
-        Nearby pop-ups
-      </ThemedText>
+      <SectionHeader title="Nearby pop-ups" actionLabel="See all" onAction={() => router.push('/(explore)')} />
 
       {eventsQuery.isPending ? (
         <ActivityIndicator size="small" color={theme.text} style={styles.loader} />
@@ -149,44 +165,75 @@ export default function HomeScreen() {
           ))}
         </View>
       )}
-    </ScrollView>
+    </ScreenScroll>
+  );
+}
+
+/** The "Details →" pill in hero cards (decorative; the card is the button). */
+function DetailsPill({ label, dark = false }: { label: string; dark?: boolean }) {
+  const theme = useTheme();
+  // Red on white (4.7:1) on the red card; inverted ink on the primary card.
+  const background = dark ? theme.onPrimary : theme.onBrand;
+  const foreground = dark ? theme.primary : theme.brandFill;
+  return (
+    <View style={[styles.detailsPill, { backgroundColor: background }]}>
+      <ThemedText type="smallBold" style={{ color: foreground }}>
+        {label}
+      </ThemedText>
+      <Icon name="arrowRight" size={14} color={foreground} weight="bold" />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
+  hero: {
+    gap: Spacing.two,
+    paddingVertical: Spacing.four,
   },
-  content: {
-    padding: Spacing.three,
-    paddingBottom: Spacing.six,
-    gap: Spacing.three,
+  heroTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.two,
   },
-  greeting: {
-    fontSize: 44,
-    lineHeight: 46,
-  },
-  tagline: {
-    marginTop: -Spacing.two,
-  },
-  row: {
+  heroMeta: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.three,
+    gap: Spacing.one,
   },
-  cardTexts: {
+  livePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.one + 2,
+    borderRadius: Radius.pill,
+    paddingHorizontal: Spacing.two + 2,
+    paddingVertical: Spacing.one,
+  },
+  liveDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+  },
+  detailsPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.one,
+    borderRadius: Radius.pill,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.one + 2,
+  },
+  quickRow: {
+    flexDirection: 'row',
+    gap: Spacing.two + Spacing.one,
+  },
+  quick: {
     flex: 1,
-    gap: 2,
-  },
-  liveChip: {
-    alignSelf: 'flex-start',
-    marginBottom: Spacing.one,
-  },
-  sectionTitle: {
-    marginTop: Spacing.two,
+    gap: Spacing.three,
+    minHeight: 120,
+    justifyContent: 'space-between',
   },
   eventsList: {
-    gap: Spacing.three,
+    gap: Spacing.two + Spacing.one,
   },
   loader: {
     marginVertical: Spacing.four,

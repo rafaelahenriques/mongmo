@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import * as Haptics from 'expo-haptics';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import Chip from '@/components/ui/Chip';
+import { Icon } from '@/components/ui/Icon';
+import { ScreenFooter } from '@/components/ui/ScreenFooter';
 import { Spacing } from '@/constants/theme';
 import { usePlaceOrder } from '@/hooks/usePlaceOrder';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/services/haptics';
 import { useCartStore, cartSubtotalCents } from '@/state/cartStore';
 import { formatCents } from '@/utils/orderFormat';
 
@@ -37,85 +41,114 @@ export default function OrderCheckoutScreen() {
       },
       {
         onSuccess: (order) => {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
+          haptics.success();
           router.replace({ pathname: '/(orders)/order/confirmation', params: { id: order.id } });
         },
         onError: (mutationError) => {
+          haptics.error();
           setError(mutationError instanceof Error ? mutationError.message : 'Something went wrong.');
         },
       },
     );
   };
 
+  const pickupLabel = pickupAt
+    ? `Pickup at ${new Date(pickupAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`
+    : 'Pickup as soon as possible';
+
   return (
-    <ScrollView
-      style={[styles.scroll, { backgroundColor: theme.background }]}
-      contentContainerStyle={styles.content}
-    >
-      <View style={[styles.prototypeBadge, { backgroundColor: theme.accent, borderColor: theme.border }]}>
-        <ThemedText type="label" style={{ color: theme.onAccent }}>
-          Prototype payment — no real card is charged
-        </ThemedText>
-      </View>
-
-      {items.map((item) => (
-        <View key={item.menuItemId} style={styles.row}>
-          <ThemedText type="small">
-            {item.quantity}× {item.name}
-          </ThemedText>
-          <ThemedText type="small">{formatCents(item.priceCents * item.quantity)}</ThemedText>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <ScrollView contentContainerStyle={styles.content}>
+        <ThemedText type="subtitle">Checkout</ThemedText>
+        <View style={styles.chips}>
+          <Chip label={location.type === 'event' ? location.eventTitle : 'Mongmo café'} icon={location.type === 'event' ? 'takeout' : 'store'} />
+          <Chip label={pickupLabel} icon="clock" />
         </View>
-      ))}
 
-      <View style={[styles.row, styles.totalRow, { borderColor: theme.border }]}>
-        <ThemedText type="section">Estimated total</ThemedText>
-        <ThemedText type="section" themeColor="primaryText">
-          {formatCents(cartSubtotalCents(items))}
-        </ThemedText>
-      </View>
+        <Card style={styles.receipt}>
+          {items.map((item) => (
+            <View key={item.menuItemId} style={styles.row}>
+              <ThemedText type="small" style={styles.rowName}>
+                <ThemedText type="smallBold">{item.quantity}×</ThemedText> {item.name}
+              </ThemedText>
+              <ThemedText type="small">{formatCents(item.priceCents * item.quantity)}</ThemedText>
+            </View>
+          ))}
+          <View style={[styles.divider, { backgroundColor: theme.border }]} />
+          <View style={[styles.row, styles.totalRow]}>
+            <ThemedText type="smallBold">Estimated total</ThemedText>
+            <ThemedText type="subtitle">{formatCents(cartSubtotalCents(items))}</ThemedText>
+          </View>
+        </Card>
 
-      {error ? (
-        <ThemedText type="small" themeColor="danger" accessibilityRole="alert">
-          {error}
-        </ThemedText>
-      ) : null}
+        <View style={[styles.notice, { backgroundColor: theme.accent }]}>
+          <Icon name="lock" size={16} color={theme.onAccent} />
+          <ThemedText type="small" style={[styles.noticeText, { color: theme.onAccent }]}>
+            Prototype payment — no real card is charged.
+          </ThemedText>
+        </View>
 
-      <Button
-        label="Place order"
-        accessibilityLabel="Place order with prototype payment"
-        onPress={onPay}
-        loading={placeOrder.isPending}
-        style={styles.button}
-      />
-    </ScrollView>
+        {error ? (
+          <ThemedText type="small" themeColor="danger" accessibilityRole="alert">
+            {error}
+          </ThemedText>
+        ) : null}
+      </ScrollView>
+
+      <ScreenFooter>
+        <Button
+          label="Place order"
+          accessibilityLabel="Place order with prototype payment"
+          variant="brand"
+          icon="checkCircle"
+          haptic="press"
+          onPress={onPay}
+          loading={placeOrder.isPending}
+        />
+      </ScreenFooter>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
+  container: {
     flex: 1,
   },
   content: {
-    padding: Spacing.three,
-    gap: Spacing.two,
+    padding: Spacing.three + Spacing.one,
+    gap: Spacing.three,
   },
-  prototypeBadge: {
-    borderRadius: 10,
-    borderWidth: 2,
-    padding: Spacing.two,
-    marginBottom: Spacing.two,
-    alignItems: 'center',
+  chips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.one + 2,
+  },
+  receipt: {
+    gap: Spacing.two + Spacing.one,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  rowName: {
+    flex: 1,
+  },
+  divider: {
+    height: StyleSheet.hairlineWidth,
   },
   totalRow: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    paddingTop: Spacing.two,
-    marginTop: Spacing.one,
+    alignItems: 'baseline',
   },
-  button: {
-    marginTop: Spacing.four,
+  notice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+    borderRadius: 16,
+    padding: Spacing.three,
+  },
+  noticeText: {
+    flex: 1,
   },
 });

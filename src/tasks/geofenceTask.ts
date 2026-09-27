@@ -1,7 +1,7 @@
 import * as Location from 'expo-location';
-import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
 
+import { nearbyNotification, notifyNow } from '@/services/notifications';
 import { getGeofenceMeta, markAlerted, wasRecentlyAlerted } from '@/utils/geofenceRegistry';
 
 export const GEOFENCE_TASK_NAME = 'mongmo-geofence-alerts';
@@ -52,14 +52,6 @@ TaskManager.defineTask<GeofenceTaskData>(GEOFENCE_TASK_NAME, async ({ data, erro
   }
 
   await markAlerted(meta.id, now);
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: `${meta.title} is nearby`,
-      body: `You're within 500 m of the pop-up in ${meta.city}. Tap to see details.`,
-      data: { url: `/(explore)/event/${meta.id}` },
-      sound: true,
-    },
-    trigger: null,
-  });
+  await notifyNow(nearbyNotification(meta));
   console.log(`[${GEOFENCE_TASK_NAME}] alert sent: ${meta.id}`);
 });

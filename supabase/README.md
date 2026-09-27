@@ -47,6 +47,8 @@ left, per "no hardcoded/mock data."
 | `0006_qr_token_hardening.sql` | Revokes `events.qr_token` from ordinary reads (column-level, not row-level) so "scan the QR" actually verifies something — see below. |
 | `0007_explicit_grants.sql` | Grants `authenticated`/`service_role` table access explicitly instead of relying on the project's default privileges (a project setting, not part of the schema), then re-applies 0006's column list for `events`. |
 | `0008_backfill_profiles.sql` | Creates the missing `profiles` row for any account that existed before 0002's sign-up trigger did. |
+| `0009_live_occupancy_and_order_updates.sql` | Each verified check-in adds one to the pop-up's occupancy (trigger), which Realtime pushes to every "how busy" meter; publishes `orders` to Realtime so order-status notifications can fire. |
+| `0010_drop_badge_emoji.sql` | Drops `badges.emoji`: the app shows each badge with a system symbol picked by its `key`. |
 
 ### Points ledger, not a running total
 

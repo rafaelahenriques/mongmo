@@ -8,62 +8,65 @@ import '@/global.css';
 import { Platform } from 'react-native';
 
 /**
- * Mongmo palette: Soft Cream paper, Cool Brown ink, Bold Red for actions,
- * Light Blue and a street-food yellow for stickers and highlights.
+ * Mongmo palette, contemporary: warm off-white background, white cards,
+ * Cool Brown ink and pill buttons, Bold Red as the one accent (live, points,
+ * the main call to action), Light Blue for soft highlights.
  * Contrast (WCAG) is noted where text sits on a color.
  */
 export const Colors = {
   light: {
-    /** Cool Brown ink — 13:1 on background. */
-    text: '#342626',
-    /** Soft Cream paper. */
-    background: '#FDF1E2',
-    /** Cards and sheets: a lighter paper that lifts off the background. */
-    backgroundElement: '#FFF9F1',
-    /** Pressed/selected states, inputs, subtle fills. */
-    backgroundSelected: '#F6E4CE',
-    /** Muted ink — 6:1 on background, 5.4:1 on backgroundSelected. */
-    textSecondary: '#6B5752',
-    /** Card/button outlines and hard shadows: the "printed label" look. */
-    border: '#342626',
-    shadow: '#342626',
-    /** Bold Red — button fills and accents. */
-    primary: '#E8492A',
-    /** On primary: 3.5:1, so only for large bold text (buttons are 20px bold caps). */
-    onPrimary: '#FDF1E2',
-    /** Red for text on paper (prices, links) — 4.8:1. */
-    primaryText: '#C23A1E',
-    /** Light Blue stickers — brown text on it is 10:1. */
+    /** Cool Brown ink — 13.9:1 on background, 15.8:1 on cards. */
+    text: '#2A2020',
+    /** Warm off-white page. */
+    background: '#F4EFE9',
+    /** Cards and sheets. */
+    backgroundElement: '#FFFFFF',
+    /** Muted fills: chips, inputs, icon circles, pressed rows. */
+    backgroundSelected: '#EDE6DE',
+    /** Muted ink — 5:1 on background, 4.6:1 on backgroundSelected. */
+    textSecondary: '#705E58',
+    /** Hairline dividers. */
+    border: '#E6DDD3',
+    /** Soft card shadow color. */
+    shadow: 'rgba(42, 32, 32, 0.08)',
+    /** Pill buttons: Cool Brown with white text (14.5:1). */
+    primary: '#342626',
+    onPrimary: '#FFFFFF',
+    /** Bold Red, decorative: big numerals, dots, icons (large-text use only). */
+    brand: '#E8492A',
+    /** Red fill that carries white text at AA (4.7:1) — the main call to action. */
+    brandFill: '#D23F1F',
+    onBrand: '#FFFFFF',
+    /** Red for small text on background/cards (4.6:1 / 5.3:1). */
+    primaryText: '#C6391B',
+    /** Light Blue soft highlight — brown text on it is 11:1. */
     accent: '#BDDDFC',
-    onAccent: '#342626',
-    /** Street-food yellow highlight (points, live) — brown text on it is 9.6:1. */
-    highlight: '#F6CF45',
-    onHighlight: '#342626',
-    /** AA on backgroundElement (>= 4.5:1). */
+    onAccent: '#2A2020',
+    /** AA on cards (>= 4.5:1). */
     success: '#0F6B33',
     danger: '#B3261E',
     warning: '#8A5300',
   },
   dark: {
-    /** Soft Cream ink — 13:1 on background. */
+    /** Soft Cream ink — 16.8:1 on background. */
     text: '#FDF1E2',
-    /** Cool Brown. */
-    background: '#342626',
-    backgroundElement: '#433331',
-    backgroundSelected: '#524039',
-    /** 8:1 on background, 6.7:1 on backgroundElement. */
-    textSecondary: '#D2BFB3',
-    border: '#7C6660',
-    shadow: '#1E1616',
-    primary: '#E8492A',
-    onPrimary: '#FDF1E2',
-    /** 5.6:1 on background, 4.7:1 on backgroundElement. */
+    background: '#161111',
+    backgroundElement: '#231B1B',
+    backgroundSelected: '#302626',
+    /** 8.4:1 on background, 6.6:1 on backgroundSelected. */
+    textSecondary: '#BCAAA3',
+    border: '#3A2E2E',
+    shadow: 'rgba(0, 0, 0, 0)',
+    /** Inverted pill: cream with brown text (14.2:1). */
+    primary: '#FDF1E2',
+    onPrimary: '#2A2020',
+    brand: '#F0553A',
+    brandFill: '#D23F1F',
+    onBrand: '#FFFFFF',
+    /** 6.6:1 on cards. */
     primaryText: '#FF7A5C',
     accent: '#BDDDFC',
-    onAccent: '#342626',
-    highlight: '#F6CF45',
-    onHighlight: '#342626',
-    /** AA on backgroundElement (>= 4.5:1). */
+    onAccent: '#2A2020',
     success: '#6EE7A0',
     danger: '#FF8A80',
     warning: '#F5B24A',
@@ -113,6 +116,14 @@ export const FontFamily = {
   display: 'BarlowCondensed_800ExtraBold',
 } as const;
 
+/** Corner radii: pills everywhere interactive, soft large cards. */
+export const Radius = {
+  small: 12,
+  medium: 16,
+  large: 24,
+  pill: 999,
+} as const;
+
 export const Spacing = {
   half: 2,
   one: 4,
@@ -124,4 +135,6 @@ export const Spacing = {
 } as const;
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
+/** On web the tabs float over the top of the page instead. */
+export const TopTabInset = Platform.select({ web: 64 }) ?? 0;
 export const MaxContentWidth = 800;

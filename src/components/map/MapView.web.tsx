@@ -1,11 +1,19 @@
 import { memo } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/ThemedText';
-import { Spacing } from '@/constants/theme';
+import { Card } from '@/components/ui/Card';
+import Chip from '@/components/ui/Chip';
+import { IconBadge } from '@/components/ui/IconBadge';
+import { Spacing, TopTabInset } from '@/constants/theme';
+import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { formatEventWindow, getStoreStatus } from '@/utils/dateTime';
 import type { MapViewProps } from './MapView';
+
+/** Room for the Map/List and date controls floating above the list. */
+const CONTROLS_CLEARANCE = 128;
 
 /**
  * Web fallback for react-native-maps (no web support): renders the same
@@ -14,61 +22,57 @@ import type { MapViewProps } from './MapView';
  */
 function MapViewWeb({ store, events, onSelectStore, onSelectEvent }: MapViewProps) {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
+  const tabBarInset = useTabBarInset();
   const status = store ? getStoreStatus(store.hours, store.timeZone) : null;
 
   return (
     <ScrollView
       style={[styles.scroll, { backgroundColor: theme.background }]}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[
+        styles.content,
+        { paddingTop: insets.top + TopTabInset + CONTROLS_CLEARANCE, paddingBottom: tabBarInset + Spacing.five },
+      ]}
     >
       <ThemedText type="small" themeColor="textSecondary">
         The interactive map runs in the iOS/Android build — here is the same data as a list.
       </ThemedText>
 
       {store && status ? (
-        <Pressable
+        <Card
           onPress={onSelectStore}
-          accessibilityRole="button"
           accessibilityLabel={`Open details for ${store.name}, ${status.label}`}
-          style={({ pressed }) => [
-            styles.card,
-            { backgroundColor: theme.backgroundElement, borderColor: theme.border, opacity: pressed ? 0.8 : 1 },
-          ]}
+          style={styles.row}
         >
-          <View style={styles.cardHeader}>
+          <IconBadge name="store" tone="primary" size={44} />
+          <View style={styles.texts}>
             <ThemedText type="smallBold">{store.name}</ThemedText>
-            <ThemedText
-              type="small"
-              style={{ color: status.isOpen ? theme.success : theme.textSecondary }}
-            >
-              {status.label}
+            <ThemedText type="small" themeColor="textSecondary">
+              {store.address} · Permanent store
             </ThemedText>
           </View>
-          <ThemedText type="small" themeColor="textSecondary">
-            {store.address} · Permanent store
-          </ThemedText>
-        </Pressable>
+          <Chip label={status.isOpen ? 'Open' : 'Closed'} tone={status.isOpen ? 'success' : 'neutral'} />
+        </Card>
       ) : null}
 
       {events.map((event) => (
-        <Pressable
+        <Card
           key={event.id}
           onPress={() => onSelectEvent(event.id)}
-          accessibilityRole="button"
           accessibilityLabel={`Open details for ${event.title} in ${event.city}`}
-          style={({ pressed }) => [
-            styles.card,
-            { backgroundColor: theme.backgroundElement, borderColor: theme.border, opacity: pressed ? 0.8 : 1 },
-          ]}
+          style={styles.row}
         >
-          <ThemedText type="smallBold">{event.title}</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {formatEventWindow(event.startsAt, event.endsAt, event.timeZone)}
-          </ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {event.venue}, {event.city}
-          </ThemedText>
-        </Pressable>
+          <IconBadge name="food" tone="brand" size={44} />
+          <View style={styles.texts}>
+            <ThemedText type="smallBold">{event.title}</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              {formatEventWindow(event.startsAt, event.endsAt, event.timeZone)}
+            </ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              {event.venue}, {event.city}
+            </ThemedText>
+          </View>
+        </Card>
       ))}
 
       {events.length === 0 ? (
@@ -87,19 +91,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: Spacing.three,
-    gap: Spacing.two,
+    paddingHorizontal: Spacing.three + Spacing.one,
+    gap: Spacing.two + Spacing.one,
   },
-  card: {
-    borderWidth: 2,
-    borderRadius: 12,
-    padding: Spacing.three,
-    gap: Spacing.one,
-  },
-  cardHeader: {
+  row: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: Spacing.two,
+    gap: Spacing.three,
+  },
+  texts: {
+    flex: 1,
+    gap: 2,
   },
 });

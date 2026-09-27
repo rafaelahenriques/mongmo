@@ -1,11 +1,14 @@
 import { useCallback, useMemo, useRef } from 'react';
 import type { Region } from 'react-native-maps';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import MapView, { type MapHandle } from '@/components/map/MapView';
 import RecenterButton from '@/components/map/RecenterButton';
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { Spacing } from '@/constants/theme';
+import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { useLocationStore } from '@/state/locationStore';
 import type { Coordinates, EventFilter, PopUpEvent, Store } from '@/types';
@@ -76,6 +79,7 @@ export default function MapMode({
   onSelectEvent,
 }: MapModeProps) {
   const theme = useTheme();
+  const tabBarInset = useTabBarInset();
   const permission = useLocationStore((state) => state.permission);
   const userCoordinates = useLocationStore((state) => state.coordinates);
   const mapRef = useRef<MapHandle>(null);
@@ -109,7 +113,7 @@ export default function MapMode({
 
       {storeLoading || storeLoadError ? (
         <View style={styles.centerWrap} pointerEvents="box-none">
-          <View style={[styles.centerCard, { backgroundColor: theme.backgroundElement }]}>
+          <Card style={styles.centerCard}>
             {storeLoading ? (
               <>
                 <ActivityIndicator size="small" color={theme.text} />
@@ -125,30 +129,22 @@ export default function MapMode({
                 <ThemedText type="small" themeColor="textSecondary" style={styles.centerText}>
                   Check your connection and try again.
                 </ThemedText>
-                <Pressable
-                  onPress={onRetryStore}
-                  accessibilityRole="button"
+                <Button
+                  label="Retry"
                   accessibilityLabel="Retry loading store data"
-                  style={({ pressed }) => [
-                    styles.retryButton,
-                    { backgroundColor: theme.backgroundSelected, opacity: pressed ? 0.8 : 1 },
-                  ]}
-                >
-                  <ThemedText type="smallBold">Retry</ThemedText>
-                </Pressable>
+                  size="medium"
+                  onPress={onRetryStore}
+                />
               </>
             )}
-          </View>
+          </Card>
         </View>
       ) : null}
 
       {store && eventsEmpty && !eventsError ? (
-        <View style={styles.emptyWrap} pointerEvents="none">
+        <View style={[styles.emptyWrap, { bottom: tabBarInset + 80 }]} pointerEvents="none">
           <View
-            style={[
-              styles.emptyCard,
-              { backgroundColor: theme.backgroundElement, borderColor: theme.border },
-            ]}
+            style={[styles.emptyCard, { backgroundColor: theme.backgroundElement, boxShadow: `0px 8px 24px ${theme.shadow}` }]}
             accessibilityRole="text"
             accessibilityLabel={`${EMPTY_FILTER_COPY[filter]} Tap the Mongmo store pin for hours, capacity and directions.`}
           >
@@ -162,7 +158,7 @@ export default function MapMode({
         </View>
       ) : null}
 
-      <View style={styles.recenterWrap}>
+      <View style={[styles.recenterWrap, { bottom: tabBarInset + Spacing.three }]}>
         <RecenterButton
           enabled={permission === 'granted' && userCoordinates !== null}
           onPress={onRecenter}
@@ -187,7 +183,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
   },
   centerCard: {
-    borderRadius: 16,
     padding: Spacing.four,
     gap: Spacing.two,
     alignItems: 'center',
@@ -199,27 +194,18 @@ const styles = StyleSheet.create({
   centerText: {
     textAlign: 'center',
   },
-  retryButton: {
-    marginTop: Spacing.one,
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
-    borderRadius: 10,
-  },
   emptyWrap: {
     position: 'absolute',
     left: Spacing.three,
     right: Spacing.three,
-    bottom: 88,
   },
   emptyCard: {
-    borderRadius: 16,
-    borderWidth: 2,
+    borderRadius: 24,
     padding: Spacing.three,
     gap: Spacing.one,
   },
   recenterWrap: {
     position: 'absolute',
     right: Spacing.three,
-    bottom: Spacing.three,
   },
 });

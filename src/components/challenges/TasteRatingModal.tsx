@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
-import { Star } from 'lucide-react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
+import { Icon } from '@/components/ui/Icon';
+import { Sheet } from '@/components/ui/Sheet';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/services/haptics';
 
 export type TasteRatingModalProps = {
   visible: boolean;
@@ -21,70 +22,54 @@ export default function TasteRatingModal({ visible, title, pending = false, onSu
   const [rating, setRating] = useState(0);
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
-        <Pressable style={[styles.card, { backgroundColor: theme.background, borderColor: theme.border, boxShadow: `4px 4px 0px ${theme.shadow}` }]} accessibilityViewIsModal>
-          <ThemedText type="section">{title}</ThemedText>
+    <Sheet visible={visible} title={title} subtitle="How was it? Tap to rate." onClose={onClose}>
+      <View style={styles.stars} accessibilityLabel={`Rating: ${rating} of 5 stars`}>
+        {[1, 2, 3, 4, 5].map((value) => {
+          const filled = value <= rating;
+          return (
+            <Pressable
+              key={value}
+              onPress={() => {
+                haptics.select();
+                setRating(value);
+              }}
+              accessibilityRole="button"
+              accessibilityLabel={`${value} star${value === 1 ? '' : 's'}`}
+              accessibilityState={{ selected: filled }}
+              hitSlop={6}
+              style={({ pressed }) => [styles.star, { transform: [{ scale: pressed ? 0.9 : 1 }] }]}
+            >
+              <Icon
+                name={filled ? 'star' : 'starOutline'}
+                size={36}
+                color={filled ? theme.brand : theme.border}
+                weight="regular"
+              />
+            </Pressable>
+          );
+        })}
+      </View>
 
-          <View style={styles.stars} accessibilityRole="adjustable" accessibilityLabel={`Rating: ${rating} of 5 stars`}>
-            {[1, 2, 3, 4, 5].map((value) => (
-              <Pressable
-                key={value}
-                onPress={() => setRating(value)}
-                accessibilityRole="button"
-                accessibilityLabel={`${value} star${value === 1 ? '' : 's'}`}
-                hitSlop={6}
-              >
-                <Star
-                  size={32}
-                  color={theme.border}
-                  fill={value <= rating ? theme.highlight : 'transparent'}
-                />
-              </Pressable>
-            ))}
-          </View>
-
-          <Button
-            label="Submit rating"
-            onPress={() => onSubmit(rating)}
-            loading={pending}
-            disabled={rating === 0}
-            style={styles.button}
-          />
-        </Pressable>
-      </Pressable>
-    </Modal>
+      <Button
+        label="Submit rating"
+        variant="brand"
+        onPress={() => onSubmit(rating)}
+        loading={pending}
+        disabled={rating === 0}
+        haptic="press"
+      />
+    </Sheet>
   );
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: Spacing.four,
-  },
-  card: {
-    width: '100%',
-    maxWidth: 360,
-    borderRadius: 16,
-    borderWidth: 2,
-    padding: Spacing.four,
-    gap: Spacing.three,
-  },
   stars: {
     flexDirection: 'row',
+    justifyContent: 'center',
     gap: Spacing.two,
-    justifyContent: 'center',
+    paddingVertical: Spacing.two,
   },
-  button: {
-    minHeight: 46,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: '#FFFFFF',
+  star: {
+    padding: Spacing.one,
   },
 });

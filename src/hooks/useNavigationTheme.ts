@@ -26,14 +26,15 @@ export function useNavigationTheme() {
         background: colors.background,
         card: colors.background,
         text: colors.text,
-        border: colors.backgroundSelected,
+        border: colors.border,
       },
-      // Header titles use `bold`; the rest keeps text in the brand face too.
+      // Header titles use `bold`: a compact semibold, not the display face,
+      // so the chrome stays quiet next to each screen's big heading.
       fonts: {
         regular: { fontFamily: FontFamily.body, fontWeight: 'normal' as const },
         medium: { fontFamily: FontFamily.bodyMedium, fontWeight: 'normal' as const },
-        bold: { fontFamily: FontFamily.display, fontWeight: 'normal' as const },
-        heavy: { fontFamily: FontFamily.display, fontWeight: 'normal' as const },
+        bold: { fontFamily: FontFamily.bodySemiBold, fontWeight: 'normal' as const },
+        heavy: { fontFamily: FontFamily.bodyBold, fontWeight: 'normal' as const },
       },
     };
   }, [scheme, colors]);

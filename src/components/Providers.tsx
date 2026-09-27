@@ -12,7 +12,9 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { queryClient } from '@/api/queryClient';
 import { PERSIST_BUSTER, PERSIST_MAX_AGE_MS } from '@/constants/config';
 import { useEvents } from '@/hooks/useEvents';
+import { useBadgeUnlockNotifications } from '@/hooks/useBadgeUnlockNotifications';
 import { useGeofencing } from '@/hooks/useGeofencing';
+import { useNearbyAlerts } from '@/hooks/useNearbyAlerts';
 import { useOrderStatusNotifications } from '@/hooks/useOrderStatusNotifications';
 import { useRealtime } from '@/hooks/useRealtime';
 import { useRewardExpiryNotifications } from '@/hooks/useRewardExpiryNotifications';
@@ -75,6 +77,8 @@ function AppServices({ children }: PropsWithChildren) {
   // filter currently selected on the map.
   const { data: allEvents } = useEvents('all');
   useGeofencing(allEvents);
+  useNearbyAlerts(allEvents);
+  useBadgeUnlockNotifications();
 
   useEffect(() => {
     configureNotifications();

@@ -1,16 +1,25 @@
 import { useLocalSearchParams } from 'expo-router';
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
-import { Spacing } from '@/constants/theme';
+import { Card } from '@/components/ui/Card';
+import { Icon, type IconName } from '@/components/ui/Icon';
+import { IconBadge } from '@/components/ui/IconBadge';
+import { ScreenScroll, SectionHeader } from '@/components/ui/Screen';
+import { Radius, Spacing } from '@/constants/theme';
 import { useOrder } from '@/hooks/useOrder';
 import { useTheme } from '@/hooks/useTheme';
 import { formatCents, ORDER_STATUS_LABEL, pickupCode } from '@/utils/orderFormat';
 import type { OrderStatus } from '@/types/database';
 
-const STEPS: OrderStatus[] = ['paid', 'preparing', 'ready', 'collected'];
+const STEPS: { status: OrderStatus; icon: IconName; caption: string }[] = [
+  { status: 'paid', icon: 'receipt', caption: 'We’ve got your order' },
+  { status: 'preparing', icon: 'flame', caption: 'On the grill' },
+  { status: 'ready', icon: 'takeout', caption: 'Come and get it' },
+  { status: 'collected', icon: 'check', caption: 'Enjoy!' },
+];
 
-/** Live order status: pickup code, a simple progress timeline, and the line items. */
+/** Live order status: pickup code, a progress timeline, and the line items. */
 export default function OrderStatusScreen() {
   const theme = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -28,123 +37,167 @@ export default function OrderStatusScreen() {
   if (!order.data) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <ThemedText type="smallBold">Order not found</ThemedText>
+        <IconBadge name="alert" size={48} />
+        <ThemedText type="section">Order not found</ThemedText>
       </View>
     );
   }
 
-  const currentStepIndex = STEPS.indexOf(order.data.status);
+  const currentStepIndex = STEPS.findIndex((step) => step.status === order.data.status);
   const cancelled = order.data.status === 'cancelled';
+  const code = pickupCode(order.data.id);
 
   return (
-    <ScrollView
-      style={[styles.scroll, { backgroundColor: theme.background }]}
-      contentContainerStyle={styles.content}
-    >
-      <View style={[styles.codeBox, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}>
-        <ThemedText type="small" themeColor="textSecondary">
+    <ScreenScroll>
+      <Card tone="primary" style={styles.codeCard}>
+        <ThemedText type="label" style={{ color: theme.onPrimary, opacity: 0.75 }}>
           Pickup code
         </ThemedText>
-        <ThemedText type="title" style={styles.code}>
-          {pickupCode(order.data.id)}
+        <ThemedText
+          type="display"
+          style={[styles.code, { color: theme.onPrimary }]}
+          accessibilityLabel={`Pickup code ${code.split('').join(' ')}`}
+        >
+          {code}
         </ThemedText>
-      </View>
+        <ThemedText type="smallBold" style={{ color: theme.onPrimary }}>
+          {ORDER_STATUS_LABEL[order.data.status]}
+        </ThemedText>
+      </Card>
 
       {cancelled ? (
-        <ThemedText type="smallBold" themeColor="danger">
-          This order was cancelled.
-        </ThemedText>
+        <Card tone="muted" style={styles.cancelled}>
+          <Icon name="alert" size={20} color={theme.danger} />
+          <ThemedText type="smallBold" themeColor="danger">
+            This order was cancelled.
+          </ThemedText>
+        </Card>
       ) : (
-        <View style={styles.timeline}>
+        <Card style={styles.timeline}>
           {STEPS.map((step, index) => {
             const reached = currentStepIndex >= index;
+            const current = currentStepIndex === index;
+            const last = index === STEPS.length - 1;
             return (
-              <View key={step} style={styles.timelineRow}>
-                <View
-                  style={[
-                    styles.dot,
-                    { backgroundColor: reached ? theme.success : theme.backgroundSelected },
-                  ]}
-                />
-                <ThemedText
-                  type={reached ? 'smallBold' : 'small'}
-                  themeColor={reached ? undefined : 'textSecondary'}
-                >
-                  {ORDER_STATUS_LABEL[step]}
-                </ThemedText>
+              <View key={step.status} style={styles.step}>
+                <View style={styles.rail}>
+                  <View
+                    style={[
+                      styles.node,
+                      { backgroundColor: reached ? (current ? theme.brandFill : theme.primary) : theme.backgroundSelected },
+                    ]}
+                  >
+                    <Icon
+                      name={step.icon}
+                      size={15}
+                      color={reached ? (current ? theme.onBrand : theme.onPrimary) : theme.textSecondary}
+                    />
+                  </View>
+                  {!last ? (
+                    <View
+                      style={[
+                        styles.line,
+                        { backgroundColor: currentStepIndex > index ? theme.primary : theme.backgroundSelected },
+                      ]}
+                    />
+                  ) : null}
+                </View>
+                <View style={styles.stepTexts}>
+                  <ThemedText type="smallBold" themeColor={reached ? undefined : 'textSecondary'}>
+                    {ORDER_STATUS_LABEL[step.status]}
+                  </ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {step.caption}
+                  </ThemedText>
+                </View>
               </View>
             );
           })}
-        </View>
+        </Card>
       )}
 
-      <ThemedText type="section" style={styles.sectionTitle}>
-        Items
-      </ThemedText>
-      {(items.data ?? []).map((item) => (
-        <View key={item.id} style={styles.row}>
-          <ThemedText type="small">
-            {item.quantity}× {item.name_snapshot}
-          </ThemedText>
-          <ThemedText type="small">{formatCents(item.line_total_cents)}</ThemedText>
+      <SectionHeader title="Items" />
+      <Card style={styles.receipt}>
+        {(items.data ?? []).map((item) => (
+          <View key={item.id} style={styles.row}>
+            <ThemedText type="small" style={styles.rowName}>
+              <ThemedText type="smallBold">{item.quantity}×</ThemedText> {item.name_snapshot}
+            </ThemedText>
+            <ThemedText type="small">{formatCents(item.line_total_cents)}</ThemedText>
+          </View>
+        ))}
+        <View style={[styles.divider, { backgroundColor: theme.border }]} />
+        <View style={styles.row}>
+          <ThemedText type="smallBold">Total</ThemedText>
+          <ThemedText type="section">{formatCents(order.data.total_cents)}</ThemedText>
         </View>
-      ))}
-
-      <View style={[styles.row, styles.totalRow, { borderColor: theme.border }]}>
-        <ThemedText type="smallBold">Total</ThemedText>
-        <ThemedText type="smallBold">{formatCents(order.data.total_cents)}</ThemedText>
-      </View>
-    </ScrollView>
+      </Card>
+    </ScreenScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-  },
-  content: {
-    padding: Spacing.three,
-    gap: Spacing.three,
-  },
   state: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  codeBox: {
-    borderRadius: 16,
-    borderWidth: 2,
-    padding: Spacing.three,
-    alignItems: 'center',
-    gap: Spacing.half,
-  },
-  code: {
-    fontSize: 30,
-    letterSpacing: 4,
-  },
-  timeline: {
     gap: Spacing.two,
   },
-  timelineRow: {
+  codeCard: {
+    alignItems: 'center',
+    paddingVertical: Spacing.four,
+  },
+  code: {
+    letterSpacing: 8,
+  },
+  cancelled: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,
   },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+  timeline: {
+    gap: 0,
   },
-  sectionTitle: {
-    marginTop: Spacing.two,
+  step: {
+    flexDirection: 'row',
+    gap: Spacing.three,
+  },
+  rail: {
+    alignItems: 'center',
+    width: 32,
+  },
+  node: {
+    width: 32,
+    height: 32,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  line: {
+    width: 2,
+    flex: 1,
+    minHeight: 16,
+    marginVertical: 2,
+  },
+  stepTexts: {
+    flex: 1,
+    gap: 2,
+    paddingBottom: Spacing.three,
+    paddingTop: 5,
+  },
+  receipt: {
+    gap: Spacing.two + Spacing.one,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: Spacing.two,
   },
-  totalRow: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    paddingTop: Spacing.two,
-    marginTop: Spacing.one,
+  rowName: {
+    flex: 1,
+  },
+  divider: {
+    height: StyleSheet.hairlineWidth,
   },
 });

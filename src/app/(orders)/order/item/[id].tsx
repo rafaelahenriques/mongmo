@@ -1,14 +1,17 @@
 import { useMemo, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import { Minus, Plus } from 'lucide-react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { IconBadge } from '@/components/ui/IconBadge';
+import { ScreenFooter } from '@/components/ui/ScreenFooter';
+import { Stepper } from '@/components/ui/Stepper';
 import { Spacing } from '@/constants/theme';
 import { useMenu } from '@/hooks/useMenu';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/services/haptics';
 import { useCartStore } from '@/state/cartStore';
 import { formatCents } from '@/utils/orderFormat';
 
@@ -21,10 +24,7 @@ export default function OrderItemScreen() {
   const menuQuery = useMenu(location);
   const [quantity, setQuantity] = useState(1);
 
-  const item = useMemo(
-    () => menuQuery.data?.find((row) => row.id === id),
-    [menuQuery.data, id],
-  );
+  const item = useMemo(() => menuQuery.data?.find((row) => row.id === id), [menuQuery.data, id]);
 
   if (menuQuery.isPending) {
     return (
@@ -37,7 +37,8 @@ export default function OrderItemScreen() {
   if (!item) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <ThemedText type="smallBold">Item not found</ThemedText>
+        <IconBadge name="alert" size={48} />
+        <ThemedText type="section">Item not found</ThemedText>
       </View>
     );
   }
@@ -47,52 +48,40 @@ export default function OrderItemScreen() {
     for (let index = 0; index < quantity; index += 1) {
       addOnce({ menuItemId: item.id, name: item.name, priceCents: item.priceCents });
     }
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => undefined);
+    haptics.success();
     router.back();
   };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <ThemedText type="title" style={styles.title}>
-        {item.name}
-      </ThemedText>
-      {item.description ? (
-        <ThemedText type="small" themeColor="textSecondary">
-          {item.description}
-        </ThemedText>
-      ) : null}
-      <ThemedText type="section" themeColor="primaryText">
-        {formatCents(item.priceCents)}
-      </ThemedText>
+      <ScrollView contentContainerStyle={styles.content}>
+        <IconBadge name={location?.type === 'store' ? 'coffee' : 'food'} tone="accent" size={72} />
+        <ThemedText type="title">{item.name}</ThemedText>
+        {item.description ? <ThemedText themeColor="textSecondary">{item.description}</ThemedText> : null}
 
-      <View style={styles.stepper}>
-        <Pressable
-          onPress={() => setQuantity((current) => Math.max(1, current - 1))}
-          accessibilityRole="button"
-          accessibilityLabel="Decrease quantity"
-          style={[styles.stepButton, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
-        >
-          <Minus size={18} color={theme.text} />
-        </Pressable>
-        <ThemedText type="subtitle" style={styles.quantity}>
-          {quantity}
-        </ThemedText>
-        <Pressable
-          onPress={() => setQuantity((current) => current + 1)}
-          accessibilityRole="button"
-          accessibilityLabel="Increase quantity"
-          style={[styles.stepButton, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
-        >
-          <Plus size={18} color={theme.text} />
-        </Pressable>
-      </View>
+        <Card style={styles.quantityCard}>
+          <View style={styles.quantityTexts}>
+            <ThemedText type="small" themeColor="textSecondary">
+              Price
+            </ThemedText>
+            <ThemedText type="subtitle" style={{ color: theme.brand }}>
+              {formatCents(item.priceCents)}
+            </ThemedText>
+          </View>
+          <Stepper value={quantity} onChange={setQuantity} size="large" />
+        </Card>
+      </ScrollView>
 
-      <Button
-        label={`Add to cart · ${formatCents(item.priceCents * quantity)}`}
-        accessibilityLabel={`Add ${quantity} ${item.name} to cart, ${formatCents(item.priceCents * quantity)}`}
-        onPress={onAdd}
-        style={styles.addButton}
-      />
+      <ScreenFooter>
+        <Button
+          label={`Add to cart · ${formatCents(item.priceCents * quantity)}`}
+          accessibilityLabel={`Add ${quantity} ${item.name} to cart, ${formatCents(item.priceCents * quantity)}`}
+          variant="brand"
+          icon="add"
+          haptic="none"
+          onPress={onAdd}
+        />
+      </ScreenFooter>
     </View>
   );
 }
@@ -100,37 +89,24 @@ export default function OrderItemScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: Spacing.three,
-    gap: Spacing.two,
+  },
+  content: {
+    padding: Spacing.three + Spacing.one,
+    gap: Spacing.three,
   },
   state: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: Spacing.two,
   },
-  title: {
-    fontSize: 36,
-    lineHeight: 38,
-  },
-  stepper: {
+  quantityCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.three,
-    marginTop: Spacing.three,
+    justifyContent: 'space-between',
+    marginTop: Spacing.two,
   },
-  stepButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  quantity: {
-    minWidth: 28,
-    textAlign: 'center',
-  },
-  addButton: {
-    marginTop: Spacing.four,
+  quantityTexts: {
+    gap: 2,
   },
 });
