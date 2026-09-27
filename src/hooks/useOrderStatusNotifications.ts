@@ -29,6 +29,9 @@ export function useOrderStatusNotifications(): void {
 
     let cancelled = false;
     let channel: ReturnType<typeof supabase.channel> | undefined;
+    // Realtime can deliver the same status again (another column changing);
+    // alert once per order per status.
+    const notified = new Map<string, OrderStatus>();
 
     (async () => {
       const userId = await getCurrentUserId().catch(() => undefined);
@@ -42,6 +45,8 @@ export function useOrderStatusNotifications(): void {
           (payload) => {
             const { new: next, old: previous } = payload as unknown as OrderChangePayload;
             if (!NOTIFY_ON.has(next.status) || next.status === previous.status) return;
+            if (notified.get(next.id) === next.status) return;
+            notified.set(next.id, next.status);
 
             Notifications.scheduleNotificationAsync({
               content: {
