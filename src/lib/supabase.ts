@@ -4,14 +4,31 @@ import { createClient } from '@supabase/supabase-js';
 
 import type { Database } from '@/types/database';
 
-const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
-const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
+// Trimmed defensively: a stray trailing newline or copy-pasted quotes around
+// the value in .env is a common way to end up with a non-empty but invalid
+// URL, which otherwise surfaces as supabase-js's generic "Invalid supabaseUrl"
+// with no hint of *why* the value it read was invalid.
+function readEnvVar(name: string): string {
+  return (process.env[name] ?? '').trim().replace(/^['"]|['"]$/g, '');
+}
+
+const SUPABASE_URL = readEnvVar('EXPO_PUBLIC_SUPABASE_URL');
+const SUPABASE_ANON_KEY = readEnvVar('EXPO_PUBLIC_SUPABASE_ANON_KEY');
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   throw new Error(
     'Missing EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_ANON_KEY. Copy .env.example to ' +
       '.env, point it at a project with the migrations in supabase/migrations applied, and ' +
-      'restart the dev server.',
+      'restart the dev server (env changes need `npx expo start -c` to take effect).',
+  );
+}
+
+if (!/^https?:\/\//i.test(SUPABASE_URL)) {
+  throw new Error(
+    `EXPO_PUBLIC_SUPABASE_URL is set to "${SUPABASE_URL}", which isn't a full http(s) URL. ` +
+      'Use the Project URL from Supabase dashboard → Project Settings → API ' +
+      '(e.g. https://abcdefghij.supabase.co), not just the project ref, ' +
+      'then restart the dev server with `npx expo start -c`.',
   );
 }
 
