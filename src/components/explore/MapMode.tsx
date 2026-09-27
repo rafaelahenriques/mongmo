@@ -1,21 +1,12 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useCallback, useMemo, useRef } from 'react';
 import type { Region } from 'react-native-maps';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
-import FilterBar from '@/components/map/FilterBar';
 import MapView, { type MapHandle } from '@/components/map/MapView';
-import OfflineBanner from '@/components/map/OfflineBanner';
 import RecenterButton from '@/components/map/RecenterButton';
-import StoreSheet from '@/components/map/StoreSheet';
 import { ThemedText } from '@/components/ThemedText';
 import { Spacing } from '@/constants/theme';
-import { useEvents } from '@/hooks/useEvents';
-import { useStore } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
-import { useUiTour } from '@/hooks/useUiTour';
-import { useBusyStore } from '@/state/busyStore';
-import { useFilterStore } from '@/state/filterStore';
 import { useLocationStore } from '@/state/locationStore';
 import type { Coordinates, EventFilter, PopUpEvent, Store } from '@/types';
 
@@ -58,43 +49,38 @@ function computeInitialRegion(store: Store | null, events: PopUpEvent[]): Region
   };
 }
 
-/**
- * Map tab: full-screen map with the permanent store pin (brown), live event
- * pins (red, filtered), the user's location dot, a date filter bar, recenter
- * control, and every edge state (loading, error, empty, offline, denied).
- */
-export default function MapScreen() {
-  const theme = useTheme();
-  const router = useRouter();
+export type MapModeProps = {
+  store: Store | null;
+  storeLoading: boolean;
+  storeLoadError: boolean;
+  onRetryStore: () => void;
+  events: PopUpEvent[];
+  filter: EventFilter;
+  eventsEmpty: boolean;
+  eventsError: boolean;
+  onSelectStore: () => void;
+  onSelectEvent: (eventId: string) => void;
+};
 
-  const storeQuery = useStore();
-  const filter = useFilterStore((state) => state.filter);
-  const setFilter = useFilterStore((state) => state.setFilter);
-  const eventsQuery = useEvents(filter);
+/** Full-screen native map: store pin, event pins, user location dot, recenter. */
+export default function MapMode({
+  store,
+  storeLoading,
+  storeLoadError,
+  onRetryStore,
+  events,
+  filter,
+  eventsEmpty,
+  eventsError,
+  onSelectStore,
+  onSelectEvent,
+}: MapModeProps) {
+  const theme = useTheme();
   const permission = useLocationStore((state) => state.permission);
   const userCoordinates = useLocationStore((state) => state.coordinates);
-  const realtimeStatus = useBusyStore((state) => state.status);
-
-  const store = storeQuery.data ?? null;
-  const events = useMemo(() => eventsQuery.data ?? [], [eventsQuery.data]);
-
-  const [sheetVisible, setSheetVisible] = useState(false);
   const mapRef = useRef<MapHandle>(null);
 
-  const initialRegion = useMemo(
-    () => computeInitialRegion(store, events),
-    [store, events],
-  );
-
-  const onSelectStore = useCallback(() => setSheetVisible(true), []);
-  const onCloseSheet = useCallback(() => setSheetVisible(false), []);
-
-  const onSelectEvent = useCallback(
-    (eventId: string) => {
-      router.push({ pathname: '/(index)/event/[id]', params: { id: eventId } });
-    },
-    [router],
-  );
+  const initialRegion = useMemo(() => computeInitialRegion(store, events), [store, events]);
 
   const onRecenter = useCallback(() => {
     if (!userCoordinates) return;
@@ -109,19 +95,6 @@ export default function MapScreen() {
     );
   }, [userCoordinates]);
 
-  // No-op unless EXPO_PUBLIC_UI_TOUR=1 (headless screenshot walkthrough).
-  useUiTour({
-    events,
-    openSheet: onSelectStore,
-    closeSheet: onCloseSheet,
-    setFilter,
-  });
-
-  const storeLoading = storeQuery.isPending && !store;
-  const storeLoadError = storeQuery.isError && !store;
-  const eventsEmpty = eventsQuery.data !== undefined && events.length === 0;
-  const eventsError = eventsQuery.isError;
-
   return (
     <View style={styles.container}>
       <MapView
@@ -134,53 +107,14 @@ export default function MapScreen() {
         onSelectEvent={onSelectEvent}
       />
 
-      <View style={styles.overlayTop} pointerEvents="box-none">
-        <OfflineBanner />
-        <FilterBar
-          value={filter}
-          onChange={setFilter}
-          live={realtimeStatus === 'live'}
-        />
-        {eventsError ? (
-          <View
-            style={[
-              styles.errorStrip,
-              { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
-            ]}
-            accessibilityRole="alert"
-          >
-            <ThemedText type="small" themeColor="textSecondary" style={styles.stripText}>
-              Couldn&apos;t load events.
-            </ThemedText>
-            <Pressable
-              onPress={() => eventsQuery.refetch()}
-              accessibilityRole="button"
-              accessibilityLabel="Retry loading events"
-              hitSlop={8}
-            >
-              <ThemedText type="smallBold" style={{ color: theme.danger }}>
-                Retry
-              </ThemedText>
-            </Pressable>
-          </View>
-        ) : null}
-      </View>
-
       {storeLoading || storeLoadError ? (
         <View style={styles.centerWrap} pointerEvents="box-none">
-          <View
-            style={[
-              styles.centerCard,
-              { backgroundColor: theme.backgroundElement },
-            ]}
-          >
+          <View style={[styles.centerCard, { backgroundColor: theme.backgroundElement }]}>
             {storeLoading ? (
               <>
                 <ActivityIndicator size="small" color={theme.text} />
                 <ThemedText type="small" themeColor="textSecondary" style={styles.centerText}>
-                  {storeQuery.fetchStatus === 'paused'
-                    ? 'Waiting for connection…'
-                    : 'Loading map data…'}
+                  Loading map data…
                 </ThemedText>
               </>
             ) : (
@@ -192,7 +126,7 @@ export default function MapScreen() {
                   Check your connection and try again.
                 </ThemedText>
                 <Pressable
-                  onPress={() => storeQuery.refetch()}
+                  onPress={onRetryStore}
                   accessibilityRole="button"
                   accessibilityLabel="Retry loading store data"
                   style={({ pressed }) => [
@@ -234,8 +168,6 @@ export default function MapScreen() {
           onPress={onRecenter}
         />
       </View>
-
-      <StoreSheet visible={sheetVisible} store={store} onClose={onCloseSheet} />
     </View>
   );
 }
@@ -243,26 +175,6 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  overlayTop: {
-    position: 'absolute',
-    top: Spacing.three,
-    left: Spacing.three,
-    right: Spacing.three,
-    gap: Spacing.two,
-  },
-  errorStrip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Spacing.two,
-    borderRadius: 10,
-    borderWidth: StyleSheet.hairlineWidth,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-  },
-  stripText: {
-    flexShrink: 1,
   },
   centerWrap: {
     position: 'absolute',

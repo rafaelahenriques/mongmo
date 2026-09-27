@@ -1,11 +1,13 @@
 import type { ReactNode } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
-import { ExternalLink, MapPin, Navigation, Phone, X } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { MapPin, Navigation, Phone, ShoppingBag, X } from 'lucide-react-native';
 
 import CapacityMeter from '@/components/events/CapacityMeter';
 import { ThemedText } from '@/components/ThemedText';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { useCartStore } from '@/state/cartStore';
 import {
   WEEKDAY_LABELS,
   WEEKDAY_ORDER,
@@ -53,6 +55,7 @@ function ActionRow({ label, hint, icon, onPress }: ActionRowProps) {
  */
 export default function StoreSheetContent({ store, busy, onClose }: StoreSheetContentProps) {
   const theme = useTheme();
+  const router = useRouter();
   const status = getStoreStatus(store.hours, store.timeZone);
   const today = getCurrentWeekday(store.timeZone);
 
@@ -63,7 +66,9 @@ export default function StoreSheetContent({ store, busy, onClose }: StoreSheetCo
     ).catch(() => undefined);
   };
   const openOrder = (): void => {
-    Linking.openURL(store.orderUrl).catch(() => undefined);
+    useCartStore.getState().setLocation({ type: 'store', storeId: store.id });
+    onClose();
+    router.push('/(orders)/order/menu');
   };
   const callStore = (): void => {
     Linking.openURL(`tel:${store.phone.replace(/\s+/g, '')}`).catch(() => undefined);
@@ -159,9 +164,9 @@ export default function StoreSheetContent({ store, busy, onClose }: StoreSheetCo
           onPress={openDirections}
         />
         <ActionRow
-          label="Order online"
-          hint="opens the Mongmo webshop"
-          icon={<ExternalLink size={18} color={theme.text} />}
+          label="Order"
+          hint="pickup at Mongmo café"
+          icon={<ShoppingBag size={18} color={theme.text} />}
           onPress={openOrder}
         />
         <ActionRow

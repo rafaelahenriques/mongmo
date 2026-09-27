@@ -56,7 +56,7 @@ TaskManager.defineTask<GeofenceTaskData>(GEOFENCE_TASK_NAME, async ({ data, erro
     content: {
       title: `${meta.title} is nearby`,
       body: `You're within 500 m of the pop-up in ${meta.city}. Tap to see details.`,
-      data: { url: `/(index)/event/${meta.id}` },
+      data: { url: `/(explore)/event/${meta.id}` },
       sound: true,
     },
     trigger: null,

@@ -24,6 +24,7 @@ interface UiTourControls {
   openSheet: () => void;
   closeSheet: () => void;
   setFilter: (filter: EventFilter) => void;
+  setMode: (mode: 'map' | 'list') => void;
 }
 
 /**
@@ -100,13 +101,13 @@ export function useUiTour(controls: UiTourControls): void {
           setTimeout(step('week', () => controlsRef.current.setFilter('week')), 20_000),
           setTimeout(step('all', () => controlsRef.current.setFilter('all')), 25_000),
           setTimeout(step('today', () => controlsRef.current.setFilter('today')), 29_000),
-          setTimeout(step('list', () => routerRef.current.push('/(popups)')), 34_000),
+          setTimeout(step('list', () => controlsRef.current.setMode('list')), 34_000),
           setTimeout(
             step('detail', () => {
               const first = controlsRef.current.events[0];
               if (first) {
                 routerRef.current.push({
-                  pathname: '/(popups)/event/[id]',
+                  pathname: '/(explore)/event/[id]',
                   params: { id: first.id },
                 });
               }
