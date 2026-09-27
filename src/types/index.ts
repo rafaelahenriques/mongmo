@@ -155,6 +155,7 @@ export type Reward = {
   costPoints: number;
   /** Flat discount an order can apply, when this reward is a discount (not a free item). */
   discountCents: number | null;
+  expiresAt: string | null;
 };
 
 /**
