@@ -7,7 +7,9 @@ import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { haptics } from '@/services/haptics';
-import { hasNativeFeature, UPDATE_APP_MESSAGE } from '@/services/nativeModules';
+import { checkMotion, requestMotionAccess, watchMotion, type MotionSubscription } from '@/services/motion';
+import { UPDATE_APP_MESSAGE } from '@/services/nativeModules';
+import { addDanceReading, DANCE_START } from '@/utils/danceMeter';
 
 export type DanceMeterProps = {
   visible: boolean;
@@ -18,9 +20,10 @@ export type DanceMeterProps = {
   onClose: () => void;
 };
 
-/** Acceleration (gravity removed) that counts as dancing, in m/s². */
-const MOVING = 2.2;
 const SAMPLE_MS = 100;
+/** No reading this long after starting means there's no sensor to read. */
+const SILENCE_MS = 3000;
+const NO_SENSOR = 'This device has no motion sensor — try it on your phone.';
 
 /** Always on dark: it's a dance floor, whatever the app's theme. */
 const INK = '#FFFFFF';
@@ -46,52 +49,61 @@ function DanceSession({ visible, title, seconds, onDone, onClose }: DanceMeterPr
   const [unavailableReason, setUnavailableReason] = useState('');
   const [activeMs, setActiveMs] = useState(0);
   const [energy, setEnergy] = useState(0);
-  const subscription = useRef<{ remove: () => void } | null>(null);
+  const subscription = useRef<MotionSubscription | null>(null);
+  const silence = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closed = useRef(false);
   const targetMs = seconds * 1000;
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      if (!hasNativeFeature('motion')) {
-        setUnavailableReason(UPDATE_APP_MESSAGE);
-        setStatus('unavailable');
+    closed.current = false;
+    checkMotion().then((availability) => {
+      if (closed.current) return;
+      if (availability === 'available') {
+        setStatus('ready');
         return;
       }
-      const { DeviceMotion } = await import('expo-sensors');
-      const available = await DeviceMotion.isAvailableAsync().catch(() => false);
-      if (cancelled) return;
-      if (!available) setUnavailableReason('This device has no motion sensor — try it on your phone.');
-      setStatus(available ? 'ready' : 'unavailable');
-    })();
+      setUnavailableReason(availability === 'needs-update' ? UPDATE_APP_MESSAGE : NO_SENSOR);
+      setStatus('unavailable');
+    });
     return () => {
-      cancelled = true;
+      closed.current = true;
       subscription.current?.remove();
+      if (silence.current) clearTimeout(silence.current);
     };
   }, []);
 
   const start = async () => {
-    const { DeviceMotion } = await import('expo-sensors');
-    const permission = await DeviceMotion.requestPermissionsAsync().catch(() => null);
-    if (permission && !permission.granted) {
-      setUnavailableReason('Motion access is off for Mongmo — allow it in Settings to dance.');
+    // First, while still inside the tap: Safari only asks from one.
+    if (!(await requestMotionAccess())) {
+      setUnavailableReason('Motion access is off — allow it in your browser settings to dance.');
       setStatus('unavailable');
       return;
     }
     haptics.press();
     setStatus('dancing');
 
-    let total = 0;
+    let danced = DANCE_START;
     let smoothed = 0;
-    DeviceMotion.setUpdateInterval(SAMPLE_MS);
-    subscription.current = DeviceMotion.addListener(({ acceleration, interval }) => {
-      if (!acceleration) return;
-      const force = Math.hypot(acceleration.x, acceleration.y, acceleration.z);
+    let gaveUp = false;
+    silence.current = setTimeout(() => {
+      gaveUp = true;
+      subscription.current?.remove();
+      subscription.current = null;
+      setUnavailableReason(NO_SENSOR);
+      setStatus('unavailable');
+    }, SILENCE_MS);
+    const watching = await watchMotion((force) => {
+      if (silence.current) {
+        clearTimeout(silence.current);
+        silence.current = null;
+      }
       smoothed = smoothed * 0.75 + Math.min(1, force / 8) * 0.25;
       setEnergy(smoothed);
-      if (force < MOVING) return;
 
-      const before = total;
-      total += interval || SAMPLE_MS;
+      const before = danced.activeMs;
+      danced = addDanceReading(danced, force, Date.now());
+      const total = danced.activeMs;
+      if (total === before) return;
       // A little tick every five seconds of dancing.
       if (Math.floor(total / 5000) > Math.floor(before / 5000)) haptics.select();
       setActiveMs(Math.min(total, targetMs));
@@ -101,7 +113,9 @@ function DanceSession({ visible, title, seconds, onDone, onClose }: DanceMeterPr
         haptics.success();
         setStatus('done');
       }
-    });
+    }, SAMPLE_MS);
+    if (closed.current || gaveUp) watching.remove();
+    else subscription.current = watching;
   };
 
   const shown = Math.floor(activeMs / 1000);

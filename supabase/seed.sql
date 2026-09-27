@@ -154,10 +154,10 @@ where id in (
 on conflict do nothing;
 
 -- Every pop-up gets its own themed challenges, and every one has a photo
--- challenge. The live brunch (e3) has one of every type but motion; the
--- DJ night (e4) has the dance meter. The configs are the per-type
--- settings the server validates and normalizes on save
--- (0012_challenge_settings.sql). Re-running refreshes them.
+-- challenge. The live brunch (e3) has one of every type, a short dance
+-- to the records included; the DJ night (e4) has the long one. The
+-- configs are the per-type settings the server validates and normalizes
+-- on save (0012_challenge_settings.sql). Re-running refreshes them.
 insert into public.challenges (id, event_id, type, title, description, points, sort_order, config) values
   ('00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000e3', 'check_in', 'Scan in at Bar Amorse', 'Scan the event QR code when you arrive.', 20, 1, '{}'::jsonb),
   ('00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000e3', 'taste', 'Rate the bánh mì', 'Tell us what you thought after you eat.', 15, 2, '{"dish": "bánh mì"}'::jsonb),
@@ -168,6 +168,7 @@ insert into public.challenges (id, event_id, type, title, description, points, s
   ('00000000-0000-0000-0000-0000000000c7', '00000000-0000-0000-0000-0000000000e3', 'collection', 'Taste trail', 'Order three different things from the menu today.', 30, 7, '{"dishCount": 3}'::jsonb),
   ('00000000-0000-0000-0000-0000000000c8', '00000000-0000-0000-0000-0000000000e3', 'streak', 'Regular face', 'Check in at three Mongmo pop-ups — this one counts.', 40, 8, '{"popupCount": 3}'::jsonb),
   ('00000000-0000-0000-0000-0000000000c9', '00000000-0000-0000-0000-0000000000e3', 'explore', 'Stick around', 'Explore the street around the pop-up while you’re here.', 15, 9, '{"radiusM": 300}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001d6', '00000000-0000-0000-0000-0000000000e3', 'motion', 'Vinyl shuffle', 'The records are spinning — dance with your phone in hand.', 20, 11, '{"seconds": 20}'::jsonb),
   ('00000000-0000-0000-0000-0000000000cb', '00000000-0000-0000-0000-0000000000e2', 'capture', 'Lantern hunter', 'Photograph the lanterns strung over Chinatown.', 20, 1, '{"photoCount": 1, "prompt": "the lanterns over Chinatown"}'::jsonb),
   ('00000000-0000-0000-0000-0000000000cc', '00000000-0000-0000-0000-0000000000e2', 'taste', 'First taste', 'Be the first to rate the bakery stand’s bánh mì.', 15, 2, '{"dish": "bánh mì from the bakery stand"}'::jsonb),
   ('00000000-0000-0000-0000-0000000001d1', '00000000-0000-0000-0000-0000000000e4', 'motion', 'Dance meter', 'Get on the floor — the meter fills while you move.', 30, 1, '{"seconds": 30}'::jsonb),
