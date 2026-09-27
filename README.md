@@ -9,6 +9,32 @@ offline demo mode. Before running it, follow [`supabase/README.md`](supabase/REA
 to apply the schema and set `EXPO_PUBLIC_SUPABASE_URL` /
 `EXPO_PUBLIC_SUPABASE_ANON_KEY` in `.env` (copy `.env.example`).
 
+## This app does not run in Expo Go
+
+Background geofencing (`expo-task-manager`) and the camera (`expo-camera`,
+for QR check-in and challenge photos) are native modules Expo Go doesn't
+ship — opening the project in the plain Expo Go app will crash with
+`Cannot find native module 'ExpoCamera'` (or similar) the moment any screen
+imports one. You need a **development build** instead:
+
+```bash
+# Local build (needs Xcode for iOS / Android Studio for Android installed):
+npx expo run:ios       # or: npx expo run:android
+
+# Cloud build (no local native toolchain required — needs an Expo account):
+npm install -g eas-cli
+eas login
+eas build --profile development --platform ios      # or android, or "all"
+# For an iOS *simulator* build specifically (no paid Apple Developer account needed):
+eas build --profile development-simulator --platform ios
+```
+
+Install the resulting build once, then go back to your normal
+`npx expo start` — just open it from the dev-client app you installed
+instead of Expo Go. Any time a new native dependency is added (as
+happened here), the dev client needs rebuilding again; a plain JS/Metro
+reload can't add native code to an already-installed app.
+
 ## Get started
 
 1. Install dependencies
