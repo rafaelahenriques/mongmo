@@ -13,11 +13,13 @@ export function usePlaceOrder() {
       location,
       items,
       pickupAt,
+      userRewardId = null,
     }: {
       location: CartLocation;
       items: { menuItemId: string; quantity: number }[];
       pickupAt: string | null;
-    }) => placeOrder(location, items, pickupAt),
+      userRewardId?: string | null;
+    }) => placeOrder(location, items, pickupAt, userRewardId),
     onSuccess: () => {
       useCartStore.getState().clear();
       queryClient.invalidateQueries({ queryKey: ['orders'] });
@@ -25,7 +27,7 @@ export function usePlaceOrder() {
       queryClient.invalidateQueries({ queryKey: ['rewards'] });
       queryClient.invalidateQueries({ queryKey: ['user-rewards'] });
       queryClient.invalidateQueries({ queryKey: ['profile-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['badges', 'earned'] });
+      queryClient.invalidateQueries({ queryKey: ['badges'] });
       queryClient.invalidateQueries({ queryKey: ['points'] });
     },
   });
