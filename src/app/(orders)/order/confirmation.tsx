@@ -1,8 +1,9 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { CheckCircle2 } from 'lucide-react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { pickupCode } from '@/utils/orderFormat';
@@ -23,26 +24,26 @@ export default function OrderConfirmationScreen() {
         We&apos;ll notify you when it&apos;s ready. Show this code at pickup.
       </ThemedText>
 
-      <View style={[styles.codeBox, { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected }]}>
-        <ThemedText type="title" style={styles.code}>
+      <View
+        style={[
+          styles.codeBox,
+          { backgroundColor: theme.highlight, borderColor: theme.border, boxShadow: `4px 4px 0px ${theme.shadow}` },
+        ]}
+      >
+        <ThemedText type="title" style={[styles.code, { color: theme.onHighlight }]}>
           {pickupCode(typeof id === 'string' ? id : '')}
         </ThemedText>
       </View>
 
-      <Pressable
+      <Button
+        label="View order status"
         onPress={() =>
           typeof id === 'string'
             ? router.replace({ pathname: '/(orders)/order/status/[id]', params: { id } })
             : router.replace('/(orders)')
         }
-        accessibilityRole="button"
-        accessibilityLabel="View order status"
-        style={({ pressed }) => [styles.button, { backgroundColor: '#8B4513', opacity: pressed ? 0.9 : 1 }]}
-      >
-        <ThemedText type="smallBold" style={styles.buttonText}>
-          View order status
-        </ThemedText>
-      </Pressable>
+        style={styles.button}
+      />
     </View>
   );
 }
@@ -56,8 +57,7 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   title: {
-    fontSize: 28,
-    lineHeight: 34,
+    textAlign: 'center',
   },
   body: {
     textAlign: 'center',
@@ -66,23 +66,18 @@ const styles = StyleSheet.create({
   codeBox: {
     marginTop: Spacing.three,
     borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
+    transform: [{ rotate: '-2deg' }],
     paddingHorizontal: Spacing.five,
     paddingVertical: Spacing.three,
   },
   code: {
-    fontSize: 34,
-    letterSpacing: 4,
+    fontSize: 48,
+    lineHeight: 52,
+    letterSpacing: 6,
   },
   button: {
     marginTop: Spacing.five,
-    minHeight: 50,
-    paddingHorizontal: Spacing.five,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: '#FFFFFF',
+    alignSelf: 'stretch',
   },
 });

@@ -31,11 +31,9 @@ export default function BadgeCard({ definition, earned }: BadgeCardProps) {
       }`}
       style={[
         styles.card,
-        {
-          backgroundColor: theme.backgroundElement,
-          borderColor: theme.backgroundSelected,
-          opacity: earned ? 1 : 0.6,
-        },
+        earned
+          ? { backgroundColor: theme.highlight, borderColor: theme.border, boxShadow: `3px 3px 0px ${theme.shadow}` }
+          : { backgroundColor: theme.backgroundElement, borderColor: theme.border, opacity: 0.6 },
       ]}
     >
       <View style={styles.headRow}>
@@ -46,13 +44,17 @@ export default function BadgeCard({ definition, earned }: BadgeCardProps) {
           </ThemedText>
         ) : null}
       </View>
-      <ThemedText type="smallBold" numberOfLines={1}>
+      <ThemedText type="section" numberOfLines={1} style={[styles.title, earned ? { color: theme.onHighlight } : undefined]}>
         {definition.title}
       </ThemedText>
-      <ThemedText type="small" themeColor="textSecondary" style={styles.description}>
+      <ThemedText
+        type="small"
+        themeColor={earned ? undefined : 'textSecondary'}
+        style={[styles.description, earned ? { color: theme.onHighlight } : undefined]}
+      >
         {definition.description}
       </ThemedText>
-      <ThemedText type="small" themeColor={earned ? 'success' : 'textSecondary'}>
+      <ThemedText type="label" themeColor={earned ? undefined : 'textSecondary'} style={earned ? { color: theme.onHighlight } : undefined}>
         {statusLabel}
       </ThemedText>
     </View>
@@ -60,11 +62,15 @@ export default function BadgeCard({ definition, earned }: BadgeCardProps) {
 }
 
 const styles = StyleSheet.create({
+  title: {
+    fontSize: 18,
+    lineHeight: 22,
+  },
   card: {
     flexGrow: 1,
     flexBasis: '47%',
     borderRadius: 14,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.three,
     gap: Spacing.half,
   },

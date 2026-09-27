@@ -2,9 +2,11 @@ import { useCallback } from 'react';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { Plus } from 'lucide-react-native';
+import { Plus, ShoppingBag } from 'lucide-react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
+import { ScreenFooter } from '@/components/ui/ScreenFooter';
 import { Spacing } from '@/constants/theme';
 import { useMenu } from '@/hooks/useMenu';
 import { useTheme } from '@/hooks/useTheme';
@@ -38,7 +40,7 @@ export default function OrderMenuScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <ScrollView contentContainerStyle={styles.content}>
-        <ThemedText type="smallBold" style={styles.heading}>
+        <ThemedText type="section" style={styles.heading}>
           {location.type === 'store' ? 'Vietnamese coffee and pastries' : `${location.eventTitle} — pop-up menu`}
         </ThemedText>
 
@@ -61,7 +63,12 @@ export default function OrderMenuScreen() {
               accessibilityLabel={`${item.name}, ${formatCents(item.priceCents)}. Open item.`}
               style={({ pressed }) => [
                 styles.row,
-                { borderColor: theme.backgroundSelected, opacity: pressed ? 0.8 : 1 },
+                {
+                  backgroundColor: theme.backgroundElement,
+                  borderColor: theme.border,
+                  boxShadow: pressed ? undefined : `3px 3px 0px ${theme.shadow}`,
+                  transform: pressed ? [{ translateX: 3 }, { translateY: 3 }] : [],
+                },
               ]}
             >
               <View style={styles.rowTexts}>
@@ -71,7 +78,7 @@ export default function OrderMenuScreen() {
                     {item.description}
                   </ThemedText>
                 ) : null}
-                <ThemedText type="small" themeColor="textSecondary">
+                <ThemedText type="smallBold" themeColor="primaryText">
                   {formatCents(item.priceCents)}
                 </ThemedText>
               </View>
@@ -87,9 +94,9 @@ export default function OrderMenuScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={`Add ${item.name} to cart`}
                 hitSlop={8}
-                style={[styles.addButton, { backgroundColor: theme.backgroundSelected }]}
+                style={[styles.addButton, { backgroundColor: theme.primary, borderColor: theme.border }]}
               >
-                <Plus size={18} color={theme.text} />
+                <Plus size={20} color={theme.onPrimary} strokeWidth={3} />
               </Pressable>
             </Pressable>
           ))
@@ -97,16 +104,14 @@ export default function OrderMenuScreen() {
       </ScrollView>
 
       {items.length > 0 ? (
-        <Pressable
-          onPress={() => router.push('/(orders)/order/cart')}
-          accessibilityRole="button"
-          accessibilityLabel={`View cart, ${items.length} item${items.length === 1 ? '' : 's'}, ${formatCents(cartSubtotalCents(items))}`}
-          style={({ pressed }) => [styles.cartBar, { backgroundColor: '#8B4513', opacity: pressed ? 0.9 : 1 }]}
-        >
-          <ThemedText type="smallBold" style={styles.cartBarText}>
-            View cart · {items.length} · {formatCents(cartSubtotalCents(items))}
-          </ThemedText>
-        </Pressable>
+        <ScreenFooter>
+          <Button
+            label={`View cart · ${items.length} · ${formatCents(cartSubtotalCents(items))}`}
+            accessibilityLabel={`View cart, ${items.length} item${items.length === 1 ? '' : 's'}, ${formatCents(cartSubtotalCents(items))}`}
+            icon={<ShoppingBag size={20} color={theme.onPrimary} />}
+            onPress={() => router.push('/(orders)/order/cart')}
+          />
+        </ScreenFooter>
       ) : null}
     </View>
   );
@@ -118,7 +123,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: Spacing.three,
-    paddingBottom: Spacing.six,
     gap: Spacing.two,
   },
   heading: {
@@ -132,31 +136,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.two,
     borderRadius: 14,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.three,
+    marginRight: 3,
+    marginBottom: Spacing.one,
   },
   rowTexts: {
     flex: 1,
     gap: 2,
   },
   addButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  cartBar: {
-    position: 'absolute',
-    left: Spacing.three,
-    right: Spacing.three,
-    bottom: Spacing.three,
-    minHeight: 50,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cartBarText: {
-    color: '#FFFFFF',
   },
 });

@@ -1,34 +1,53 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, SectionList, StyleSheet, View } from 'react-native';
 import { Plus } from 'lucide-react-native';
 
-import Chip from '@/components/ui/Chip';
+import type { OwnerEventSummary } from '@/api/owner';
+import {
+  OWNER_GROUP_LABEL,
+  OWNER_GROUP_TONE,
+  ownerEventGroup,
+  type OwnerEventGroup,
+} from '@/components/owner/ownerEventPhase';
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import Chip from '@/components/ui/Chip';
 import { Spacing } from '@/constants/theme';
 import { useOwnerEvents } from '@/hooks/useOwnerEvents';
 import { useTheme } from '@/hooks/useTheme';
 import { formatEventWindow } from '@/utils/dateTime';
-import type { OwnerEventSummary } from '@/api/owner';
 
-const STATUS_TONE: Record<OwnerEventSummary['status'], 'success' | 'neutral' | 'danger'> = {
-  scheduled: 'neutral',
-  live: 'success',
-  ended: 'neutral',
-  cancelled: 'danger',
-};
+const GROUP_ORDER: OwnerEventGroup[] = ['live', 'upcoming', 'past', 'cancelled'];
 
-/** Owner: every event, tap to manage; a fixed "+" opens the create form. */
+/** Owner: every pop-up, grouped Live now / Upcoming / Past / Cancelled. */
 export default function OwnerEventsScreen() {
   const theme = useTheme();
   const router = useRouter();
   const eventsQuery = useOwnerEvents();
 
+  const sections = useMemo(() => {
+    const now = new Date();
+    const events = eventsQuery.data ?? [];
+    return GROUP_ORDER.map((group) => ({
+      group,
+      title: OWNER_GROUP_LABEL[group],
+      data: events
+        .filter((event) => ownerEventGroup(event, now) === group)
+        // Soonest first for what's ahead; most recent first for what's done.
+        .sort((a, b) =>
+          group === 'live' || group === 'upcoming'
+            ? a.startsAt.localeCompare(b.startsAt)
+            : b.startsAt.localeCompare(a.startsAt),
+        ),
+    })).filter((section) => section.data.length > 0);
+  }, [eventsQuery.data]);
+
   const openEvent = useCallback(
     (id: string) => router.push({ pathname: '/(profile)/owner/event/[id]', params: { id } }),
     [router],
   );
-  const openOrders = useCallback(() => router.push('/(profile)/owner/orders'), [router]);
   const openNew = useCallback(() => router.push('/(profile)/owner/event/new'), [router]);
 
   if (eventsQuery.isPending) {
@@ -40,112 +59,103 @@ export default function OwnerEventsScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Pressable
-        onPress={openOrders}
-        accessibilityRole="button"
-        accessibilityLabel="Manage incoming orders"
-        style={({ pressed }) => [
-          styles.ordersRow,
-          { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected, opacity: pressed ? 0.8 : 1 },
-        ]}
-      >
-        <ThemedText type="smallBold">Manage orders</ThemedText>
-      </Pressable>
+    <SectionList
+      style={{ backgroundColor: theme.background }}
+      contentContainerStyle={styles.content}
+      sections={sections}
+      keyExtractor={(item) => item.id}
+      stickySectionHeadersEnabled={false}
+      ListHeaderComponent={
+        <Button
+          label="Create new pop-up"
+          accessibilityLabel="Create a new pop-up event"
+          icon={<Plus size={20} color={theme.onPrimary} strokeWidth={3} />}
+          onPress={openNew}
+        />
+      }
+      ListEmptyComponent={
+        <ThemedText type="small" themeColor="textSecondary" style={styles.empty}>
+          No pop-ups yet — create your first one above.
+        </ThemedText>
+      }
+      renderSectionHeader={({ section }) => (
+        <ThemedText type="section" style={styles.sectionTitle}>
+          {section.title} · {section.data.length}
+        </ThemedText>
+      )}
+      renderItem={({ item, section }) => (
+        <OwnerEventRow event={item} group={section.group} onPress={() => openEvent(item.id)} />
+      )}
+    />
+  );
+}
 
-      <FlatList
-        data={eventsQuery.data ?? []}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.content}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        ListEmptyComponent={
-          <ThemedText type="small" themeColor="textSecondary" style={styles.empty}>
-            No events yet — tap + to create your first pop-up.
-          </ThemedText>
-        }
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() => openEvent(item.id)}
-            accessibilityRole="button"
-            accessibilityLabel={`${item.title}, ${item.status}`}
-            style={({ pressed }) => [
-              styles.row,
-              { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected, opacity: pressed ? 0.8 : 1 },
-            ]}
-          >
-            <View style={styles.rowTexts}>
-              <ThemedText type="smallBold" numberOfLines={1}>
-                {item.title}
-              </ThemedText>
-              <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
-                {formatEventWindow(item.startsAt, item.endsAt, 'Europe/Brussels')} · {item.venue}, {item.city}
-              </ThemedText>
-            </View>
-            <Chip label={item.status} tone={STATUS_TONE[item.status]} />
-          </Pressable>
-        )}
-      />
-
-      <Pressable
-        onPress={openNew}
-        accessibilityRole="button"
-        accessibilityLabel="Create a new pop-up event"
-        style={[styles.fab, { backgroundColor: '#8B4513' }]}
-      >
-        <Plus size={24} color="#FFFFFF" />
-      </Pressable>
-    </View>
+function OwnerEventRow({
+  event,
+  group,
+  onPress,
+}: {
+  event: OwnerEventSummary;
+  group: OwnerEventGroup;
+  onPress: () => void;
+}) {
+  const muted = group === 'past' || group === 'cancelled';
+  return (
+    <Card
+      onPress={onPress}
+      accessibilityLabel={`${event.title}, ${OWNER_GROUP_LABEL[group]}`}
+      style={[styles.row, muted && styles.muted]}
+    >
+      <View style={styles.rowTexts}>
+        <ThemedText type="section" numberOfLines={1} style={styles.rowTitle}>
+          {event.title}
+        </ThemedText>
+        <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
+          {formatEventWindow(event.startsAt, event.endsAt, event.timeZone)}
+        </ThemedText>
+        <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
+          {event.venue}, {event.city}
+        </ThemedText>
+      </View>
+      <Chip label={OWNER_GROUP_LABEL[group]} tone={OWNER_GROUP_TONE[group]} />
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   state: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  ordersRow: {
-    margin: Spacing.three,
-    marginBottom: 0,
-    borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: Spacing.three,
-    alignItems: 'center',
-  },
   content: {
     padding: Spacing.three,
     paddingBottom: Spacing.six,
+    gap: Spacing.two,
   },
-  separator: {
-    height: Spacing.two,
+  sectionTitle: {
+    marginTop: Spacing.three,
+    marginBottom: Spacing.one,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,
-    borderRadius: 14,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: Spacing.three,
+    marginBottom: Spacing.two,
+  },
+  muted: {
+    opacity: 0.7,
   },
   rowTexts: {
     flex: 1,
     gap: 2,
   },
+  rowTitle: {
+    fontSize: 20,
+    lineHeight: 24,
+  },
   empty: {
     textAlign: 'center',
-    marginTop: Spacing.six,
-  },
-  fab: {
-    position: 'absolute',
-    right: Spacing.three,
-    bottom: Spacing.three,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: Spacing.five,
   },
 });

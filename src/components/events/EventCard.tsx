@@ -1,10 +1,11 @@
 import { memo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import CapacityMeter from '@/components/events/CapacityMeter';
+import { Card } from '@/components/ui/Card';
 import Chip from '@/components/ui/Chip';
 import { ThemedText } from '@/components/ThemedText';
-import { Spacing } from '@/constants/theme';
+import { FontFamily, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useBusyStore } from '@/state/busyStore';
 import { useLocationStore } from '@/state/locationStore';
@@ -50,43 +51,26 @@ function EventCardComponent({ event, onPress }: EventCardProps) {
     'Open details.';
 
   return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      style={({ pressed }) => [
-        styles.card,
-        {
-          backgroundColor: theme.backgroundElement,
-          borderColor: theme.backgroundSelected,
-          opacity: pressed ? 0.8 : 1,
-        },
-      ]}
-    >
+    <Card onPress={onPress} accessibilityLabel={label} style={styles.card}>
       <View style={styles.row}>
-        <View style={[styles.dateBadge, { backgroundColor: theme.backgroundSelected }]}>
-          <ThemedText type="small" style={styles.badgeText}>
+        <View style={[styles.dateBadge, { backgroundColor: theme.primary, borderColor: theme.border }]}>
+          <ThemedText type="label" style={[styles.badgeText, { color: theme.onPrimary }]}>
             {badge.weekday}
           </ThemedText>
-          <ThemedText type="default" style={styles.badgeDay}>
-            {badge.day}
-          </ThemedText>
-          <ThemedText type="small" style={styles.badgeText}>
+          <ThemedText style={[styles.badgeDay, { color: theme.onPrimary }]}>{badge.day}</ThemedText>
+          <ThemedText type="label" style={[styles.badgeText, { color: theme.onPrimary }]}>
             {badge.month}
           </ThemedText>
         </View>
 
         <View style={styles.main}>
           <View style={styles.chips}>
-            <Chip
-              label={PHASE_LABELS[phase]}
-              tone={phase === 'live' ? 'success' : 'neutral'}
-            />
+            <Chip label={PHASE_LABELS[phase]} tone={phase === 'live' ? 'live' : 'neutral'} />
             {isFull ? <Chip label="Full" tone="danger" /> : null}
             {distance !== null ? <Chip label={formatDistance(distance)} /> : null}
           </View>
 
-          <ThemedText type="default" style={styles.title} numberOfLines={2}>
+          <ThemedText type="section" style={styles.title} numberOfLines={2}>
             {event.title}
           </ThemedText>
 
@@ -97,7 +81,7 @@ function EventCardComponent({ event, onPress }: EventCardProps) {
       </View>
 
       <CapacityMeter occupancy={busy.occupancy} capacity={busy.capacity} label="How busy" />
-    </Pressable>
+    </Card>
   );
 }
 
@@ -105,9 +89,6 @@ export default memo(EventCardComponent);
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: Spacing.three,
     gap: Spacing.three,
   },
   row: {
@@ -116,21 +97,21 @@ const styles = StyleSheet.create({
   },
   dateBadge: {
     width: 60,
-    borderRadius: 12,
-    paddingVertical: Spacing.two,
+    borderRadius: 10,
+    borderWidth: 2,
+    paddingVertical: Spacing.one,
     alignItems: 'center',
-    gap: 0,
+    alignSelf: 'flex-start',
+    transform: [{ rotate: '-3deg' }],
   },
   badgeText: {
-    fontSize: 11,
+    fontSize: 12,
     lineHeight: 14,
-    fontWeight: '700',
-    letterSpacing: 0.5,
   },
   badgeDay: {
-    fontSize: 22,
-    lineHeight: 26,
-    fontWeight: '700',
+    fontFamily: FontFamily.display,
+    fontSize: 30,
+    lineHeight: 32,
   },
   main: {
     flex: 1,
@@ -142,9 +123,6 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   title: {
-    fontSize: 17,
-    lineHeight: 22,
-    fontWeight: '700',
     marginTop: Spacing.half,
   },
 });

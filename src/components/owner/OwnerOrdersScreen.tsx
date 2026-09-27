@@ -4,7 +4,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { Spacing } from '@/constants/theme';
 import { useOwnerOrders } from '@/hooks/useOwnerOrders';
 import { useTheme } from '@/hooks/useTheme';
-import { formatCents } from '@/utils/orderFormat';
+import { formatCents, pickupCode } from '@/utils/orderFormat';
 import type { OwnerOrderRow } from '@/api/owner';
 import type { OrderStatus } from '@/types/database';
 
@@ -48,7 +48,7 @@ export default function OwnerOrdersScreen() {
         const nextStatus = NEXT_STATUS[column.status];
         return (
           <View key={column.status} style={styles.column}>
-            <ThemedText type="smallBold">
+            <ThemedText type="section">
               {column.label} · {columnOrders.length}
             </ThemedText>
             {columnOrders.length === 0 ? (
@@ -59,11 +59,27 @@ export default function OwnerOrdersScreen() {
               columnOrders.map((order) => (
                 <View
                   key={order.id}
-                  style={[styles.row, { borderColor: theme.backgroundSelected, backgroundColor: theme.backgroundElement }]}
+                  style={[
+                    styles.row,
+                    {
+                      borderColor: theme.border,
+                      backgroundColor: column.status === 'new' ? theme.highlight : theme.backgroundElement,
+                    },
+                  ]}
                 >
                   <View style={styles.rowTexts}>
-                    <ThemedText type="small">#{order.id.slice(0, 6).toUpperCase()}</ThemedText>
-                    <ThemedText type="small" themeColor="textSecondary">
+                    {/* Same code the customer shows at pickup. */}
+                    <ThemedText
+                      type="subtitle"
+                      style={column.status === 'new' ? { color: theme.onHighlight } : undefined}
+                    >
+                      {pickupCode(order.id)}
+                    </ThemedText>
+                    <ThemedText
+                      type="smallBold"
+                      themeColor={column.status === 'new' ? undefined : 'primaryText'}
+                      style={column.status === 'new' ? { color: theme.onHighlight } : undefined}
+                    >
                       {formatCents(order.total_cents)}
                     </ThemedText>
                   </View>
@@ -72,9 +88,11 @@ export default function OwnerOrdersScreen() {
                       onPress={() => advance({ orderId: order.id, status: nextStatus })}
                       accessibilityRole="button"
                       accessibilityLabel={`Move order to ${nextStatus}`}
-                      style={[styles.advanceButton, { backgroundColor: theme.backgroundSelected }]}
+                      style={[styles.advanceButton, { backgroundColor: theme.accent, borderColor: theme.border }]}
                     >
-                      <ThemedText type="small">→ {nextStatus}</ThemedText>
+                      <ThemedText type="label" style={{ color: theme.onAccent }}>
+                        → {nextStatus}
+                      </ThemedText>
                     </Pressable>
                   ) : null}
                   <Pressable
@@ -83,7 +101,7 @@ export default function OwnerOrdersScreen() {
                     accessibilityLabel="Cancel order"
                     hitSlop={8}
                   >
-                    <ThemedText type="small" themeColor="danger">
+                    <ThemedText type="label" themeColor="danger">
                       Cancel
                     </ThemedText>
                   </Pressable>
@@ -119,16 +137,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.two,
     borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: Spacing.two,
+    borderWidth: 2,
+    padding: Spacing.three,
   },
   rowTexts: {
     flex: 1,
     gap: 2,
   },
   advanceButton: {
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.one,
-    borderRadius: 8,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
+    borderRadius: 10,
+    borderWidth: 2,
   },
 });

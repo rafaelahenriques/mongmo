@@ -87,7 +87,10 @@ export default function ChallengeItem({
   }, [challenge.type, event.coordinates, userCoordinates]);
 
   const onPress = useCallback(async () => {
-    if (done) return;
+    // Also ignore taps while a completion is in flight: the sheet that just
+    // submitted fades out over this row, and a tap landing on it would
+    // reopen the sheet for a challenge that's about to show as done.
+    if (done || pending) return;
 
     if (!checkedIn) {
       Alert.alert('Check in first', 'Check in to this event before completing its challenges.');
@@ -123,7 +126,7 @@ export default function ChallengeItem({
       default:
         setModal('confirm');
     }
-  }, [checkedIn, challenge.type, done, event.title, onComplete]);
+  }, [checkedIn, challenge.type, done, pending, event.title, onComplete]);
 
   const onCapturePhoto = useCallback(
     async (localUri: string) => {
@@ -143,14 +146,14 @@ export default function ChallengeItem({
     <>
       <Pressable
         onPress={onPress}
-        disabled={done}
+        disabled={done || pending}
         accessibilityRole="button"
         accessibilityLabel={`${challenge.title}, ${challenge.points} points, ${done ? 'completed' : 'not completed'}`}
         style={({ pressed }) => [
           styles.row,
           {
             backgroundColor: theme.backgroundElement,
-            borderColor: theme.backgroundSelected,
+            borderColor: theme.border,
             opacity: done ? 0.7 : pressed ? 0.8 : 1,
           },
         ]}
@@ -227,7 +230,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.two,
     borderRadius: 14,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.three,
   },
   iconWrap: {

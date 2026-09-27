@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useCartStore } from '@/state/cartStore';
@@ -43,31 +44,24 @@ export default function OrderPickupTimeScreen() {
             key={option.label}
             onPress={() => setSelected(option)}
             accessibilityRole="radio"
-            accessibilityState={{ selected: isSelected }}
+            accessibilityState={{ checked: isSelected }}
             accessibilityLabel={option.label}
             style={[
               styles.option,
               {
-                borderColor: isSelected ? theme.text : theme.backgroundSelected,
-                backgroundColor: isSelected ? theme.backgroundSelected : theme.backgroundElement,
+                borderColor: theme.border,
+                backgroundColor: isSelected ? theme.highlight : theme.backgroundElement,
               },
             ]}
           >
-            <ThemedText type="smallBold">{option.label}</ThemedText>
+            <ThemedText type="section" style={isSelected ? { color: theme.onHighlight } : undefined}>
+              {option.label}
+            </ThemedText>
           </Pressable>
         );
       })}
 
-      <Pressable
-        onPress={onContinue}
-        accessibilityRole="button"
-        accessibilityLabel="Continue to checkout"
-        style={({ pressed }) => [styles.button, { backgroundColor: '#8B4513', opacity: pressed ? 0.9 : 1 }]}
-      >
-        <ThemedText type="smallBold" style={styles.buttonText}>
-          Continue to checkout
-        </ThemedText>
-      </Pressable>
+      <Button label="Continue to checkout" onPress={onContinue} style={styles.button} />
     </View>
   );
 }
@@ -83,17 +77,10 @@ const styles = StyleSheet.create({
   },
   option: {
     borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.three,
   },
   button: {
     marginTop: Spacing.four,
-    minHeight: 50,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: '#FFFFFF',
   },
 });

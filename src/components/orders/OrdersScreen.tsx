@@ -4,6 +4,8 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'reac
 import { ArrowRight, ShoppingBag } from 'lucide-react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { Spacing } from '@/constants/theme';
 import { useMyOrders } from '@/hooks/useMyOrders';
 import { useTheme } from '@/hooks/useTheme';
@@ -11,7 +13,6 @@ import { useCartStore, cartSubtotalCents } from '@/state/cartStore';
 import { formatCents, ORDER_STATUS_LABEL } from '@/utils/orderFormat';
 import type { OrderStatus } from '@/types/database';
 
-const STORE_BROWN = '#8B4513';
 const ACTIVE_STATUSES: OrderStatus[] = ['paid', 'preparing', 'ready'];
 
 /**
@@ -42,62 +43,54 @@ export default function OrdersScreen() {
       contentContainerStyle={styles.content}
     >
       {items.length > 0 ? (
-        <Pressable
+        <Card
+          tone="highlight"
           onPress={resumeCart}
-          accessibilityRole="button"
           accessibilityLabel={`Resume cart, ${items.length} item${items.length === 1 ? '' : 's'}, ${formatCents(cartSubtotalCents(items))}`}
-          style={({ pressed }) => [
-            styles.card,
-            { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected, opacity: pressed ? 0.85 : 1 },
-          ]}
+          style={styles.row}
         >
-          <ShoppingBag size={20} color={theme.text} />
+          <ShoppingBag size={22} color={theme.onHighlight} />
           <View style={styles.cardTexts}>
-            <ThemedText type="smallBold">
+            <ThemedText type="section" style={{ color: theme.onHighlight }}>
               Cart · {items.length} item{items.length === 1 ? '' : 's'}
             </ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
+            <ThemedText type="small" style={{ color: theme.onHighlight }}>
               {location?.type === 'event' ? location.eventTitle : 'Mongmo café'} ·{' '}
               {formatCents(cartSubtotalCents(items))}
             </ThemedText>
           </View>
-          <ArrowRight size={18} color={theme.textSecondary} />
-        </Pressable>
+          <ArrowRight size={20} color={theme.onHighlight} />
+        </Card>
       ) : null}
 
       {activeOrders.map((order) => (
-        <Pressable
+        <Card
           key={order.id}
+          tone="accent"
           onPress={() => openStatus(order.id)}
-          accessibilityRole="button"
           accessibilityLabel={`Order ${ORDER_STATUS_LABEL[order.status]}, ${formatCents(order.total_cents)}`}
-          style={({ pressed }) => [
-            styles.card,
-            { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected, opacity: pressed ? 0.85 : 1 },
-          ]}
+          style={styles.row}
         >
           <View style={styles.cardTexts}>
-            <ThemedText type="smallBold">{ORDER_STATUS_LABEL[order.status]}</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
+            <ThemedText type="section" style={{ color: theme.onAccent }}>
+              {ORDER_STATUS_LABEL[order.status]}
+            </ThemedText>
+            <ThemedText type="small" style={{ color: theme.onAccent }}>
               {formatCents(order.total_cents)} · tap for pickup code
             </ThemedText>
           </View>
-          <ArrowRight size={18} color={theme.textSecondary} />
-        </Pressable>
+          <ArrowRight size={20} color={theme.onAccent} />
+        </Card>
       ))}
 
-      <Pressable
-        onPress={startOrder}
-        accessibilityRole="button"
+      <Button
+        label="Start an order"
         accessibilityLabel="Start a new order"
-        style={({ pressed }) => [styles.startButton, { backgroundColor: STORE_BROWN, opacity: pressed ? 0.9 : 1 }]}
-      >
-        <ThemedText type="smallBold" style={styles.startText}>
-          Start an order
-        </ThemedText>
-      </Pressable>
+        icon={<ShoppingBag size={20} color={theme.onPrimary} />}
+        onPress={startOrder}
+      />
 
-      <ThemedText type="smallBold" style={styles.sectionTitle}>
+      <ThemedText type="section" style={styles.sectionTitle}>
         Order history
       </ThemedText>
 
@@ -116,7 +109,7 @@ export default function OrdersScreen() {
             accessibilityLabel={`Past order, ${ORDER_STATUS_LABEL[order.status]}, ${formatCents(order.total_cents)}`}
             style={({ pressed }) => [
               styles.historyRow,
-              { borderColor: theme.backgroundSelected, opacity: pressed ? 0.7 : 1 },
+              { borderColor: theme.border, opacity: pressed ? 0.7 : 1 },
             ]}
           >
             <View style={styles.cardTexts}>
@@ -125,7 +118,9 @@ export default function OrdersScreen() {
                 {ORDER_STATUS_LABEL[order.status]}
               </ThemedText>
             </View>
-            <ThemedText type="smallBold">{formatCents(order.total_cents)}</ThemedText>
+            <ThemedText type="smallBold" themeColor="primaryText">
+              {formatCents(order.total_cents)}
+            </ThemedText>
           </Pressable>
         ))
       )}
@@ -142,26 +137,14 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.six,
     gap: Spacing.three,
   },
-  card: {
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.three,
-    borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: Spacing.three,
   },
   cardTexts: {
     flex: 1,
     gap: 2,
-  },
-  startButton: {
-    minHeight: 48,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  startText: {
-    color: '#FFFFFF',
   },
   sectionTitle: {
     marginTop: Spacing.two,

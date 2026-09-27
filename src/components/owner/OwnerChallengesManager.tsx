@@ -3,6 +3,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react
 import { Trash2 } from 'lucide-react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
 import { Spacing } from '@/constants/theme';
 import { useOwnerChallenges } from '@/hooks/useOwnerChallenges';
 import { useTheme } from '@/hooks/useTheme';
@@ -56,7 +57,7 @@ export default function OwnerChallengesManager({ eventId }: OwnerChallengesManag
       {challenges.map((challenge) => (
         <View
           key={challenge.id}
-          style={[styles.row, { borderColor: theme.backgroundSelected, backgroundColor: theme.backgroundElement }]}
+          style={[styles.row, { borderColor: theme.border, backgroundColor: theme.backgroundElement }]}
         >
           <View style={styles.rowTexts}>
             <ThemedText type="smallBold">
@@ -77,7 +78,7 @@ export default function OwnerChallengesManager({ eventId }: OwnerChallengesManag
         </View>
       ))}
 
-      <ThemedText type="smallBold" style={styles.addTitle}>
+      <ThemedText type="label" style={styles.addTitle}>
         Add a challenge
       </ThemedText>
 
@@ -88,16 +89,16 @@ export default function OwnerChallengesManager({ eventId }: OwnerChallengesManag
             <Pressable
               key={option}
               onPress={() => setType(option)}
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
-              accessibilityLabel={option}
+              accessibilityRole="radio"
+              accessibilityState={{ checked: selected }}
+              accessibilityLabel={option.replace('_', ' ')}
               style={[
                 styles.typeChip,
-                { backgroundColor: selected ? theme.text : theme.backgroundElement },
+                { backgroundColor: selected ? theme.highlight : theme.backgroundElement, borderColor: theme.border },
               ]}
             >
-              <ThemedText type="small" style={{ color: selected ? theme.background : theme.text }}>
-                {option}
+              <ThemedText type="label" style={{ color: selected ? theme.onHighlight : theme.text }}>
+                {option.replace('_', ' ')}
               </ThemedText>
             </Pressable>
           );
@@ -110,7 +111,7 @@ export default function OwnerChallengesManager({ eventId }: OwnerChallengesManag
         placeholder="Title"
         placeholderTextColor={theme.textSecondary}
         accessibilityLabel="Challenge title"
-        style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected }]}
+        style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
       />
       <TextInput
         value={description}
@@ -118,7 +119,7 @@ export default function OwnerChallengesManager({ eventId }: OwnerChallengesManag
         placeholder="Description"
         placeholderTextColor={theme.textSecondary}
         accessibilityLabel="Challenge description"
-        style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected }]}
+        style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
       />
       <TextInput
         value={points}
@@ -127,17 +128,10 @@ export default function OwnerChallengesManager({ eventId }: OwnerChallengesManag
         keyboardType="numeric"
         placeholderTextColor={theme.textSecondary}
         accessibilityLabel="Challenge points"
-        style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected }]}
+        style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
       />
 
-      <Pressable
-        onPress={onAdd}
-        accessibilityRole="button"
-        accessibilityLabel="Add challenge"
-        style={({ pressed }) => [styles.addButton, { backgroundColor: theme.backgroundSelected, opacity: pressed ? 0.8 : 1 }]}
-      >
-        <ThemedText type="smallBold">Add challenge</ThemedText>
-      </Pressable>
+      <Button label="Add challenge" variant="secondary" onPress={onAdd} />
     </View>
   );
 }
@@ -151,7 +145,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.two,
     borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.two,
   },
   rowTexts: {
@@ -165,21 +159,16 @@ const styles = StyleSheet.create({
     flexGrow: 0,
   },
   typeChip: {
-    paddingHorizontal: Spacing.two,
+    paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.one,
     borderRadius: 999,
+    borderWidth: 2,
     marginRight: Spacing.one,
   },
   input: {
     minHeight: 42,
     borderRadius: 10,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     paddingHorizontal: Spacing.three,
-  },
-  addButton: {
-    minHeight: 44,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

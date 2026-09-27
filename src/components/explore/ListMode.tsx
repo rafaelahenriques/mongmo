@@ -45,7 +45,7 @@ function StoreRow({ store, onPress }: { store: Store; onPress: () => void }) {
         styles.storeCard,
         {
           backgroundColor: theme.backgroundElement,
-          borderColor: theme.backgroundSelected,
+          borderColor: theme.border,
           opacity: pressed ? 0.8 : 1,
         },
       ]}
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
   },
   storeCard: {
     borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.three,
     gap: Spacing.one,
     marginBottom: Spacing.three,
