@@ -22,7 +22,7 @@ export default function OrderLocationScreen() {
   const eventsWithMenu = useEventsWithMenu();
 
   const eventOptions = useMemo(
-    () => (eventsQuery.data ?? []).filter((event) => eventsWithMenu.data?.has(event.id)),
+    () => (eventsQuery.data ?? []).filter((event) => eventsWithMenu.data?.includes(event.id)),
     [eventsQuery.data, eventsWithMenu.data],
   );
 
