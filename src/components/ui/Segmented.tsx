@@ -10,17 +10,24 @@ export type SegmentOption<T extends string> = {
   value: T;
   label: string;
   icon?: IconName;
+  /** Shown large above the label, e.g. how many orders are in that column. */
+  count?: number;
   /** Defaults to `label`. */
   accessibilityLabel?: string;
 };
 
-/** Pill segmented control: the selected option is a solid Cool Brown pill. */
+/**
+ * Pill segmented control: the selected option is a solid Cool Brown pill.
+ * `fill` shares the full width equally between the options, so four of
+ * them fit a small phone.
+ */
 export function Segmented<T extends string>({
   options,
   value,
   onChange,
   accessibilityLabel,
   surface = 'muted',
+  fill = false,
   style,
 }: {
   options: SegmentOption<T>[];
@@ -29,6 +36,7 @@ export function Segmented<T extends string>({
   accessibilityLabel: string;
   /** `floating` is a white track with a shadow, for controls over a map. */
   surface?: 'muted' | 'floating';
+  fill?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
   const theme = useTheme();
@@ -36,6 +44,7 @@ export function Segmented<T extends string>({
     <View
       style={[
         styles.track,
+        fill && styles.trackFill,
         surface === 'floating'
           ? { backgroundColor: theme.backgroundElement, boxShadow: `0px 6px 18px ${theme.shadow}` }
           : { backgroundColor: theme.backgroundSelected },
@@ -58,10 +67,26 @@ export function Segmented<T extends string>({
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             accessibilityLabel={option.accessibilityLabel ?? option.label}
-            style={[styles.option, selected && { backgroundColor: theme.primary }]}
+            style={[
+              styles.option,
+              fill && styles.optionFill,
+              option.count !== undefined && styles.optionStacked,
+              selected && { backgroundColor: theme.primary },
+            ]}
           >
             {option.icon ? <Icon name={option.icon} size={14} color={color} /> : null}
-            <ThemedText type="smallBold" style={{ color }}>
+            {option.count !== undefined ? (
+              <ThemedText type="section" style={{ color }}>
+                {option.count}
+              </ThemedText>
+            ) : null}
+            <ThemedText
+              type={option.count !== undefined ? 'small' : 'smallBold'}
+              numberOfLines={1}
+              adjustsFontSizeToFit={fill}
+              minimumFontScale={0.8}
+              style={{ color }}
+            >
               {option.label}
             </ThemedText>
           </Pressable>
@@ -79,6 +104,9 @@ const styles = StyleSheet.create({
     gap: 4,
     alignSelf: 'flex-start',
   },
+  trackFill: {
+    alignSelf: 'stretch',
+  },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -86,5 +114,16 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
     paddingHorizontal: Spacing.three,
     minHeight: 36,
+  },
+  optionFill: {
+    flex: 1,
+    minWidth: 0,
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.one,
+  },
+  optionStacked: {
+    flexDirection: 'column',
+    gap: 0,
+    paddingVertical: Spacing.one + 2,
   },
 });
