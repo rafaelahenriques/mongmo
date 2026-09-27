@@ -109,12 +109,13 @@ one has to be set directly, with the **service_role** key (Supabase dashboard
 never ship the service key in the app):
 
 ```sql
-update public.profiles set role = 'owner' where id = '<your auth.users id>';
+update public.profiles set role = 'owner'
+where id = (select id from auth.users where email = 'you@example.com');
 ```
 
-Find your own id via Supabase dashboard → Authentication → Users, or
-`select id from auth.users where email = '...'`. Once you're an owner, the
-Profile tab shows an "Owner tools" card, and you can promote others from
+Then **log out and sign back in** in the app (Profile → Log out): the app
+caches your profile, so it won't notice the new role until it refetches.
+Once you're an owner, the Profile tab shows an "Owner tools" card, and you can promote others from
 there too if owner UI for that gets added later (right now, only the schema
 supports it — see `is_owner()` and the `prevent_role_escalation` trigger).
 
