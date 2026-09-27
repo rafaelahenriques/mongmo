@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
-import * as ImagePicker from 'expo-image-picker';
+import type { ImagePickerOptions } from 'expo-image-picker';
 
 import { uploadEventImage } from '@/api/eventImages';
 import { ThemedText } from '@/components/ThemedText';
@@ -10,8 +10,9 @@ import { IconBadge } from '@/components/ui/IconBadge';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
+import { hasNativeFeature, UPDATE_APP_MESSAGE } from '@/services/nativeModules';
 
-const PICKER_OPTIONS: ImagePicker.ImagePickerOptions = {
+const PICKER_OPTIONS: ImagePickerOptions = {
   mediaTypes: ['images'],
   allowsEditing: true,
   aspect: [16, 9],
@@ -27,9 +28,13 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
   const [uploading, setUploading] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
 
+  const available = hasNativeFeature('imagePicker');
+
   const choose = async (source: 'library' | 'camera') => {
     setProblem(null);
     try {
+      // Loaded on demand: see services/nativeModules.ts.
+      const ImagePicker = await import('expo-image-picker');
       if (source === 'camera') {
         const permission = await ImagePicker.requestCameraPermissionsAsync();
         if (!permission.granted) {
@@ -81,13 +86,19 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
         ) : null}
       </View>
 
+      {!available ? (
+        <ThemedText type="small" themeColor="textSecondary">
+          {UPDATE_APP_MESSAGE}
+        </ThemedText>
+      ) : null}
+
       <View style={styles.actions}>
         <Button
           label={value ? 'Change photo' : 'Choose photo'}
           variant="primary"
           size="medium"
           icon="photo"
-          disabled={uploading}
+          disabled={uploading || !available}
           onPress={() => choose('library')}
           style={styles.flex}
         />
@@ -97,7 +108,7 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
             variant="ghost"
             size="medium"
             icon="camera"
-            disabled={uploading}
+            disabled={uploading || !available}
             onPress={() => choose('camera')}
             style={styles.flex}
           />
