@@ -17,6 +17,10 @@ const BADGE_ICONS: Record<string, IconName> = {
   'event-hopper': 'ticket',
   shutterbug: 'photo',
   'taste-tester': 'star',
+  'night-owl': 'moon',
+  'dance-machine': 'dance',
+  'crowd-voice': 'people',
+  'early-bird': 'sunrise',
   'challenge-champion': 'medal',
 };
 

@@ -9,9 +9,10 @@
 -- 3. A `motion` challenge type ("dance meter", for DJ nights) with a
 --    `seconds` setting (10–60).
 -- 4. Every pop-up an owner creates starts with a photo challenge.
--- 5. Eight more badges, and badge_progress() as the one place each
+-- 5. Four more badges, and badge_progress() as the one place each
 --    badge's rule lives: evaluate_badges awards from it, and the app shows
---    "3 of 5" progress from my_badge_progress().
+--    "3 of 5" progress from my_badge_progress(). The badges from
+--    0014_more_badges.sql keep exactly the rules they were given there.
 --
 -- Idempotent.
 
@@ -371,16 +372,32 @@ select e.id, 'capture', 'Snap the pop-up', 'Show us your favourite moment here.'
 -- ------------------------------------------------------------------
 -- 5. More badges, and one definition of every badge's rule.
 -- ------------------------------------------------------------------
+-- The ladder from 0014_more_badges.sql (exactly as it defines it) plus
+-- four new badges. Upserted, so the table ends up exactly like this
+-- whatever ran before -- including an earlier draft of this migration
+-- that shipped as a second 0014 with different wording and a
+-- food-critic badge.
 insert into public.badges (key, title, description, points, sort_order) values
-  ('night-owl', 'Night Owl', 'Check in at a pop-up after 21:00', 30, 9),
-  ('city-hopper', 'City Hopper', 'Check in at pop-ups in 2 cities', 60, 10),
-  ('shutterbug', 'Shutterbug', 'Take 5 challenge photos', 50, 11),
-  ('food-critic', 'Food Critic', 'Rate 3 dishes', 40, 12),
-  ('dance-machine', 'Dance Machine', 'Fill a dance meter', 40, 13),
-  ('crowd-voice', 'Voice of the Crowd', 'Vote in 2 polls', 30, 14),
-  ('early-bird', 'Early Bird', 'Beat the clock on a timing challenge', 30, 15),
-  ('challenge-champion', 'Challenge Champion', 'Complete 10 challenges', 100, 16)
-on conflict (key) do nothing;
+  ('city-hopper', 'City Hopper', 'Check in to pop-ups in 2 different cities', 50, 9),
+  ('event-hopper', 'Event Hopper', 'Check in at 3 different pop-ups', 75, 10),
+  ('shutterbug', 'Shutterbug', 'Complete 3 photo challenges', 50, 11),
+  ('taste-tester', 'Taste Tester', 'Complete 2 tasting challenges', 50, 12),
+  ('challenge-champion', 'Challenge Champion', 'Complete 10 challenges', 100, 13),
+  ('night-owl', 'Night Owl', 'Check in at a pop-up after 21:00', 30, 14),
+  ('dance-machine', 'Dance Machine', 'Fill a dance meter', 40, 15),
+  ('crowd-voice', 'Voice of the Crowd', 'Vote in 2 polls', 30, 16),
+  ('early-bird', 'Early Bird', 'Beat the clock on a timing challenge', 30, 17)
+on conflict (key) do update set
+  title = excluded.title,
+  description = excluded.description,
+  points = excluded.points,
+  sort_order = excluded.sort_order;
+
+-- That draft's food-critic has no rule any more; drop it unless someone
+-- already earned it.
+delete from public.badges b
+where b.key = 'food-critic'
+  and not exists (select 1 from public.user_badges ub where ub.badge_id = b.id);
 
 -- Where the user stands on every badge: `current` towards `target`.
 create or replace function public.badge_progress(p_user uuid)
@@ -391,7 +408,7 @@ security definer
 set search_path = public
 as $$
   with checked_in as (
-    select e.city, e.time_zone, ci.checked_in_at
+    select ci.event_id, e.city, e.time_zone, ci.checked_in_at
     from public.check_ins ci
     join public.events e on e.id = ci.event_id
     where ci.user_id = p_user
@@ -411,20 +428,18 @@ as $$
     select
       (select count(*) from checked_in)::integer as check_ins,
       (select count(distinct city) from checked_in)::integer as cities,
+      (select count(distinct event_id) from checked_in)::integer as events,
       (select count(*) from checked_in
         where extract(hour from checked_in_at at time zone time_zone) >= 21
            or extract(hour from checked_in_at at time zone time_zone) < 4)::integer as late_check_ins,
       (select count(*) from completed)::integer as completions,
+      (select count(*) from completed where type in ('capture', 'discovery'))::integer as photo_challenges,
       (select count(*) from completed where type = 'taste')::integer as tastes,
       (select count(*) from completed where type = 'motion')::integer as dances,
       (select count(*) from completed where type = 'community')::integer as votes,
       (select count(*) from completed where type = 'timing')::integer as timed,
       (select count(*) from paid)::integer as orders,
-      (select count(distinct event_id) from paid where event_id is not null)::integer as event_orders,
-      (select count(*)
-        from public.photos p
-        join storage.objects o on o.bucket_id = 'challenge-photos' and o.name = p.storage_path
-        where p.user_id = p_user)::integer as photos
+      (select count(distinct event_id) from paid where event_id is not null)::integer as event_orders
   )
   select rule.key, least(rule.current, rule.target), rule.target
   from stats,
@@ -437,14 +452,15 @@ as $$
     ('first-order', orders, 1),
     ('regular', orders, 3),
     ('event-eater', event_orders, 2),
-    ('night-owl', late_check_ins, 1),
     ('city-hopper', cities, 2),
-    ('shutterbug', photos, 5),
-    ('food-critic', tastes, 3),
+    ('event-hopper', events, 3),
+    ('shutterbug', photo_challenges, 3),
+    ('taste-tester', tastes, 2),
+    ('challenge-champion', completions, 10),
+    ('night-owl', late_check_ins, 1),
     ('dance-machine', dances, 1),
     ('crowd-voice', votes, 2),
-    ('early-bird', timed, 1),
-    ('challenge-champion', completions, 10)
+    ('early-bird', timed, 1)
   ) as rule (key, current, target);
 $$;
 
