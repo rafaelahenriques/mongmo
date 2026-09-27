@@ -62,12 +62,14 @@ export default function OwnerOrdersScreen() {
       <Segmented
         options={(Object.keys(COLUMN_LABEL) as Column[]).map((value) => ({
           value,
-          label: `${COLUMN_LABEL[value]} ${count(value)}`,
+          label: COLUMN_LABEL[value],
+          count: count(value),
+          accessibilityLabel: `${COLUMN_LABEL[value]}: ${count(value)} ${count(value) === 1 ? 'order' : 'orders'}`,
         }))}
         value={column}
         onChange={setColumn}
         accessibilityLabel="Order status"
-        style={styles.segmented}
+        fill
       />
 
       {columnOrders.length === 0 ? (
@@ -128,10 +130,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  segmented: {
-    alignSelf: 'stretch',
-    justifyContent: 'space-between',
   },
   empty: {
     alignItems: 'center',
