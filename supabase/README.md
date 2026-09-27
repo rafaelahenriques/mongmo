@@ -52,6 +52,7 @@ left, per "no hardcoded/mock data."
 | `0011_profile_editing.sql` | Lets people edit their display name, bio and home city (length limits enforced), and narrows their UPDATE grant on `profiles` to the columns they may change. |
 | `0012_challenge_settings.sql` | Per-type challenge settings in `challenges.config` (photo count, time window, vote options, dishes, pop-ups, distance…), normalized on save, and `complete_challenge` enforcing each type's rule: uploaded photos are counted in Storage, votes must be a listed option, timing must be inside its window, and so on. |
 | `0013_event_images.sql` | `event-images` bucket for uploaded pop-up photos (public read, owner-only writes, images up to 5 MB); caps challenge photos at 10 MB. |
+| `0014_more_badges.sql` | Five more badges — city-hopper, event-hopper, shutterbug, taste-tester, challenge-champion — and the extended `evaluate_badges()` that awards them (distinct check-in cities/events, photo/taste challenge completions, 10 challenges total). |
 
 ### Points ledger, not a running total
 

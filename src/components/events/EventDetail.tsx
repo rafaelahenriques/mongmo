@@ -98,6 +98,9 @@ export default function EventDetail({ eventId }: EventDetailProps) {
 
   const onPressCheckIn = useCallback(() => {
     if (!event || checkedIn) return;
+    // Only live pop-ups take check-ins (the server enforces the window too);
+    // the button is disabled outside it, this is a second line of defence.
+    if (getEventPhase(event.startsAt, event.endsAt) !== 'live') return;
     // Friendly client-side heads-up before even opening the camera — the
     // server (verify_check_in) is still the one that actually enforces this.
     if (userCoordinates && distanceInMeters(userCoordinates, event.coordinates) > GEOFENCE_RADIUS_M) {
@@ -198,17 +201,26 @@ export default function EventDetail({ eventId }: EventDetailProps) {
         <CapacityMeter occupancy={busy.occupancy} capacity={busy.capacity} label="How busy right now" />
       </Card>
 
-      <View style={styles.actions}>
-        <Button
-          label={checkedIn ? 'Checked in' : 'Check in'}
-          icon={checkedIn ? 'checkCircle' : 'scan'}
-          variant={checkedIn ? 'secondary' : 'brand'}
-          onPress={onPressCheckIn}
-          disabled={checkedIn}
-          haptic="press"
-          style={styles.action}
-        />
-        <Button label="Order" icon="bag" variant="primary" onPress={openOrder} style={styles.action} />
+      <View style={styles.checkInBlock}>
+        <View style={styles.actions}>
+          <Button
+            label={checkedIn ? 'Checked in' : 'Check in'}
+            icon={checkedIn ? 'checkCircle' : 'scan'}
+            variant={checkedIn ? 'secondary' : 'brand'}
+            onPress={onPressCheckIn}
+            disabled={checkedIn || phase !== 'live'}
+            haptic="press"
+            style={styles.action}
+          />
+          <Button label="Order" icon="bag" variant="primary" onPress={openOrder} style={styles.action} />
+        </View>
+        {phase !== 'live' && !checkedIn ? (
+          <ThemedText type="small" themeColor="textSecondary">
+            {phase === 'upcoming'
+              ? 'Check-ins open when the pop-up goes live.'
+              : 'This pop-up has ended — check-ins are closed.'}
+          </ThemedText>
+        ) : null}
       </View>
 
       {event.menu.length > 0 ? (
@@ -336,6 +348,9 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: StyleSheet.hairlineWidth,
+  },
+  checkInBlock: {
+    gap: Spacing.two + 1,
   },
   actions: {
     flexDirection: 'row',
