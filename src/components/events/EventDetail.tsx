@@ -1,6 +1,5 @@
 import { useCallback, type ReactNode } from 'react';
 import {
-  AccessibilityInfo,
   ActivityIndicator,
   Linking,
   Pressable,
@@ -18,9 +17,9 @@ import { ThemedText } from '@/components/ThemedText';
 import { ApiError } from '@/api/errors';
 import { EVENTS_PAGE_URL } from '@/constants/config';
 import { Spacing } from '@/constants/theme';
+import { useCheckIn } from '@/hooks/useCheckIn';
 import { useEvent } from '@/hooks/useEvent';
 import { useTheme } from '@/hooks/useTheme';
-import { useActivityStore } from '@/state/activityStore';
 import { useBusyStore } from '@/state/busyStore';
 import { useLocationStore } from '@/state/locationStore';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
@@ -88,32 +87,11 @@ export default function EventDetail({ eventId }: EventDetailProps) {
   const event = query.data;
   const busyFromStore = useBusyStore((state) => (event ? state.busy[event.id] : undefined));
   const userCoordinates = useLocationStore((state) => state.coordinates);
-  const addCheckIn = useActivityStore((state) => state.addCheckIn);
-  const recordShare = useActivityStore((state) => state.recordShare);
-  const checkedIn = useActivityStore((state) =>
-    state.checkIns.some((checkIn) => checkIn.eventId === eventId),
-  );
-
-  const onCheckIn = useCallback(() => {
-    if (!event || checkedIn) return;
-    const added = addCheckIn({
-      eventId: event.id,
-      title: event.title,
-      city: event.city,
-      imageUrl: event.imageUrl,
-      startsAt: event.startsAt,
-      checkedInAt: new Date().toISOString(),
-    });
-    if (added) {
-      AccessibilityInfo.announceForAccessibility(
-        `Checked in for ${event.title}. Points and badges updated.`,
-      );
-    }
-  }, [event, checkedIn, addCheckIn]);
+  const checkIn = useCheckIn(eventId);
+  const checkedIn = Boolean(checkIn.data);
 
   const onShare = useCallback(async () => {
     if (!event) return;
-    recordShare(event.id);
     try {
       await Share.share({
         title: event.title,
@@ -126,7 +104,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
     } catch {
       // Share sheet dismissed or unavailable — nothing to do.
     }
-  }, [event, recordShare]);
+  }, [event]);
 
   const openOrder = useCallback(() => {
     if (!event) return;
@@ -263,11 +241,11 @@ export default function EventDetail({ eventId }: EventDetailProps) {
 
       <View style={styles.actions}>
         <ActionButton
-          label={checkedIn ? 'Checked in' : 'Check in'}
+          label={checkedIn ? 'Checked in' : 'Check in (scan QR at the venue)'}
           icon={<Check size={18} color="#FFFFFF" />}
-          onPress={onCheckIn}
+          onPress={() => undefined}
           variant="primary"
-          disabled={checkedIn}
+          disabled
         />
         <ActionButton
           label="Order online"

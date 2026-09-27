@@ -8,6 +8,9 @@ export type StoreStatus = {
   label: string;
 };
 
+/** Reference timezone for account/badge dates shown on the Profile tab. */
+export const DISPLAY_TIME_ZONE = 'Europe/Brussels';
+
 export type EventPhase = 'upcoming' | 'live' | 'ended';
 
 export const WEEKDAY_ORDER: Weekday[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];

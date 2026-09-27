@@ -1,13 +1,17 @@
 import { useEffect } from 'react';
 
-import { createBusySocket } from '@/realtime/socket';
+import { supabase } from '@/lib/supabase';
 import type { RealtimeStatus } from '@/realtime/types';
 import { useBusyStore } from '@/state/busyStore';
 
+type OccupancyRow = { id: string; occupancy: number };
+
 /**
- * Subscribes to the busy-count websocket for the lifetime of the app (called
- * once from Providers). Updates land in `useBusyStore`, which pins, sheets
- * and cards read through fine-grained selectors — no manual refresh anywhere.
+ * Subscribes to live "how busy" numbers for the lifetime of the app (called
+ * once from Providers): Supabase Realtime pushes a postgres_changes event
+ * whenever a store or event's `occupancy` column changes. Updates land in
+ * `useBusyStore`, which pins, sheets and cards read through fine-grained
+ * selectors — no manual refresh anywhere.
  */
 export function useRealtime(): RealtimeStatus {
   const status = useBusyStore((state) => state.status);
@@ -15,13 +19,27 @@ export function useRealtime(): RealtimeStatus {
   const setStatus = useBusyStore((state) => state.setStatus);
 
   useEffect(() => {
-    const socket = createBusySocket();
-    socket.on('connect', () => setStatus('live'));
-    socket.on('disconnect', () => setStatus('connecting'));
-    socket.on('connect_error', () => setStatus('connecting'));
-    socket.on('busy:update', (update) => setOccupancy(update.id, update.occupancy));
+    const onUpdate = (row: OccupancyRow) => setOccupancy(row.id, row.occupancy);
 
-    return () => socket.disconnect();
+    const channel = supabase
+      .channel('busy-counts')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'stores' },
+        (payload) => onUpdate(payload.new as OccupancyRow),
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'events' },
+        (payload) => onUpdate(payload.new as OccupancyRow),
+      )
+      .subscribe((channelStatus) => {
+        setStatus(channelStatus === 'SUBSCRIBED' ? 'live' : 'connecting');
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [setOccupancy, setStatus]);
 
   return status;

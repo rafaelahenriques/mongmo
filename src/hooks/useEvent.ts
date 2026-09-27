@@ -9,7 +9,7 @@ import { useBusyStore } from '@/state/busyStore';
 export function useEvent(id: string) {
   const query = useQuery({
     queryKey: ['event', id],
-    queryFn: ({ signal }) => getEvent(id, signal),
+    queryFn: () => getEvent(id),
     enabled: id.length > 0,
     staleTime: 60_000,
     retry: (failureCount, error) =>

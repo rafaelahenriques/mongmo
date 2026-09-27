@@ -8,7 +8,7 @@ import { useBusyStore } from '@/state/busyStore';
 export function useStore() {
   const query = useQuery({
     queryKey: ['store'],
-    queryFn: ({ signal }) => getStore(signal),
+    queryFn: () => getStore(),
   });
 
   // Seed the live-busy overlay whenever fresh API data lands.
