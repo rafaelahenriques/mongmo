@@ -64,7 +64,7 @@ export default function OrderCartScreen() {
                 <Stepper
                   value={item.quantity}
                   onChange={(quantity) => setQuantity(item.menuItemId, quantity)}
-                  itemName={item.name}
+                  label={`${item.name} quantity`}
                 />
                 <IconButton
                   icon="trash"
