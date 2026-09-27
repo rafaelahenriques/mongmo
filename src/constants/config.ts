@@ -1,23 +1,4 @@
-/**
- * App-wide configuration read from public env vars.
- *
- * When `EXPO_PUBLIC_API_URL` / `EXPO_PUBLIC_SOCKET_URL` are unset the app
- * runs against the bundled mock transport — no code changes required to flip
- * to a real server later.
- */
-
-/** Base URL of the Mongmo API. Empty string = use the local mock transport. */
-export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? '';
-
-/** Socket.IO endpoint for live busy counts. Empty = use the mock socket. */
-export const SOCKET_URL = process.env.EXPO_PUBLIC_SOCKET_URL ?? '';
-
-/** Demo scenario understood by the mock API (edge-case screenshots, QA). */
-export type MockScenario = 'normal' | 'empty' | 'closed' | 'full';
-
-const scenario = process.env.EXPO_PUBLIC_MOCK_SCENARIO ?? 'normal';
-export const MOCK_SCENARIO: MockScenario =
-  scenario === 'empty' || scenario === 'closed' || scenario === 'full' ? scenario : 'normal';
+/** App-wide configuration read from public env vars. */
 
 /** Radius (meters) of the geofence registered around every pop-up. */
 export const GEOFENCE_RADIUS_M = 500;
