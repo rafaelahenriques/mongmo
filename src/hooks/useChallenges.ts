@@ -26,12 +26,15 @@ export function useChallenges(eventId: string) {
   const complete = useMutation({
     mutationFn: ({ challengeId, data }: { challengeId: string; data?: Record<string, unknown> }) =>
       completeChallenge(challengeId, data),
+    // Returning the completions refetch keeps the mutation pending until the
+    // challenge actually shows as done, so there's no gap where it can be
+    // started again.
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['challenge-completions'] });
       queryClient.invalidateQueries({ queryKey: ['badges', 'earned'] });
       queryClient.invalidateQueries({ queryKey: ['points'] });
       queryClient.invalidateQueries({ queryKey: ['profile-stats'] });
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+      return queryClient.invalidateQueries({ queryKey: ['challenge-completions'] });
     },
   });
 
