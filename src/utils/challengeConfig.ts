@@ -15,6 +15,7 @@ export const CHALLENGE_LIMITS = {
   discoveryPhotos: { min: 1, max: 3, fallback: 1 },
   dishCount: { min: 2, max: 10, fallback: 3 },
   popupCount: { min: 2, max: 20, fallback: 3 },
+  danceSeconds: { min: 10, max: 60, step: 5, fallback: 20 },
   voteOptions: { min: 2, max: 6, length: 40 },
   promptLength: 120,
   hintLength: 160,
@@ -99,6 +100,8 @@ export function parseChallengeRules(
           options: Array.isArray(config.options) ? config.options.map(text).filter(Boolean) : [],
         },
       };
+    case 'motion':
+      return { type, config: { seconds: integerIn(config.seconds, CHALLENGE_LIMITS.danceSeconds) } };
   }
 }
 
@@ -164,6 +167,8 @@ export function challengeRequirement(rules: ChallengeRules, timeZone: string): s
       return `Check in at ${rules.config.popupCount} Mongmo pop-ups`;
     case 'community':
       return `Vote: ${rules.config.options.join(' · ')}`;
+    case 'motion':
+      return `Dance for ${rules.config.seconds} seconds with your phone`;
     case 'check_in':
     case 'social':
       return null;
