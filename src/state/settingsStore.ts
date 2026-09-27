@@ -13,6 +13,8 @@ export type NotificationPrefs = {
   orderUpdates: boolean;
   /** A redeemed reward is about to expire. */
   rewardExpiring: boolean;
+  /** A badge was just unlocked. */
+  achievements: boolean;
 };
 
 type SettingsState = {
@@ -27,6 +29,7 @@ const DEFAULTS = {
     nearby: true,
     orderUpdates: true,
     rewardExpiring: true,
+    achievements: true,
   } satisfies NotificationPrefs,
   themeMode: 'system' as ThemeMode,
 };
@@ -47,20 +50,25 @@ export const useSettingsStore = create<SettingsState>()(
     {
       name: 'mongmo-settings',
       storage: createJSONStorage(() => AsyncStorage),
-      // v1 stored a single `notificationsEnabled` boolean; v2 splits it into
+      // v1 stored a single `notificationsEnabled` boolean; v2 split it into
       // per-type toggles, seeded from the old value so existing installs
       // keep their choice instead of silently reverting to the defaults.
-      version: 2,
+      // v3 added `achievements` (on by default).
+      version: 3,
       migrate: (persisted, version) => {
-        if (version < 2 && persisted && typeof persisted === 'object') {
-          const legacy = persisted as { notificationsEnabled?: boolean; themeMode?: ThemeMode };
-          const enabled = legacy.notificationsEnabled ?? true;
-          return {
-            themeMode: legacy.themeMode ?? DEFAULTS.themeMode,
-            notifications: { nearby: enabled, orderUpdates: enabled, rewardExpiring: enabled },
+        if (!persisted || typeof persisted !== 'object') return persisted as SettingsState;
+        let state = persisted as Partial<SettingsState> & { notificationsEnabled?: boolean };
+        if (version < 2) {
+          const enabled = state.notificationsEnabled ?? true;
+          state = {
+            themeMode: state.themeMode ?? DEFAULTS.themeMode,
+            notifications: { nearby: enabled, orderUpdates: enabled, rewardExpiring: enabled, achievements: true },
           };
         }
-        return persisted as SettingsState;
+        if (version < 3 && state.notifications) {
+          state = { ...state, notifications: { ...state.notifications, achievements: true } };
+        }
+        return state as SettingsState;
       },
     },
   ),

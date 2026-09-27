@@ -1,4 +1,6 @@
-import { Pressable, StyleSheet, Switch, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Linking, Platform, Pressable, StyleSheet, Switch, View } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
@@ -6,6 +8,12 @@ import { Spacing } from '@/constants/theme';
 import { useProfile, useSetLeaderboardVisible } from '@/hooks/useProfile';
 import { useTheme } from '@/hooks/useTheme';
 import { confirmLogOut } from '@/services/auth';
+import {
+  ensureNotificationPermission,
+  getNotificationPermission,
+  sendTestNotification,
+  type NotificationPermission,
+} from '@/services/notifications';
 import { useSettingsStore, type NotificationPrefs, type ThemeMode } from '@/state/settingsStore';
 
 const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
@@ -18,6 +26,7 @@ const NOTIFICATION_OPTIONS: { key: keyof NotificationPrefs; label: string; hint:
   { key: 'nearby', label: 'Nearby pop-ups', hint: 'Alerts when you’re near a pop-up (500 m)' },
   { key: 'orderUpdates', label: 'Order updates', hint: 'Confirmed, preparing, ready for pickup' },
   { key: 'rewardExpiring', label: 'Reward expiring', hint: 'A reminder before a redeemed reward expires' },
+  { key: 'achievements', label: 'Badges', hint: 'The moment you unlock a new badge' },
 ];
 
 function NotificationToggleRow({
@@ -67,8 +76,47 @@ export default function SettingsPanel() {
   const leaderboardVisible = profile.data?.leaderboardVisible ?? true;
   const setLeaderboardVisible = useSetLeaderboardVisible();
 
+  // Re-read on every visit: the user may have just flipped it in iOS Settings.
+  const [permission, setPermission] = useState<NotificationPermission | null>(null);
+  const [testResult, setTestResult] = useState<string | null>(null);
+  const refreshPermission = useCallback(() => {
+    getNotificationPermission().then(setPermission);
+  }, []);
+  useFocusEffect(refreshPermission);
+
+  const onFixPermission = async () => {
+    if (permission?.canAskAgain) {
+      await ensureNotificationPermission();
+      refreshPermission();
+    } else {
+      await Linking.openSettings();
+    }
+  };
+
+  const onSendTest = async () => {
+    const sent = await sendTestNotification();
+    setTestResult(sent ? 'Sent — it should appear right now.' : 'Notifications are off for Mongmo.');
+    refreshPermission();
+  };
+
   return (
     <View style={[styles.panel, { borderColor: theme.border }]}>
+      {Platform.OS !== 'web' && permission && !permission.granted ? (
+        <View style={[styles.permissionBanner, { backgroundColor: theme.backgroundSelected }]}>
+          <ThemedText type="smallBold">Notifications are off</ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            {permission.canAskAgain
+              ? 'Allow them to hear about nearby pop-ups, your orders and new badges.'
+              : 'You turned them off for Mongmo — switch them back on in Settings.'}
+          </ThemedText>
+          <Button
+            label={permission.canAskAgain ? 'Allow notifications' : 'Open Settings'}
+            variant="secondary"
+            onPress={onFixPermission}
+          />
+        </View>
+      ) : null}
+
       {NOTIFICATION_OPTIONS.map((option) => (
         <NotificationToggleRow
           key={option.key}
@@ -78,6 +126,17 @@ export default function SettingsPanel() {
           onValueChange={(value) => setNotificationPref(option.key, value)}
         />
       ))}
+
+      {Platform.OS !== 'web' ? (
+        <View style={styles.testRow}>
+          <Button label="Send a test notification" variant="secondary" onPress={onSendTest} />
+          {testResult ? (
+            <ThemedText type="small" themeColor="textSecondary" accessibilityLiveRegion="polite">
+              {testResult}
+            </ThemedText>
+          ) : null}
+        </View>
+      ) : null}
 
       <View style={styles.row}>
         <View style={styles.rowTexts}>
@@ -153,6 +212,14 @@ const styles = StyleSheet.create({
   rowTexts: {
     flex: 1,
     gap: 2,
+  },
+  permissionBanner: {
+    borderRadius: 16,
+    padding: Spacing.three,
+    gap: Spacing.two,
+  },
+  testRow: {
+    gap: Spacing.one,
   },
   segment: {
     flexDirection: 'row',
