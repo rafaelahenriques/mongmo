@@ -111,7 +111,7 @@ export default function ProfileScreen() {
             {user.bio}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
-            {user.homeCity} · member since {memberSince}
+            {[user.homeCity, `member since ${memberSince}`].filter(Boolean).join(' · ')}
           </ThemedText>
         </View>
       </View>
