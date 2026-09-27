@@ -55,6 +55,7 @@ left, per "no hardcoded/mock data."
 | `0012_challenge_settings.sql` | Per-type challenge settings in `challenges.config` (photo count, time window, vote options, dishes, pop-ups, distance…), normalized on save, and `complete_challenge` enforcing each type's rule: uploaded photos are counted in Storage, votes must be a listed option, timing must be inside its window, and so on. |
 | `0013_event_images.sql` | `event-images` bucket for uploaded pop-up photos (public read, owner-only writes, images up to 5 MB); caps challenge photos at 10 MB. |
 | `0014_more_badges.sql` | Five more badges — city-hopper, event-hopper, shutterbug, taste-tester, challenge-champion — and the extended `evaluate_badges()` that awards them (distinct check-in cities/events, photo/taste challenge completions, 10 challenges total). |
+| `0015_live_orders_motion_badges.sql` | **Security fix:** `award_badge`/`evaluate_badges` are no longer callable through the API (anyone signed in could award themselves badges). Pop-up orders only while the pop-up runs; the `motion` (dance meter) challenge type; a starter photo challenge on every new pop-up; four more badges — night-owl, dance-machine, crowd-voice, early-bird — with `badge_progress()` as the single definition of every badge's rule (`evaluate_badges` awards from it, `my_badge_progress()` shows progress in the app). |
 
 ### Points ledger, not a running total
 
