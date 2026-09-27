@@ -11,6 +11,7 @@ import { useEventsWithMenu } from '@/hooks/useEventsWithMenu';
 import { useStore } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
 import { useCartStore } from '@/state/cartStore';
+import { getEventPhase } from '@/utils/dateTime';
 
 /**
  * Order flow, step 1: where is this pickup — the permanent café, or one of
@@ -23,8 +24,12 @@ export default function OrderLocationScreen() {
   const eventsQuery = useEvents('all');
   const eventsWithMenu = useEventsWithMenu();
 
+  // Only pop-ups that are on right now take orders (the server agrees).
   const eventOptions = useMemo(
-    () => (eventsQuery.data ?? []).filter((event) => eventsWithMenu.data?.includes(event.id)),
+    () =>
+      (eventsQuery.data ?? []).filter(
+        (event) => eventsWithMenu.data?.includes(event.id) && getEventPhase(event.startsAt, event.endsAt) === 'live',
+      ),
     [eventsQuery.data, eventsWithMenu.data],
   );
 
@@ -70,7 +75,7 @@ export default function OrderLocationScreen() {
         </Card>
       ) : null}
 
-      {eventOptions.length > 0 ? <SectionHeader title="Pop-ups with a menu" /> : null}
+      {eventOptions.length > 0 ? <SectionHeader title="Pop-ups on now" /> : null}
       {eventOptions.map((event) => (
         <Card key={event.id}>
           <ListRow
@@ -86,7 +91,7 @@ export default function OrderLocationScreen() {
 
       {eventOptions.length === 0 ? (
         <ThemedText type="small" themeColor="textSecondary">
-          No pop-up menus available right now — the café is always open for pickup.
+          No pop-up is open right now — the café is always open for pickup.
         </ThemedText>
       ) : null}
     </ScreenScroll>

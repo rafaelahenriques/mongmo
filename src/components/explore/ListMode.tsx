@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, View, type ListRenderItem } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View, type ListRenderItem } from 'react-native';
 
 import CapacityMeter from '@/components/events/CapacityMeter';
 import EventCard from '@/components/events/EventCard';
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import Chip from '@/components/ui/Chip';
 import { IconBadge } from '@/components/ui/IconBadge';
+import { usePullToRefresh } from '@/components/ui/Screen';
 import { Spacing } from '@/constants/theme';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
@@ -76,6 +77,7 @@ export default function ListMode({
 }: ListModeProps) {
   const theme = useTheme();
   const tabBarInset = useTabBarInset();
+  const refresh = usePullToRefresh();
 
   const renderItem = useCallback<ListRenderItem<PopUpEvent>>(
     ({ item }) => <EventCard event={item} onPress={() => onSelectEvent(item.id)} />,
@@ -125,6 +127,9 @@ export default function ListMode({
       }
       contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + Spacing.five }]}
       style={[styles.list, { backgroundColor: theme.background }]}
+      refreshControl={
+        <RefreshControl refreshing={refresh.refreshing} onRefresh={refresh.onRefresh} tintColor={theme.textSecondary} />
+      }
     />
   );
 }

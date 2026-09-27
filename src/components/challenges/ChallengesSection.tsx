@@ -7,17 +7,21 @@ import { Spacing } from '@/constants/theme';
 import { useChallenges } from '@/hooks/useChallenges';
 import { useTheme } from '@/hooks/useTheme';
 import type { PopUpEvent } from '@/types';
+import type { EventPhase } from '@/utils/dateTime';
 
 export type ChallengesSectionProps = {
   event: PopUpEvent;
   checkedIn: boolean;
+  phase: EventPhase;
+  /** When check-in opens, already formatted in the pop-up's zone. */
+  opensAt: string;
 };
 
 /**
  * The event's challenges, each opening its type-specific interaction —
  * reached from Event Detail, never a dedicated tab (AGENTS.md).
  */
-export default function ChallengesSection({ event, checkedIn }: ChallengesSectionProps) {
+export default function ChallengesSection({ event, checkedIn, phase, opensAt }: ChallengesSectionProps) {
   const theme = useTheme();
   const { challenges, isLoading, completedByChallenge, complete, completePending } = useChallenges(event.id);
 
@@ -41,6 +45,15 @@ export default function ChallengesSection({ event, checkedIn }: ChallengesSectio
   }
 
   const completedCount = challenges.filter((challenge) => completedByChallenge.has(challenge.id)).length;
+  // Why a challenge can't be started yet (the server says the same).
+  const lockedReason =
+    phase === 'upcoming'
+      ? `Challenges open when the pop-up starts — ${opensAt}.`
+      : phase === 'ended'
+        ? 'This pop-up has ended.'
+        : !checkedIn
+          ? 'Check in to this event before completing its challenges.'
+          : undefined;
 
   return (
     <View style={styles.section}>
@@ -52,9 +65,9 @@ export default function ChallengesSection({ event, checkedIn }: ChallengesSectio
           {completedCount} of {challenges.length} done
         </ThemedText>
       </View>
-      {!checkedIn ? (
+      {lockedReason ? (
         <ThemedText type="small" themeColor="textSecondary">
-          Check in to start them. Each one earns points.
+          {phase === 'live' ? 'Check in to start them. Each one earns points.' : lockedReason}
         </ThemedText>
       ) : null}
       <View style={styles.list}>
@@ -64,7 +77,7 @@ export default function ChallengesSection({ event, checkedIn }: ChallengesSectio
             challenge={challenge}
             completion={completedByChallenge.get(challenge.id)}
             event={event}
-            checkedIn={checkedIn}
+            lockedReason={lockedReason}
             onComplete={onComplete(challenge.id)}
             pending={completePending}
           />
