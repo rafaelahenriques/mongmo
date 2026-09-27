@@ -1,5 +1,6 @@
-import type { PropsWithChildren, ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { useState, type PropsWithChildren, type ReactNode } from 'react';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -11,6 +12,7 @@ import { useTheme } from '@/hooks/useTheme';
  * The scrolling page every tab screen uses: page background, side padding,
  * and a bottom inset that clears the native tab bar. `topInset` is for tab
  * roots with no navigation header (the status bar is theirs to avoid).
+ * Pull down to refresh everything the screen is showing.
  */
 export function ScreenScroll({
   children,
@@ -25,6 +27,7 @@ export function ScreenScroll({
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const tabBarInset = useTabBarInset();
+  const refresh = usePullToRefresh();
 
   return (
     <ScrollView
@@ -38,10 +41,36 @@ export function ScreenScroll({
         contentStyle,
       ]}
       keyboardShouldPersistTaps={keyboardShouldPersistTaps}
+      refreshControl={
+        <RefreshControl
+          refreshing={refresh.refreshing}
+          onRefresh={refresh.onRefresh}
+          tintColor={theme.textSecondary}
+          progressViewOffset={topInset ? insets.top : 0}
+        />
+      }
     >
       {children}
     </ScrollView>
   );
+}
+
+/**
+ * Pull-to-refresh that refetches every query the visible screen uses, so no
+ * screen has to list its own.
+ */
+export function usePullToRefresh() {
+  const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await queryClient.refetchQueries({ type: 'active' });
+    } finally {
+      setRefreshing(false);
+    }
+  };
+  return { refreshing, onRefresh };
 }
 
 /** Big in-page heading for tab roots: optional eyebrow, title, trailing control. */
