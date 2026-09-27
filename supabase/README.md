@@ -18,12 +18,20 @@ Postgres so the client can only ever *ask*, never *decide*.
    ```
    For local development, `npx supabase db reset` applies every migration
    **and** `supabase/seed.sql` in one step.
-3. Copy `.env.example` to `.env` and fill in the project URL and anon key
+3. **Seed a hosted project.** `db push` only runs migrations — it never
+   touches `seed.sql`, so a freshly pushed project has no store, menu,
+   pop-ups, badges or rewards, and every screen comes up empty ("Couldn't
+   load the store", "Nothing on right now", "No pop-up menus"). Open the
+   dashboard → **SQL Editor** → New query, paste the whole of
+   `supabase/seed.sql`, and **Run**. It's idempotent, and its pop-up dates
+   are relative to "now" — re-run it whenever you want a live pop-up again.
+4. Copy `.env.example` to `.env` and fill in the project URL and anon key
    (Supabase dashboard → Project Settings → API, or the values `supabase
    start` prints for a local project).
-4. `npm install && npx expo start`.
+5. `npm install`, then run a development build (see the root README — this
+   app doesn't run in Expo Go).
 
-Without step 3, `src/lib/supabase.ts` throws immediately on launch with a
+Without step 4, `src/lib/supabase.ts` throws immediately on launch with a
 message pointing back here — the app intentionally has no mock fallback
 left, per "no hardcoded/mock data."
 
@@ -37,6 +45,8 @@ left, per "no hardcoded/mock data."
 | `0004_storage.sql` | The `challenge-photos` storage bucket (public read, write restricted to the uploader's own folder). |
 | `0005_realtime.sql` | Adds `stores`/`events` to the `supabase_realtime` publication so the app's live "how busy" numbers work via `postgres_changes`, not a bespoke socket server. |
 | `0006_qr_token_hardening.sql` | Revokes `events.qr_token` from ordinary reads (column-level, not row-level) so "scan the QR" actually verifies something — see below. |
+| `0007_explicit_grants.sql` | Grants `authenticated`/`service_role` table access explicitly instead of relying on the project's default privileges (a project setting, not part of the schema), then re-applies 0006's column list for `events`. |
+| `0008_backfill_profiles.sql` | Creates the missing `profiles` row for any account that existed before 0002's sign-up trigger did. |
 
 ### Points ledger, not a running total
 
@@ -108,6 +118,24 @@ Profile tab shows an "Owner tools" card, and you can promote others from
 there too if owner UI for that gets added later (right now, only the schema
 supports it — see `is_owner()` and the `prevent_role_escalation` trigger).
 
+## Troubleshooting
+
+In a development build, every failed query is also printed to the Metro
+terminal as `Query ["profile"] failed: <server message>`, and the Profile
+tab's error state shows the same message. Match it here:
+
+| Message | Cause → fix |
+|---|---|
+| `permission denied for table …` | The role has no table grant → `npx supabase db push` (applies `0007_explicit_grants.sql`). |
+| `Cannot coerce the result to a single JSON object` (zero rows) on `["store"]` | No seed data → run `seed.sql` in the SQL Editor (Setup step 3). |
+| the same on `["profile"]` | Your account has no `profiles` row → `npx supabase db push` (applies `0008_backfill_profiles.sql`). |
+| `JWT expired` / `invalid JWT` | Stale session → Profile → Log out, then sign in again. |
+
+**"There's no login screen."** That's expected once you've signed in: the
+session is persisted (AsyncStorage) so the app opens straight into the tabs.
+Profile → Log out brings the sign-in screen back — it's also on the
+Profile error state, so a broken backend can't trap you signed in.
+
 ## What this session built, and what's still simplified
 
 Ordering, the challenge engine, camera-based check-in/Capture, notifications
@@ -134,6 +162,8 @@ confirmed, end to end: check-in verification (wrong token, out-of-range,
 success, duplicate), the full badge ladder, the points ledger, reward
 redemption (including insufficient-balance), order pricing + the mock
 payment step, RLS isolation between two users, the qr_token column
-hardening, and the leaderboard aggregation. It does **not** replace testing
+hardening, and the leaderboard aggregation — both with and without the
+project-level default grants (0007), and with an account that predates the
+profile trigger (0008). It does **not** replace testing
 against a real Supabase project (PostgREST's exact request/role plumbing,
 Realtime, and Storage weren't exercised) — do that before shipping.
