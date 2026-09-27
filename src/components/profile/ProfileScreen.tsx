@@ -10,10 +10,10 @@ import { ThemedText } from '@/components/ThemedText';
 import { Spacing } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useProfile } from '@/hooks/useProfile';
-import { useActivityStore } from '@/state/activityStore';
+import { useVisitedEvents } from '@/hooks/useVisitedEvents';
 import { useTheme } from '@/hooks/useTheme';
 import { format as formatZoned } from 'date-fns-tz';
-import { ACTIVITY_TIME_ZONE } from '@/utils/achievements';
+import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 
 /**
  * Profile tab: identity card, quick stats, a jump into achievements, the
@@ -25,7 +25,7 @@ export default function ProfileScreen() {
   const router = useRouter();
   const profile = useProfile();
   const { summary } = useAchievements();
-  const checkIns = useActivityStore((state) => state.checkIns);
+  const visitedEvents = useVisitedEvents();
 
   const openAchievements = useCallback(() => {
     router.push('/(profile)/achievements');
@@ -67,7 +67,7 @@ export default function ProfileScreen() {
 
   const user = profile.data;
   const memberSince = formatZoned(new Date(user.memberSince), 'MMM yyyy', {
-    timeZone: ACTIVITY_TIME_ZONE,
+    timeZone: DISPLAY_TIME_ZONE,
   });
 
   return (
@@ -130,7 +130,7 @@ export default function ProfileScreen() {
       <ThemedText type="smallBold" style={styles.sectionTitle}>
         Photos from events
       </ThemedText>
-      <PhotoGallery checkIns={checkIns} />
+      <PhotoGallery checkIns={visitedEvents.data ?? []} />
 
       <ThemedText type="smallBold" style={styles.sectionTitle}>
         Settings

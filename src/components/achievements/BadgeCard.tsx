@@ -4,7 +4,7 @@ import { format as formatZoned } from 'date-fns-tz';
 import { ThemedText } from '@/components/ThemedText';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { ACTIVITY_TIME_ZONE } from '@/utils/achievements';
+import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 import type { BadgeDefinition, EarnedBadge } from '@/types';
 
 export type BadgeCardProps = {
@@ -21,7 +21,7 @@ export default function BadgeCard({ definition, earned }: BadgeCardProps) {
 
   const statusLabel = earned
     ? `Earned ${formatZoned(new Date(earned.earnedAt), 'd MMM yyyy', {
-        timeZone: ACTIVITY_TIME_ZONE,
+        timeZone: DISPLAY_TIME_ZONE,
       })}`
     : 'Locked';
 

@@ -80,26 +80,31 @@ export type MapEntity = Store | PopUpEvent;
 /** Date filters offered by the map's filter bar (the store ignores these). */
 export type EventFilter = 'today' | 'week' | 'all';
 
-/** Payload pushed over the busy-count websocket. */
-export type BusyUpdate = {
-  id: string;
-  occupancy: number;
-};
-
 /* ------------------------------------------------------------------ *
  * Profiles, achievements and leaderboards (GET /profile,              *
  * GET /achievements, GET /leaderboard?period=).                       *
  * ------------------------------------------------------------------ */
 
-/** The signed-in user's profile as served by `GET /profile`. */
+/** The signed-in user's profile, backed by the `profiles` table. */
 export type UserProfile = {
   id: string;
+  role: 'customer' | 'owner';
   name: string;
   bio: string;
   avatarUrl: string;
   homeCity: string;
+  /** Whether this user appears in other people's leaderboard views. */
+  leaderboardVisible: boolean;
   /** ISO date the account was created ("2026-01-12"). */
   memberSince: string;
+};
+
+/** Cumulative stats for the Profile screen, computed server-side. */
+export type ProfileStats = {
+  eventsAttended: number;
+  citiesVisited: number;
+  challengesCompleted: number;
+  ordersCount: number;
 };
 
 /**
@@ -144,6 +149,8 @@ export type Reward = {
   title: string;
   description: string;
   costPoints: number;
+  /** Flat discount an order can apply, when this reward is a discount (not a free item). */
+  discountCents: number | null;
 };
 
 /** Leaderboard time windows offered by `GET /leaderboard?period=`. */

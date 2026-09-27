@@ -13,7 +13,7 @@ import type { EventFilter } from '@/types';
 export function useEvents(filter: EventFilter) {
   const query = useQuery({
     queryKey: ['events', filter],
-    queryFn: ({ signal }) => getEvents(filter, signal),
+    queryFn: () => getEvents(filter),
   });
 
   useEffect(() => {

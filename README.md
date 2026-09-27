@@ -2,6 +2,13 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+## Backend
+
+The app reads and writes a real Supabase project — there's no mock data or
+offline demo mode. Before running it, follow [`supabase/README.md`](supabase/README.md)
+to apply the schema and set `EXPO_PUBLIC_SUPABASE_URL` /
+`EXPO_PUBLIC_SUPABASE_ANON_KEY` in `.env` (copy `.env.example`).
+
 ## Get started
 
 1. Install dependencies
