@@ -13,8 +13,9 @@ to apply the schema and set `EXPO_PUBLIC_SUPABASE_URL` /
 
 Background geofencing (`expo-task-manager`), the camera (`expo-camera`,
 for QR check-in and challenge photos), the photo library (`expo-image-picker`,
-for pop-up photos) and the native date pickers (`@expo/ui`) are native
-modules Expo Go doesn't ship — opening the project in the plain Expo Go app will crash with
+for pop-up photos), the motion sensor (`expo-sensors`, for dance
+challenges), the calendar (`expo-calendar`, for "Add to calendar") and the
+native date pickers (`@expo/ui`) are native modules Expo Go doesn't ship — opening the project in the plain Expo Go app will crash with
 `Cannot find native module 'ExpoCamera'` (or similar) the moment any screen
 imports one. You need a **development build** instead:
 
@@ -44,6 +45,11 @@ reload can't add native code to an already-installed app.
   Kortrijk, close enough for the 500 m check-in geofence.
 - **Camera:** the Simulator has no camera, so QR check-in and Capture
   challenges need a physical device (install the development build on it).
+- **Motion:** no motion sensor either — dance challenges need a phone.
+- **Rebuild each target:** `npx expo run:ios` rebuilds for the device or
+  Simulator you pick (`npx expo run:ios --device` lists them). After a new
+  native module, rebuild the phone *and* the Simulator; a stale build says
+  "Update the app" for the missing feature instead of crashing.
 
 ## Get started
 
