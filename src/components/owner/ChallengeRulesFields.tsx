@@ -177,6 +177,18 @@ export function ChallengeRulesFields({ rules, onChange, timeZone }: ChallengeRul
         />
       );
 
+    case 'motion':
+      return (
+        <CountRow
+          label="Dance time"
+          value={rules.config.seconds}
+          onChange={(seconds) => onChange({ ...rules, config: { seconds } })}
+          range={CHALLENGE_LIMITS.danceSeconds}
+          step={CHALLENGE_LIMITS.danceSeconds.step}
+          unit="s"
+        />
+      );
+
     case 'community': {
       const { options } = rules.config;
       const setOptions = (next: string[]) => onChange({ ...rules, config: { options: next } });

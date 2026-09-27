@@ -8,6 +8,7 @@ export const CHALLENGE_TYPES: Record<ChallengeType, { label: string; icon: IconN
   discovery: { label: 'Discovery', icon: 'search', hint: 'Find something hidden and photograph it.' },
   taste: { label: 'Taste', icon: 'food', hint: 'Rate a dish from 1 to 5.' },
   community: { label: 'Vote', icon: 'people', hint: 'Pick one of your options.' },
+  motion: { label: 'Dance', icon: 'dance', hint: 'Keep the phone moving to fill a dance meter — made for DJ nights.' },
   timing: { label: 'Timing', icon: 'timer', hint: 'Only counts inside a time window.' },
   collection: { label: 'Collection', icon: 'layers', hint: 'Order several different dishes here.' },
   streak: { label: 'Streak', icon: 'flame', hint: 'Visit a number of Mongmo pop-ups.' },

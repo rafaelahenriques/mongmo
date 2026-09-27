@@ -92,16 +92,65 @@ insert into public.events (
     'A wrap-up session with Bar Amorse: brunch plates, coffee from the bakery and slow records on the street.',
     'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80',
     array['Food & drinks', 'Music'], 80, 9, 'live', 'https://bestel.mongmo-store.com/nl'
+  ),
+  (
+    '00000000-0000-0000-0000-0000000000e4',
+    'Mongmo Nights: Vinahouse DJ set', 'bar-takeover', 'Gent', 'Vooruit terrace, Sint-Pietersnieuwstraat 23',
+    51.0457, 3.7277,
+    (date_trunc('day', now() at time zone 'Europe/Brussels') + interval '1 days' + interval '20 hours') at time zone 'Europe/Brussels',
+    (date_trunc('day', now() at time zone 'Europe/Brussels') + interval '1 days' + interval '26 hours') at time zone 'Europe/Brussels',
+    'Europe/Brussels',
+    'DJ Minh Vu spins Vinahouse and city pop until late, with bánh mì and iced coffee from the truck.',
+    'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80',
+    array['Music', 'Late night'], 250, 0, 'scheduled', 'https://bestel.mongmo-store.com/nl'
+  ),
+  (
+    '00000000-0000-0000-0000-0000000000e5',
+    'Cà phê sunrise at Kortrijk station', 'food-truck', 'Kortrijk', 'Stationsplein, next to the bike shed',
+    50.8248, 3.2645,
+    (date_trunc('day', now() at time zone 'Europe/Brussels') + interval '5 days' + interval '7 hours 30 minutes') at time zone 'Europe/Brussels',
+    (date_trunc('day', now() at time zone 'Europe/Brussels') + interval '5 days' + interval '11 hours') at time zone 'Europe/Brussels',
+    'Europe/Brussels',
+    'Phin-filtered coffee and warm bánh bao for the morning commute. Bring your own cup for a small discount.',
+    'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80',
+    array['Coffee', 'Breakfast'], 60, 0, 'scheduled', 'https://bestel.mongmo-store.com/nl'
+  ),
+  (
+    '00000000-0000-0000-0000-0000000000e6',
+    'Bánh mì truck at Flagey', 'food-truck', 'Brussel', 'Place Flagey, by the ponds',
+    50.8275, 4.3721,
+    (date_trunc('day', now() at time zone 'Europe/Brussels') + interval '8 days' + interval '11 hours 30 minutes') at time zone 'Europe/Brussels',
+    (date_trunc('day', now() at time zone 'Europe/Brussels') + interval '8 days' + interval '15 hours 30 minutes') at time zone 'Europe/Brussels',
+    'Europe/Brussels',
+    'The full bánh mì line-up for the lunch crowd in Ixelles — pork, lemongrass tofu and the weekly special.',
+    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80',
+    array['Street food', 'Lunch'], 120, 0, 'scheduled', 'https://bestel.mongmo-store.com/nl'
+  ),
+  (
+    '00000000-0000-0000-0000-0000000000e7',
+    'Tết lantern market Brugge', 'city-pop-up', 'Brugge', 'Markt, in front of the Belfry',
+    51.2089, 3.2247,
+    (date_trunc('day', now() at time zone 'Europe/Brussels') + interval '13 days' + interval '16 hours') at time zone 'Europe/Brussels',
+    (date_trunc('day', now() at time zone 'Europe/Brussels') + interval '13 days' + interval '22 hours') at time zone 'Europe/Brussels',
+    'Europe/Brussels',
+    'Lanterns, lion dancers and a Mongmo stall full of sweets for the Lunar New Year — bring the whole family.',
+    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80',
+    array['Festival', 'Family'], 500, 0, 'scheduled', 'https://bestel.mongmo-store.com/nl'
   )
 on conflict (id) do update set
   starts_at = excluded.starts_at,
   ends_at = excluded.ends_at,
   status = excluded.status;
 
-insert into public.event_menus (event_id, menu_id) values
-  ('00000000-0000-0000-0000-0000000000e1', '00000000-0000-0000-0000-0000000000d1'),
-  ('00000000-0000-0000-0000-0000000000e2', '00000000-0000-0000-0000-0000000000d1'),
-  ('00000000-0000-0000-0000-0000000000e3', '00000000-0000-0000-0000-0000000000d1')
+insert into public.event_menus (event_id, menu_id)
+select id, '00000000-0000-0000-0000-0000000000d1'
+from public.events
+where id in (
+  '00000000-0000-0000-0000-0000000000e1', '00000000-0000-0000-0000-0000000000e2',
+  '00000000-0000-0000-0000-0000000000e3', '00000000-0000-0000-0000-0000000000e4',
+  '00000000-0000-0000-0000-0000000000e5', '00000000-0000-0000-0000-0000000000e6',
+  '00000000-0000-0000-0000-0000000000e7'
+)
 on conflict do nothing;
 
 -- A full spread of challenges — every type the engine supports — on the

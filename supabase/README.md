@@ -24,7 +24,9 @@ Postgres so the client can only ever *ask*, never *decide*.
    load the store", "Nothing on right now", "No pop-up menus"). Open the
    dashboard → **SQL Editor** → New query, paste the whole of
    `supabase/seed.sql`, and **Run**. It's idempotent, and its pop-up dates
-   are relative to "now" — re-run it whenever you want a live pop-up again.
+   are relative to "now" — re-run it whenever you want a live pop-up again
+   (it refreshes the seven demo pop-ups, from two days ago to two weeks out,
+   and their challenges).
 4. Copy `.env.example` to `.env` and fill in the project URL and anon key
    (Supabase dashboard → Project Settings → API, or the values `supabase
    start` prints for a local project).

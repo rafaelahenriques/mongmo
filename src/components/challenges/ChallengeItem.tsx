@@ -5,6 +5,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 import { uploadChallengePhoto } from '@/api/photos';
 import { CHALLENGE_TYPES } from '@/components/challenges/challengeTypes';
 import CommunityVoteModal from '@/components/challenges/CommunityVoteModal';
+import DanceMeter from '@/components/challenges/DanceMeter';
 import SimpleConfirmModal from '@/components/challenges/SimpleConfirmModal';
 import TasteRatingModal from '@/components/challenges/TasteRatingModal';
 import PhotoCapture from '@/components/camera/PhotoCapture';
@@ -26,18 +27,19 @@ export type ChallengeItemProps = {
   challenge: Challenge;
   completion: ChallengeCompletion | undefined;
   event: PopUpEvent;
-  checkedIn: boolean;
+  /** Why it can't be started right now (not checked in, not live), if so. */
+  lockedReason?: string;
   onComplete: (data: Record<string, unknown>) => void;
   pending: boolean;
 };
 
-type Modal = 'confirm' | 'taste' | 'community' | 'capture' | null;
+type Modal = 'confirm' | 'taste' | 'community' | 'capture' | 'dance' | null;
 
 /**
  * One challenge row. Tapping it opens the interaction its type needs — the
  * camera for Capture/Discovery (as many photos as the owner asked for), a
- * rating for Taste, the owner's options for a vote, the share sheet for
- * Social, and a confirm for the rest. Every path ends in complete_challenge,
+ * rating for Taste, the owner's options for a vote, the dance meter for
+ * Motion, the share sheet for Social, and a confirm for the rest. Every path ends in complete_challenge,
  * where the server checks the check-in and the type's own rule; the hints
  * here (distance, time window) only save a pointless round trip.
  */
@@ -45,7 +47,7 @@ export default function ChallengeItem({
   challenge,
   completion,
   event,
-  checkedIn,
+  lockedReason,
   onComplete,
   pending,
 }: ChallengeItemProps) {
@@ -105,9 +107,9 @@ export default function ChallengeItem({
     // reopen the sheet for a challenge that's about to show as done.
     if (done || busy) return;
 
-    if (!checkedIn) {
+    if (lockedReason) {
       haptics.warning();
-      Alert.alert('Check in first', 'Check in to this event before completing its challenges.');
+      Alert.alert('Not yet', lockedReason);
       return;
     }
 
@@ -124,6 +126,9 @@ export default function ChallengeItem({
         return;
       case 'community':
         setModal('community');
+        return;
+      case 'motion':
+        setModal('dance');
         return;
       case 'social':
         void onShare();
@@ -226,6 +231,19 @@ export default function ChallengeItem({
           onSubmit={(choice) => {
             setModal(null);
             onComplete({ choice });
+          }}
+          onClose={() => setModal(null)}
+        />
+      ) : null}
+
+      {challenge.type === 'motion' ? (
+        <DanceMeter
+          visible={modal === 'dance'}
+          title={challenge.title}
+          seconds={challenge.config.seconds}
+          onDone={(activeSeconds) => {
+            setModal(null);
+            onComplete({ activeSeconds });
           }}
           onClose={() => setModal(null)}
         />
