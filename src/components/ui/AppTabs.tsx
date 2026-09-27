@@ -10,7 +10,7 @@ export default function AppTabs() {
     <NativeTabs
       backgroundColor={colors.background}
       indicatorColor={colors.backgroundSelected}
-      tintColor={colors.primary}
+      tintColor={colors.brand}
       iconColor={colors.textSecondary}
       labelStyle={{
         default: { fontFamily: FontFamily.bodySemiBold, fontSize: 11, color: colors.textSecondary },

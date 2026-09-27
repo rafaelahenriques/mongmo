@@ -1,35 +1,49 @@
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { IconBadge } from '@/components/ui/IconBadge';
+import { IconButton } from '@/components/ui/IconButton';
+import { ScreenScroll } from '@/components/ui/Screen';
+import { Segmented } from '@/components/ui/Segmented';
 import { Spacing } from '@/constants/theme';
 import { useOwnerOrders } from '@/hooks/useOwnerOrders';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/services/haptics';
 import { formatCents, pickupCode } from '@/utils/orderFormat';
 import type { OwnerOrderRow } from '@/api/owner';
-import type { OrderStatus } from '@/types/database';
 
-const COLUMNS: { status: OrderStatus | 'new'; label: string }[] = [
-  { status: 'new', label: 'New' },
-  { status: 'preparing', label: 'Preparing' },
-  { status: 'ready', label: 'Ready' },
-  { status: 'collected', label: 'Collected' },
-];
+type Column = 'new' | 'preparing' | 'ready' | 'collected';
 
-/** New = paid orders that haven't started preparation yet. */
-function columnFor(order: OwnerOrderRow): (typeof COLUMNS)[number]['status'] {
-  return order.status === 'paid' ? 'new' : order.status;
-}
-
-const NEXT_STATUS: Record<string, 'preparing' | 'ready' | 'collected' | undefined> = {
-  new: 'preparing',
-  preparing: 'ready',
-  ready: 'collected',
+const COLUMN_LABEL: Record<Column, string> = {
+  new: 'New',
+  preparing: 'Preparing',
+  ready: 'Ready',
+  collected: 'Collected',
 };
 
-/** Owner: a simple board grouped by status — advance or cancel each order. */
+/** New = paid orders that haven't started preparation yet. */
+function columnFor(order: OwnerOrderRow): Column | null {
+  if (order.status === 'paid') return 'new';
+  if (order.status === 'preparing' || order.status === 'ready' || order.status === 'collected') {
+    return order.status;
+  }
+  return null;
+}
+
+const NEXT: Partial<Record<Column, { status: 'preparing' | 'ready' | 'collected'; label: string }>> = {
+  new: { status: 'preparing', label: 'Start preparing' },
+  preparing: { status: 'ready', label: 'Mark ready' },
+  ready: { status: 'collected', label: 'Mark collected' },
+};
+
+/** Owner: orders by status — pick a column, then advance or cancel each order. */
 export default function OwnerOrdersScreen() {
   const theme = useTheme();
   const { orders, isLoading, advance } = useOwnerOrders();
+  const [column, setColumn] = useState<Column>('new');
 
   if (isLoading) {
     return (
@@ -39,115 +53,100 @@ export default function OwnerOrdersScreen() {
     );
   }
 
-  const visible = orders.filter((order) => order.status !== 'cancelled');
+  const count = (target: Column) => orders.filter((order) => columnFor(order) === target).length;
+  const columnOrders = orders.filter((order) => columnFor(order) === column);
+  const next = NEXT[column];
 
   return (
-    <ScrollView style={[styles.scroll, { backgroundColor: theme.background }]} contentContainerStyle={styles.content}>
-      {COLUMNS.map((column) => {
-        const columnOrders = visible.filter((order) => columnFor(order) === column.status);
-        const nextStatus = NEXT_STATUS[column.status];
-        return (
-          <View key={column.status} style={styles.column}>
-            <ThemedText type="section">
-              {column.label} · {columnOrders.length}
-            </ThemedText>
-            {columnOrders.length === 0 ? (
-              <ThemedText type="small" themeColor="textSecondary">
-                Nothing here.
-              </ThemedText>
-            ) : (
-              columnOrders.map((order) => (
-                <View
-                  key={order.id}
-                  style={[
-                    styles.row,
-                    {
-                      borderColor: theme.border,
-                      backgroundColor: column.status === 'new' ? theme.highlight : theme.backgroundElement,
-                    },
-                  ]}
-                >
-                  <View style={styles.rowTexts}>
-                    {/* Same code the customer shows at pickup. */}
-                    <ThemedText
-                      type="subtitle"
-                      style={column.status === 'new' ? { color: theme.onHighlight } : undefined}
-                    >
-                      {pickupCode(order.id)}
-                    </ThemedText>
-                    <ThemedText
-                      type="smallBold"
-                      themeColor={column.status === 'new' ? undefined : 'primaryText'}
-                      style={column.status === 'new' ? { color: theme.onHighlight } : undefined}
-                    >
-                      {formatCents(order.total_cents)}
-                    </ThemedText>
-                  </View>
-                  {nextStatus ? (
-                    <Pressable
-                      onPress={() => advance({ orderId: order.id, status: nextStatus })}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Move order to ${nextStatus}`}
-                      style={[styles.advanceButton, { backgroundColor: theme.accent, borderColor: theme.border }]}
-                    >
-                      <ThemedText type="label" style={{ color: theme.onAccent }}>
-                        → {nextStatus}
-                      </ThemedText>
-                    </Pressable>
-                  ) : null}
-                  <Pressable
-                    onPress={() => advance({ orderId: order.id, status: 'cancelled' })}
-                    accessibilityRole="button"
-                    accessibilityLabel="Cancel order"
-                    hitSlop={8}
-                  >
-                    <ThemedText type="label" themeColor="danger">
-                      Cancel
-                    </ThemedText>
-                  </Pressable>
-                </View>
-              ))
-            )}
-          </View>
-        );
-      })}
-    </ScrollView>
+    <ScreenScroll>
+      <Segmented
+        options={(Object.keys(COLUMN_LABEL) as Column[]).map((value) => ({
+          value,
+          label: `${COLUMN_LABEL[value]} ${count(value)}`,
+        }))}
+        value={column}
+        onChange={setColumn}
+        accessibilityLabel="Order status"
+        style={styles.segmented}
+      />
+
+      {columnOrders.length === 0 ? (
+        <View style={styles.empty}>
+          <IconBadge name="receipt" size={56} />
+          <ThemedText type="small" themeColor="textSecondary">
+            No {COLUMN_LABEL[column].toLowerCase()} orders.
+          </ThemedText>
+        </View>
+      ) : (
+        columnOrders.map((order) => (
+          <Card key={order.id} style={styles.order}>
+            <View style={styles.orderTop}>
+              <View style={styles.flex}>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {new Date(order.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                  {' · '}
+                  {formatCents(order.total_cents)}
+                </ThemedText>
+                {/* Same code the customer shows at pickup. */}
+                <ThemedText type="title" style={column === 'new' ? { color: theme.brand } : undefined}>
+                  {pickupCode(order.id)}
+                </ThemedText>
+              </View>
+              {column !== 'collected' ? (
+                <IconButton
+                  icon="close"
+                  tone="muted"
+                  size={36}
+                  onPress={() => {
+                    haptics.warning();
+                    advance({ orderId: order.id, status: 'cancelled' });
+                  }}
+                  accessibilityLabel="Cancel order"
+                />
+              ) : null}
+            </View>
+            {next ? (
+              <Button
+                label={next.label}
+                variant={column === 'new' ? 'brand' : 'primary'}
+                size="medium"
+                arrow
+                haptic="press"
+                onPress={() => advance({ orderId: order.id, status: next.status })}
+                accessibilityLabel={`Move order to ${next.status}`}
+              />
+            ) : null}
+          </Card>
+        ))
+      )}
+    </ScreenScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-  },
-  content: {
-    padding: Spacing.three,
-    paddingBottom: Spacing.six,
-    gap: Spacing.four,
-  },
   state: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  column: {
-    gap: Spacing.two,
+  segmented: {
+    alignSelf: 'stretch',
+    justifyContent: 'space-between',
   },
-  row: {
-    flexDirection: 'row',
+  empty: {
     alignItems: 'center',
     gap: Spacing.two,
-    borderRadius: 12,
-    borderWidth: 2,
-    padding: Spacing.three,
+    paddingVertical: Spacing.five,
   },
-  rowTexts: {
+  order: {
+    gap: Spacing.three,
+  },
+  orderTop: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.two,
+  },
+  flex: {
     flex: 1,
-    gap: 2,
-  },
-  advanceButton: {
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
-    borderRadius: 10,
-    borderWidth: 2,
   },
 });

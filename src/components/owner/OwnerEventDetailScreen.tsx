@@ -1,6 +1,5 @@
 import { Alert, ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Eye } from 'lucide-react-native';
 
 import OwnerChallengesManager from '@/components/owner/OwnerChallengesManager';
 import OwnerEventForm from '@/components/owner/OwnerEventForm';
@@ -11,9 +10,14 @@ import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import Chip from '@/components/ui/Chip';
+import { Icon } from '@/components/ui/Icon';
+import { IconBadge } from '@/components/ui/IconBadge';
+import { SectionHeader } from '@/components/ui/Screen';
 import { Spacing } from '@/constants/theme';
 import { useOwnerEvent, useSetEventStatus, useUpdateEvent } from '@/hooks/useOwnerEvent';
+import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/services/haptics';
 import { formatEventWindow } from '@/utils/dateTime';
 
 export type OwnerEventDetailScreenProps = {
@@ -27,6 +31,7 @@ export type OwnerEventDetailScreenProps = {
 export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScreenProps) {
   const theme = useTheme();
   const router = useRouter();
+  const tabBarInset = useTabBarInset();
   const eventQuery = useOwnerEvent(eventId);
   const updateEvent = useUpdateEvent(eventId);
   const setStatus = useSetEventStatus(eventId);
@@ -42,6 +47,7 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
   if (!eventQuery.data) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
+        <IconBadge name="alert" size={48} />
         <ThemedText type="section">Pop-up not found</ThemedText>
       </View>
     );
@@ -63,6 +69,7 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
   const finished = event.status === 'ended' || event.status === 'cancelled';
 
   const onEndEvent = () => {
+    haptics.warning();
     Alert.alert('End this pop-up?', 'It will stop appearing as live.', [
       { text: 'Back', style: 'cancel' },
       { text: 'End pop-up', onPress: () => setStatus.mutate('ended') },
@@ -70,6 +77,7 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
   };
 
   const onCancelEvent = () => {
+    haptics.warning();
     Alert.alert('Cancel this pop-up?', 'It will be removed from Explore.', [
       { text: 'Back', style: 'cancel' },
       { text: 'Cancel pop-up', style: 'destructive', onPress: () => setStatus.mutate('cancelled') },
@@ -79,47 +87,46 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
   return (
     <ScrollView
       style={[styles.scroll, { backgroundColor: theme.background }]}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + Spacing.five }]}
       keyboardShouldPersistTaps="handled"
     >
-      <Card>
-        <Chip label={OWNER_GROUP_LABEL[group]} tone={OWNER_GROUP_TONE[group]} style={styles.chip} />
-        <ThemedText type="title" style={styles.title} accessibilityRole="header">
+      <Card style={styles.hero}>
+        <Chip label={OWNER_GROUP_LABEL[group]} tone={OWNER_GROUP_TONE[group]} />
+        <ThemedText type="title" accessibilityRole="header">
           {event.title}
         </ThemedText>
-        <ThemedText type="smallBold" themeColor="primaryText">
-          {formatEventWindow(event.starts_at, event.ends_at, event.time_zone)}
-        </ThemedText>
-        <ThemedText type="small" themeColor="textSecondary">
-          {event.venue}, {event.city}
-        </ThemedText>
+        <View style={styles.meta}>
+          <Icon name="clock" size={14} color={theme.textSecondary} />
+          <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
+            {formatEventWindow(event.starts_at, event.ends_at, event.time_zone)}
+          </ThemedText>
+        </View>
+        <View style={styles.meta}>
+          <Icon name="pin" size={14} color={theme.textSecondary} />
+          <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
+            {event.venue}, {event.city}
+          </ThemedText>
+        </View>
         <Button
           label="Preview as customer"
-          variant="secondary"
-          icon={<Eye size={20} color={theme.text} />}
+          variant="ghost"
+          size="medium"
+          icon="eye"
           onPress={() => router.push({ pathname: '/(explore)/event/[id]', params: { id: eventId } })}
           style={styles.preview}
         />
       </Card>
 
-      <ThemedText type="section" style={styles.sectionTitle}>
-        Check-in QR code
-      </ThemedText>
+      <SectionHeader title="Check-in QR code" />
       <OwnerEventQr eventId={eventId} />
 
-      <ThemedText type="section" style={styles.sectionTitle}>
-        Challenges
-      </ThemedText>
+      <SectionHeader title="Challenges" />
       <OwnerChallengesManager eventId={eventId} />
 
-      <ThemedText type="section" style={styles.sectionTitle}>
-        Menu
-      </ThemedText>
+      <SectionHeader title="Menu" />
       <OwnerMenuAttach eventId={eventId} />
 
-      <ThemedText type="section" style={styles.sectionTitle}>
-        Edit details
-      </ThemedText>
+      <SectionHeader title="Edit details" />
       <OwnerEventForm
         initial={{
           title: event.title,
@@ -141,14 +148,13 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
         onSubmit={(input) => updateEvent.mutate(input)}
       />
 
-      <ThemedText type="section" style={styles.sectionTitle}>
-        Wrap up
-      </ThemedText>
+      <SectionHeader title="Wrap up" />
       <View style={styles.wrapUp}>
         <Button
           label="End pop-up"
           accessibilityLabel="End this event"
           variant="secondary"
+          icon="check"
           onPress={onEndEvent}
           disabled={finished}
           style={styles.flex}
@@ -157,6 +163,7 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
           label="Cancel pop-up"
           accessibilityLabel="Cancel this event"
           variant="danger"
+          icon="close"
           onPress={onCancelEvent}
           disabled={event.status === 'cancelled'}
           style={styles.flex}
@@ -171,27 +178,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: Spacing.three,
-    paddingBottom: Spacing.six,
-    gap: Spacing.two,
+    padding: Spacing.three + Spacing.one,
+    gap: Spacing.three,
   },
   state: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: Spacing.two,
   },
-  chip: {
-    alignSelf: 'flex-start',
+  hero: {
+    gap: Spacing.two,
   },
-  title: {
-    fontSize: 34,
-    lineHeight: 36,
+  meta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.one + 2,
   },
   preview: {
     marginTop: Spacing.two,
-  },
-  sectionTitle: {
-    marginTop: Spacing.four,
   },
   wrapUp: {
     flexDirection: 'row',

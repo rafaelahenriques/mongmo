@@ -118,9 +118,10 @@ export type ProfileStats = {
  */
 export type BadgeDefinition = {
   id: string;
+  /** Stable slug ("first-sip") — picks the badge's symbol on the client. */
+  key: string;
   title: string;
   description: string;
-  emoji: string;
 };
 
 /** A badge the user has earned, with its unlock time. */

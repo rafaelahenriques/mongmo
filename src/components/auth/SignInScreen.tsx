@@ -8,13 +8,15 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { FontFamily, Spacing } from '@/constants/theme';
+import Chip from '@/components/ui/Chip';
+import { FontFamily, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/lib/supabase';
+import { haptics } from '@/services/haptics';
 
 type Mode = 'sign-in' | 'sign-up';
 
@@ -25,6 +27,7 @@ type Mode = 'sign-in' | 'sign-up';
  */
 export default function SignInScreen() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [mode, setMode] = useState<Mode>('sign-in');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,51 +45,43 @@ export default function SignInScreen() {
           ? await supabase.auth.signInWithPassword({ email: email.trim(), password })
           : await supabase.auth.signUp({ email: email.trim(), password });
       if (authError) {
+        haptics.error();
         setError(authError.message);
+      } else {
+        haptics.success();
       }
     } finally {
       setPending(false);
     }
   }, [mode, email, password]);
 
-  const inputStyle = [
-    styles.input,
-    { color: theme.text, backgroundColor: theme.background, borderColor: theme.border },
-  ];
+  const inputStyle = [styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }];
 
   return (
     <KeyboardAvoidingView
       style={[styles.flex, { backgroundColor: theme.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: insets.top + Spacing.five, paddingBottom: insets.bottom + Spacing.four },
+        ]}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.hero}>
-          <View
-            style={[styles.sticker, { backgroundColor: theme.highlight, borderColor: theme.border }]}
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-          >
-            <ThemedText type="label" style={{ color: theme.onHighlight }}>
-              Pop-ups · Points · Pickup
-            </ThemedText>
-          </View>
-          <ThemedText type="title" style={[styles.brand, { color: theme.primary }]} accessibilityRole="header">
+          <Chip label="Pop-ups · Points · Pickup" tone="info" />
+          <ThemedText type="display" style={[styles.brand, { color: theme.brand }]} accessibilityRole="header">
             Mongmo
           </ThemedText>
-          <ThemedText type="label" themeColor="textSecondary" style={styles.tagline}>
-            Cà phê · Bánh mì · Street food
-          </ThemedText>
-          <ThemedText type="small" themeColor="textSecondary" style={styles.tagline}>
-            Discover the next flavour — pop-ups, points and pickup, all in one place.
+          <ThemedText type="default" themeColor="textSecondary" style={styles.tagline}>
+            Cà phê, bánh mì and street food. Find the next pop-up, collect points, skip the queue.
           </ThemedText>
         </View>
 
-        <Card style={styles.form}>
-          <ThemedText type="section">{mode === 'sign-in' ? 'Welcome back' : 'Join the crew'}</ThemedText>
+        <View style={styles.form}>
+          <ThemedText type="subtitle">{mode === 'sign-in' ? 'Welcome back' : 'Join the crew'}</ThemedText>
 
-          <ThemedText type="label" style={styles.fieldSpacing}>
-            Email
-          </ThemedText>
           <TextInput
             value={email}
             onChangeText={setEmail}
@@ -99,10 +94,6 @@ export default function SignInScreen() {
             accessibilityLabel="Email"
             style={inputStyle}
           />
-
-          <ThemedText type="label" style={styles.fieldSpacing}>
-            Password
-          </ThemedText>
           <TextInput
             value={password}
             onChangeText={setPassword}
@@ -116,33 +107,30 @@ export default function SignInScreen() {
           />
 
           {error ? (
-            <ThemedText
-              type="small"
-              themeColor="danger"
-              style={styles.error}
-              accessibilityRole="alert"
-            >
+            <ThemedText type="small" themeColor="danger" style={styles.error} accessibilityRole="alert">
               {error}
             </ThemedText>
           ) : null}
 
           <Button
             label={mode === 'sign-in' ? 'Sign in' : 'Create account'}
+            variant="brand"
+            arrow
             onPress={onSubmit}
             disabled={!canSubmit}
             loading={pending}
+            haptic="press"
             style={styles.submit}
           />
 
           <Pressable
             onPress={() => {
+              haptics.select();
               setError(null);
               setMode((current) => (current === 'sign-in' ? 'sign-up' : 'sign-in'));
             }}
             accessibilityRole="button"
-            accessibilityLabel={
-              mode === 'sign-in' ? 'Switch to create an account' : 'Switch to sign in'
-            }
+            accessibilityLabel={mode === 'sign-in' ? 'Switch to create an account' : 'Switch to sign in'}
             style={styles.switchMode}
           >
             <ThemedText type="small" themeColor="textSecondary">
@@ -152,7 +140,7 @@ export default function SignInScreen() {
               </ThemedText>
             </ThemedText>
           </Pressable>
-        </Card>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -164,56 +152,43 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
-    justifyContent: 'center',
-    padding: Spacing.four,
-    gap: Spacing.four,
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.three + Spacing.one,
+    gap: Spacing.five,
+    width: '100%',
+    maxWidth: 480,
+    alignSelf: 'center',
   },
   hero: {
-    alignItems: 'center',
-    gap: Spacing.one,
-  },
-  sticker: {
-    borderWidth: 2,
-    borderRadius: 999,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.one,
-    transform: [{ rotate: '-4deg' }],
-    marginBottom: Spacing.two,
+    gap: Spacing.three,
   },
   brand: {
-    textAlign: 'center',
-    fontSize: 76,
-    lineHeight: 76,
+    fontSize: 96,
+    lineHeight: 92,
+    letterSpacing: -1,
   },
   tagline: {
-    textAlign: 'center',
-    maxWidth: 320,
+    maxWidth: 340,
   },
   form: {
-    gap: Spacing.one,
-    padding: Spacing.four,
-  },
-  fieldSpacing: {
-    marginTop: Spacing.three,
+    gap: Spacing.two + Spacing.one,
   },
   input: {
-    minHeight: 50,
-    borderRadius: 12,
-    borderWidth: 2,
-    paddingHorizontal: Spacing.three,
+    minHeight: 56,
+    borderRadius: Radius.pill,
+    paddingHorizontal: Spacing.four,
     fontFamily: FontFamily.body,
     fontSize: 16,
   },
   error: {
-    marginTop: Spacing.two,
+    paddingHorizontal: Spacing.two,
   },
   submit: {
-    marginTop: Spacing.four,
+    marginTop: Spacing.two,
   },
   switchMode: {
     minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: Spacing.two,
   },
 });

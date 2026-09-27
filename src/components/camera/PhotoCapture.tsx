@@ -1,11 +1,14 @@
 import { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { Camera, X } from 'lucide-react-native';
+
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/ThemedText';
-import { Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/useTheme';
+import { Button } from '@/components/ui/Button';
+import { Icon } from '@/components/ui/Icon';
+import { Radius, Spacing } from '@/constants/theme';
+import { haptics } from '@/services/haptics';
 
 export type PhotoCaptureProps = {
   visible: boolean;
@@ -17,13 +20,14 @@ export type PhotoCaptureProps = {
 
 /** Full-screen camera used for Capture/Discovery challenge photos. */
 export default function PhotoCapture({ visible, title, onCapture, onClose }: PhotoCaptureProps) {
-  const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<CameraView>(null);
   const [capturing, setCapturing] = useState(false);
 
   const onShutterPress = useCallback(async () => {
     if (!cameraRef.current || capturing) return;
+    haptics.press();
     setCapturing(true);
     try {
       const photo = await cameraRef.current.takePictureAsync({ quality: 0.7 });
@@ -48,32 +52,36 @@ export default function PhotoCapture({ visible, title, onCapture, onClose }: Pho
             <ThemedText type="small" style={[styles.lightText, styles.permissionBody]}>
               Allow the camera to take your challenge photo.
             </ThemedText>
-            <Pressable
-              onPress={requestPermission}
-              accessibilityRole="button"
+            <Button
+              label="Allow camera"
               accessibilityLabel="Allow camera access"
-              style={[styles.permissionButton, { backgroundColor: theme.text }]}
-            >
-              <ThemedText type="smallBold" style={{ color: theme.background }}>
-                Allow camera
-              </ThemedText>
-            </Pressable>
+              icon="camera"
+              variant="brand"
+              onPress={requestPermission}
+              style={styles.permissionButton}
+            />
           </View>
         )}
 
-        <ThemedText type="smallBold" style={[styles.title, styles.lightText]}>
-          {title}
-        </ThemedText>
-
-        <Pressable
-          onPress={onClose}
-          accessibilityRole="button"
-          accessibilityLabel="Close camera"
-          hitSlop={12}
-          style={styles.closeButton}
-        >
-          <X size={26} color="#FFFFFF" />
-        </Pressable>
+        <View style={[styles.topBar, { top: insets.top + Spacing.two }]}>
+          <View style={styles.titlePill}>
+            <ThemedText type="smallBold" style={styles.lightText} numberOfLines={1}>
+              {title}
+            </ThemedText>
+          </View>
+          <Pressable
+            onPress={() => {
+              haptics.tap();
+              onClose();
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Close camera"
+            hitSlop={12}
+            style={styles.closeButton}
+          >
+            <Icon name="close" size={20} color="#FFFFFF" weight="bold" />
+          </Pressable>
+        </View>
 
         {permission?.granted ? (
           <Pressable
@@ -81,10 +89,10 @@ export default function PhotoCapture({ visible, title, onCapture, onClose }: Pho
             disabled={capturing}
             accessibilityRole="button"
             accessibilityLabel="Take photo"
-            style={styles.shutterWrap}
+            style={[styles.shutterWrap, { bottom: insets.bottom + Spacing.five }]}
           >
             <View style={[styles.shutter, { opacity: capturing ? 0.6 : 1 }]}>
-              {capturing ? <ActivityIndicator color="#000000" /> : <Camera size={26} color="#000000" />}
+              {capturing ? <ActivityIndicator color="#000000" /> : <Icon name="camera" size={26} color="#000000" />}
             </View>
           </Pressable>
         ) : null}
@@ -100,27 +108,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: {
+  topBar: {
     position: 'absolute',
-    top: 64,
-    left: Spacing.four,
-    right: Spacing.four,
-    textAlign: 'center',
+    left: Spacing.three,
+    right: Spacing.three,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  titlePill: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    borderRadius: Radius.pill,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two + 2,
   },
   closeButton: {
-    position: 'absolute',
-    top: 60,
-    right: Spacing.three,
-    padding: Spacing.two,
+    width: 44,
+    height: 44,
+    borderRadius: Radius.pill,
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   shutterWrap: {
     position: 'absolute',
-    bottom: 48,
+    padding: 5,
+    borderRadius: Radius.pill,
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
   },
   shutter: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 68,
+    height: 68,
+    borderRadius: Radius.pill,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
@@ -135,12 +156,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   permissionButton: {
-    marginTop: Spacing.two,
-    minHeight: 44,
-    paddingHorizontal: Spacing.four,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: Spacing.three,
+    alignSelf: 'stretch',
   },
   lightText: {
     color: '#FFFFFF',

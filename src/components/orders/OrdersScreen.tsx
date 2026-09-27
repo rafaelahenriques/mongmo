@@ -1,11 +1,15 @@
 import { useCallback } from 'react';
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { ArrowRight, ShoppingBag } from 'lucide-react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import Chip from '@/components/ui/Chip';
+import { Icon } from '@/components/ui/Icon';
+import { IconBadge } from '@/components/ui/IconBadge';
+import { ListRow } from '@/components/ui/ListRow';
+import { LargeHeader, ScreenScroll, SectionHeader } from '@/components/ui/Screen';
 import { Spacing } from '@/constants/theme';
 import { useMyOrders } from '@/hooks/useMyOrders';
 import { useTheme } from '@/hooks/useTheme';
@@ -36,107 +40,97 @@ export default function OrdersScreen() {
   const orders = ordersQuery.data ?? [];
   const activeOrders = orders.filter((order) => ACTIVE_STATUSES.includes(order.status));
   const pastOrders = orders.filter((order) => !ACTIVE_STATUSES.includes(order.status));
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <ScrollView
-      style={[styles.scroll, { backgroundColor: theme.background }]}
-      contentContainerStyle={styles.content}
-    >
+    <ScreenScroll topInset>
+      <LargeHeader eyebrow="Pickup only" title="Orders" />
+
       {items.length > 0 ? (
         <Card
-          tone="highlight"
+          tone="brand"
           onPress={resumeCart}
           accessibilityLabel={`Resume cart, ${items.length} item${items.length === 1 ? '' : 's'}, ${formatCents(cartSubtotalCents(items))}`}
           style={styles.row}
         >
-          <ShoppingBag size={22} color={theme.onHighlight} />
+          <IconBadge name="bag" tone="card" size={48} />
           <View style={styles.cardTexts}>
-            <ThemedText type="section" style={{ color: theme.onHighlight }}>
-              Cart · {items.length} item{items.length === 1 ? '' : 's'}
+            <ThemedText type="section" style={{ color: theme.onBrand }}>
+              Your cart · {itemCount}
             </ThemedText>
-            <ThemedText type="small" style={{ color: theme.onHighlight }}>
-              {location?.type === 'event' ? location.eventTitle : 'Mongmo café'} ·{' '}
-              {formatCents(cartSubtotalCents(items))}
+            <ThemedText type="small" style={{ color: theme.onBrand }} numberOfLines={1}>
+              {location?.type === 'event' ? location.eventTitle : 'Mongmo café'} · {formatCents(cartSubtotalCents(items))}
             </ThemedText>
           </View>
-          <ArrowRight size={20} color={theme.onHighlight} />
+          <Icon name="arrowRight" size={20} color={theme.onBrand} weight="bold" />
         </Card>
       ) : null}
 
       {activeOrders.map((order) => (
         <Card
           key={order.id}
-          tone="accent"
+          tone="primary"
           onPress={() => openStatus(order.id)}
           accessibilityLabel={`Order ${ORDER_STATUS_LABEL[order.status]}, ${formatCents(order.total_cents)}`}
           style={styles.row}
         >
+          <IconBadge name="takeout" tone="accent" size={48} />
           <View style={styles.cardTexts}>
-            <ThemedText type="section" style={{ color: theme.onAccent }}>
+            <ThemedText type="section" style={{ color: theme.onPrimary }}>
               {ORDER_STATUS_LABEL[order.status]}
             </ThemedText>
-            <ThemedText type="small" style={{ color: theme.onAccent }}>
-              {formatCents(order.total_cents)} · tap for pickup code
+            <ThemedText type="small" style={{ color: theme.onPrimary, opacity: 0.8 }}>
+              {formatCents(order.total_cents)} · tap for your pickup code
             </ThemedText>
           </View>
-          <ArrowRight size={20} color={theme.onAccent} />
+          <Icon name="arrowRight" size={20} color={theme.onPrimary} weight="bold" />
         </Card>
       ))}
 
-      <Button
-        label="Start an order"
-        accessibilityLabel="Start a new order"
-        icon={<ShoppingBag size={20} color={theme.onPrimary} />}
-        onPress={startOrder}
-      />
+      <Button label="Start an order" accessibilityLabel="Start a new order" icon="add" arrow onPress={startOrder} />
 
-      <ThemedText type="section" style={styles.sectionTitle}>
-        Order history
-      </ThemedText>
+      <SectionHeader title="History" />
 
       {ordersQuery.isPending ? (
         <ActivityIndicator size="small" color={theme.text} style={styles.loader} />
       ) : pastOrders.length === 0 ? (
-        <ThemedText type="small" themeColor="textSecondary">
-          No past orders yet — your first one will show up here.
-        </ThemedText>
+        <Card tone="muted" style={styles.empty}>
+          <Icon name="receipt" size={22} color={theme.textSecondary} />
+          <ThemedText type="small" themeColor="textSecondary" style={styles.cardTexts}>
+            No past orders yet — your first one will show up here.
+          </ThemedText>
+        </Card>
       ) : (
-        pastOrders.map((order) => (
-          <Pressable
-            key={order.id}
-            onPress={() => openStatus(order.id)}
-            accessibilityRole="button"
-            accessibilityLabel={`Past order, ${ORDER_STATUS_LABEL[order.status]}, ${formatCents(order.total_cents)}`}
-            style={({ pressed }) => [
-              styles.historyRow,
-              { borderColor: theme.border, opacity: pressed ? 0.7 : 1 },
-            ]}
-          >
-            <View style={styles.cardTexts}>
-              <ThemedText type="small">{new Date(order.created_at).toLocaleDateString()}</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                {ORDER_STATUS_LABEL[order.status]}
-              </ThemedText>
+        <Card style={styles.history}>
+          {pastOrders.map((order, index) => (
+            <View key={order.id}>
+              {index > 0 ? <View style={[styles.divider, { backgroundColor: theme.border }]} /> : null}
+              <ListRow
+                title={new Date(order.created_at).toLocaleDateString(undefined, {
+                  weekday: 'short',
+                  day: 'numeric',
+                  month: 'short',
+                })}
+                subtitle={formatCents(order.total_cents)}
+                icon="receipt"
+                trailing={
+                  <Chip
+                    label={ORDER_STATUS_LABEL[order.status]}
+                    tone={order.status === 'cancelled' ? 'danger' : 'neutral'}
+                  />
+                }
+                onPress={() => openStatus(order.id)}
+                accessibilityLabel={`Past order, ${ORDER_STATUS_LABEL[order.status]}, ${formatCents(order.total_cents)}`}
+              />
             </View>
-            <ThemedText type="smallBold" themeColor="primaryText">
-              {formatCents(order.total_cents)}
-            </ThemedText>
-          </Pressable>
-        ))
+          ))}
+        </Card>
       )}
-    </ScrollView>
+    </ScreenScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-  },
-  content: {
-    padding: Spacing.three,
-    paddingBottom: Spacing.six,
-    gap: Spacing.three,
-  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -146,17 +140,20 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 2,
   },
-  sectionTitle: {
-    marginTop: Spacing.two,
-  },
   loader: {
     marginVertical: Spacing.four,
   },
-  historyRow: {
+  empty: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    gap: Spacing.three,
+  },
+  history: {
     paddingVertical: Spacing.two,
+    gap: 0,
+  },
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    marginLeft: 40 + Spacing.three,
   },
 });

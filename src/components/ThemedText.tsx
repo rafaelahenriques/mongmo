@@ -6,6 +6,7 @@ import { useTheme } from '@/hooks/useTheme';
 export type ThemedTextProps = TextProps & {
   type?:
     | 'default'
+    | 'display'
     | 'title'
     | 'subtitle'
     | 'section'
@@ -36,42 +37,43 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
 }
 
 const styles = StyleSheet.create({
-  /** Big condensed caps — screen titles and hero moments. */
+  /** Big numerals (points, pickup codes, counts). */
+  display: {
+    fontFamily: FontFamily.display,
+    fontSize: 64,
+    lineHeight: 64,
+    letterSpacing: -0.5,
+  },
+  /** Screen headings — condensed, sentence case. */
   title: {
     fontFamily: FontFamily.display,
     fontSize: 40,
     lineHeight: 42,
-    textTransform: 'uppercase',
+    letterSpacing: -0.3,
   },
   subtitle: {
     fontFamily: FontFamily.display,
     fontSize: 28,
-    lineHeight: 32,
-    textTransform: 'uppercase',
+    lineHeight: 30,
   },
   /** Section headings ("Nearby pop-ups", "Settings"). */
   section: {
-    fontFamily: FontFamily.display,
-    fontSize: 22,
-    lineHeight: 26,
-    textTransform: 'uppercase',
-    letterSpacing: 0.3,
+    fontFamily: FontFamily.bodySemiBold,
+    fontSize: 18,
+    lineHeight: 24,
   },
-  /** Small caps for stickers, chips and eyebrows. */
+  /** Small uppercase eyebrow above a value or group. */
   label: {
-    fontFamily: FontFamily.displayBold,
-    fontSize: 14,
-    lineHeight: 18,
+    fontFamily: FontFamily.bodySemiBold,
+    fontSize: 12,
+    lineHeight: 16,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
-  /** Button labels: 20px bold, so they count as large text for contrast. */
   button: {
-    fontFamily: FontFamily.display,
-    fontSize: 20,
-    lineHeight: 24,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
+    fontFamily: FontFamily.bodySemiBold,
+    fontSize: 16,
+    lineHeight: 20,
   },
   default: {
     fontFamily: FontFamily.body,
@@ -84,7 +86,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   smallBold: {
-    fontFamily: FontFamily.bodyBold,
+    fontFamily: FontFamily.bodySemiBold,
     fontSize: 14,
     lineHeight: 20,
   },

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { completeChallenge, getChallenges, getMyChallengeCompletions } from '@/api/challenges';
+import { haptics } from '@/services/haptics';
 
 /** An event's challenges, the signed-in user's completions, and a mutation to complete one. */
 export function useChallenges(eventId: string) {
@@ -30,12 +31,14 @@ export function useChallenges(eventId: string) {
     // challenge actually shows as done, so there's no gap where it can be
     // started again.
     onSuccess: () => {
+      haptics.success();
       queryClient.invalidateQueries({ queryKey: ['badges', 'earned'] });
       queryClient.invalidateQueries({ queryKey: ['points'] });
       queryClient.invalidateQueries({ queryKey: ['profile-stats'] });
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
       return queryClient.invalidateQueries({ queryKey: ['challenge-completions'] });
     },
+    onError: () => haptics.error(),
   });
 
   return {

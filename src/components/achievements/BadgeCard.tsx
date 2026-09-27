@@ -1,7 +1,11 @@
 import { StyleSheet, View } from 'react-native';
 import { formatInTimeZone } from 'date-fns-tz';
 
+import { badgeIcon } from '@/components/achievements/badgeIcons';
 import { ThemedText } from '@/components/ThemedText';
+import { Card } from '@/components/ui/Card';
+import { Icon } from '@/components/ui/Icon';
+import { IconBadge } from '@/components/ui/IconBadge';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
@@ -13,8 +17,8 @@ export type BadgeCardProps = {
 };
 
 /**
- * One badge tile: full colour with an unlock date when earned, greyed out
- * with a lock and the requirement as its hint while still locked.
+ * One badge tile: its symbol on Bold Red with the unlock date when earned;
+ * muted with a lock, and the requirement as its hint, while still locked.
  */
 export default function BadgeCard({ definition, earned }: BadgeCardProps) {
   const theme = useTheme();
@@ -24,66 +28,55 @@ export default function BadgeCard({ definition, earned }: BadgeCardProps) {
     : 'Locked';
 
   return (
-    <View
-      accessibilityRole="text"
-      accessibilityLabel={`${definition.title}. ${
-        earned ? statusLabel : `Locked — ${definition.description}`
-      }`}
-      style={[
-        styles.card,
-        earned
-          ? { backgroundColor: theme.highlight, borderColor: theme.border, boxShadow: `3px 3px 0px ${theme.shadow}` }
-          : { backgroundColor: theme.backgroundElement, borderColor: theme.border, opacity: 0.6 },
-      ]}
-    >
-      <View style={styles.headRow}>
-        <ThemedText style={styles.emoji}>{definition.emoji}</ThemedText>
-        {!earned ? (
-          <ThemedText type="small" themeColor="textSecondary">
-            🔒
-          </ThemedText>
-        ) : null}
-      </View>
-      <ThemedText type="section" numberOfLines={1} style={[styles.title, earned ? { color: theme.onHighlight } : undefined]}>
-        {definition.title}
-      </ThemedText>
-      <ThemedText
-        type="small"
-        themeColor={earned ? undefined : 'textSecondary'}
-        style={[styles.description, earned ? { color: theme.onHighlight } : undefined]}
+    <Card tone={earned ? 'default' : 'muted'} style={styles.card}>
+      <View
+        accessible
+        accessibilityRole="text"
+        accessibilityLabel={`${definition.title}. ${earned ? statusLabel : `Locked — ${definition.description}`}`}
+        style={styles.inner}
       >
-        {definition.description}
-      </ThemedText>
-      <ThemedText type="label" themeColor={earned ? undefined : 'textSecondary'} style={earned ? { color: theme.onHighlight } : undefined}>
-        {statusLabel}
-      </ThemedText>
-    </View>
+        <View style={styles.headRow}>
+          <IconBadge
+            name={badgeIcon(definition.key)}
+            tone={earned ? 'brand' : 'card'}
+            size={48}
+            style={earned ? undefined : styles.locked}
+          />
+          {!earned ? <Icon name="lock" size={14} color={theme.textSecondary} /> : null}
+        </View>
+        <ThemedText type="smallBold" numberOfLines={1} themeColor={earned ? undefined : 'textSecondary'}>
+          {definition.title}
+        </ThemedText>
+        <ThemedText type="small" themeColor="textSecondary" style={styles.description} numberOfLines={2}>
+          {definition.description}
+        </ThemedText>
+        <ThemedText type="label" style={{ color: earned ? theme.primaryText : theme.textSecondary }}>
+          {statusLabel}
+        </ThemedText>
+      </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: 18,
-    lineHeight: 22,
-  },
   card: {
     flexGrow: 1,
-    flexBasis: '47%',
-    borderRadius: 14,
-    borderWidth: 2,
+    flexBasis: '46%',
     padding: Spacing.three,
-    gap: Spacing.half,
+  },
+  inner: {
+    gap: Spacing.one,
   },
   headRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    marginBottom: Spacing.two,
   },
-  emoji: {
-    fontSize: 24,
-    lineHeight: 30,
+  locked: {
+    opacity: 0.6,
   },
   description: {
-    minHeight: 36,
+    minHeight: 40,
   },
 });

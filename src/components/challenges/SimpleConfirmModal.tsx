@@ -1,8 +1,10 @@
-import { Modal, Pressable, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
-import { Spacing } from '@/constants/theme';
+import { Icon } from '@/components/ui/Icon';
+import { Sheet } from '@/components/ui/Sheet';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
 export type SimpleConfirmModalProps = {
@@ -17,7 +19,7 @@ export type SimpleConfirmModalProps = {
 };
 
 /**
- * Shared "explain, then confirm" modal for challenge types that don't need
+ * Shared "explain, then confirm" sheet for challenge types that don't need
  * a dedicated input (Explore, Timing, Collection, Streak) — the server
  * still only records the completion once its own checks pass (a prior
  * check-in for this event), this is just the tap that asks for it.
@@ -35,56 +37,38 @@ export default function SimpleConfirmModal({
   const theme = useTheme();
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
-        <Pressable
-          style={[styles.card, { backgroundColor: theme.background, borderColor: theme.border, boxShadow: `4px 4px 0px ${theme.shadow}` }]}
-          accessibilityViewIsModal
-        >
-          <ThemedText type="section">{title}</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary" style={styles.body}>
-            {body}
+    <Sheet visible={visible} title={title} subtitle={body} onClose={onClose}>
+      {disabledReason ? (
+        <View style={[styles.notice, { backgroundColor: theme.backgroundSelected }]} accessibilityRole="alert">
+          <Icon name="alert" size={18} color={theme.danger} />
+          <ThemedText type="small" themeColor="danger" style={styles.noticeText}>
+            {disabledReason}
           </ThemedText>
+        </View>
+      ) : null}
 
-          {disabledReason ? (
-            <ThemedText type="small" themeColor="danger">
-              {disabledReason}
-            </ThemedText>
-          ) : null}
-
-          <Button
-            label={confirmLabel}
-            onPress={onConfirm}
-            loading={pending}
-            disabled={Boolean(disabledReason)}
-            style={styles.button}
-          />
-        </Pressable>
-      </Pressable>
-    </Modal>
+      <Button
+        label={confirmLabel}
+        variant="brand"
+        icon="check"
+        onPress={onConfirm}
+        loading={pending}
+        disabled={Boolean(disabledReason)}
+        haptic="press"
+      />
+    </Sheet>
   );
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: Spacing.four,
-  },
-  card: {
-    width: '100%',
-    maxWidth: 360,
-    borderRadius: 16,
-    borderWidth: 2,
-    padding: Spacing.four,
+  notice: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: Spacing.two,
+    borderRadius: Radius.medium,
+    padding: Spacing.three,
   },
-  body: {
-    marginBottom: Spacing.one,
-  },
-  button: {
-    marginTop: Spacing.two,
+  noticeText: {
+    flex: 1,
   },
 });
