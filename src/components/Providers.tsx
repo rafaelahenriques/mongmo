@@ -1,5 +1,5 @@
 import { useEffect, type PropsWithChildren } from 'react';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
@@ -86,7 +86,9 @@ function AppServices({ children }: PropsWithChildren) {
 
   return (
     <>
-      <NotificationNavigation />
+      {/* Web has no notification taps to follow, and the hook behind this
+          (getLastNotificationResponse) throws there during render. */}
+      {Platform.OS !== 'web' ? <NotificationNavigation /> : null}
       {children}
     </>
   );
