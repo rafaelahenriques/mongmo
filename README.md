@@ -11,9 +11,10 @@ to apply the schema and set `EXPO_PUBLIC_SUPABASE_URL` /
 
 ## This app does not run in Expo Go
 
-Background geofencing (`expo-task-manager`) and the camera (`expo-camera`,
-for QR check-in and challenge photos) are native modules Expo Go doesn't
-ship — opening the project in the plain Expo Go app will crash with
+Background geofencing (`expo-task-manager`), the camera (`expo-camera`,
+for QR check-in and challenge photos), the photo library (`expo-image-picker`,
+for pop-up photos) and the native date pickers (`@expo/ui`) are native
+modules Expo Go doesn't ship — opening the project in the plain Expo Go app will crash with
 `Cannot find native module 'ExpoCamera'` (or similar) the moment any screen
 imports one. You need a **development build** instead:
 
