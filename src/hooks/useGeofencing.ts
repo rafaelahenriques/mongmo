@@ -26,10 +26,10 @@ const SKIP_PERMISSION_PROMPT = process.env.EXPO_PUBLIC_UI_TOUR === '1';
  */
 export function useGeofencing(events: PopUpEvent[] | undefined): void {
   const permission = useLocationStore((state) => state.permission);
-  const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
+  const nearbyAlertsEnabled = useSettingsStore((state) => state.notifications.nearby);
 
   useEffect(() => {
-    if (!notificationsEnabled) {
+    if (!nearbyAlertsEnabled) {
       // Settings toggle off: tear regions down so no alert can fire.
       Location.stopGeofencingAsync(GEOFENCE_TASK_NAME).catch(() => undefined);
       return;
@@ -78,5 +78,5 @@ export function useGeofencing(events: PopUpEvent[] | undefined): void {
     return () => {
       cancelled = true;
     };
-  }, [permission, events, notificationsEnabled]);
+  }, [permission, events, nearbyAlertsEnabled]);
 }

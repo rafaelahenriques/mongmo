@@ -6,13 +6,50 @@ import { Spacing } from '@/constants/theme';
 import { useProfile, useSetLeaderboardVisible } from '@/hooks/useProfile';
 import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/lib/supabase';
-import { useSettingsStore, type ThemeMode } from '@/state/settingsStore';
+import { useSettingsStore, type NotificationPrefs, type ThemeMode } from '@/state/settingsStore';
 
 const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
   { value: 'system', label: 'System' },
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },
 ];
+
+const NOTIFICATION_OPTIONS: { key: keyof NotificationPrefs; label: string; hint: string }[] = [
+  { key: 'nearby', label: 'Nearby pop-ups', hint: 'Alerts when you’re near a pop-up (500 m)' },
+  { key: 'orderUpdates', label: 'Order updates', hint: 'Confirmed, preparing, ready for pickup' },
+  { key: 'rewardExpiring', label: 'Reward expiring', hint: 'A reminder before a redeemed reward expires' },
+];
+
+function NotificationToggleRow({
+  label,
+  hint,
+  value,
+  onValueChange,
+}: {
+  label: string;
+  hint: string;
+  value: boolean;
+  onValueChange: (value: boolean) => void;
+}) {
+  const theme = useTheme();
+  return (
+    <View style={styles.row}>
+      <View style={styles.rowTexts}>
+        <ThemedText type="smallBold">{label}</ThemedText>
+        <ThemedText type="small" themeColor="textSecondary">
+          {hint}
+        </ThemedText>
+      </View>
+      <Switch
+        value={value}
+        onValueChange={onValueChange}
+        accessibilityLabel={label}
+        trackColor={{ true: theme.success, false: theme.backgroundSelected }}
+        thumbColor="#FFFFFF"
+      />
+    </View>
+  );
+}
 
 /**
  * Notification, appearance and privacy controls plus log out. Every row is
@@ -21,9 +58,9 @@ const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
  */
 export default function SettingsPanel() {
   const theme = useTheme();
-  const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
+  const notifications = useSettingsStore((state) => state.notifications);
   const themeMode = useSettingsStore((state) => state.themeMode);
-  const setNotificationsEnabled = useSettingsStore((state) => state.setNotificationsEnabled);
+  const setNotificationPref = useSettingsStore((state) => state.setNotificationPref);
   const setThemeMode = useSettingsStore((state) => state.setThemeMode);
 
   const profile = useProfile();
@@ -39,21 +76,15 @@ export default function SettingsPanel() {
 
   return (
     <View style={[styles.panel, { borderColor: theme.backgroundSelected }]}>
-      <View style={styles.row}>
-        <View style={styles.rowTexts}>
-          <ThemedText type="smallBold">Push notifications</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            Alerts when you’re near a pop-up (500 m)
-          </ThemedText>
-        </View>
-        <Switch
-          value={notificationsEnabled}
-          onValueChange={setNotificationsEnabled}
-          accessibilityLabel="Push notifications"
-          trackColor={{ true: theme.success, false: theme.backgroundSelected }}
-          thumbColor="#FFFFFF"
+      {NOTIFICATION_OPTIONS.map((option) => (
+        <NotificationToggleRow
+          key={option.key}
+          label={option.label}
+          hint={option.hint}
+          value={notifications[option.key]}
+          onValueChange={(value) => setNotificationPref(option.key, value)}
         />
-      </View>
+      ))}
 
       <View style={styles.row}>
         <View style={styles.rowTexts}>
