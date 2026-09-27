@@ -49,6 +49,9 @@ left, per "no hardcoded/mock data."
 | `0008_backfill_profiles.sql` | Creates the missing `profiles` row for any account that existed before 0002's sign-up trigger did. |
 | `0009_live_occupancy_and_order_updates.sql` | Each verified check-in adds one to the pop-up's occupancy (trigger), which Realtime pushes to every "how busy" meter; publishes `orders` to Realtime so order-status notifications can fire. |
 | `0010_drop_badge_emoji.sql` | Drops `badges.emoji`: the app shows each badge with a system symbol picked by its `key`. |
+| `0011_profile_editing.sql` | Lets people edit their display name, bio and home city (length limits enforced), and narrows their UPDATE grant on `profiles` to the columns they may change. |
+| `0012_challenge_settings.sql` | Per-type challenge settings in `challenges.config` (photo count, time window, vote options, dishes, pop-ups, distance…), normalized on save, and `complete_challenge` enforcing each type's rule: uploaded photos are counted in Storage, votes must be a listed option, timing must be inside its window, and so on. |
+| `0013_event_images.sql` | `event-images` bucket for uploaded pop-up photos (public read, owner-only writes, images up to 5 MB); caps challenge photos at 10 MB. |
 
 ### Points ledger, not a running total
 
