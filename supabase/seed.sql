@@ -104,14 +104,49 @@ insert into public.event_menus (event_id, menu_id) values
   ('00000000-0000-0000-0000-0000000000e3', '00000000-0000-0000-0000-0000000000d1')
 on conflict do nothing;
 
--- One challenge per category on the live event, so the generic engine has
--- something of every type to render.
-insert into public.challenges (id, event_id, type, title, description, points, sort_order) values
-  ('00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000e3', 'check_in', 'Scan in at Bar Amorse', 'Scan the event QR code when you arrive.', 20, 1),
-  ('00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000e3', 'taste', 'Rate the bánh mì', 'Tell us what you thought after you eat.', 15, 2),
-  ('00000000-0000-0000-0000-0000000000c3', '00000000-0000-0000-0000-0000000000e3', 'social', 'Bring a friend', 'Share your referral code with someone new.', 25, 3),
-  ('00000000-0000-0000-0000-0000000000c4', '00000000-0000-0000-0000-0000000000e3', 'discovery', 'Find the hidden sticker', 'Look for the Mongmo sticker somewhere on the street.', 20, 4)
-on conflict (id) do nothing;
+-- A full spread of challenges — every type the engine supports — on the
+-- live event, plus two previews on the upcoming one. The configs are the
+-- per-type settings the server validates and normalizes on save
+-- (0012_challenge_settings.sql). Re-running refreshes them.
+insert into public.challenges (id, event_id, type, title, description, points, sort_order, config) values
+  ('00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000e3', 'check_in', 'Scan in at Bar Amorse', 'Scan the event QR code when you arrive.', 20, 1, '{}'::jsonb),
+  ('00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000e3', 'taste', 'Rate the bánh mì', 'Tell us what you thought after you eat.', 15, 2, '{"dish": "bánh mì"}'::jsonb),
+  ('00000000-0000-0000-0000-0000000000c3', '00000000-0000-0000-0000-0000000000e3', 'social', 'Bring a friend', 'Share your referral code with someone new.', 25, 3, '{"message": "Mongmo pop-ups are the best in Kortrijk — come along!"}'::jsonb),
+  ('00000000-0000-0000-0000-0000000000c4', '00000000-0000-0000-0000-0000000000e3', 'discovery', 'Find the hidden sticker', 'Look for the Mongmo sticker somewhere on the street.', 20, 4, '{"photoCount": 1, "hint": "Check the shop windows near the entrance."}'::jsonb),
+  ('00000000-0000-0000-0000-0000000000c5', '00000000-0000-0000-0000-0000000000e3', 'capture', 'Brunch photo diary', 'Snap two photos of your table before the plates are gone.', 25, 5, '{"photoCount": 2, "prompt": "your brunch table"}'::jsonb),
+  ('00000000-0000-0000-0000-0000000000c6', '00000000-0000-0000-0000-0000000000e3', 'community', 'Best coffee order', 'Vote for the drink that should stay on the menu all year.', 15, 6, '{"options": ["Cà phê sữa đá", "Cà phê đen", "Bạc xỉu", "Trà đá"]}'::jsonb),
+  ('00000000-0000-0000-0000-0000000000c7', '00000000-0000-0000-0000-0000000000e3', 'collection', 'Taste trail', 'Order three different things from the menu today.', 30, 7, '{"dishCount": 3}'::jsonb),
+  ('00000000-0000-0000-0000-0000000000c8', '00000000-0000-0000-0000-0000000000e3', 'streak', 'Regular face', 'Check in at three Mongmo pop-ups — this one counts.', 40, 8, '{"popupCount": 3}'::jsonb),
+  ('00000000-0000-0000-0000-0000000000c9', '00000000-0000-0000-0000-0000000000e3', 'explore', 'Stick around', 'Explore the street around the pop-up while you’re here.', 15, 9, '{"radiusM": 300}'::jsonb),
+  ('00000000-0000-0000-0000-0000000000cb', '00000000-0000-0000-0000-0000000000e2', 'capture', 'Lantern hunter', 'Photograph the lanterns strung over Chinatown.', 20, 1, '{"photoCount": 1, "prompt": "the lanterns over Chinatown"}'::jsonb),
+  ('00000000-0000-0000-0000-0000000000cc', '00000000-0000-0000-0000-0000000000e2', 'taste', 'First taste', 'Be the first to rate the bakery stand’s bánh mì.', 15, 2, '{"dish": "bánh mì from the bakery stand"}'::jsonb)
+on conflict (id) do update set
+  type = excluded.type,
+  title = excluded.title,
+  description = excluded.description,
+  points = excluded.points,
+  sort_order = excluded.sort_order,
+  config = excluded.config;
+
+-- The timing challenge stores an absolute window, so derive it from the
+-- event's own start (its first three hours) instead of a literal — the
+-- seed refreshes e3's dates on every run, and this follows them.
+insert into public.challenges (id, event_id, type, title, description, points, sort_order, config)
+select
+  '00000000-0000-0000-0000-0000000000ca', e.id, 'timing',
+  'Beat the clock',
+  'Finish this within the first three hours of the pop-up.',
+  30, 10,
+  jsonb_build_object(
+    'startsAt', to_char(e.starts_at at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+    'endsAt', to_char((e.starts_at + interval '3 hours') at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+  )
+from public.events e
+where e.id = '00000000-0000-0000-0000-0000000000e3'
+on conflict (id) do update set
+  config = excluded.config,
+  points = excluded.points,
+  sort_order = excluded.sort_order;
 
 -- ------------------------------------------------------------------
 -- Badges: the fixed, developer-defined achievement ladder.
@@ -124,7 +159,12 @@ insert into public.badges (key, title, description, points, sort_order) values
   ('memory-maker', 'Memory Maker', 'Complete 3 challenges', 75, 5),
   ('first-order', 'First Order', 'Place your first order', 25, 6),
   ('regular', 'Regular', 'Place 3 orders', 75, 7),
-  ('event-eater', 'Event Eater', 'Order at 2 different pop-ups', 50, 8)
+  ('event-eater', 'Event Eater', 'Order at 2 different pop-ups', 50, 8),
+  ('city-hopper', 'City Hopper', 'Check in to pop-ups in 2 different cities', 50, 9),
+  ('event-hopper', 'Event Hopper', 'Check in at 3 different pop-ups', 75, 10),
+  ('shutterbug', 'Shutterbug', 'Complete 3 photo challenges', 50, 11),
+  ('taste-tester', 'Taste Tester', 'Complete 2 tasting challenges', 50, 12),
+  ('challenge-champion', 'Challenge Champion', 'Complete 10 challenges', 100, 13)
 on conflict (key) do nothing;
 
 -- ------------------------------------------------------------------
