@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getChallenges } from '@/api/challenges';
 import { createChallenge, deleteChallenge, updateChallenge, type ChallengeInput } from '@/api/owner';
 
-/** An event's challenges, for the owner's manage screen (create/edit/remove). */
+/** An event's challenges plus the owner's create / edit / remove mutations. */
 export function useOwnerChallenges(eventId: string) {
   const queryClient = useQueryClient();
 
@@ -13,6 +13,7 @@ export function useOwnerChallenges(eventId: string) {
     enabled: eventId.length > 0,
   });
 
+  // Customers' event screens read the same key, so they see edits at once.
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['challenges', eventId] });
 
   const create = useMutation({
@@ -34,8 +35,8 @@ export function useOwnerChallenges(eventId: string) {
   return {
     challenges: query.data ?? [],
     isLoading: query.isPending,
-    create: create.mutate,
-    update: update.mutate,
-    remove: remove.mutate,
+    create,
+    update,
+    remove,
   };
 }

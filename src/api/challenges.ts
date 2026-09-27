@@ -1,23 +1,25 @@
 import { toApiError } from '@/api/errors';
 import { getCurrentUserId, supabase } from '@/lib/supabase';
 import type { Challenge, ChallengeCompletion } from '@/types';
+import { parseChallengeRules } from '@/utils/challengeConfig';
 
 /** Every challenge on an event, in owner-defined order. */
 export async function getChallenges(eventId: string): Promise<Challenge[]> {
   const { data, error } = await supabase
     .from('challenges')
-    .select('id, event_id, type, title, description, points')
+    .select('id, event_id, type, title, description, points, config')
     .eq('event_id', eventId)
-    .order('sort_order');
+    .order('sort_order')
+    .order('created_at');
   if (error) throw toApiError(error);
 
   return data.map((row) => ({
     id: row.id,
     eventId: row.event_id,
-    type: row.type,
     title: row.title,
     description: row.description,
     points: row.points,
+    ...parseChallengeRules(row.type, row.config),
   }));
 }
 
@@ -38,7 +40,11 @@ export async function getMyChallengeCompletions(): Promise<ChallengeCompletion[]
   }));
 }
 
-/** Completes a challenge; the server requires a prior check-in for its event. */
+/**
+ * Completes a challenge. The server requires a prior check-in for its event
+ * and then checks the type's own rule (photos uploaded, inside the time
+ * window, a valid vote…); its message says what's missing.
+ */
 export async function completeChallenge(
   challengeId: string,
   data: Record<string, unknown> = {},
