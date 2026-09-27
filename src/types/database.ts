@@ -119,6 +119,8 @@ type ChallengeRow = {
   description: string;
   points: number;
   sort_order: number;
+  /** Per-type settings, normalized by the server (see 0012_challenge_settings.sql). */
+  config: Record<string, unknown>;
   created_at: string;
 };
 

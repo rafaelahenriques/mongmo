@@ -36,6 +36,7 @@ export function useChallenges(eventId: string) {
       queryClient.invalidateQueries({ queryKey: ['points'] });
       queryClient.invalidateQueries({ queryKey: ['profile-stats'] });
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+      queryClient.invalidateQueries({ queryKey: ['photos'] });
       return queryClient.invalidateQueries({ queryKey: ['challenge-completions'] });
     },
     onError: () => haptics.error(),

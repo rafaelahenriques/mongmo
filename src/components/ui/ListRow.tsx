@@ -63,6 +63,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.three,
     minHeight: 56,
+    paddingVertical: Spacing.two,
   },
   texts: {
     flex: 1,

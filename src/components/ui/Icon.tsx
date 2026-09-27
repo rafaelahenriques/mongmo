@@ -31,6 +31,7 @@ import {
   Minus,
   Navigation,
   Package,
+  Pencil,
   Phone,
   Plus,
   QrCode,
@@ -104,6 +105,7 @@ const ICONS = {
   phone: { sf: 'phone.fill', fallback: Phone },
   bell: { sf: 'bell.fill', fallback: Bell },
   logout: { sf: 'rectangle.portrait.and.arrow.right', fallback: LogOut },
+  edit: { sf: 'pencil', fallback: Pencil },
 
   star: { sf: 'star.fill', fallback: Star },
   starOutline: { sf: 'star', fallback: Star },

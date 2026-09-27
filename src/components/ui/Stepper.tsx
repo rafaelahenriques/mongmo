@@ -4,23 +4,29 @@ import { ThemedText } from '@/components/ThemedText';
 import { IconButton } from '@/components/ui/IconButton';
 import { Spacing } from '@/constants/theme';
 
-/** − 2 + quantity control. Labels name the thing being counted. */
+/** − 2 + control. Labels name the thing being counted. */
 export function Stepper({
   value,
   onChange,
   min = 1,
-  itemName,
+  max = Number.POSITIVE_INFINITY,
+  step = 1,
+  label = 'quantity',
+  formatValue = String,
   size = 'medium',
 }: {
   value: number;
   onChange: (value: number) => void;
   min?: number;
-  /** "Decrease quantity of {itemName}"; omit for a generic label. */
-  itemName?: string;
+  max?: number;
+  step?: number;
+  /** What's being counted, for screen readers: "Decrease {label}". */
+  label?: string;
+  /** How the value reads, e.g. `(n) => `${n} m``. */
+  formatValue?: (value: number) => string;
   size?: 'medium' | 'large';
 }) {
   const button = size === 'large' ? 48 : 34;
-  const suffix = itemName ? ` of ${itemName}` : '';
   return (
     <View style={styles.row}>
       <IconButton
@@ -28,24 +34,26 @@ export function Stepper({
         tone="muted"
         size={button}
         haptic="select"
-        disabled={value <= min}
-        onPress={() => onChange(Math.max(min, value - 1))}
-        accessibilityLabel={`Decrease quantity${suffix}`}
+        disabled={value - step < min}
+        onPress={() => onChange(Math.max(min, value - step))}
+        accessibilityLabel={`Decrease ${label}`}
       />
       <ThemedText
         type={size === 'large' ? 'subtitle' : 'smallBold'}
-        style={[styles.value, { minWidth: size === 'large' ? 40 : 22 }]}
-        accessibilityLabel={`Quantity ${value}`}
+        style={[styles.value, { minWidth: size === 'large' ? 40 : 28 }]}
+        accessibilityLabel={`${label}: ${formatValue(value)}`}
+        accessibilityLiveRegion="polite"
       >
-        {value}
+        {formatValue(value)}
       </ThemedText>
       <IconButton
         icon="add"
         tone="muted"
         size={button}
         haptic="select"
-        onPress={() => onChange(value + 1)}
-        accessibilityLabel={`Increase quantity${suffix}`}
+        disabled={value + step > max}
+        onPress={() => onChange(Math.min(max, value + step))}
+        accessibilityLabel={`Increase ${label}`}
       />
     </View>
   );

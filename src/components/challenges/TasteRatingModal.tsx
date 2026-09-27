@@ -11,18 +11,32 @@ import { haptics } from '@/services/haptics';
 export type TasteRatingModalProps = {
   visible: boolean;
   title: string;
+  /** The dish being rated, if the owner named one. */
+  dish?: string;
   pending?: boolean;
   onSubmit: (rating: number) => void;
   onClose: () => void;
 };
 
 /** 1–5 star rating for the Taste challenge type. */
-export default function TasteRatingModal({ visible, title, pending = false, onSubmit, onClose }: TasteRatingModalProps) {
+export default function TasteRatingModal({
+  visible,
+  title,
+  dish,
+  pending = false,
+  onSubmit,
+  onClose,
+}: TasteRatingModalProps) {
   const theme = useTheme();
   const [rating, setRating] = useState(0);
 
   return (
-    <Sheet visible={visible} title={title} subtitle="How was it? Tap to rate." onClose={onClose}>
+    <Sheet
+      visible={visible}
+      title={title}
+      subtitle={dish ? `How was the ${dish}? Tap to rate.` : 'How was it? Tap to rate.'}
+      onClose={onClose}
+    >
       <View style={styles.stars} accessibilityLabel={`Rating: ${rating} of 5 stars`}>
         {[1, 2, 3, 4, 5].map((value) => {
           const filled = value <= rating;

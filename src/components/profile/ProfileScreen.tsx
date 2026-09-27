@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Image } from 'expo-image';
 import { formatInTimeZone } from 'date-fns-tz';
 
+import { Avatar } from '@/components/profile/Avatar';
 import PhotoGallery from '@/components/profile/PhotoGallery';
 import SettingsPanel from '@/components/profile/SettingsPanel';
 import { ThemedText } from '@/components/ThemedText';
@@ -11,13 +11,14 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import Chip from '@/components/ui/Chip';
 import { IconBadge } from '@/components/ui/IconBadge';
+import { IconButton } from '@/components/ui/IconButton';
 import { ListRow } from '@/components/ui/ListRow';
 import { ScreenScroll, SectionHeader } from '@/components/ui/Screen';
 import { StatRow } from '@/components/ui/StatRow';
-import { Radius, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
+import { useMyPhotos } from '@/hooks/usePhotos';
 import { useProfile } from '@/hooks/useProfile';
-import { useVisitedEvents } from '@/hooks/useVisitedEvents';
 import { useTheme } from '@/hooks/useTheme';
 import { confirmLogOut } from '@/services/auth';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
@@ -32,7 +33,7 @@ export default function ProfileScreen() {
   const router = useRouter();
   const profile = useProfile();
   const { summary } = useAchievements();
-  const visitedEvents = useVisitedEvents();
+  const photos = useMyPhotos();
 
   const openAchievements = useCallback(() => router.push('/(profile)/achievements'), [router]);
   const openOwnerTools = useCallback(() => router.push('/(profile)/owner'), [router]);
@@ -73,14 +74,7 @@ export default function ProfileScreen() {
   return (
     <ScreenScroll topInset>
       <View style={styles.identity}>
-        <Image
-          source={{ uri: user.avatarUrl }}
-          style={[styles.avatar, { backgroundColor: theme.backgroundSelected }]}
-          contentFit="cover"
-          transition={200}
-          accessibilityRole="image"
-          accessibilityLabel={`Profile photo of ${user.name}`}
-        />
+        <Avatar name={user.name} url={user.avatarUrl} />
         <View style={styles.identityTexts}>
           <ThemedText type="title" numberOfLines={2} accessibilityRole="header">
             {user.name}
@@ -91,6 +85,13 @@ export default function ProfileScreen() {
             </ThemedText>
           ) : null}
         </View>
+        <IconButton
+          icon="edit"
+          tone="card"
+          size={40}
+          onPress={() => router.push('/(profile)/edit')}
+          accessibilityLabel="Edit profile"
+        />
       </View>
       <View style={styles.chips}>
         {user.homeCity ? <Chip label={user.homeCity} icon="pin" /> : null}
@@ -130,8 +131,11 @@ export default function ProfileScreen() {
         ) : null}
       </Card>
 
-      <SectionHeader title="Photos from events" />
-      <PhotoGallery checkIns={visitedEvents.data ?? []} />
+      <SectionHeader title="Your photos" />
+      <PhotoGallery
+        photos={photos.data ?? []}
+        emptyText="Photos you take for challenges show up here. Check in at a pop-up and try a photo challenge."
+      />
 
       <SectionHeader title="Settings" />
       <SettingsPanel />
@@ -144,11 +148,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.three,
-  },
-  avatar: {
-    width: 84,
-    height: 84,
-    borderRadius: Radius.pill,
   },
   identityTexts: {
     flex: 1,
