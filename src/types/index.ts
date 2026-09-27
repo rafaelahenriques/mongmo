@@ -1,5 +1,9 @@
 /** Shared domain types for the Mongmo discovery app. */
 
+import type { ChallengeType } from '@/types/database';
+
+export type { ChallengeType };
+
 /** Bare geographic coordinate. */
 export type Coordinates = {
   latitude: number;
@@ -151,6 +155,28 @@ export type Reward = {
   costPoints: number;
   /** Flat discount an order can apply, when this reward is a discount (not a free item). */
   discountCents: number | null;
+  expiresAt: string | null;
+};
+
+/**
+ * A single challenge on an event. Every type shares this one shape; only
+ * the type-specific renderer and the `data` a completion carries differ —
+ * see components/challenges/ChallengeItem.tsx.
+ */
+export type Challenge = {
+  id: string;
+  eventId: string;
+  type: ChallengeType;
+  title: string;
+  description: string;
+  points: number;
+};
+
+/** The signed-in user's completion of one challenge. */
+export type ChallengeCompletion = {
+  challengeId: string;
+  completedAt: string;
+  data: Record<string, unknown>;
 };
 
 /** Leaderboard time windows offered by `GET /leaderboard?period=`. */

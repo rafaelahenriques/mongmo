@@ -13,10 +13,12 @@ import { queryClient } from '@/api/queryClient';
 import { PERSIST_MAX_AGE_MS } from '@/constants/config';
 import { useEvents } from '@/hooks/useEvents';
 import { useGeofencing } from '@/hooks/useGeofencing';
+import { useOrderStatusNotifications } from '@/hooks/useOrderStatusNotifications';
 import { useRealtime } from '@/hooks/useRealtime';
+import { useRewardExpiryNotifications } from '@/hooks/useRewardExpiryNotifications';
 import { useStore } from '@/hooks/useStore';
 import { useUserLocation } from '@/hooks/useUserLocation';
-import { configureNotifications } from '@/services/notifications';
+import { configureNotifications, ensureNotificationPermission } from '@/services/notifications';
 
 // Module-scope side effect: TaskManager.defineTask must run before render so
 // the OS can re-invoke the geofence task in the background.
@@ -66,6 +68,8 @@ function AppServices({ children }: PropsWithChildren) {
   useUserLocation();
   useRealtime();
   useStore();
+  useOrderStatusNotifications();
+  useRewardExpiryNotifications();
 
   // All upcoming events power the geofence region set, independent of the
   // filter currently selected on the map.
@@ -74,6 +78,10 @@ function AppServices({ children }: PropsWithChildren) {
 
   useEffect(() => {
     configureNotifications();
+    // Requested once here (not only from geofencing) so order-status and
+    // reward-expiring pushes still work for someone who left "Nearby
+    // pop-ups" off — it's one OS-level permission covering every type.
+    ensureNotificationPermission();
   }, []);
 
   return (

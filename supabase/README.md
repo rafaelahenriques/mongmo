@@ -89,27 +89,40 @@ default privileges ... grant all` leaves in place). The client-side query in
 - `src/hooks/useSession.ts` — gates the whole app (`src/app/_layout.tsx`
   renders the sign-in screen, a loading splash, or the tabs, based on this).
 
-## What this session did **not** build
+## Becoming an owner
 
-Deliberately out of scope for a "backend foundation" pass — the schema and
-RPCs above are ready for these, but no UI calls them yet:
+`profiles.role` defaults to `'customer'`, and `prevent_role_escalation` (see
+0002_functions.sql) means only an existing owner — or the service-role key —
+can promote someone. There is no owner yet on a fresh project, so the first
+one has to be set directly, with the **service_role** key (Supabase dashboard
+→ SQL Editor runs as an elevated role, or use the service key from a script —
+never ship the service key in the app):
 
-- **Ordering UI** (location → menu → cart → checkout). `create_order` /
-  `confirm_mock_payment` are implemented and tested against the schema, but
-  there's no cart store or order screens yet.
-- **Challenge UI** (the generic per-type renderers). `complete_challenge`
-  exists; the Event Detail screen doesn't show challenges yet.
-- **Camera-based QR scanning** for check-in. `verify_check_in` is real and
-  tested (token match + time window + geofence distance); the Event Detail
-  "Check in" button is left disabled with a "scan QR — coming soon" label
-  because there's no legitimate way for the client to obtain the token
-  without a camera scan (see the qr_token note above) or expo-camera
-  installed yet.
-- **Owner screens** (event/challenge/menu management, order board, QR
-  generation). The `role` column, `is_owner()` check, and every owner-write
-  RLS policy are in place; there's no owner UI.
-- Photo upload UI for Capture/Discovery challenges (the storage bucket and
-  its RLS policies exist).
+```sql
+update public.profiles set role = 'owner' where id = '<your auth.users id>';
+```
+
+Find your own id via Supabase dashboard → Authentication → Users, or
+`select id from auth.users where email = '...'`. Once you're an owner, the
+Profile tab shows an "Owner tools" card, and you can promote others from
+there too if owner UI for that gets added later (right now, only the schema
+supports it — see `is_owner()` and the `prevent_role_escalation` trigger).
+
+## What this session built, and what's still simplified
+
+Ordering, the challenge engine, camera-based check-in/Capture, notifications
+and the owner side are now all wired up (see the root README / recent PRs).
+A few deliberate simplifications, matching AGENTS.md's "don't over-build":
+
+- **Owner event form** is plain text fields (typed lat/lng, ISO timestamps) —
+  no map picker or native date/time UI.
+- **Menu management** lets an owner attach/detach an existing menu to an
+  event; there's no menu/menu-item editor yet (items are seeded).
+- Challenge types without a structured schema field to check against
+  (Timing's "quiet hour" window, Collection/Streak's cross-event tracking,
+  Community's vote options) fall back to a plain confirm — the one real
+  gate every type shares is still `complete_challenge`'s server-side
+  requirement of a prior check-in for that event.
 
 ## Validating this schema without a live project
 

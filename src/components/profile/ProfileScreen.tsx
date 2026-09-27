@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
-import { Award, ChevronRight } from 'lucide-react-native';
+import { Award, ChevronRight, Store } from 'lucide-react-native';
 
 import PhotoGallery from '@/components/profile/PhotoGallery';
 import SettingsPanel from '@/components/profile/SettingsPanel';
@@ -29,6 +29,10 @@ export default function ProfileScreen() {
 
   const openAchievements = useCallback(() => {
     router.push('/(profile)/achievements');
+  }, [router]);
+
+  const openOwnerTools = useCallback(() => {
+    router.push('/(profile)/owner');
   }, [router]);
 
   if (profile.isPending) {
@@ -126,6 +130,28 @@ export default function ProfileScreen() {
         </View>
         <ChevronRight size={18} color={theme.textSecondary} />
       </Pressable>
+
+      {user.role === 'owner' ? (
+        <Pressable
+          onPress={openOwnerTools}
+          accessibilityRole="button"
+          accessibilityLabel="Owner tools: manage events, challenges and orders"
+          style={({ pressed }) => [
+            styles.card,
+            styles.achievementsCta,
+            { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected, opacity: pressed ? 0.8 : 1 },
+          ]}
+        >
+          <Store size={20} color={theme.text} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" />
+          <View style={styles.ctaTexts}>
+            <ThemedText type="smallBold">Owner tools</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              Manage events, challenges, menus and orders
+            </ThemedText>
+          </View>
+          <ChevronRight size={18} color={theme.textSecondary} />
+        </Pressable>
+      ) : null}
 
       <ThemedText type="smallBold" style={styles.sectionTitle}>
         Photos from events
