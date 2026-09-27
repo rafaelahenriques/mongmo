@@ -1,18 +1,22 @@
 import { useState } from 'react';
-import { StyleSheet, View, type KeyboardTypeOptions } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import type { OwnerEventInput } from '@/api/owner';
+import { EventImagePicker } from '@/components/owner/EventImagePicker';
+import { LocationPicker } from '@/components/owner/LocationPicker';
+import { pinnedPoint, type LocationValue } from '@/components/owner/LocationPicker/useLocationPicker';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { DateTimeField } from '@/components/ui/DateTimeField';
 import { IconBadge } from '@/components/ui/IconBadge';
 import type { IconName } from '@/components/ui/Icon';
 import { OptionPill } from '@/components/ui/OptionPill';
+import { Stepper } from '@/components/ui/Stepper';
 import { TextField } from '@/components/ui/TextField';
 import { Spacing } from '@/constants/theme';
 import { haptics } from '@/services/haptics';
-import { getCurrentPlace } from '@/services/location';
-import { formatEventWindow } from '@/utils/dateTime';
+import { formatEventWindow, fromWallClock, toWallClock } from '@/utils/dateTime';
 
 export type OwnerEventFormProps = {
   initial?: Partial<OwnerEventInput>;
@@ -29,22 +33,11 @@ const TYPE_OPTIONS = [
   { value: 'bar-takeover', label: 'Bar takeover' },
 ];
 
-const START_PRESETS = [
-  { label: 'Now', start: () => roundDown(new Date()) },
-  { label: 'In 1 hour', start: () => roundDown(new Date(Date.now() + 60 * 60_000)) },
-  {
-    label: 'Tomorrow 12:00',
-    start: () => {
-      const date = new Date();
-      date.setDate(date.getDate() + 1);
-      date.setHours(12, 0, 0, 0);
-      return date;
-    },
-  },
-];
-
+const DEFAULT_TIME_ZONE = 'Europe/Brussels';
+const HOUR = 60 * 60_000;
 const DURATION_PRESETS = [2, 4, 6];
 const DEFAULT_DURATION_HOURS = 6;
+const CAPACITY = { min: 10, max: 1000, step: 10 };
 
 /** Down to the previous 5 minutes, so "now" reads as a clean time. */
 function roundDown(date: Date): Date {
@@ -53,146 +46,91 @@ function roundDown(date: Date): Date {
   return rounded;
 }
 
-function addHours(iso: string, hours: number): string {
-  return new Date(new Date(iso).getTime() + hours * 60 * 60_000).toISOString();
+/** Tomorrow at noon on the pop-up's own clock. */
+function tomorrowNoon(timeZone: string): Date {
+  const wallClock = toWallClock(new Date(), timeZone);
+  wallClock.setDate(wallClock.getDate() + 1);
+  wallClock.setHours(12, 0, 0, 0);
+  return fromWallClock(wallClock, timeZone);
 }
 
+const START_PRESETS: { label: string; start: (timeZone: string) => Date }[] = [
+  { label: 'Now', start: () => roundDown(new Date()) },
+  { label: 'In 1 hour', start: () => roundDown(new Date(Date.now() + HOUR)) },
+  { label: 'Tomorrow 12:00', start: tomorrowNoon },
+];
+
 /**
- * Create/edit form for a pop-up, in three parts:
+ * Create/edit form for a pop-up:
  *  - Basics: name, kind, capacity, description.
- *  - Where: "Use my current location" fills the coordinates (and city and
- *    street, if still empty); everything stays editable for planning a
- *    pop-up somewhere else.
- *  - When: quick start/duration presets; new pop-ups default to now → +6 h.
+ *  - Photo: picked or taken, uploaded straight away.
+ *  - Where: search an address, use where you are, or drag the pin.
+ *  - When: native date and time pickers plus quick presets; a new pop-up
+ *    runs from now for 6 h. Times are the pop-up's own zone.
  */
-export default function OwnerEventForm({
-  initial,
-  submitLabel,
-  pending,
-  submitError,
-  onSubmit,
-}: OwnerEventFormProps) {
-  const [defaultStart] = useState(() => roundDown(new Date()).toISOString());
+export default function OwnerEventForm({ initial, submitLabel, pending, submitError, onSubmit }: OwnerEventFormProps) {
+  const timeZone = initial?.timeZone ?? DEFAULT_TIME_ZONE;
+  const [defaultStart] = useState(() => roundDown(new Date()));
 
   const [title, setTitle] = useState(initial?.title ?? '');
   const [type, setType] = useState(initial?.type ?? 'food-truck');
-  const [city, setCity] = useState(initial?.city ?? '');
-  const [venue, setVenue] = useState(initial?.venue ?? '');
-  const [latitude, setLatitude] = useState(initial?.latitude?.toString() ?? '');
-  const [longitude, setLongitude] = useState(initial?.longitude?.toString() ?? '');
-  const [startsAt, setStartsAt] = useState(initial?.startsAt ?? defaultStart);
-  const [endsAt, setEndsAt] = useState(initial?.endsAt ?? addHours(defaultStart, DEFAULT_DURATION_HOURS));
-  const [timeZone] = useState(initial?.timeZone ?? 'Europe/Brussels');
+  const [capacity, setCapacity] = useState(initial?.capacity ?? 50);
   const [description, setDescription] = useState(initial?.description ?? '');
   const [imageUrl, setImageUrl] = useState(initial?.imageUrl ?? '');
-  const [capacity, setCapacity] = useState(initial?.capacity?.toString() ?? '50');
+  const [location, setLocation] = useState<LocationValue>({
+    latitude: initial?.latitude?.toString() ?? '',
+    longitude: initial?.longitude?.toString() ?? '',
+    city: initial?.city ?? '',
+    venue: initial?.venue ?? '',
+  });
+  const [startsAt, setStartsAt] = useState(() => (initial?.startsAt ? new Date(initial.startsAt) : defaultStart));
+  const [endsAt, setEndsAt] = useState(() =>
+    initial?.endsAt ? new Date(initial.endsAt) : new Date(defaultStart.getTime() + DEFAULT_DURATION_HOURS * HOUR),
+  );
   const [error, setError] = useState<string | null>(null);
-  const [locating, setLocating] = useState(false);
-  const [locationNote, setLocationNote] = useState<string | null>(null);
 
   const typeOptions = TYPE_OPTIONS.some((option) => option.value === type)
     ? TYPE_OPTIONS
     : [...TYPE_OPTIONS, { value: type, label: type }];
-  const timesValid = !Number.isNaN(Date.parse(startsAt)) && !Number.isNaN(Date.parse(endsAt));
-  const durationHours = timesValid ? (Date.parse(endsAt) - Date.parse(startsAt)) / 3_600_000 : null;
+  const durationMs = endsAt.getTime() - startsAt.getTime();
+  const durationHours = durationMs / HOUR;
 
-  const field = (
-    label: string,
-    value: string,
-    onChangeText: (text: string) => void,
-    options?: {
-      keyboardType?: KeyboardTypeOptions;
-      multiline?: boolean;
-      hint?: string;
-      placeholder?: string;
-      /** Share a row with another half-width field. */
-      half?: boolean;
-    },
-  ) => (
-    <TextField
-      label={label}
-      value={value}
-      onChangeText={onChangeText}
-      keyboardType={options?.keyboardType ?? 'default'}
-      multiline={options?.multiline}
-      placeholder={options?.placeholder}
-      hint={options?.hint}
-      half={options?.half}
-    />
-  );
-
-  const onUseCurrentLocation = async () => {
-    setError(null);
-    setLocationNote(null);
-    setLocating(true);
-    try {
-      const place = await getCurrentPlace();
-      setLatitude(place.latitude.toFixed(6));
-      setLongitude(place.longitude.toFixed(6));
-      // Suggest a city/venue, but never overwrite what's already typed.
-      if (!city.trim() && place.city) setCity(place.city);
-      if (!venue.trim() && place.street) setVenue(place.street);
-      setLocationNote(
-        `Pinned to where you are${place.accuracy ? ` (±${Math.round(place.accuracy)} m)` : ''}.`,
-      );
-      haptics.success();
-    } catch (locationError) {
-      haptics.error();
-      setError(locationError instanceof Error ? locationError.message : 'Couldn’t get your location.');
-    } finally {
-      setLocating(false);
-    }
-  };
-
-  const onPickStart = (start: Date) => {
-    const duration = durationHours && durationHours > 0 ? durationHours : DEFAULT_DURATION_HOURS;
-    const iso = start.toISOString();
-    setStartsAt(iso);
-    setEndsAt(addHours(iso, duration));
+  /** Moving the start keeps the length, like a calendar does. */
+  const onChangeStart = (start: Date) => {
+    const keep = durationMs > 0 ? durationMs : DEFAULT_DURATION_HOURS * HOUR;
+    setStartsAt(start);
+    setEndsAt(new Date(start.getTime() + keep));
   };
 
   const onPressSubmit = () => {
-    setError(null);
-    const lat = Number(latitude);
-    const lng = Number(longitude);
-    const cap = Number(capacity);
-    const fail = (message: string) => {
+    const point = pinnedPoint(location);
+    const problem = !title.trim()
+      ? 'Give the pop-up a name.'
+      : !point
+        ? 'Set the location — search an address, use where you are, or enter the coordinates.'
+        : !location.city.trim() || !location.venue.trim()
+          ? 'Add the city and the venue guests should look for.'
+          : endsAt <= startsAt
+            ? 'The end has to be after the start.'
+            : null;
+    setError(problem);
+    if (problem || !point) {
       haptics.error();
-      setError(message);
-    };
-    if (!title.trim() || !city.trim() || !venue.trim()) {
-      fail('Name, city and venue are required.');
-      return;
-    }
-    if (!latitude.trim() || !longitude.trim() || Number.isNaN(lat) || Number.isNaN(lng)) {
-      fail('Set the location — tap "Use my current location" or type the coordinates.');
-      return;
-    }
-    if (!timesValid) {
-      fail('Start and end must be ISO timestamps, e.g. 2026-10-01T17:00:00+02:00.');
-      return;
-    }
-    if (Date.parse(endsAt) <= Date.parse(startsAt)) {
-      fail('The end has to be after the start.');
-      return;
-    }
-    if (Number.isNaN(cap) || cap <= 0) {
-      fail('Capacity must be a positive number.');
       return;
     }
     onSubmit({
       title: title.trim(),
       type,
-      city: city.trim(),
-      venue: venue.trim(),
-      latitude: lat,
-      longitude: lng,
-      startsAt: new Date(startsAt).toISOString(),
-      endsAt: new Date(endsAt).toISOString(),
+      city: location.city.trim(),
+      venue: location.venue.trim(),
+      latitude: point.latitude,
+      longitude: point.longitude,
+      startsAt: startsAt.toISOString(),
+      endsAt: endsAt.toISOString(),
       timeZone,
       description: description.trim(),
-      imageUrl: imageUrl.trim(),
-      capacity: cap,
+      imageUrl,
+      capacity,
     });
   };
 
@@ -200,7 +138,7 @@ export default function OwnerEventForm({
     <View style={styles.form}>
       <Card style={styles.group}>
         <GroupTitle icon="sparkles" title="Basics" />
-        {field('Name', title, setTitle, { placeholder: 'e.g. Bánh mì on the Grote Markt' })}
+        <TextField label="Name" value={title} onChangeText={setTitle} placeholder="e.g. Bánh mì on the Grote Markt" />
         <View style={styles.field}>
           <ThemedText type="smallBold" themeColor="textSecondary">
             Kind
@@ -216,49 +154,47 @@ export default function OwnerEventForm({
             ))}
           </View>
         </View>
-        {field('Capacity', capacity, setCapacity, { keyboardType: 'number-pad' })}
-        {field('Description', description, setDescription, { multiline: true })}
+        <View style={styles.inlineRow}>
+          <ThemedText type="smallBold" style={styles.flex}>
+            Capacity
+          </ThemedText>
+          <Stepper
+            value={capacity}
+            onChange={setCapacity}
+            min={CAPACITY.min}
+            max={CAPACITY.max}
+            step={CAPACITY.step}
+            label="capacity"
+            formatValue={(count) => `${count} people`}
+          />
+        </View>
+        <TextField label="Description" value={description} onChangeText={setDescription} multiline />
+      </Card>
+
+      <Card style={styles.group}>
+        <GroupTitle icon="photo" title="Photo" />
+        <EventImagePicker value={imageUrl} onChange={setImageUrl} />
       </Card>
 
       <Card style={styles.group}>
         <GroupTitle icon="pin" title="Where" />
-        <Button
-          label="Use my current location"
-          variant="primary"
-          icon="locate"
-          onPress={onUseCurrentLocation}
-          loading={locating}
-        />
-        {locationNote ? (
-          <ThemedText type="small" themeColor="success" accessibilityLiveRegion="polite">
-            {locationNote}
-          </ThemedText>
-        ) : null}
-        {field('City', city, setCity)}
-        {field('Venue', venue, setVenue, { placeholder: 'Street, square or landmark' })}
-        <View style={styles.row}>
-          {field('Latitude', latitude, setLatitude, { keyboardType: 'numbers-and-punctuation', half: true })}
-          {field('Longitude', longitude, setLongitude, { keyboardType: 'numbers-and-punctuation', half: true })}
-        </View>
+        <LocationPicker value={location} onChange={setLocation} />
       </Card>
 
       <Card style={styles.group}>
         <GroupTitle icon="calendar" title="When" />
-        {timesValid ? (
+        {endsAt > startsAt ? (
           <ThemedText type="smallBold" themeColor="primaryText">
-            {formatEventWindow(startsAt, endsAt, timeZone)}
+            {formatEventWindow(startsAt.toISOString(), endsAt.toISOString(), timeZone)}
           </ThemedText>
         ) : null}
-        <View style={styles.field}>
-          <ThemedText type="smallBold" themeColor="textSecondary">
-            Starts
-          </ThemedText>
-          <View style={styles.pills}>
-            {START_PRESETS.map((preset) => (
-              <OptionPill key={preset.label} label={preset.label} onPress={() => onPickStart(preset.start())} />
-            ))}
-          </View>
+        <View style={styles.pills}>
+          {START_PRESETS.map((preset) => (
+            <OptionPill key={preset.label} label={preset.label} onPress={() => onChangeStart(preset.start(timeZone))} />
+          ))}
         </View>
+        <DateTimeField label="Starts" value={startsAt} onChange={onChangeStart} timeZone={timeZone} />
+        <DateTimeField label="Ends" value={endsAt} onChange={setEndsAt} minimumDate={startsAt} timeZone={timeZone} />
         <View style={styles.field}>
           <ThemedText type="smallBold" themeColor="textSecondary">
             Runs for
@@ -269,18 +205,11 @@ export default function OwnerEventForm({
                 key={hours}
                 label={`${hours} h`}
                 checked={durationHours === hours}
-                onPress={() => timesValid && setEndsAt(addHours(startsAt, hours))}
+                onPress={() => setEndsAt(new Date(startsAt.getTime() + hours * HOUR))}
               />
             ))}
           </View>
         </View>
-        {field('Start time (ISO)', startsAt, setStartsAt, { hint: 'Fine-tune if needed, e.g. 2026-10-01T17:00:00+02:00' })}
-        {field('End time (ISO)', endsAt, setEndsAt)}
-      </Card>
-
-      <Card style={styles.group}>
-        <GroupTitle icon="photo" title="Look" />
-        {field('Hero image URL', imageUrl, setImageUrl, { placeholder: 'https://… (optional)' })}
       </Card>
 
       {error ?? submitError ? (
@@ -320,9 +249,13 @@ const styles = StyleSheet.create({
   field: {
     gap: Spacing.one + 2,
   },
-  row: {
+  flex: {
+    flex: 1,
+  },
+  inlineRow: {
     flexDirection: 'row',
-    gap: Spacing.two,
+    alignItems: 'center',
+    gap: Spacing.three,
   },
   pills: {
     flexDirection: 'row',
