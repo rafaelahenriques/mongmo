@@ -5,6 +5,7 @@ import * as Haptics from 'expo-haptics';
 import { Plus } from 'lucide-react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { ScreenFooter } from '@/components/ui/ScreenFooter';
 import { Spacing } from '@/constants/theme';
 import { useMenu } from '@/hooks/useMenu';
 import { useTheme } from '@/hooks/useTheme';
@@ -97,16 +98,18 @@ export default function OrderMenuScreen() {
       </ScrollView>
 
       {items.length > 0 ? (
-        <Pressable
-          onPress={() => router.push('/(orders)/order/cart')}
-          accessibilityRole="button"
-          accessibilityLabel={`View cart, ${items.length} item${items.length === 1 ? '' : 's'}, ${formatCents(cartSubtotalCents(items))}`}
-          style={({ pressed }) => [styles.cartBar, { backgroundColor: '#8B4513', opacity: pressed ? 0.9 : 1 }]}
-        >
-          <ThemedText type="smallBold" style={styles.cartBarText}>
-            View cart · {items.length} · {formatCents(cartSubtotalCents(items))}
-          </ThemedText>
-        </Pressable>
+        <ScreenFooter>
+          <Pressable
+            onPress={() => router.push('/(orders)/order/cart')}
+            accessibilityRole="button"
+            accessibilityLabel={`View cart, ${items.length} item${items.length === 1 ? '' : 's'}, ${formatCents(cartSubtotalCents(items))}`}
+            style={({ pressed }) => [styles.cartBar, { backgroundColor: '#8B4513', opacity: pressed ? 0.9 : 1 }]}
+          >
+            <ThemedText type="smallBold" style={styles.cartBarText}>
+              View cart · {items.length} · {formatCents(cartSubtotalCents(items))}
+            </ThemedText>
+          </Pressable>
+        </ScreenFooter>
       ) : null}
     </View>
   );
@@ -118,7 +121,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: Spacing.three,
-    paddingBottom: Spacing.six,
     gap: Spacing.two,
   },
   heading: {
@@ -147,10 +149,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cartBar: {
-    position: 'absolute',
-    left: Spacing.three,
-    right: Spacing.three,
-    bottom: Spacing.three,
     minHeight: 50,
     borderRadius: 12,
     alignItems: 'center',

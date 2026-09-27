@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Minus, Plus, Trash2 } from 'lucide-react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { ScreenFooter } from '@/components/ui/ScreenFooter';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useCartStore, cartSubtotalCents } from '@/state/cartStore';
@@ -89,7 +90,7 @@ export default function OrderCartScreen() {
         ))}
       </ScrollView>
 
-      <View style={[styles.footer, { borderColor: theme.backgroundSelected }]}>
+      <ScreenFooter>
         <View style={styles.subtotalRow}>
           <ThemedText type="smallBold">Subtotal</ThemedText>
           <ThemedText type="smallBold">{formatCents(cartSubtotalCents(items))}</ThemedText>
@@ -104,7 +105,7 @@ export default function OrderCartScreen() {
             Continue
           </ThemedText>
         </Pressable>
-      </View>
+      </ScreenFooter>
     </View>
   );
 }
@@ -158,11 +159,6 @@ const styles = StyleSheet.create({
   removeButton: {
     marginLeft: Spacing.two,
     padding: Spacing.one,
-  },
-  footer: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    padding: Spacing.three,
-    gap: Spacing.two,
   },
   subtotalRow: {
     flexDirection: 'row',
