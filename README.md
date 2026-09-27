@@ -35,6 +35,15 @@ instead of Expo Go. Any time a new native dependency is added (as
 happened here), the dev client needs rebuilding again; a plain JS/Metro
 reload can't add native code to an already-installed app.
 
+### On the iOS Simulator
+
+- **Location:** the Simulator has none until you pick one (hence
+  `kCLErrorDomain Code=0` in the log). Use *Features → Location → Custom
+  Location…* — `50.8279, 3.2649` puts you at the seeded live pop-up in
+  Kortrijk, close enough for the 500 m check-in geofence.
+- **Camera:** the Simulator has no camera, so QR check-in and Capture
+  challenges need a physical device (install the development build on it).
+
 ## Get started
 
 1. Install dependencies

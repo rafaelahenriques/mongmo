@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useRouter } from 'expo-router';
+import { useCallback } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Plus } from 'lucide-react-native';
@@ -23,9 +23,15 @@ export default function OrderMenuScreen() {
   const items = useCartStore((state) => state.items);
   const menuQuery = useMenu(location);
 
-  useEffect(() => {
-    if (!location) router.replace('/(orders)/order/location');
-  }, [location, router]);
+  // Only while this screen is on top. The order flow keeps it mounted under
+  // cart → pickup → checkout, and placing an order clears the cart: a plain
+  // effect would fire then and replace the confirmation with the location
+  // picker.
+  useFocusEffect(
+    useCallback(() => {
+      if (!location) router.replace('/(orders)/order/location');
+    }, [location, router]),
+  );
 
   if (!location) return null;
 

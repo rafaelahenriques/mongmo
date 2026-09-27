@@ -12,7 +12,8 @@ import { useAchievements } from '@/hooks/useAchievements';
 import { useProfile } from '@/hooks/useProfile';
 import { useVisitedEvents } from '@/hooks/useVisitedEvents';
 import { useTheme } from '@/hooks/useTheme';
-import { format as formatZoned } from 'date-fns-tz';
+import { confirmLogOut } from '@/services/auth';
+import { formatInTimeZone } from 'date-fns-tz';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 
 /**
@@ -51,8 +52,12 @@ export default function ProfileScreen() {
       <View style={[styles.state, { backgroundColor: theme.background }]}>
         <ThemedText type="smallBold">Couldn’t load your profile</ThemedText>
         <ThemedText type="small" themeColor="textSecondary" style={styles.stateBody}>
-          Your stats and settings are still available below once this loads — check your
-          connection.
+          {/* The raw server message (e.g. "permission denied for table
+              profiles") is what makes a backend setup problem fixable, but
+              it's not for customers' eyes. */}
+          {__DEV__ && profile.error
+            ? profile.error.message
+            : 'Check your connection and try again.'}
         </ThemedText>
         <Pressable
           onPress={() => profile.refetch()}
@@ -65,14 +70,24 @@ export default function ProfileScreen() {
         >
           <ThemedText type="smallBold">Try again</ThemedText>
         </Pressable>
+        {/* Settings (and its Log out) live below the profile card, so without
+            this a failed load would leave no way to sign out at all. */}
+        <Pressable
+          onPress={confirmLogOut}
+          accessibilityRole="button"
+          accessibilityLabel="Log out"
+          style={({ pressed }) => [styles.retry, { opacity: pressed ? 0.7 : 1 }]}
+        >
+          <ThemedText type="smallBold" themeColor="textSecondary">
+            Log out
+          </ThemedText>
+        </Pressable>
       </View>
     );
   }
 
   const user = profile.data;
-  const memberSince = formatZoned(new Date(user.memberSince), 'MMM yyyy', {
-    timeZone: DISPLAY_TIME_ZONE,
-  });
+  const memberSince = formatInTimeZone(new Date(user.memberSince), DISPLAY_TIME_ZONE, 'MMM yyyy');
 
   return (
     <ScrollView
@@ -96,7 +111,7 @@ export default function ProfileScreen() {
             {user.bio}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
-            {user.homeCity} · member since {memberSince}
+            {[user.homeCity, `member since ${memberSince}`].filter(Boolean).join(' · ')}
           </ThemedText>
         </View>
       </View>

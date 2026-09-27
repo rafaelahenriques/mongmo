@@ -1,5 +1,5 @@
 import { toApiError } from '@/api/errors';
-import { supabase } from '@/lib/supabase';
+import { getCurrentUserId, supabase } from '@/lib/supabase';
 import type { Challenge, ChallengeCompletion } from '@/types';
 
 /** Every challenge on an event, in owner-defined order. */
@@ -21,11 +21,14 @@ export async function getChallenges(eventId: string): Promise<Challenge[]> {
   }));
 }
 
-/** All of the signed-in user's challenge completions (RLS-scoped to their own). */
+/** All of the signed-in user's challenge completions. */
 export async function getMyChallengeCompletions(): Promise<ChallengeCompletion[]> {
+  // Scoped explicitly: RLS also lets an owner read every customer's completions.
+  const userId = await getCurrentUserId();
   const { data, error } = await supabase
     .from('challenge_completions')
-    .select('challenge_id, completed_at, data');
+    .select('challenge_id, completed_at, data')
+    .eq('user_id', userId);
   if (error) throw toApiError(error);
 
   return data.map((row) => ({

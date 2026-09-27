@@ -1,11 +1,10 @@
-import { useCallback } from 'react';
-import { Alert, Pressable, StyleSheet, Switch, View } from 'react-native';
+import { Pressable, StyleSheet, Switch, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Spacing } from '@/constants/theme';
 import { useProfile, useSetLeaderboardVisible } from '@/hooks/useProfile';
 import { useTheme } from '@/hooks/useTheme';
-import { supabase } from '@/lib/supabase';
+import { confirmLogOut } from '@/services/auth';
 import { useSettingsStore, type NotificationPrefs, type ThemeMode } from '@/state/settingsStore';
 
 const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
@@ -66,13 +65,6 @@ export default function SettingsPanel() {
   const profile = useProfile();
   const leaderboardVisible = profile.data?.leaderboardVisible ?? true;
   const setLeaderboardVisible = useSetLeaderboardVisible();
-
-  const onLogOut = useCallback(() => {
-    Alert.alert('Log out?', 'You can sign back in any time — your points and badges are saved.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Log out', style: 'destructive', onPress: () => supabase.auth.signOut() },
-    ]);
-  }, []);
 
   return (
     <View style={[styles.panel, { borderColor: theme.backgroundSelected }]}>
@@ -142,7 +134,7 @@ export default function SettingsPanel() {
       </View>
 
       <Pressable
-        onPress={onLogOut}
+        onPress={confirmLogOut}
         accessibilityRole="button"
         accessibilityLabel="Log out"
         style={({ pressed }) => [styles.logout, { opacity: pressed ? 0.7 : 1 }]}
