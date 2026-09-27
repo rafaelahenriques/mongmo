@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import EventCard from '@/components/events/EventCard';
+import { ProgressSection } from '@/components/home/ProgressSection';
 import { ThemedText } from '@/components/ThemedText';
 import { Card } from '@/components/ui/Card';
 import Chip from '@/components/ui/Chip';
@@ -165,6 +166,8 @@ export default function HomeScreen() {
           ))}
         </View>
       )}
+
+      <ProgressSection />
     </ScreenScroll>
   );
 }

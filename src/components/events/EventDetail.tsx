@@ -1,7 +1,17 @@
 import { useCallback, useState } from 'react';
-import { AccessibilityInfo, ActivityIndicator, Alert, ScrollView, Share, StyleSheet, View } from 'react-native';
+import {
+  AccessibilityInfo,
+  ActivityIndicator,
+  Alert,
+  RefreshControl,
+  ScrollView,
+  Share,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
+import { formatInTimeZone } from 'date-fns-tz';
 
 import QrScanner from '@/components/camera/QrScanner';
 import ChallengesSection from '@/components/challenges/ChallengesSection';
@@ -11,7 +21,7 @@ import { Card } from '@/components/ui/Card';
 import Chip from '@/components/ui/Chip';
 import { IconBadge } from '@/components/ui/IconBadge';
 import { IconButton } from '@/components/ui/IconButton';
-import { SectionHeader } from '@/components/ui/Screen';
+import { SectionHeader, usePullToRefresh } from '@/components/ui/Screen';
 import { ThemedText } from '@/components/ThemedText';
 import { ApiError } from '@/api/errors';
 import { EVENTS_PAGE_URL, GEOFENCE_RADIUS_M } from '@/constants/config';
@@ -19,9 +29,13 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useCheckIn } from '@/hooks/useCheckIn';
 import { useCheckInMutation } from '@/hooks/useCheckInMutation';
 import { useEvent } from '@/hooks/useEvent';
+import { useNow } from '@/hooks/useNow';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
+import { addToCalendar } from '@/services/calendar';
+import { openDirections } from '@/services/directions';
 import { haptics } from '@/services/haptics';
+import { UPDATE_APP_MESSAGE } from '@/services/nativeModules';
 import { useBusyStore } from '@/state/busyStore';
 import { useCartStore } from '@/state/cartStore';
 import { useLocationStore } from '@/state/locationStore';
@@ -48,6 +62,9 @@ export default function EventDetail({ eventId }: EventDetailProps) {
   const checkedIn = Boolean(checkIn.data);
   const checkInMutation = useCheckInMutation(eventId);
   const [scannerVisible, setScannerVisible] = useState(false);
+  // Re-renders each minute, so "Check-in opens at…" turns into "Check in" on time.
+  const now = useNow();
+  const refresh = usePullToRefresh();
 
   const onScanned = useCallback(
     (qrToken: string) => {
@@ -95,6 +112,18 @@ export default function EventDetail({ eventId }: EventDetailProps) {
     useCartStore.getState().setLocation({ type: 'event', eventId: event.id, eventTitle: event.title });
     router.push('/(orders)/order/menu');
   }, [event, router]);
+
+  const onAddToCalendar = useCallback(async () => {
+    if (!event) return;
+    try {
+      const result = await addToCalendar(event);
+      if (result === 'added') haptics.success();
+      if (result === 'unavailable') Alert.alert('Add to calendar', UPDATE_APP_MESSAGE);
+    } catch (error) {
+      haptics.error();
+      Alert.alert('Couldn’t add it', error instanceof Error ? error.message : 'Please try again.');
+    }
+  }, [event]);
 
   const onPressCheckIn = useCallback(() => {
     if (!event || checkedIn) return;
@@ -144,7 +173,8 @@ export default function EventDetail({ eventId }: EventDetailProps) {
   }
 
   const busy = busyFromStore ?? event.busy;
-  const phase = getEventPhase(event.startsAt, event.endsAt);
+  const phase = getEventPhase(event.startsAt, event.endsAt, now);
+  const opensAt = formatInTimeZone(event.startsAt, event.timeZone, "EEE d MMM 'at' HH:mm");
   const isFull = busy.occupancy >= busy.capacity;
   const distance = userCoordinates ? distanceInMeters(userCoordinates, event.coordinates) : null;
   const timeLabel = formatEventWindow(event.startsAt, event.endsAt, event.timeZone);
@@ -153,15 +183,24 @@ export default function EventDetail({ eventId }: EventDetailProps) {
     <ScrollView
       style={[styles.scroll, { backgroundColor: theme.background }]}
       contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + Spacing.five }]}
+      refreshControl={
+        <RefreshControl refreshing={refresh.refreshing} onRefresh={refresh.onRefresh} tintColor={theme.textSecondary} />
+      }
     >
       <View>
-        <Image
-          source={{ uri: event.imageUrl }}
-          style={[styles.photo, { backgroundColor: theme.backgroundSelected }]}
-          contentFit="cover"
-          transition={200}
-          accessibilityLabel={`Photo for ${event.title}`}
-        />
+        {event.imageUrl ? (
+          <Image
+            source={{ uri: event.imageUrl }}
+            style={[styles.photo, { backgroundColor: theme.backgroundSelected }]}
+            contentFit="cover"
+            transition={200}
+            accessibilityLabel={`Photo for ${event.title}`}
+          />
+        ) : (
+          <View style={[styles.photo, styles.photoPlaceholder, { backgroundColor: theme.accent }]}>
+            <IconBadge name="takeout" tone="card" size={72} />
+          </View>
+        )}
         <View style={styles.photoBar} pointerEvents="box-none">
           <View style={styles.chips}>
             <Chip
@@ -197,9 +236,11 @@ export default function EventDetail({ eventId }: EventDetailProps) {
         />
       </Card>
 
-      <Card>
-        <CapacityMeter occupancy={busy.occupancy} capacity={busy.capacity} label="How busy right now" />
-      </Card>
+      {phase === 'live' ? (
+        <Card>
+          <CapacityMeter occupancy={busy.occupancy} capacity={busy.capacity} label="How busy right now" />
+        </Card>
+      ) : null}
 
       <View style={styles.checkInBlock}>
         <View style={styles.actions}>
@@ -254,7 +295,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
         </>
       ) : null}
 
-      <ChallengesSection event={event} checkedIn={checkedIn} />
+      <ChallengesSection event={event} checkedIn={checkedIn} phase={phase} opensAt={opensAt} />
 
       <QrScanner
         visible={scannerVisible}
@@ -316,6 +357,10 @@ const styles = StyleSheet.create({
     height: 260,
     borderRadius: Radius.large,
   },
+  photoPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   photoBar: {
     position: 'absolute',
     top: Spacing.three,
@@ -360,6 +405,15 @@ const styles = StyleSheet.create({
   action: {
     flexGrow: 1,
     flexBasis: 140,
+  },
+  notice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+  },
+  noticeTexts: {
+    flex: 1,
+    gap: 2,
   },
   menu: {
     paddingVertical: Spacing.two,

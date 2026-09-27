@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/Card';
 import Chip from '@/components/ui/Chip';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { openDirections } from '@/services/directions';
 import { useCartStore } from '@/state/cartStore';
 import {
   WEEKDAY_LABELS,
@@ -34,12 +35,7 @@ export default function StoreSheetContent({ store, busy, onClose }: StoreSheetCo
   const status = getStoreStatus(store.hours, store.timeZone);
   const today = getCurrentWeekday(store.timeZone);
 
-  const openDirections = (): void => {
-    const { latitude, longitude } = store.coordinates;
-    Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`).catch(
-      () => undefined,
-    );
-  };
+  const onDirections = (): void => openDirections(store.coordinates, store.name);
   const openOrder = (): void => {
     useCartStore.getState().setLocation({ type: 'store', storeId: store.id });
     onClose();
@@ -72,7 +68,7 @@ export default function StoreSheetContent({ store, busy, onClose }: StoreSheetCo
           variant="ghost"
           size="medium"
           icon="distance"
-          onPress={openDirections}
+          onPress={onDirections}
           style={styles.flex}
         />
         <Button

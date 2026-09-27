@@ -27,7 +27,8 @@ export type ChallengeType =
   | 'collection'
   | 'discovery'
   | 'streak'
-  | 'community';
+  | 'community'
+  | 'motion';
 
 export type OrderStatus = 'draft' | 'paid' | 'preparing' | 'ready' | 'collected' | 'cancelled';
 
@@ -241,6 +242,10 @@ export type Database = {
     };
     Functions: {
       my_points_balance: { Args: Record<string, never>; Returns: number };
+      my_badge_progress: {
+        Args: Record<string, never>;
+        Returns: { key: string; current: number; target: number }[];
+      };
       my_stats: {
         Args: Record<string, never>;
         Returns: {

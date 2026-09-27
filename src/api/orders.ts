@@ -63,12 +63,15 @@ export async function placeOrder(
   location: CartLocation,
   items: { menuItemId: string; quantity: number }[],
   pickupAt: string | null,
+  /** A redeemed discount reward to apply; the server checks it's yours and unused. */
+  userRewardId: string | null = null,
 ): Promise<OrderRow> {
   const { data: order, error } = await supabase.rpc('create_order', {
     p_store_id: location.type === 'store' ? location.storeId : null,
     p_event_id: location.type === 'event' ? location.eventId : null,
     p_items: items.map((item) => ({ menu_item_id: item.menuItemId, quantity: item.quantity })),
     p_pickup_at: pickupAt,
+    p_user_reward_id: userRewardId,
   });
   if (error) throw toApiError(error);
 

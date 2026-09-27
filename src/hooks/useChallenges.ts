@@ -32,7 +32,7 @@ export function useChallenges(eventId: string) {
     // started again.
     onSuccess: () => {
       haptics.success();
-      queryClient.invalidateQueries({ queryKey: ['badges', 'earned'] });
+      queryClient.invalidateQueries({ queryKey: ['badges'] });
       queryClient.invalidateQueries({ queryKey: ['points'] });
       queryClient.invalidateQueries({ queryKey: ['profile-stats'] });
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });

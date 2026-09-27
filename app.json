@@ -71,6 +71,19 @@
           "cameraPermission": "Allow $(PRODUCT_NAME) to use the camera to scan event QR codes and take challenge photos.",
           "microphonePermission": false
         }
+      ],
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "Allow $(PRODUCT_NAME) to measure your moves for dance challenges."
+        }
+      ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Allow $(PRODUCT_NAME) to add pop-ups you choose to your calendar.",
+          "remindersPermission": false
+        }
       ]
     ],
     "experiments": {
