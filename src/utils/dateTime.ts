@@ -1,5 +1,5 @@
 import { addDays, format as formatLocal, isBefore, parse, startOfWeek } from 'date-fns';
-import { format as formatZoned, fromZonedTime } from 'date-fns-tz';
+import { formatInTimeZone, fromZonedTime } from 'date-fns-tz';
 
 import type { DayHours, Weekday, WeeklyHours } from '@/types';
 
@@ -30,7 +30,7 @@ export const WEEKDAY_LABELS: Record<Weekday, string> = {
  * Uses date-fns-tz so the result is correct regardless of the device timezone.
  */
 function weekdayOf(date: Date, timeZone: string): Weekday {
-  return formatZoned(date, 'EEE', { timeZone }).toLowerCase() as Weekday;
+  return formatInTimeZone(date, timeZone, 'EEE').toLowerCase() as Weekday;
 }
 
 function toMinutes(hhmm: string): number {
@@ -41,8 +41,8 @@ function toMinutes(hhmm: string): number {
 /** True when `date` falls on the same calendar day as `now` in `timeZone`. */
 export function isToday(date: Date, timeZone: string, now: Date = new Date()): boolean {
   return (
-    formatZoned(date, 'yyyy-MM-dd', { timeZone }) ===
-    formatZoned(now, 'yyyy-MM-dd', { timeZone })
+    formatInTimeZone(date, timeZone, 'yyyy-MM-dd') ===
+    formatInTimeZone(now, timeZone, 'yyyy-MM-dd')
   );
 }
 
@@ -52,7 +52,7 @@ export function isToday(date: Date, timeZone: string, now: Date = new Date()): b
  * not the device timezone.
  */
 export function isThisWeek(date: Date, timeZone: string, now: Date = new Date()): boolean {
-  const todayWall = formatZoned(now, 'yyyy-MM-dd', { timeZone });
+  const todayWall = formatInTimeZone(now, timeZone, 'yyyy-MM-dd');
   // parse() gives us local Date fields that we treat as a pure calendar date.
   const weekStartWall = startOfWeek(parse(todayWall, 'yyyy-MM-dd', new Date()), {
     weekStartsOn: 1,
@@ -93,7 +93,7 @@ export function getStoreStatus(
   timeZone: string,
   now: Date = new Date(),
 ): StoreStatus {
-  const nowMinutes = toMinutes(formatZoned(now, 'HH:mm', { timeZone }));
+  const nowMinutes = toMinutes(formatInTimeZone(now, timeZone, 'HH:mm'));
   const today = hours[weekdayOf(now, timeZone)];
 
   if (today && nowMinutes >= toMinutes(today.open) && nowMinutes < toMinutes(today.close)) {
@@ -108,7 +108,7 @@ export function getStoreStatus(
     const dayHours = hours[weekdayOf(day, timeZone)];
     if (dayHours) {
       const dayLabel =
-        daysAhead === 1 ? 'tomorrow' : formatZoned(day, 'EEE d MMM', { timeZone });
+        daysAhead === 1 ? 'tomorrow' : formatInTimeZone(day, timeZone, 'EEE d MMM');
       return { isOpen: false, label: `Opens ${dayLabel} ${dayHours.open}` };
     }
   }
@@ -138,15 +138,11 @@ export function formatEventWindow(
   const start = new Date(startsAtIso);
   const end = new Date(endsAtIso);
   const sameDay =
-    formatZoned(start, 'yyyy-MM-dd', { timeZone }) ===
-    formatZoned(end, 'yyyy-MM-dd', { timeZone });
+    formatInTimeZone(start, timeZone, 'yyyy-MM-dd') ===
+    formatInTimeZone(end, timeZone, 'yyyy-MM-dd');
 
-  const startPart = formatZoned(start, 'EEE d MMM, HH:mm', { timeZone });
-  const endPart = formatZoned(
-    end,
-    sameDay ? 'HH:mm' : 'EEE d MMM, HH:mm',
-    { timeZone },
-  );
+  const startPart = formatInTimeZone(start, timeZone, 'EEE d MMM, HH:mm');
+  const endPart = formatInTimeZone(end, timeZone, sameDay ? 'HH:mm' : 'EEE d MMM, HH:mm');
   return `${startPart} – ${endPart}`;
 }
 
@@ -157,8 +153,8 @@ export function formatDayBadge(
 ): { weekday: string; day: string; month: string } {
   const date = new Date(iso);
   return {
-    weekday: formatZoned(date, 'EEE', { timeZone }).toUpperCase(),
-    day: formatZoned(date, 'dd', { timeZone }),
-    month: formatZoned(date, 'MMM', { timeZone }).toUpperCase(),
+    weekday: formatInTimeZone(date, timeZone, 'EEE').toUpperCase(),
+    day: formatInTimeZone(date, timeZone, 'dd'),
+    month: formatInTimeZone(date, timeZone, 'MMM').toUpperCase(),
   };
 }

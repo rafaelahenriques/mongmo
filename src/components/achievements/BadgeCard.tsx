@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { format as formatZoned } from 'date-fns-tz';
+import { formatInTimeZone } from 'date-fns-tz';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Spacing } from '@/constants/theme';
@@ -20,9 +20,7 @@ export default function BadgeCard({ definition, earned }: BadgeCardProps) {
   const theme = useTheme();
 
   const statusLabel = earned
-    ? `Earned ${formatZoned(new Date(earned.earnedAt), 'd MMM yyyy', {
-        timeZone: DISPLAY_TIME_ZONE,
-      })}`
+    ? `Earned ${formatInTimeZone(new Date(earned.earnedAt), DISPLAY_TIME_ZONE, 'd MMM yyyy')}`
     : 'Locked';
 
   return (
