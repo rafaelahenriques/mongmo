@@ -38,9 +38,19 @@ export default function ChallengesSection({ event, checkedIn }: ChallengesSectio
 
   return (
     <View style={styles.section}>
-      <ThemedText type="section" style={styles.title}>
-        Challenges · {completedCount}/{challenges.length}
-      </ThemedText>
+      <View style={styles.header}>
+        <ThemedText type="section" accessibilityRole="header">
+          Challenges
+        </ThemedText>
+        <ThemedText type="smallBold" themeColor="textSecondary">
+          {completedCount} of {challenges.length} done
+        </ThemedText>
+      </View>
+      {!checkedIn ? (
+        <ThemedText type="small" themeColor="textSecondary">
+          Check in to start them. Each one earns points.
+        </ThemedText>
+      ) : null}
       <View style={styles.list}>
         {challenges.map((challenge) => (
           <ChallengeItem
@@ -60,15 +70,17 @@ export default function ChallengesSection({ event, checkedIn }: ChallengesSectio
 
 const styles = StyleSheet.create({
   section: {
-    paddingHorizontal: Spacing.three,
-    marginTop: Spacing.four,
+    marginTop: Spacing.two,
     gap: Spacing.two,
   },
-  title: {
-    marginBottom: Spacing.one,
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   list: {
-    gap: Spacing.two,
+    gap: Spacing.two + Spacing.one,
+    marginTop: Spacing.one,
   },
   loader: {
     marginVertical: Spacing.four,

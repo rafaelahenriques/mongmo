@@ -1,11 +1,15 @@
 import { useCallback } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, View, type ListRenderItem } from 'react-native';
-import { MapPin } from 'lucide-react-native';
+import { ActivityIndicator, FlatList, StyleSheet, View, type ListRenderItem } from 'react-native';
 
 import CapacityMeter from '@/components/events/CapacityMeter';
 import EventCard from '@/components/events/EventCard';
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import Chip from '@/components/ui/Chip';
+import { IconBadge } from '@/components/ui/IconBadge';
 import { Spacing } from '@/constants/theme';
+import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { useLocationStore } from '@/state/locationStore';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
@@ -31,43 +35,31 @@ export type ListModeProps = {
 
 /** The store's row atop the list — always visible, never date-filtered. */
 function StoreRow({ store, onPress }: { store: Store; onPress: () => void }) {
-  const theme = useTheme();
   const status = getStoreStatus(store.hours, store.timeZone);
   const userCoordinates = useLocationStore((state) => state.coordinates);
   const distance = userCoordinates ? distanceInMeters(userCoordinates, store.coordinates) : null;
 
   return (
-    <Pressable
+    <Card
       onPress={onPress}
-      accessibilityRole="button"
       accessibilityLabel={`${store.name}, the permanent Mongmo café. ${status.label}. Open details.`}
-      style={({ pressed }) => [
-        styles.storeCard,
-        {
-          backgroundColor: theme.backgroundElement,
-          borderColor: theme.border,
-          opacity: pressed ? 0.8 : 1,
-        },
-      ]}
+      style={styles.storeCard}
     >
       <View style={styles.storeHeader}>
-        <MapPin size={16} color={theme.textSecondary} />
-        <ThemedText type="smallBold" style={styles.storeTitle} numberOfLines={1}>
-          {store.name} · the café
-        </ThemedText>
-        <ThemedText
-          type="small"
-          style={{ color: status.isOpen ? theme.success : theme.textSecondary, fontWeight: '700' }}
-        >
-          {status.label}
-        </ThemedText>
+        <IconBadge name="store" tone="primary" size={44} />
+        <View style={styles.storeTexts}>
+          <ThemedText type="section" numberOfLines={1}>
+            {store.name}
+          </ThemedText>
+          <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
+            {store.address}
+            {distance !== null ? ` · ${formatDistance(distance)}` : ''}
+          </ThemedText>
+        </View>
+        <Chip label={status.isOpen ? 'Open' : 'Closed'} tone={status.isOpen ? 'success' : 'neutral'} />
       </View>
-      <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
-        {store.address}
-        {distance !== null ? ` · ${formatDistance(distance)} away` : ''}
-      </ThemedText>
       <CapacityMeter occupancy={store.busy.occupancy} capacity={store.busy.capacity} label="Inside now" />
-    </Pressable>
+    </Card>
   );
 }
 
@@ -83,6 +75,7 @@ export default function ListMode({
   onSelectEvent,
 }: ListModeProps) {
   const theme = useTheme();
+  const tabBarInset = useTabBarInset();
 
   const renderItem = useCallback<ListRenderItem<PopUpEvent>>(
     ({ item }) => <EventCard event={item} onPress={() => onSelectEvent(item.id)} />,
@@ -105,21 +98,12 @@ export default function ListMode({
   if (isError && events.length === 0) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <ThemedText type="smallBold">Couldn&apos;t load events</ThemedText>
+        <IconBadge name="alert" size={56} />
+        <ThemedText type="section">Couldn&apos;t load events</ThemedText>
         <ThemedText type="small" themeColor="textSecondary" style={styles.stateBody}>
           Something went wrong on our side. Try again in a moment.
         </ThemedText>
-        <Pressable
-          onPress={onRetry}
-          accessibilityRole="button"
-          accessibilityLabel="Retry loading events"
-          style={({ pressed }) => [
-            styles.retryButton,
-            { backgroundColor: theme.backgroundSelected, opacity: pressed ? 0.8 : 1 },
-          ]}
-        >
-          <ThemedText type="smallBold">Retry</ThemedText>
-        </Pressable>
+        <Button label="Retry" accessibilityLabel="Retry loading events" size="medium" onPress={onRetry} />
       </View>
     );
   }
@@ -133,12 +117,13 @@ export default function ListMode({
       ItemSeparatorComponent={() => <View style={styles.separator} />}
       ListEmptyComponent={
         <View style={styles.emptyState}>
+          <IconBadge name="calendar" size={56} />
           <ThemedText type="small" themeColor="textSecondary" style={styles.stateBody}>
             {EMPTY_FILTER_COPY[filter]}
           </ThemedText>
         </View>
       }
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + Spacing.five }]}
       style={[styles.list, { backgroundColor: theme.background }]}
     />
   );
@@ -149,33 +134,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: Spacing.three,
-    gap: Spacing.three,
+    paddingHorizontal: Spacing.three + Spacing.one,
+    paddingTop: Spacing.two,
   },
   separator: {
-    height: Spacing.three,
+    height: Spacing.two + Spacing.one,
   },
   storeCard: {
-    borderRadius: 16,
-    borderWidth: 2,
-    padding: Spacing.three,
-    gap: Spacing.one,
-    marginBottom: Spacing.three,
+    gap: Spacing.three,
+    marginBottom: Spacing.two + Spacing.one,
   },
   storeHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.one,
+    gap: Spacing.three,
   },
-  storeTitle: {
+  storeTexts: {
     flex: 1,
+    gap: 2,
   },
   state: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: Spacing.four,
-    gap: Spacing.two,
+    gap: Spacing.three,
   },
   stateBody: {
     textAlign: 'center',
@@ -184,11 +167,6 @@ const styles = StyleSheet.create({
   emptyState: {
     paddingVertical: Spacing.six,
     alignItems: 'center',
-  },
-  retryButton: {
-    marginTop: Spacing.one,
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
-    borderRadius: 10,
+    gap: Spacing.three,
   },
 });

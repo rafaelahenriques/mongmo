@@ -1,10 +1,10 @@
 import { memo, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Marker } from 'react-native-maps';
-import { Store as StoreIcon } from 'lucide-react-native';
 
 import { ThemedText } from '@/components/ThemedText';
-import { Colors } from '@/constants/theme';
+import { Icon } from '@/components/ui/Icon';
+import { Colors, Radius } from '@/constants/theme';
 import { useBusyStore } from '@/state/busyStore';
 import { useLocationStore } from '@/state/locationStore';
 import { useTheme } from '@/hooks/useTheme';
@@ -18,7 +18,7 @@ export type StorePinProps = {
 };
 
 /** Map pins keep the light palette in both schemes — they sit on the map, not on a themed surface. */
-const STORE_OPEN = Colors.light.text;
+const STORE_OPEN = Colors.light.primary;
 const STORE_CLOSED = Colors.light.textSecondary;
 
 /**
@@ -60,7 +60,7 @@ function StorePinComponent({ store, onPress }: StorePinProps) {
         onAccessibilityTap={onPress}
         style={[
           styles.pill,
-          { backgroundColor: theme.backgroundElement, borderColor: theme.border },
+          { backgroundColor: theme.backgroundElement, boxShadow: `0px 6px 16px rgba(42, 32, 32, 0.18)` },
         ]}
       >
         <View
@@ -69,7 +69,7 @@ function StorePinComponent({ store, onPress }: StorePinProps) {
             { backgroundColor: status.isOpen ? STORE_OPEN : STORE_CLOSED },
           ]}
         >
-          <StoreIcon size={14} color="#FFFFFF" strokeWidth={2.5} />
+          <Icon name="store" size={14} color="#FFFFFF" />
         </View>
         <View style={styles.texts}>
           <ThemedText type="smallBold" numberOfLines={1}>
@@ -91,16 +91,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
+    borderRadius: Radius.pill,
+    paddingLeft: 5,
+    paddingRight: 14,
+    paddingVertical: 5,
     maxWidth: 220,
   },
   dot: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 30,
+    height: 30,
+    borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
   },

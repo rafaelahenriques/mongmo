@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
 export type CapacityMeterProps = {
@@ -13,8 +13,8 @@ export type CapacityMeterProps = {
 };
 
 /**
- * Accessible occupancy bar: green < 70 %, amber < full, red when at capacity.
- * Announced to screen readers as progressbar with min/max/now.
+ * Slim occupancy bar: green below 70 %, amber until full, red at capacity.
+ * Announced to screen readers as a progressbar with min/max/now.
  */
 function CapacityMeterComponent({ occupancy, capacity, label }: CapacityMeterProps) {
   const theme = useTheme();
@@ -32,18 +32,15 @@ function CapacityMeterComponent({ occupancy, capacity, label }: CapacityMeterPro
       style={styles.wrap}
     >
       <View style={styles.header}>
-        <ThemedText type="label">{label}</ThemedText>
-        <ThemedText type="small" style={{ color: isFull ? theme.danger : theme.textSecondary }}>
+        <ThemedText type="small" themeColor="textSecondary">
+          {label}
+        </ThemedText>
+        <ThemedText type="smallBold" style={{ color: isFull ? theme.danger : theme.text }}>
           {valueText}
         </ThemedText>
       </View>
-      <View
-        style={[styles.track, { backgroundColor: theme.backgroundSelected, borderColor: theme.border }]}
-        importantForAccessibility="no"
-      >
-        <View
-          style={[styles.fill, { backgroundColor: fillColor, flexGrow: ratio }]}
-        />
+      <View style={[styles.track, { backgroundColor: theme.backgroundSelected }]} importantForAccessibility="no">
+        <View style={[styles.fill, { backgroundColor: fillColor, flexGrow: ratio }]} />
       </View>
     </View>
   );
@@ -53,7 +50,7 @@ export default memo(CapacityMeterComponent);
 
 const styles = StyleSheet.create({
   wrap: {
-    gap: Spacing.one,
+    gap: Spacing.one + 2,
   },
   header: {
     flexDirection: 'row',
@@ -61,13 +58,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   track: {
-    height: 12,
-    borderRadius: 6,
-    borderWidth: 1.5,
+    height: 6,
+    borderRadius: Radius.pill,
     overflow: 'hidden',
+    flexDirection: 'row',
   },
   fill: {
     height: '100%',
     flexBasis: 0,
+    borderRadius: Radius.pill,
   },
 });

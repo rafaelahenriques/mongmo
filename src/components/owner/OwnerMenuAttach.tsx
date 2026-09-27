@@ -1,7 +1,9 @@
-import { Pressable, StyleSheet, View } from 'react-native';
-import { Check } from 'lucide-react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Card } from '@/components/ui/Card';
+import { ListRow } from '@/components/ui/ListRow';
+import { Toggle } from '@/components/ui/Toggle';
 import { Spacing } from '@/constants/theme';
 import { useEventMenus } from '@/hooks/useEventMenus';
 import { useTheme } from '@/hooks/useTheme';
@@ -10,7 +12,7 @@ export type OwnerMenuAttachProps = {
   eventId: string;
 };
 
-/** Owner: attach/detach one of the existing menus to this event. */
+/** Owner: switch each menu in the catalog on or off for this event. */
 export default function OwnerMenuAttach({ eventId }: OwnerMenuAttachProps) {
   const theme = useTheme();
   const { menus, attachedMenuIds, attach, detach } = useEventMenus(eventId);
@@ -24,45 +26,39 @@ export default function OwnerMenuAttach({ eventId }: OwnerMenuAttachProps) {
   }
 
   return (
-    <View style={styles.container}>
-      {menus.map((menu) => {
+    <Card style={styles.list}>
+      {menus.map((menu, index) => {
         const attached = attachedMenuIds.has(menu.id);
         return (
-          <Pressable
-            key={menu.id}
-            onPress={() => (attached ? detach(menu.id) : attach(menu.id))}
-            accessibilityRole="button"
-            accessibilityLabel={`${menu.name}, ${attached ? 'attached' : 'not attached'}`}
-            style={[
-              styles.row,
-              { borderColor: theme.border, backgroundColor: theme.backgroundElement },
-            ]}
-          >
-            <ThemedText type="small" style={styles.name}>
-              {menu.name}
-            </ThemedText>
-            {attached ? <Check size={18} color={theme.success} /> : null}
-          </Pressable>
+          <View key={menu.id}>
+            {index > 0 ? <View style={[styles.divider, { backgroundColor: theme.border }]} /> : null}
+            <ListRow
+              title={menu.name}
+              subtitle={attached ? 'On this pop-up' : 'Not on this pop-up'}
+              icon="food"
+              iconTone={attached ? 'brand' : 'muted'}
+              trailing={
+                <Toggle
+                  value={attached}
+                  onValueChange={(next) => (next ? attach(menu.id) : detach(menu.id))}
+                  accessibilityLabel={`${menu.name}, ${attached ? 'attached' : 'not attached'}`}
+                />
+              }
+            />
+          </View>
         );
       })}
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    gap: Spacing.one,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderRadius: 10,
-    borderWidth: 2,
-    paddingHorizontal: Spacing.three,
+  list: {
     paddingVertical: Spacing.two,
+    gap: 0,
   },
-  name: {
-    flex: 1,
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    marginLeft: 40 + Spacing.three,
   },
 });

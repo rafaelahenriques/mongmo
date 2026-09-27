@@ -1,21 +1,20 @@
 import { useCallback, useMemo, useState } from 'react';
-import {
-  AccessibilityInfo,
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { AccessibilityInfo, ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import BadgeCard from '@/components/achievements/BadgeCard';
 import LeaderboardList from '@/components/achievements/LeaderboardList';
 import RewardRow from '@/components/achievements/RewardRow';
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { IconBadge } from '@/components/ui/IconBadge';
+import { ScreenScroll, SectionHeader } from '@/components/ui/Screen';
+import { StatRow } from '@/components/ui/StatRow';
 import { Spacing } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/services/haptics';
 import type { LeaderboardPeriod, Reward } from '@/types';
 
 /**
@@ -39,11 +38,13 @@ export default function AchievementsScreen() {
     (reward: Reward) => {
       redeemReward(reward.id, {
         onSuccess: () => {
+          haptics.success();
           AccessibilityInfo.announceForAccessibility(
             `${reward.title} redeemed. Points balance updated.`,
           );
         },
         onError: () => {
+          haptics.error();
           AccessibilityInfo.announceForAccessibility(
             `Couldn't redeem ${reward.title} — check your points balance.`,
           );
@@ -67,21 +68,12 @@ export default function AchievementsScreen() {
   if (query.isError || !query.data) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <ThemedText type="smallBold">Couldn’t load achievements</ThemedText>
+        <IconBadge name="alert" size={56} />
+        <ThemedText type="section">Couldn’t load achievements</ThemedText>
         <ThemedText type="small" themeColor="textSecondary" style={styles.stateBody}>
           Your badges and points are safe — this is only the catalog. Check your connection.
         </ThemedText>
-        <Pressable
-          onPress={() => query.refetch()}
-          accessibilityRole="button"
-          accessibilityLabel="Try again"
-          style={({ pressed }) => [
-            styles.retry,
-            { backgroundColor: theme.backgroundSelected, opacity: pressed ? 0.8 : 1 },
-          ]}
-        >
-          <ThemedText type="smallBold">Try again</ThemedText>
-        </Pressable>
+        <Button label="Try again" size="medium" onPress={() => query.refetch()} />
       </View>
     );
   }
@@ -89,56 +81,40 @@ export default function AchievementsScreen() {
   const { badges, rewards } = query.data;
 
   return (
-    <ScrollView
-      style={[styles.scroll, { backgroundColor: theme.background }]}
-      contentContainerStyle={styles.content}
-    >
-      <View
-        accessibilityRole="header"
-        accessibilityLabel={`${summary.points} points, ${summary.eventsAttended} events attended`}
-        style={[
-          styles.pointsCard,
-          { backgroundColor: theme.backgroundElement, borderColor: theme.border },
-        ]}
-      >
-        <ThemedText type="title" style={styles.points}>
-          {summary.points.toLocaleString()}
-        </ThemedText>
-        <ThemedText type="smallBold" themeColor="textSecondary">
-          points
-        </ThemedText>
-        <View style={styles.pointsStats}>
-          <ThemedText type="small" themeColor="textSecondary">
-            {summary.eventsAttended} event{summary.eventsAttended === 1 ? '' : 's'} attended
+    <ScreenScroll>
+      <Card tone="brand" style={styles.pointsCard}>
+        <View
+          accessible
+          accessibilityRole="header"
+          accessibilityLabel={`${summary.points} points, ${summary.eventsAttended} events attended`}
+        >
+          <ThemedText type="label" style={{ color: theme.onBrand, opacity: 0.85 }}>
+            Your points
           </ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            ·
-          </ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {summary.citiesVisited} cit{summary.citiesVisited === 1 ? 'y' : 'ies'}
-          </ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            ·
-          </ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
-            {summary.earned.length}/{badges.length} badges
+          <ThemedText type="display" style={[styles.points, { color: theme.onBrand }]}>
+            {summary.points.toLocaleString()}
           </ThemedText>
         </View>
-      </View>
+        <IconBadge name="star" tone="card" size={52} />
+      </Card>
 
-      <ThemedText type="section" style={styles.sectionTitle}>
-        Badges
-      </ThemedText>
+      <StatRow
+        stats={[
+          { label: 'Events', value: String(summary.eventsAttended) },
+          { label: 'Cities', value: String(summary.citiesVisited) },
+          { label: 'Badges', value: `${summary.earned.length}/${badges.length}` },
+        ]}
+      />
+
+      <SectionHeader title="Badges" />
       <View style={styles.grid}>
         {badges.map((badge) => (
           <BadgeCard key={badge.id} definition={badge} earned={earnedByBadge.get(badge.id)} />
         ))}
       </View>
 
-      <ThemedText type="section" style={styles.sectionTitle}>
-        Rewards
-      </ThemedText>
-      <View style={styles.rewards}>
+      <SectionHeader title="Rewards" />
+      <View style={styles.list}>
         {rewards.map((reward) => (
           <RewardRow
             key={reward.id}
@@ -150,77 +126,40 @@ export default function AchievementsScreen() {
         ))}
       </View>
 
-      <ThemedText type="section" style={styles.sectionTitle}>
-        Leaderboard
-      </ThemedText>
-      <View style={styles.section}>
-        <LeaderboardList
-          rows={leaderboard.rows}
-          hidden={leaderboard.hidden}
-          period={period}
-          onChangePeriod={setPeriod}
-        />
-      </View>
-    </ScrollView>
+      <SectionHeader title="Leaderboard" />
+      <LeaderboardList rows={leaderboard.rows} hidden={leaderboard.hidden} period={period} onChangePeriod={setPeriod} />
+    </ScreenScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-  },
-  content: {
-    padding: Spacing.three,
-    paddingBottom: Spacing.six,
-    gap: Spacing.two,
-  },
   pointsCard: {
-    borderRadius: 16,
-    borderWidth: 2,
-    padding: Spacing.four,
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.one,
+    justifyContent: 'space-between',
+    paddingVertical: Spacing.four,
   },
   points: {
-    fontSize: 44,
-    lineHeight: 50,
-  },
-  pointsStats: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-    marginTop: Spacing.one,
-  },
-  section: {
-    marginTop: Spacing.two,
-  },
-  sectionTitle: {
-    marginTop: Spacing.four,
+    fontSize: 80,
+    lineHeight: 80,
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: Spacing.two,
-    marginTop: Spacing.two,
+    gap: Spacing.two + Spacing.one,
   },
-  rewards: {
-    gap: Spacing.two,
-    marginTop: Spacing.two,
+  list: {
+    gap: Spacing.two + Spacing.one,
   },
   state: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: Spacing.four,
-    gap: Spacing.two,
+    gap: Spacing.three,
   },
   stateBody: {
     textAlign: 'center',
     maxWidth: 320,
-  },
-  retry: {
-    marginTop: Spacing.one,
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
-    borderRadius: 10,
   },
 });

@@ -19,7 +19,11 @@ export function ScreenFooter({ children }: PropsWithChildren) {
     <View
       style={[
         styles.footer,
-        { backgroundColor: theme.background, borderColor: theme.border, paddingBottom: tabBarInset + Spacing.two },
+        {
+          backgroundColor: theme.background,
+          boxShadow: `0px -10px 24px ${theme.shadow}`,
+          paddingBottom: tabBarInset + Spacing.two,
+        },
       ]}
     >
       {children}
@@ -29,8 +33,7 @@ export function ScreenFooter({ children }: PropsWithChildren) {
 
 const styles = StyleSheet.create({
   footer: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    paddingHorizontal: Spacing.three,
+    paddingHorizontal: Spacing.three + Spacing.one,
     paddingTop: Spacing.three,
     gap: Spacing.two,
   },

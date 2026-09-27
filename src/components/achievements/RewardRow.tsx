@@ -1,8 +1,10 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { IconBadge } from '@/components/ui/IconBadge';
 import { Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/useTheme';
 import type { Reward } from '@/types';
 
 export type RewardRowProps = {
@@ -12,52 +14,34 @@ export type RewardRowProps = {
   onRedeem: (reward: Reward) => void;
 };
 
-/** One redeemable reward: cost, affordability and the redeem action. */
+/** One redeemable reward: cost, how far off it is, and the redeem action. */
 export default function RewardRow({ reward, points, redeemedCount, onRedeem }: RewardRowProps) {
-  const theme = useTheme();
   const affordable = points >= reward.costPoints;
   const shortfall = reward.costPoints - points;
 
   return (
-    <View
-      style={[
-        styles.row,
-        { backgroundColor: theme.backgroundElement, borderColor: theme.border },
-      ]}
-    >
+    <Card style={styles.row}>
+      <IconBadge name="ticket" tone={affordable ? 'accent' : 'muted'} size={44} />
       <View style={styles.texts}>
         <ThemedText type="smallBold">{reward.title}</ThemedText>
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
           {reward.description}
         </ThemedText>
         <ThemedText type="small" themeColor={affordable ? 'success' : 'textSecondary'}>
-          {reward.costPoints} pts{affordable ? '' : ` · ${shortfall} more to go`}
+          {reward.costPoints} pts{affordable ? '' : ` · ${shortfall} to go`}
           {redeemedCount > 0 ? ` · redeemed ×${redeemedCount}` : ''}
         </ThemedText>
       </View>
-
-      <Pressable
-        onPress={() => onRedeem(reward)}
+      <Button
+        label="Redeem"
+        size="small"
+        variant={affordable ? 'primary' : 'ghost'}
         disabled={!affordable}
-        accessibilityRole="button"
+        haptic="press"
+        onPress={() => onRedeem(reward)}
         accessibilityLabel={`Redeem ${reward.title} for ${reward.costPoints} points`}
-        accessibilityState={{ disabled: !affordable }}
-        style={({ pressed }) => [
-          styles.button,
-          {
-            backgroundColor: affordable ? theme.text : theme.backgroundSelected,
-            opacity: !affordable ? 0.55 : pressed ? 0.8 : 1,
-          },
-        ]}
-      >
-        <ThemedText
-          type="smallBold"
-          style={{ color: affordable ? theme.background : theme.textSecondary }}
-        >
-          Redeem
-        </ThemedText>
-      </Pressable>
-    </View>
+      />
+    </Card>
   );
 }
 
@@ -65,20 +49,11 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.two,
-    borderRadius: 14,
-    borderWidth: 2,
+    gap: Spacing.three,
     padding: Spacing.three,
   },
   texts: {
     flex: 1,
     gap: 2,
-  },
-  button: {
-    minHeight: 40,
-    paddingHorizontal: Spacing.three,
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

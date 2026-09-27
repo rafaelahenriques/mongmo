@@ -1,46 +1,24 @@
 import { useCallback, useState } from 'react';
-import { Alert, Pressable, Share, StyleSheet, View } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import {
-  Camera as CameraIcon,
-  Check,
-  Clock,
-  Compass,
-  Flame,
-  Layers,
-  QrCode,
-  Search,
-  Share2,
-  Users,
-  Utensils,
-} from 'lucide-react-native';
+import { Alert, Share, StyleSheet, View } from 'react-native';
 
+import { CHALLENGE_ICON } from '@/components/challenges/challengeIcons';
 import CommunityVoteModal from '@/components/challenges/CommunityVoteModal';
 import SimpleConfirmModal from '@/components/challenges/SimpleConfirmModal';
 import TasteRatingModal from '@/components/challenges/TasteRatingModal';
 import PhotoCapture from '@/components/camera/PhotoCapture';
 import { ThemedText } from '@/components/ThemedText';
-import { Spacing } from '@/constants/theme';
+import { Card } from '@/components/ui/Card';
+import { Icon } from '@/components/ui/Icon';
+import { IconBadge } from '@/components/ui/IconBadge';
+import { Radius, Spacing } from '@/constants/theme';
 import { GEOFENCE_RADIUS_M, EVENTS_PAGE_URL } from '@/constants/config';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/services/haptics';
 import { saveAndUploadChallengePhoto } from '@/api/photos';
 import { getCurrentUserId } from '@/lib/supabase';
 import { useLocationStore } from '@/state/locationStore';
 import { distanceInMeters } from '@/utils/distance';
 import type { Challenge, ChallengeCompletion, PopUpEvent } from '@/types';
-
-const TYPE_ICON: Record<Challenge['type'], typeof Compass> = {
-  explore: Compass,
-  check_in: QrCode,
-  capture: CameraIcon,
-  taste: Utensils,
-  social: Share2,
-  timing: Clock,
-  collection: Layers,
-  discovery: Search,
-  streak: Flame,
-  community: Users,
-};
 
 /** Types whose "confirm" step first checks the device is within the geofence. */
 const LOCATION_GATED: ReadonlySet<Challenge['type']> = new Set(['explore', 'timing']);
@@ -73,7 +51,6 @@ export default function ChallengeItem({
   const userCoordinates = useLocationStore((state) => state.coordinates);
   const [modal, setModal] = useState<'confirm' | 'taste' | 'community' | 'capture' | null>(null);
 
-  const Icon = TYPE_ICON[challenge.type];
   const done = Boolean(completion);
 
   const distanceReason = useCallback((): string | undefined => {
@@ -93,6 +70,7 @@ export default function ChallengeItem({
     if (done || pending) return;
 
     if (!checkedIn) {
+      haptics.warning();
       Alert.alert('Check in first', 'Check in to this event before completing its challenges.');
       return;
     }
@@ -136,7 +114,6 @@ export default function ChallengeItem({
         eventId: event.id,
         challengeId: challenge.id,
       });
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
       onComplete({ photoUrl });
     },
     [event.id, challenge.id, onComplete],
@@ -144,23 +121,13 @@ export default function ChallengeItem({
 
   return (
     <>
-      <Pressable
+      <Card
         onPress={onPress}
         disabled={done || pending}
-        accessibilityRole="button"
         accessibilityLabel={`${challenge.title}, ${challenge.points} points, ${done ? 'completed' : 'not completed'}`}
-        style={({ pressed }) => [
-          styles.row,
-          {
-            backgroundColor: theme.backgroundElement,
-            borderColor: theme.border,
-            opacity: done ? 0.7 : pressed ? 0.8 : 1,
-          },
-        ]}
+        style={[styles.row, done && { opacity: 0.75 }]}
       >
-        <View style={[styles.iconWrap, { backgroundColor: theme.backgroundSelected }]}>
-          <Icon size={18} color={theme.text} />
-        </View>
+        <IconBadge name={CHALLENGE_ICON[challenge.type]} tone={done ? 'success' : 'muted'} size={44} />
         <View style={styles.texts}>
           <ThemedText type="smallBold" numberOfLines={1}>
             {challenge.title}
@@ -169,14 +136,16 @@ export default function ChallengeItem({
             {challenge.description}
           </ThemedText>
         </View>
-        <View style={styles.trailing}>
-          {done ? (
-            <Check size={20} color={theme.success} />
-          ) : (
-            <ThemedText type="smallBold">+{challenge.points}</ThemedText>
-          )}
-        </View>
-      </Pressable>
+        {done ? (
+          <Icon name="checkCircle" size={24} color={theme.success} />
+        ) : (
+          <View style={[styles.points, { backgroundColor: theme.backgroundSelected }]}>
+            <ThemedText type="smallBold" themeColor="primaryText">
+              +{challenge.points}
+            </ThemedText>
+          </View>
+        )}
+      </Card>
 
       <SimpleConfirmModal
         visible={modal === 'confirm'}
@@ -228,24 +197,16 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.two,
-    borderRadius: 14,
-    borderWidth: 2,
+    gap: Spacing.three,
     padding: Spacing.three,
-  },
-  iconWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   texts: {
     flex: 1,
     gap: 2,
   },
-  trailing: {
-    minWidth: 40,
-    alignItems: 'flex-end',
+  points: {
+    borderRadius: Radius.pill,
+    paddingHorizontal: Spacing.two + 2,
+    paddingVertical: Spacing.one,
   },
 });

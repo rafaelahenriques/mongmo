@@ -4,8 +4,9 @@ import { StyleSheet, View } from 'react-native';
 import CapacityMeter from '@/components/events/CapacityMeter';
 import { Card } from '@/components/ui/Card';
 import Chip from '@/components/ui/Chip';
+import { Icon } from '@/components/ui/Icon';
 import { ThemedText } from '@/components/ThemedText';
-import { FontFamily, Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useBusyStore } from '@/state/busyStore';
 import { useLocationStore } from '@/state/locationStore';
@@ -25,8 +26,8 @@ const PHASE_LABELS = {
 } as const;
 
 /**
- * Events-list row: date badge, phase/distance chips, title, time window and
- * a live capacity meter. Tapping opens the event detail screen.
+ * Events-list card: a big calendar numeral, phase and distance chips, the
+ * title, where and when, and a live "how busy" bar. Opens the event.
  */
 function EventCardComponent({ event, onPress }: EventCardProps) {
   const theme = useTheme();
@@ -36,29 +37,27 @@ function EventCardComponent({ event, onPress }: EventCardProps) {
   const badge = formatDayBadge(event.startsAt, event.timeZone);
   const phase = getEventPhase(event.startsAt, event.endsAt);
   const isFull = busy.occupancy >= busy.capacity;
-  const distance = userCoordinates
-    ? distanceInMeters(userCoordinates, event.coordinates)
-    : null;
+  const distance = userCoordinates ? distanceInMeters(userCoordinates, event.coordinates) : null;
 
   const timeLabel = formatEventWindow(event.startsAt, event.endsAt, event.timeZone);
   const label =
     `${event.title} in ${event.city}, ${timeLabel}. ` +
     `${phase === 'live' ? 'Live now. ' : ''}` +
-    (isFull
-      ? 'Full. '
-      : `${busy.occupancy} of ${busy.capacity} busy. `) +
+    (isFull ? 'Full. ' : `${busy.occupancy} of ${busy.capacity} busy. `) +
     (distance !== null ? `${formatDistance(distance)} away. ` : '') +
     'Open details.';
 
   return (
     <Card onPress={onPress} accessibilityLabel={label} style={styles.card}>
       <View style={styles.row}>
-        <View style={[styles.dateBadge, { backgroundColor: theme.primary, borderColor: theme.border }]}>
-          <ThemedText type="label" style={[styles.badgeText, { color: theme.onPrimary }]}>
+        <View style={[styles.date, { backgroundColor: theme.backgroundSelected }]}>
+          <ThemedText type="label" themeColor="textSecondary" style={styles.dateLabel}>
             {badge.weekday}
           </ThemedText>
-          <ThemedText style={[styles.badgeDay, { color: theme.onPrimary }]}>{badge.day}</ThemedText>
-          <ThemedText type="label" style={[styles.badgeText, { color: theme.onPrimary }]}>
+          <ThemedText type="subtitle" style={[styles.day, { color: theme.brand }]}>
+            {badge.day}
+          </ThemedText>
+          <ThemedText type="label" themeColor="textSecondary" style={styles.dateLabel}>
             {badge.month}
           </ThemedText>
         </View>
@@ -67,16 +66,17 @@ function EventCardComponent({ event, onPress }: EventCardProps) {
           <View style={styles.chips}>
             <Chip label={PHASE_LABELS[phase]} tone={phase === 'live' ? 'live' : 'neutral'} />
             {isFull ? <Chip label="Full" tone="danger" /> : null}
-            {distance !== null ? <Chip label={formatDistance(distance)} /> : null}
+            {distance !== null ? <Chip label={formatDistance(distance)} icon="distance" /> : null}
           </View>
-
-          <ThemedText type="section" style={styles.title} numberOfLines={2}>
+          <ThemedText type="section" numberOfLines={2}>
             {event.title}
           </ThemedText>
-
-          <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
-            {timeLabel} · {event.city}
-          </ThemedText>
+          <View style={styles.meta}>
+            <Icon name="clock" size={13} color={theme.textSecondary} />
+            <ThemedText type="small" themeColor="textSecondary" numberOfLines={1} style={styles.metaText}>
+              {timeLabel} · {event.city}
+            </ThemedText>
+          </View>
         </View>
       </View>
 
@@ -95,34 +95,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.three,
   },
-  dateBadge: {
-    width: 60,
-    borderRadius: 10,
-    borderWidth: 2,
-    paddingVertical: Spacing.one,
+  date: {
+    width: 64,
+    borderRadius: Radius.medium,
+    paddingVertical: Spacing.two,
     alignItems: 'center',
     alignSelf: 'flex-start',
-    transform: [{ rotate: '-3deg' }],
   },
-  badgeText: {
-    fontSize: 12,
-    lineHeight: 14,
+  dateLabel: {
+    fontSize: 11,
+    lineHeight: 13,
   },
-  badgeDay: {
-    fontFamily: FontFamily.display,
-    fontSize: 30,
-    lineHeight: 32,
+  day: {
+    fontSize: 34,
+    lineHeight: 36,
   },
   main: {
     flex: 1,
-    gap: Spacing.one,
+    gap: Spacing.one + 2,
   },
   chips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.one,
   },
-  title: {
-    marginTop: Spacing.half,
+  meta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.one + 2,
+  },
+  metaText: {
+    flex: 1,
   },
 });

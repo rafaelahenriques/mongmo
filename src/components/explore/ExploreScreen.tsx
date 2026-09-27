@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import FilterBar from '@/components/map/FilterBar';
 import OfflineBanner from '@/components/map/OfflineBanner';
@@ -9,7 +10,10 @@ import ListMode from '@/components/explore/ListMode';
 import MapMode from '@/components/explore/MapMode';
 import ModeToggle, { type ExploreMode } from '@/components/explore/ModeToggle';
 import { ThemedText } from '@/components/ThemedText';
-import { Spacing } from '@/constants/theme';
+import { Button } from '@/components/ui/Button';
+import { Icon } from '@/components/ui/Icon';
+import { LargeHeader } from '@/components/ui/Screen';
+import { Radius, Spacing, TopTabInset } from '@/constants/theme';
 import { useEvents } from '@/hooks/useEvents';
 import { useStore } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
@@ -28,6 +32,7 @@ import { useFilterStore } from '@/state/filterStore';
 export default function ExploreScreen() {
   const theme = useTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [mode, setMode] = useState<ExploreMode>('map');
   const [sheetVisible, setSheetVisible] = useState(false);
 
@@ -65,25 +70,20 @@ export default function ExploreScreen() {
       </View>
       {eventsError && mode === 'map' ? (
         <View
-          style={[
-            styles.errorStrip,
-            { backgroundColor: theme.backgroundElement, borderColor: theme.border },
-          ]}
+          style={[styles.errorStrip, { backgroundColor: theme.backgroundElement, boxShadow: `0px 6px 18px ${theme.shadow}` }]}
           accessibilityRole="alert"
         >
+          <Icon name="alert" size={18} color={theme.danger} />
           <ThemedText type="small" themeColor="textSecondary" style={styles.stripText}>
             Couldn&apos;t load events.
           </ThemedText>
-          <Pressable
-            onPress={() => eventsQuery.refetch()}
-            accessibilityRole="button"
+          <Button
+            label="Retry"
             accessibilityLabel="Retry loading events"
-            hitSlop={8}
-          >
-            <ThemedText type="smallBold" style={{ color: theme.danger }}>
-              Retry
-            </ThemedText>
-          </Pressable>
+            size="small"
+            variant="ghost"
+            onPress={() => eventsQuery.refetch()}
+          />
         </View>
       ) : null}
     </>
@@ -91,7 +91,12 @@ export default function ExploreScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {mode === 'list' ? <View style={styles.staticHeader}>{controls}</View> : null}
+      {mode === 'list' ? (
+        <View style={[styles.staticHeader, { paddingTop: insets.top + TopTabInset + Spacing.three }]}>
+          <LargeHeader eyebrow="Pop-ups & the café" title="Explore" />
+          {controls}
+        </View>
+      ) : null}
 
       <View style={styles.flexArea}>
         {mode === 'map' ? (
@@ -122,7 +127,7 @@ export default function ExploreScreen() {
       </View>
 
       {mode === 'map' ? (
-        <View style={styles.overlayTop} pointerEvents="box-none">
+        <View style={[styles.overlayTop, { top: insets.top + TopTabInset + Spacing.two }]} pointerEvents="box-none">
           {controls}
         </View>
       ) : null}
@@ -140,13 +145,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   staticHeader: {
-    paddingHorizontal: Spacing.three,
-    paddingTop: Spacing.three,
-    gap: Spacing.two,
+    paddingHorizontal: Spacing.three + Spacing.one,
+    paddingBottom: Spacing.two,
+    gap: Spacing.three,
   },
   overlayTop: {
     position: 'absolute',
-    top: Spacing.three,
     left: Spacing.three,
     right: Spacing.three,
     gap: Spacing.two,
@@ -160,14 +164,13 @@ const styles = StyleSheet.create({
   errorStrip: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     gap: Spacing.two,
-    borderRadius: 10,
-    borderWidth: 2,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
+    borderRadius: Radius.pill,
+    paddingLeft: Spacing.three,
+    paddingRight: Spacing.one,
+    paddingVertical: Spacing.one,
   },
   stripText: {
-    flexShrink: 1,
+    flex: 1,
   },
 });
