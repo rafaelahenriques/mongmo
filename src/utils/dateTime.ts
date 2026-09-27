@@ -1,5 +1,5 @@
 import { addDays, format as formatLocal, isBefore, parse, startOfWeek } from 'date-fns';
-import { formatInTimeZone, fromZonedTime } from 'date-fns-tz';
+import { formatInTimeZone, fromZonedTime, toZonedTime } from 'date-fns-tz';
 
 import type { DayHours, Weekday, WeeklyHours } from '@/types';
 
@@ -157,4 +157,18 @@ export function formatDayBadge(
     day: formatInTimeZone(date, timeZone, 'dd'),
     month: formatInTimeZone(date, timeZone, 'MMM').toUpperCase(),
   };
+}
+
+/**
+ * A Date whose *device-local* clock reads what `timeZone`'s clock reads at
+ * `date`. Native date pickers only speak device time; round-tripping through
+ * this (and fromWallClock) lets them edit a pop-up's time in its own zone.
+ */
+export function toWallClock(date: Date, timeZone: string): Date {
+  return toZonedTime(date, timeZone);
+}
+
+/** Inverse of toWallClock: device-local clock fields read as `timeZone` time. */
+export function fromWallClock(date: Date, timeZone: string): Date {
+  return fromZonedTime(date, timeZone);
 }
