@@ -1,10 +1,21 @@
 import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
 
-import { Fonts, ThemeColor } from '@/constants/theme';
+import { FontFamily, Fonts, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
 export type ThemedTextProps = TextProps & {
-  type?: 'default' | 'title' | 'small' | 'smallBold' | 'subtitle' | 'link' | 'linkPrimary' | 'code';
+  type?:
+    | 'default'
+    | 'title'
+    | 'subtitle'
+    | 'section'
+    | 'label'
+    | 'button'
+    | 'small'
+    | 'smallBold'
+    | 'link'
+    | 'linkPrimary'
+    | 'code';
   themeColor?: ThemeColor;
 };
 
@@ -15,14 +26,8 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
     <Text
       style={[
         { color: theme[themeColor ?? 'text'] },
-        type === 'default' && styles.default,
-        type === 'title' && styles.title,
-        type === 'small' && styles.small,
-        type === 'smallBold' && styles.smallBold,
-        type === 'subtitle' && styles.subtitle,
-        type === 'link' && styles.link,
-        type === 'linkPrimary' && styles.linkPrimary,
-        type === 'code' && styles.code,
+        styles[type],
+        type === 'linkPrimary' && { color: theme.primaryText },
         style,
       ]}
       {...rest}
@@ -31,39 +36,67 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
 }
 
 const styles = StyleSheet.create({
-  small: {
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: 500,
-  },
-  smallBold: {
-    fontSize: 14,
-    lineHeight: 20,
-    fontWeight: 700,
-  },
-  default: {
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: 500,
-  },
+  /** Big condensed caps — screen titles and hero moments. */
   title: {
-    fontSize: 48,
-    fontWeight: 600,
-    lineHeight: 52,
+    fontFamily: FontFamily.display,
+    fontSize: 40,
+    lineHeight: 42,
+    textTransform: 'uppercase',
   },
   subtitle: {
-    fontSize: 32,
-    lineHeight: 44,
-    fontWeight: 600,
+    fontFamily: FontFamily.display,
+    fontSize: 28,
+    lineHeight: 32,
+    textTransform: 'uppercase',
+  },
+  /** Section headings ("Nearby pop-ups", "Settings"). */
+  section: {
+    fontFamily: FontFamily.display,
+    fontSize: 22,
+    lineHeight: 26,
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+  },
+  /** Small caps for stickers, chips and eyebrows. */
+  label: {
+    fontFamily: FontFamily.displayBold,
+    fontSize: 14,
+    lineHeight: 18,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  /** Button labels: 20px bold, so they count as large text for contrast. */
+  button: {
+    fontFamily: FontFamily.display,
+    fontSize: 20,
+    lineHeight: 24,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  default: {
+    fontFamily: FontFamily.body,
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  small: {
+    fontFamily: FontFamily.bodyMedium,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  smallBold: {
+    fontFamily: FontFamily.bodyBold,
+    fontSize: 14,
+    lineHeight: 20,
   },
   link: {
+    fontFamily: FontFamily.bodySemiBold,
     lineHeight: 30,
     fontSize: 14,
   },
   linkPrimary: {
+    fontFamily: FontFamily.bodySemiBold,
     lineHeight: 30,
     fontSize: 14,
-    color: '#3c87f7',
   },
   code: {
     fontFamily: Fonts.mono,

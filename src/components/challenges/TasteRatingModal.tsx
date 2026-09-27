@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { Star } from 'lucide-react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -22,8 +23,8 @@ export default function TasteRatingModal({ visible, title, pending = false, onSu
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
-        <Pressable style={[styles.card, { backgroundColor: theme.background }]} accessibilityViewIsModal>
-          <ThemedText type="smallBold">{title}</ThemedText>
+        <Pressable style={[styles.card, { backgroundColor: theme.background, borderColor: theme.border, boxShadow: `4px 4px 0px ${theme.shadow}` }]} accessibilityViewIsModal>
+          <ThemedText type="section">{title}</ThemedText>
 
           <View style={styles.stars} accessibilityRole="adjustable" accessibilityLabel={`Rating: ${rating} of 5 stars`}>
             {[1, 2, 3, 4, 5].map((value) => (
@@ -36,29 +37,20 @@ export default function TasteRatingModal({ visible, title, pending = false, onSu
               >
                 <Star
                   size={32}
-                  color={value <= rating ? '#F5B24A' : theme.backgroundSelected}
-                  fill={value <= rating ? '#F5B24A' : 'transparent'}
+                  color={theme.border}
+                  fill={value <= rating ? theme.highlight : 'transparent'}
                 />
               </Pressable>
             ))}
           </View>
 
-          <Pressable
+          <Button
+            label="Submit rating"
             onPress={() => onSubmit(rating)}
-            disabled={rating === 0 || pending}
-            accessibilityRole="button"
-            accessibilityLabel="Submit rating"
-            style={({ pressed }) => [
-              styles.button,
-              { backgroundColor: '#8B4513', opacity: rating === 0 ? 0.5 : pending ? 0.7 : pressed ? 0.9 : 1 },
-            ]}
-          >
-            {pending ? <ActivityIndicator color="#FFFFFF" /> : (
-              <ThemedText type="smallBold" style={styles.buttonText}>
-                Submit rating
-              </ThemedText>
-            )}
-          </Pressable>
+            loading={pending}
+            disabled={rating === 0}
+            style={styles.button}
+          />
         </Pressable>
       </Pressable>
     </Modal>
@@ -77,6 +69,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 360,
     borderRadius: 16,
+    borderWidth: 2,
     padding: Spacing.four,
     gap: Spacing.three,
   },

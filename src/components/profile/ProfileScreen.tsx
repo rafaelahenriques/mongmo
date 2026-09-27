@@ -94,7 +94,7 @@ export default function ProfileScreen() {
       style={[styles.scroll, { backgroundColor: theme.background }]}
       contentContainerStyle={styles.content}
     >
-      <View style={[styles.card, styles.identity, { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected }]}>
+      <View style={[styles.card, styles.identity, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}>
         <Image
           source={{ uri: user.avatarUrl }}
           style={styles.avatar}
@@ -118,7 +118,7 @@ export default function ProfileScreen() {
 
       <View style={styles.stats}>
         <StatTile label="Events" value={String(summary.eventsAttended)} caption="attended" />
-        <StatTile label="Points" value={summary.points.toLocaleString()} caption="earned" />
+        <StatTile label="Points" value={summary.points.toLocaleString()} caption="earned" highlight />
         <StatTile
           label="Badges"
           value={String(summary.earned.length)}
@@ -133,7 +133,7 @@ export default function ProfileScreen() {
         style={({ pressed }) => [
           styles.card,
           styles.achievementsCta,
-          { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected, opacity: pressed ? 0.8 : 1 },
+          { backgroundColor: theme.backgroundElement, borderColor: theme.border, opacity: pressed ? 0.8 : 1 },
         ]}
       >
         <Award size={20} color={theme.text} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" />
@@ -154,7 +154,7 @@ export default function ProfileScreen() {
           style={({ pressed }) => [
             styles.card,
             styles.achievementsCta,
-            { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected, opacity: pressed ? 0.8 : 1 },
+            { backgroundColor: theme.backgroundElement, borderColor: theme.border, opacity: pressed ? 0.8 : 1 },
           ]}
         >
           <Store size={20} color={theme.text} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" />
@@ -168,12 +168,12 @@ export default function ProfileScreen() {
         </Pressable>
       ) : null}
 
-      <ThemedText type="smallBold" style={styles.sectionTitle}>
+      <ThemedText type="section" style={styles.sectionTitle}>
         Photos from events
       </ThemedText>
       <PhotoGallery checkIns={visitedEvents.data ?? []} />
 
-      <ThemedText type="smallBold" style={styles.sectionTitle}>
+      <ThemedText type="section" style={styles.sectionTitle}>
         Settings
       </ThemedText>
       <SettingsPanel />
@@ -181,22 +181,40 @@ export default function ProfileScreen() {
   );
 }
 
-function StatTile({ label, value, caption }: { label: string; value: string; caption: string }) {
+function StatTile({
+  label,
+  value,
+  caption,
+  highlight = false,
+}: {
+  label: string;
+  value: string;
+  caption: string;
+  /** Yellow "sticker" for the number that matters most (points). */
+  highlight?: boolean;
+}) {
   const theme = useTheme();
+  const ink = highlight ? { color: theme.onHighlight } : undefined;
   return (
     <View
       accessibilityRole="text"
       accessibilityLabel={`${label}: ${value} ${caption}`}
       style={[
         styles.statTile,
-        { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
+        {
+          backgroundColor: highlight ? theme.highlight : theme.backgroundElement,
+          borderColor: theme.border,
+          boxShadow: `3px 3px 0px ${theme.shadow}`,
+        },
       ]}
     >
-      <ThemedText type="subtitle" style={styles.statValue}>
+      <ThemedText type="subtitle" style={[styles.statValue, ink]}>
         {value}
       </ThemedText>
-      <ThemedText type="smallBold">{label}</ThemedText>
-      <ThemedText type="small" themeColor="textSecondary">
+      <ThemedText type="label" style={ink}>
+        {label}
+      </ThemedText>
+      <ThemedText type="small" themeColor={highlight ? undefined : 'textSecondary'} style={ink}>
         {caption}
       </ThemedText>
     </View>
@@ -214,7 +232,7 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.three,
     gap: Spacing.three,
   },
@@ -242,7 +260,7 @@ const styles = StyleSheet.create({
   statTile: {
     flex: 1,
     borderRadius: 14,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.three,
     alignItems: 'center',
     gap: 2,

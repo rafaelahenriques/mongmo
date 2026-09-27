@@ -38,7 +38,7 @@ export default function ChallengesSection({ event, checkedIn }: ChallengesSectio
 
   return (
     <View style={styles.section}>
-      <ThemedText type="smallBold" style={styles.title}>
+      <ThemedText type="section" style={styles.title}>
         Challenges · {completedCount}/{challenges.length}
       </ThemedText>
       <View style={styles.list}>

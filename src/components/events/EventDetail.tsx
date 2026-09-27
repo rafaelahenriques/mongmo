@@ -17,6 +17,7 @@ import { Check, Clock, MapPin, Navigation, Share2, ShoppingBag } from 'lucide-re
 import QrScanner from '@/components/camera/QrScanner';
 import ChallengesSection from '@/components/challenges/ChallengesSection';
 import CapacityMeter from '@/components/events/CapacityMeter';
+import { Button } from '@/components/ui/Button';
 import Chip from '@/components/ui/Chip';
 import { ThemedText } from '@/components/ThemedText';
 import { ApiError } from '@/api/errors';
@@ -32,7 +33,6 @@ import { useLocationStore } from '@/state/locationStore';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
 
-const STORE_BROWN = '#8B4513';
 
 export type EventDetailProps = {
   eventId: string;
@@ -53,34 +53,15 @@ function ActionButton({
   variant = 'secondary',
   disabled = false,
 }: ActionButtonProps) {
-  const theme = useTheme();
-  const isPrimary = variant === 'primary';
-
   return (
-    <Pressable
+    <Button
+      label={label}
+      icon={icon}
       onPress={onPress}
+      variant={variant === 'primary' ? 'primary' : 'secondary'}
       disabled={disabled}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ disabled }}
-      style={({ pressed }) => [
-        styles.action,
-        {
-          backgroundColor: isPrimary ? STORE_BROWN : theme.backgroundElement,
-          borderColor: isPrimary ? STORE_BROWN : theme.backgroundSelected,
-          opacity: disabled ? 0.6 : pressed ? 0.8 : 1,
-        },
-      ]}
-    >
-      {icon}
-      <ThemedText
-        type="smallBold"
-        style={isPrimary ? { color: '#FFFFFF' } : undefined}
-        numberOfLines={1}
-      >
-        {label}
-      </ThemedText>
-    </Pressable>
+      style={styles.action}
+    />
   );
 }
 
@@ -222,7 +203,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
       <View style={styles.chips}>
         <Chip
           label={phase === 'live' ? 'Live now' : phase === 'upcoming' ? 'Upcoming' : 'Ended'}
-          tone={phase === 'live' ? 'success' : 'neutral'}
+          tone={phase === 'live' ? 'live' : 'neutral'}
         />
         {isFull ? <Chip label="Full" tone="danger" /> : null}
         {event.tags.map((tag) => (
@@ -230,7 +211,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
         ))}
       </View>
 
-      <ThemedText type="subtitle" style={styles.title}>
+      <ThemedText type="title" style={styles.title} accessibilityRole="header">
         {event.title}
       </ThemedText>
 
@@ -263,13 +244,13 @@ export default function EventDetail({ eventId }: EventDetailProps) {
         />
       </View>
 
-      <ThemedText type="smallBold" style={styles.sectionTitle}>
+      <ThemedText type="section" style={styles.sectionTitle}>
         Menu preview
       </ThemedText>
       {event.menu.map((item) => (
         <View key={item.id} style={styles.menuRow}>
           <View style={styles.menuTexts}>
-            <ThemedText type="small">{item.name}</ThemedText>
+            <ThemedText type="smallBold">{item.name}</ThemedText>
             {item.description ? (
               <ThemedText type="small" themeColor="textSecondary">
                 {item.description}
@@ -277,7 +258,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
             ) : null}
           </View>
           {item.price ? (
-            <ThemedText type="small" themeColor="textSecondary">
+            <ThemedText type="smallBold" themeColor="primaryText">
               {item.price}
             </ThemedText>
           ) : null}
@@ -291,9 +272,9 @@ export default function EventDetail({ eventId }: EventDetailProps) {
       <View style={styles.actions}>
         <ActionButton
           label={checkedIn ? 'Checked in' : 'Check in'}
-          icon={<Check size={18} color="#FFFFFF" />}
+          icon={<Check size={20} color={checkedIn ? theme.text : theme.onPrimary} />}
           onPress={onPressCheckIn}
-          variant="primary"
+          variant={checkedIn ? 'secondary' : 'primary'}
           disabled={checkedIn}
         />
         <ActionButton
@@ -339,7 +320,7 @@ function StateCard({
       <View
         style={[
           styles.stateCard,
-          { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
+          { backgroundColor: theme.backgroundElement, borderColor: theme.border },
         ]}
         accessibilityRole={retryLabel ? 'alert' : 'text'}
       >
@@ -386,8 +367,8 @@ const styles = StyleSheet.create({
     marginTop: Spacing.three,
   },
   title: {
-    fontSize: 26,
-    lineHeight: 32,
+    fontSize: 36,
+    lineHeight: 38,
     paddingHorizontal: Spacing.three,
     marginTop: Spacing.two,
   },
@@ -436,14 +417,6 @@ const styles = StyleSheet.create({
   action: {
     flexGrow: 1,
     minWidth: 132,
-    minHeight: 48,
-    borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.one,
-    paddingHorizontal: Spacing.two,
   },
   stateContainer: {
     flex: 1,
@@ -453,7 +426,7 @@ const styles = StyleSheet.create({
   },
   stateCard: {
     borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.four,
     gap: Spacing.two,
     maxWidth: 360,

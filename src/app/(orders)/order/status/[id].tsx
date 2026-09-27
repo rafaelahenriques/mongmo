@@ -41,7 +41,7 @@ export default function OrderStatusScreen() {
       style={[styles.scroll, { backgroundColor: theme.background }]}
       contentContainerStyle={styles.content}
     >
-      <View style={[styles.codeBox, { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected }]}>
+      <View style={[styles.codeBox, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}>
         <ThemedText type="small" themeColor="textSecondary">
           Pickup code
         </ThemedText>
@@ -78,7 +78,7 @@ export default function OrderStatusScreen() {
         </View>
       )}
 
-      <ThemedText type="smallBold" style={styles.sectionTitle}>
+      <ThemedText type="section" style={styles.sectionTitle}>
         Items
       </ThemedText>
       {(items.data ?? []).map((item) => (
@@ -90,7 +90,7 @@ export default function OrderStatusScreen() {
         </View>
       ))}
 
-      <View style={[styles.row, styles.totalRow, { borderColor: theme.backgroundSelected }]}>
+      <View style={[styles.row, styles.totalRow, { borderColor: theme.border }]}>
         <ThemedText type="smallBold">Total</ThemedText>
         <ThemedText type="smallBold">{formatCents(order.data.total_cents)}</ThemedText>
       </View>
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   },
   codeBox: {
     borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.three,
     alignItems: 'center',
     gap: Spacing.half,

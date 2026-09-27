@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { DarkTheme, DefaultTheme } from 'expo-router';
 
-import { Colors } from '@/constants/theme';
+import { Colors, FontFamily } from '@/constants/theme';
 import { useResolvedScheme } from '@/hooks/useTheme';
 
 /**
@@ -22,10 +22,18 @@ export function useNavigationTheme() {
       ...base,
       colors: {
         ...base.colors,
+        primary: colors.primaryText,
         background: colors.background,
-        card: colors.backgroundElement,
+        card: colors.background,
         text: colors.text,
         border: colors.backgroundSelected,
+      },
+      // Header titles use `bold`; the rest keeps text in the brand face too.
+      fonts: {
+        regular: { fontFamily: FontFamily.body, fontWeight: 'normal' as const },
+        medium: { fontFamily: FontFamily.bodyMedium, fontWeight: 'normal' as const },
+        bold: { fontFamily: FontFamily.display, fontWeight: 'normal' as const },
+        heavy: { fontFamily: FontFamily.display, fontWeight: 'normal' as const },
       },
     };
   }, [scheme, colors]);
