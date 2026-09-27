@@ -1,7 +1,8 @@
 import { toApiError } from '@/api/errors';
 import { getCurrentUserId, supabase } from '@/lib/supabase';
-import type { ChallengeType } from '@/types';
+import type { ChallengeRules } from '@/types';
 import type { Database } from '@/types/database';
+import { challengeConfigPayload } from '@/utils/challengeConfig';
 
 export type OwnerEventSummary = {
   id: string;
@@ -134,33 +135,27 @@ export async function getEventQrToken(eventId: string): Promise<string> {
  * ------------------------------------------------------------------ */
 
 export type ChallengeInput = {
-  type: ChallengeType;
   title: string;
   description: string;
   points: number;
+  rules: ChallengeRules;
 };
 
+const challengeColumns = (input: ChallengeInput) => ({
+  type: input.rules.type,
+  title: input.title.trim(),
+  description: input.description.trim(),
+  points: input.points,
+  config: challengeConfigPayload(input.rules),
+});
+
 export async function createChallenge(eventId: string, input: ChallengeInput): Promise<void> {
-  const { error } = await supabase.from('challenges').insert({
-    event_id: eventId,
-    type: input.type,
-    title: input.title,
-    description: input.description,
-    points: input.points,
-  });
+  const { error } = await supabase.from('challenges').insert({ event_id: eventId, ...challengeColumns(input) });
   if (error) throw toApiError(error);
 }
 
 export async function updateChallenge(challengeId: string, input: ChallengeInput): Promise<void> {
-  const { error } = await supabase
-    .from('challenges')
-    .update({
-      type: input.type,
-      title: input.title,
-      description: input.description,
-      points: input.points,
-    })
-    .eq('id', challengeId);
+  const { error } = await supabase.from('challenges').update(challengeColumns(input)).eq('id', challengeId);
   if (error) throw toApiError(error);
 }
 

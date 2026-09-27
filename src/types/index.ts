@@ -160,14 +160,45 @@ export type Reward = {
 };
 
 /**
- * A single challenge on an event. Every type shares this one shape; only
- * the type-specific renderer and the `data` a completion carries differ —
- * see components/challenges/ChallengeItem.tsx.
+ * Each challenge type's own settings. The server validates and enforces
+ * them (supabase/migrations/0012_challenge_settings.sql); the limits are
+ * mirrored in utils/challengeConfig.ts.
  */
-export type Challenge = {
+export type ChallengeConfigByType = {
+  /** Be within `radiusM` of the venue. */
+  explore: { radiusM: number };
+  check_in: Record<string, never>;
+  /** Upload `photoCount` photos of `prompt`. */
+  capture: { photoCount: number; prompt: string };
+  /** Find something (`hint` helps) and photograph it. */
+  discovery: { photoCount: number; hint: string };
+  /** Rate `dish` (optional) from 1 to 5. */
+  taste: { dish: string };
+  /** Share `message` (optional). */
+  social: { message: string };
+  /** Complete between these two ISO timestamps. */
+  timing: { startsAt: string; endsAt: string };
+  /** Order `dishCount` different dishes at this pop-up. */
+  collection: { dishCount: number };
+  /** Have checked in at `popupCount` pop-ups. */
+  streak: { popupCount: number };
+  /** Vote for one of `options`. */
+  community: { options: string[] };
+};
+
+/** A challenge type with its settings; checking `type` narrows `config`. */
+export type ChallengeRules = {
+  [Type in ChallengeType]: { type: Type; config: ChallengeConfigByType[Type] };
+}[ChallengeType];
+
+/**
+ * A single challenge on an event. Every type shares this shape; its rules
+ * decide the interaction (components/challenges/ChallengeItem.tsx) and what
+ * the server checks before it counts.
+ */
+export type Challenge = ChallengeRules & {
   id: string;
   eventId: string;
-  type: ChallengeType;
   title: string;
   description: string;
   points: number;

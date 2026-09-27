@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
 
 import ChallengeItem from '@/components/challenges/ChallengeItem';
 import { ThemedText } from '@/components/ThemedText';
@@ -21,8 +21,14 @@ export default function ChallengesSection({ event, checkedIn }: ChallengesSectio
   const theme = useTheme();
   const { challenges, isLoading, completedByChallenge, complete, completePending } = useChallenges(event.id);
 
+  // The server says exactly what's missing ("Take 3 photos — 1 uploaded so
+  // far", "This one opens at 18:00"), so show its message as is.
   const onComplete = useCallback(
-    (challengeId: string) => (data: Record<string, unknown>) => complete({ challengeId, data }),
+    (challengeId: string) => (data: Record<string, unknown>) =>
+      complete(
+        { challengeId, data },
+        { onError: (error) => Alert.alert('Not yet', error instanceof Error ? error.message : 'Please try again.') },
+      ),
     [complete],
   );
 

@@ -5,6 +5,7 @@ import OwnerChallengesManager from '@/components/owner/OwnerChallengesManager';
 import OwnerEventForm from '@/components/owner/OwnerEventForm';
 import OwnerEventQr from '@/components/owner/OwnerEventQr';
 import OwnerMenuAttach from '@/components/owner/OwnerMenuAttach';
+import PhotoGallery from '@/components/profile/PhotoGallery';
 import { OWNER_GROUP_LABEL, OWNER_GROUP_TONE, ownerEventGroup } from '@/components/owner/ownerEventPhase';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
@@ -15,6 +16,7 @@ import { IconBadge } from '@/components/ui/IconBadge';
 import { SectionHeader } from '@/components/ui/Screen';
 import { Spacing } from '@/constants/theme';
 import { useOwnerEvent, useSetEventStatus, useUpdateEvent } from '@/hooks/useOwnerEvent';
+import { useEventPhotos } from '@/hooks/usePhotos';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
@@ -35,6 +37,7 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
   const eventQuery = useOwnerEvent(eventId);
   const updateEvent = useUpdateEvent(eventId);
   const setStatus = useSetEventStatus(eventId);
+  const photos = useEventPhotos(eventId);
 
   if (eventQuery.isPending) {
     return (
@@ -121,7 +124,10 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
       <OwnerEventQr eventId={eventId} />
 
       <SectionHeader title="Challenges" />
-      <OwnerChallengesManager eventId={eventId} />
+      <OwnerChallengesManager eventId={eventId} timeZone={event.time_zone} />
+
+      <SectionHeader title="Guest photos" />
+      <PhotoGallery photos={photos.data ?? []} emptyText="Photos guests take for this pop-up's challenges land here." />
 
       <SectionHeader title="Menu" />
       <OwnerMenuAttach eventId={eventId} />
