@@ -153,9 +153,10 @@ where id in (
 )
 on conflict do nothing;
 
--- A full spread of challenges — every type the engine supports — on the
--- live event, plus two previews on the upcoming one. The configs are the
--- per-type settings the server validates and normalizes on save
+-- Every pop-up gets its own themed challenges, and every one has a photo
+-- challenge. The live brunch (e3) has one of every type but motion; the
+-- DJ night (e4) has the dance meter. The configs are the per-type
+-- settings the server validates and normalizes on save
 -- (0012_challenge_settings.sql). Re-running refreshes them.
 insert into public.challenges (id, event_id, type, title, description, points, sort_order, config) values
   ('00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000e3', 'check_in', 'Scan in at Bar Amorse', 'Scan the event QR code when you arrive.', 20, 1, '{}'::jsonb),
@@ -168,7 +169,29 @@ insert into public.challenges (id, event_id, type, title, description, points, s
   ('00000000-0000-0000-0000-0000000000c8', '00000000-0000-0000-0000-0000000000e3', 'streak', 'Regular face', 'Check in at three Mongmo pop-ups — this one counts.', 40, 8, '{"popupCount": 3}'::jsonb),
   ('00000000-0000-0000-0000-0000000000c9', '00000000-0000-0000-0000-0000000000e3', 'explore', 'Stick around', 'Explore the street around the pop-up while you’re here.', 15, 9, '{"radiusM": 300}'::jsonb),
   ('00000000-0000-0000-0000-0000000000cb', '00000000-0000-0000-0000-0000000000e2', 'capture', 'Lantern hunter', 'Photograph the lanterns strung over Chinatown.', 20, 1, '{"photoCount": 1, "prompt": "the lanterns over Chinatown"}'::jsonb),
-  ('00000000-0000-0000-0000-0000000000cc', '00000000-0000-0000-0000-0000000000e2', 'taste', 'First taste', 'Be the first to rate the bakery stand’s bánh mì.', 15, 2, '{"dish": "bánh mì from the bakery stand"}'::jsonb)
+  ('00000000-0000-0000-0000-0000000000cc', '00000000-0000-0000-0000-0000000000e2', 'taste', 'First taste', 'Be the first to rate the bakery stand’s bánh mì.', 15, 2, '{"dish": "bánh mì from the bakery stand"}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001d1', '00000000-0000-0000-0000-0000000000e4', 'motion', 'Dance meter', 'Get on the floor — the meter fills while you move.', 30, 1, '{"seconds": 30}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001d2', '00000000-0000-0000-0000-0000000000e4', 'capture', 'Crowd shot', 'Show us the night.', 20, 2, '{"photoCount": 2, "prompt": "the dance floor and the DJ booth"}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001d3', '00000000-0000-0000-0000-0000000000e4', 'community', 'Pick the next set', 'The crowd decides what Minh plays at midnight.', 10, 3, '{"options": ["Vinahouse", "City pop", "Deep house"]}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001d4', '00000000-0000-0000-0000-0000000000e4', 'timing', 'Doors-open crew', 'For everyone there in the first hour.', 15, 4, '{}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001d5', '00000000-0000-0000-0000-0000000000e4', 'streak', 'Night crawler', 'Three Mongmo pop-ups, any city.', 40, 5, '{"popupCount": 3}'::jsonb),
+  ('00000000-0000-0000-0000-0000000000cf', '00000000-0000-0000-0000-0000000000e2', 'collection', 'Street food crawl', 'Three different dishes from our stand.', 35, 3, '{"dishCount": 3}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001c0', '00000000-0000-0000-0000-0000000000e2', 'explore', 'Find the Mongmo stand', 'It’s somewhere on Van Wesenbekestraat.', 15, 4, '{"radiusM": 200}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001c2', '00000000-0000-0000-0000-0000000000e2', 'community', 'Best lantern colour', 'Vote for your favourite.', 10, 5, '{"options": ["Red", "Gold", "Jade"]}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001c3', '00000000-0000-0000-0000-0000000000e2', 'motion', 'Lion dance', 'Dance along when the lion comes by.', 25, 6, '{"seconds": 20}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001c4', '00000000-0000-0000-0000-0000000000e5', 'capture', 'Latte art', 'Before the first sip.', 15, 1, '{"photoCount": 1, "prompt": "your cà phê before the first sip"}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001c5', '00000000-0000-0000-0000-0000000000e5', 'taste', 'Cà phê sữa đá', 'How strong do you like it?', 15, 2, '{"dish": "cà phê sữa đá"}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001c6', '00000000-0000-0000-0000-0000000000e5', 'timing', 'Early riser', 'For the first hour of the morning.', 20, 3, '{}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001c7', '00000000-0000-0000-0000-0000000000e5', 'social', 'Coffee buddy', 'Bring someone for their first phin coffee.', 20, 4, '{"message": "Cà phê sữa đá at Kortrijk station — see you there?"}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001c8', '00000000-0000-0000-0000-0000000000e6', 'capture', 'Cross-section', 'The best way to show a bánh mì.', 20, 1, '{"photoCount": 1, "prompt": "your bánh mì, cut in half"}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001c9', '00000000-0000-0000-0000-0000000000e6', 'collection', 'Full order', 'A bánh mì and something on the side.', 25, 2, '{"dishCount": 2}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001ca', '00000000-0000-0000-0000-0000000000e6', 'explore', 'At the truck', 'By the ponds on Place Flagey.', 10, 3, '{"radiusM": 150}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001cb', '00000000-0000-0000-0000-0000000000e6', 'discovery', 'Spot the sticker', 'There’s a Mongmo sticker on the truck.', 20, 4, '{"photoCount": 1, "hint": "Look low, near the wheels."}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001cc', '00000000-0000-0000-0000-0000000000e7', 'capture', 'Family photo', 'Everyone under the lanterns.', 20, 1, '{"photoCount": 1, "prompt": "your crew under the lanterns"}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001cd', '00000000-0000-0000-0000-0000000000e7', 'motion', 'Lion dance', 'Dance with the lion for good luck.', 25, 2, '{"seconds": 20}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001ce', '00000000-0000-0000-0000-0000000000e7', 'community', 'Wish for the year', 'What are you wishing for?', 10, 3, '{"options": ["Health", "Luck", "Love"]}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001cf', '00000000-0000-0000-0000-0000000000e7', 'discovery', 'The golden lantern', 'One lantern carries the Mongmo logo.', 25, 4, '{"photoCount": 1, "hint": "Only one lantern is gold."}'::jsonb),
+  ('00000000-0000-0000-0000-0000000001d0', '00000000-0000-0000-0000-0000000000e1', 'capture', 'Natural wine & records', 'The evening in one photo.', 20, 1, '{"photoCount": 1, "prompt": "your glass and the records"}'::jsonb)
 on conflict (id) do update set
   type = excluded.type,
   title = excluded.title,
@@ -197,6 +220,12 @@ on conflict (id) do update set
   points = excluded.points,
   sort_order = excluded.sort_order;
 
+-- The demo pop-ups bring their own photo challenges; drop the generic one
+-- migration 0015 gives any upcoming pop-up that had none.
+delete from public.challenges
+where title = 'Snap the pop-up'
+  and event_id::text like '00000000-0000-0000-0000-0000000000e%';
+
 -- ------------------------------------------------------------------
 -- Badges: the fixed, developer-defined achievement ladder.
 -- ------------------------------------------------------------------
@@ -213,7 +242,11 @@ insert into public.badges (key, title, description, points, sort_order) values
   ('event-hopper', 'Event Hopper', 'Check in at 3 different pop-ups', 75, 10),
   ('shutterbug', 'Shutterbug', 'Complete 3 photo challenges', 50, 11),
   ('taste-tester', 'Taste Tester', 'Complete 2 tasting challenges', 50, 12),
-  ('challenge-champion', 'Challenge Champion', 'Complete 10 challenges', 100, 13)
+  ('challenge-champion', 'Challenge Champion', 'Complete 10 challenges', 100, 13),
+  ('night-owl', 'Night Owl', 'Check in at a pop-up after 21:00', 30, 14),
+  ('dance-machine', 'Dance Machine', 'Fill a dance meter', 40, 15),
+  ('crowd-voice', 'Voice of the Crowd', 'Vote in 2 polls', 30, 16),
+  ('early-bird', 'Early Bird', 'Beat the clock on a timing challenge', 30, 17)
 on conflict (key) do nothing;
 
 -- ------------------------------------------------------------------
