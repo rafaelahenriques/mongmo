@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Spacing } from '@/constants/theme';
 import { usePlaceOrder } from '@/hooks/usePlaceOrder';
 import { useTheme } from '@/hooks/useTheme';
+import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useCartStore, cartSubtotalCents } from '@/state/cartStore';
 import { formatCents } from '@/utils/orderFormat';
 
@@ -23,6 +24,7 @@ export default function OrderCheckoutScreen() {
   const items = useCartStore((state) => state.items);
   const pickupAt = useCartStore((state) => state.pickupAt);
   const placeOrder = usePlaceOrder();
+  const tabBarInset = useTabBarInset();
   const [error, setError] = useState<string | null>(null);
 
   if (!location || items.length === 0) return null;
@@ -50,7 +52,7 @@ export default function OrderCheckoutScreen() {
   return (
     <ScrollView
       style={[styles.scroll, { backgroundColor: theme.background }]}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + Spacing.four }]}
     >
       <View style={[styles.prototypeBadge, { backgroundColor: theme.accent, borderColor: theme.border }]}>
         <ThemedText type="label" style={{ color: theme.onAccent }}>
