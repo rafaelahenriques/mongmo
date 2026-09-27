@@ -145,6 +145,33 @@ export async function getUserRewards() {
   return data;
 }
 
+type ExpiringUserRewardRow = {
+  id: string;
+  rewards: { title: string; expires_at: string | null } | null;
+};
+
+/** Unused, unexpired redeemed rewards, for the expiry-reminder notification. */
+export async function getExpiringUserRewards(): Promise<
+  { userRewardId: string; title: string; expiresAt: string }[]
+> {
+  const { data, error } = await supabase
+    .from('user_rewards')
+    .select('id, rewards(title, expires_at)')
+    .is('used_at', null)
+    .returns<ExpiringUserRewardRow[]>();
+  if (error) throw toApiError(error);
+
+  return data
+    .filter((row): row is ExpiringUserRewardRow & { rewards: { title: string; expires_at: string } } =>
+      row.rewards !== null && row.rewards.expires_at !== null,
+    )
+    .map((row) => ({
+      userRewardId: row.id,
+      title: row.rewards.title,
+      expiresAt: row.rewards.expires_at,
+    }));
+}
+
 /** Current points balance, computed server-side from the points ledger. */
 export async function getPointsBalance(): Promise<number> {
   const { data, error } = await supabase.rpc('my_points_balance');

@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 
-export default function IndexLayout() {
+export default function HomeLayout() {
   return (
     <Stack
       screenOptions={{
@@ -9,7 +9,6 @@ export default function IndexLayout() {
       }}
     >
       <Stack.Screen name="index" />
-      <Stack.Screen name="event/[id]" options={{ headerTitle: 'Event' }} />
     </Stack>
   );
 }

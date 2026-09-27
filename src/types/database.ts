@@ -288,6 +288,10 @@ export type Database = {
         Args: { p_order_id: string; p_status: string };
         Returns: OrderRow;
       };
+      get_event_qr_token: {
+        Args: { p_event_id: string };
+        Returns: string;
+      };
     };
   };
 };

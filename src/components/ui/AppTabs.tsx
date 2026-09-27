@@ -11,14 +11,14 @@ export default function AppTabs() {
       indicatorColor={colors.backgroundElement}
       labelStyle={{ selected: { color: colors.text } }}
     >
-      <NativeTabs.Trigger name="(index)">
-        <NativeTabs.Trigger.Label>Map</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="map.fill" md="map" />
+      <NativeTabs.Trigger name="(home)">
+        <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="house.fill" md="home" />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="(popups)">
-        <NativeTabs.Trigger.Label>Pop-ups</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="calendar" md="calendar_month" />
+      <NativeTabs.Trigger name="(explore)">
+        <NativeTabs.Trigger.Label>Explore</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="map.fill" md="map" />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="(orders)">

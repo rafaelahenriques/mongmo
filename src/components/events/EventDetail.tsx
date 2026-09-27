@@ -1,26 +1,33 @@
-import { useCallback, type ReactNode } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import {
+  AccessibilityInfo,
   ActivityIndicator,
-  Linking,
+  Alert,
   Pressable,
   ScrollView,
   Share,
   StyleSheet,
   View,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
-import { Check, Clock, ExternalLink, MapPin, Navigation, Share2 } from 'lucide-react-native';
+import * as Haptics from 'expo-haptics';
+import { Check, Clock, MapPin, Navigation, Share2, ShoppingBag } from 'lucide-react-native';
 
+import QrScanner from '@/components/camera/QrScanner';
+import ChallengesSection from '@/components/challenges/ChallengesSection';
 import CapacityMeter from '@/components/events/CapacityMeter';
 import Chip from '@/components/ui/Chip';
 import { ThemedText } from '@/components/ThemedText';
 import { ApiError } from '@/api/errors';
-import { EVENTS_PAGE_URL } from '@/constants/config';
+import { EVENTS_PAGE_URL, GEOFENCE_RADIUS_M } from '@/constants/config';
 import { Spacing } from '@/constants/theme';
 import { useCheckIn } from '@/hooks/useCheckIn';
+import { useCheckInMutation } from '@/hooks/useCheckInMutation';
 import { useEvent } from '@/hooks/useEvent';
 import { useTheme } from '@/hooks/useTheme';
 import { useBusyStore } from '@/state/busyStore';
+import { useCartStore } from '@/state/cartStore';
 import { useLocationStore } from '@/state/locationStore';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
@@ -83,12 +90,42 @@ function ActionButton({
  */
 export default function EventDetail({ eventId }: EventDetailProps) {
   const theme = useTheme();
+  const router = useRouter();
   const query = useEvent(eventId);
   const event = query.data;
   const busyFromStore = useBusyStore((state) => (event ? state.busy[event.id] : undefined));
   const userCoordinates = useLocationStore((state) => state.coordinates);
   const checkIn = useCheckIn(eventId);
   const checkedIn = Boolean(checkIn.data);
+  const checkInMutation = useCheckInMutation(eventId);
+  const [scannerVisible, setScannerVisible] = useState(false);
+
+  const onScanned = useCallback(
+    (qrToken: string) => {
+      setScannerVisible(false);
+      if (!userCoordinates) {
+        Alert.alert(
+          'Location needed',
+          'Turn on location access so we can confirm you’re at the venue.',
+        );
+        return;
+      }
+      checkInMutation.mutate(
+        { qrToken, coordinates: userCoordinates },
+        {
+          onSuccess: () => {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
+            AccessibilityInfo.announceForAccessibility('Checked in. Points and badges updated.');
+          },
+          onError: (error) => {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => undefined);
+            Alert.alert('Check-in failed', error instanceof Error ? error.message : 'Please try again.');
+          },
+        },
+      );
+    },
+    [checkInMutation, userCoordinates],
+  );
 
   const onShare = useCallback(async () => {
     if (!event) return;
@@ -108,8 +145,20 @@ export default function EventDetail({ eventId }: EventDetailProps) {
 
   const openOrder = useCallback(() => {
     if (!event) return;
-    Linking.openURL(event.orderUrl).catch(() => undefined);
-  }, [event]);
+    useCartStore.getState().setLocation({ type: 'event', eventId: event.id, eventTitle: event.title });
+    router.push('/(orders)/order/menu');
+  }, [event, router]);
+
+  const onPressCheckIn = useCallback(() => {
+    if (!event || checkedIn) return;
+    // Friendly client-side heads-up before even opening the camera — the
+    // server (verify_check_in) is still the one that actually enforces this.
+    if (userCoordinates && distanceInMeters(userCoordinates, event.coordinates) > GEOFENCE_RADIUS_M) {
+      Alert.alert('Too far to check in', 'Get within 500 m of the venue, then scan the QR code.');
+      return;
+    }
+    setScannerVisible(true);
+  }, [event, checkedIn, userCoordinates]);
 
   if (!eventId) {
     return (
@@ -241,15 +290,15 @@ export default function EventDetail({ eventId }: EventDetailProps) {
 
       <View style={styles.actions}>
         <ActionButton
-          label={checkedIn ? 'Checked in' : 'Check in (scan QR at the venue)'}
+          label={checkedIn ? 'Checked in' : 'Check in'}
           icon={<Check size={18} color="#FFFFFF" />}
-          onPress={() => undefined}
+          onPress={onPressCheckIn}
           variant="primary"
-          disabled
+          disabled={checkedIn}
         />
         <ActionButton
-          label="Order online"
-          icon={<ExternalLink size={18} color={theme.text} />}
+          label="Order"
+          icon={<ShoppingBag size={18} color={theme.text} />}
           onPress={openOrder}
         />
         <ActionButton
@@ -258,6 +307,15 @@ export default function EventDetail({ eventId }: EventDetailProps) {
           onPress={onShare}
         />
       </View>
+
+      <ChallengesSection event={event} checkedIn={checkedIn} />
+
+      <QrScanner
+        visible={scannerVisible}
+        title="Scan the event QR code"
+        onScan={onScanned}
+        onClose={() => setScannerVisible(false)}
+      />
     </ScrollView>
   );
 }
