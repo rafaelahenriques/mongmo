@@ -1,15 +1,15 @@
 import { useCallback, type ReactNode } from 'react';
 import {
   ActivityIndicator,
-  Linking,
   Pressable,
   ScrollView,
   Share,
   StyleSheet,
   View,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
-import { Check, Clock, ExternalLink, MapPin, Navigation, Share2 } from 'lucide-react-native';
+import { Check, Clock, MapPin, Navigation, Share2, ShoppingBag } from 'lucide-react-native';
 
 import CapacityMeter from '@/components/events/CapacityMeter';
 import Chip from '@/components/ui/Chip';
@@ -21,6 +21,7 @@ import { useCheckIn } from '@/hooks/useCheckIn';
 import { useEvent } from '@/hooks/useEvent';
 import { useTheme } from '@/hooks/useTheme';
 import { useBusyStore } from '@/state/busyStore';
+import { useCartStore } from '@/state/cartStore';
 import { useLocationStore } from '@/state/locationStore';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
@@ -83,6 +84,7 @@ function ActionButton({
  */
 export default function EventDetail({ eventId }: EventDetailProps) {
   const theme = useTheme();
+  const router = useRouter();
   const query = useEvent(eventId);
   const event = query.data;
   const busyFromStore = useBusyStore((state) => (event ? state.busy[event.id] : undefined));
@@ -108,8 +110,9 @@ export default function EventDetail({ eventId }: EventDetailProps) {
 
   const openOrder = useCallback(() => {
     if (!event) return;
-    Linking.openURL(event.orderUrl).catch(() => undefined);
-  }, [event]);
+    useCartStore.getState().setLocation({ type: 'event', eventId: event.id, eventTitle: event.title });
+    router.push('/(orders)/order/menu');
+  }, [event, router]);
 
   if (!eventId) {
     return (
@@ -248,8 +251,8 @@ export default function EventDetail({ eventId }: EventDetailProps) {
           disabled
         />
         <ActionButton
-          label="Order online"
-          icon={<ExternalLink size={18} color={theme.text} />}
+          label="Order"
+          icon={<ShoppingBag size={18} color={theme.text} />}
           onPress={openOrder}
         />
         <ActionButton

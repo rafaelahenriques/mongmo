@@ -55,6 +55,12 @@
         {
           "color": "#8B4513"
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to use the camera to scan event QR codes and take challenge photos."
+        }
       ]
     ],
     "experiments": {
