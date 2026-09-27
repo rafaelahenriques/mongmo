@@ -98,7 +98,7 @@ export default function AchievementsScreen() {
         accessibilityLabel={`${summary.points} points, ${summary.eventsAttended} events attended`}
         style={[
           styles.pointsCard,
-          { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
+          { backgroundColor: theme.backgroundElement, borderColor: theme.border },
         ]}
       >
         <ThemedText type="title" style={styles.points}>
@@ -126,7 +126,7 @@ export default function AchievementsScreen() {
         </View>
       </View>
 
-      <ThemedText type="smallBold" style={styles.sectionTitle}>
+      <ThemedText type="section" style={styles.sectionTitle}>
         Badges
       </ThemedText>
       <View style={styles.grid}>
@@ -135,7 +135,7 @@ export default function AchievementsScreen() {
         ))}
       </View>
 
-      <ThemedText type="smallBold" style={styles.sectionTitle}>
+      <ThemedText type="section" style={styles.sectionTitle}>
         Rewards
       </ThemedText>
       <View style={styles.rewards}>
@@ -150,7 +150,7 @@ export default function AchievementsScreen() {
         ))}
       </View>
 
-      <ThemedText type="smallBold" style={styles.sectionTitle}>
+      <ThemedText type="section" style={styles.sectionTitle}>
         Leaderboard
       </ThemedText>
       <View style={styles.section}>
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   },
   pointsCard: {
     borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.four,
     alignItems: 'center',
     gap: Spacing.one,

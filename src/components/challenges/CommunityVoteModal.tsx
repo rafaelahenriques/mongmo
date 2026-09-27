@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, StyleSheet, TextInput } from 'react-native';
+import { Modal, Pressable, StyleSheet, TextInput } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -29,8 +30,8 @@ export default function CommunityVoteModal({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
-        <Pressable style={[styles.card, { backgroundColor: theme.background }]} accessibilityViewIsModal>
-          <ThemedText type="smallBold">{title}</ThemedText>
+        <Pressable style={[styles.card, { backgroundColor: theme.background, borderColor: theme.border, boxShadow: `4px 4px 0px ${theme.shadow}` }]} accessibilityViewIsModal>
+          <ThemedText type="section">{title}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary">
             {description}
           </ThemedText>
@@ -41,25 +42,16 @@ export default function CommunityVoteModal({
             placeholder="Your vote"
             placeholderTextColor={theme.textSecondary}
             accessibilityLabel="Your vote"
-            style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected }]}
+            style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
           />
 
-          <Pressable
+          <Button
+            label="Submit vote"
             onPress={() => onSubmit(choice.trim())}
-            disabled={choice.trim().length === 0 || pending}
-            accessibilityRole="button"
-            accessibilityLabel="Submit vote"
-            style={({ pressed }) => [
-              styles.button,
-              { backgroundColor: '#8B4513', opacity: choice.trim().length === 0 ? 0.5 : pending ? 0.7 : pressed ? 0.9 : 1 },
-            ]}
-          >
-            {pending ? <ActivityIndicator color="#FFFFFF" /> : (
-              <ThemedText type="smallBold" style={styles.buttonText}>
-                Submit vote
-              </ThemedText>
-            )}
-          </Pressable>
+            loading={pending}
+            disabled={choice.trim().length === 0}
+            style={styles.button}
+          />
         </Pressable>
       </Pressable>
     </Modal>
@@ -78,23 +70,17 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 360,
     borderRadius: 16,
+    borderWidth: 2,
     padding: Spacing.four,
     gap: Spacing.two,
   },
   input: {
     minHeight: 46,
     borderRadius: 10,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     paddingHorizontal: Spacing.three,
   },
   button: {
-    marginTop: Spacing.one,
-    minHeight: 46,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: '#FFFFFF',
+    marginTop: Spacing.two,
   },
 });

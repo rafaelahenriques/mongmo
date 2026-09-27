@@ -4,6 +4,7 @@ import { Marker } from 'react-native-maps';
 
 import Chip from '@/components/ui/Chip';
 import { ThemedText } from '@/components/ThemedText';
+import { Colors } from '@/constants/theme';
 import { useBusyStore } from '@/state/busyStore';
 import { useLocationStore } from '@/state/locationStore';
 import { useTheme } from '@/hooks/useTheme';
@@ -17,7 +18,8 @@ export type EventPinProps = {
 };
 
 /** Required pin color for pop-ups (design brief). */
-const EVENT_RED = '#FF6B6B';
+/** Brand red, same in both schemes — pins sit on the map, not on a themed surface. */
+const EVENT_RED = Colors.light.primary;
 
 /**
  * Pin for a temporary pop-up: red dot + pill with distance and the live
@@ -57,7 +59,7 @@ function EventPinComponent({ event, onPress }: EventPinProps) {
         onAccessibilityTap={onPress}
         style={[
           styles.pill,
-          { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
+          { backgroundColor: theme.backgroundElement, borderColor: theme.border },
         ]}
       >
         <View style={[styles.dot, { backgroundColor: EVENT_RED }]} />

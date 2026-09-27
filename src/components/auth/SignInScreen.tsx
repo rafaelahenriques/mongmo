@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
 import {
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -11,7 +10,9 @@ import {
 } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
-import { Spacing } from '@/constants/theme';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { FontFamily, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/lib/supabase';
 
@@ -48,21 +49,44 @@ export default function SignInScreen() {
     }
   }, [mode, email, password]);
 
+  const inputStyle = [
+    styles.input,
+    { color: theme.text, backgroundColor: theme.background, borderColor: theme.border },
+  ];
+
   return (
     <KeyboardAvoidingView
       style={[styles.flex, { backgroundColor: theme.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <ThemedText type="title" style={styles.brand}>
-          Mongmo
-        </ThemedText>
-        <ThemedText type="small" themeColor="textSecondary" style={styles.tagline}>
-          Discover the next flavour — pop-ups, points and pickup, all in one place.
-        </ThemedText>
+        <View style={styles.hero}>
+          <View
+            style={[styles.sticker, { backgroundColor: theme.highlight, borderColor: theme.border }]}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+          >
+            <ThemedText type="label" style={{ color: theme.onHighlight }}>
+              Pop-ups · Points · Pickup
+            </ThemedText>
+          </View>
+          <ThemedText type="title" style={[styles.brand, { color: theme.primary }]} accessibilityRole="header">
+            Mongmo
+          </ThemedText>
+          <ThemedText type="label" themeColor="textSecondary" style={styles.tagline}>
+            Cà phê · Bánh mì · Street food
+          </ThemedText>
+          <ThemedText type="small" themeColor="textSecondary" style={styles.tagline}>
+            Discover the next flavour — pop-ups, points and pickup, all in one place.
+          </ThemedText>
+        </View>
 
-        <View style={styles.form}>
-          <ThemedText type="smallBold">Email</ThemedText>
+        <Card style={styles.form}>
+          <ThemedText type="section">{mode === 'sign-in' ? 'Welcome back' : 'Join the crew'}</ThemedText>
+
+          <ThemedText type="label" style={styles.fieldSpacing}>
+            Email
+          </ThemedText>
           <TextInput
             value={email}
             onChangeText={setEmail}
@@ -73,13 +97,10 @@ export default function SignInScreen() {
             placeholder="you@example.com"
             placeholderTextColor={theme.textSecondary}
             accessibilityLabel="Email"
-            style={[
-              styles.input,
-              { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
-            ]}
+            style={inputStyle}
           />
 
-          <ThemedText type="smallBold" style={styles.fieldSpacing}>
+          <ThemedText type="label" style={styles.fieldSpacing}>
             Password
           </ThemedText>
           <TextInput
@@ -91,10 +112,7 @@ export default function SignInScreen() {
             placeholder="At least 6 characters"
             placeholderTextColor={theme.textSecondary}
             accessibilityLabel="Password"
-            style={[
-              styles.input,
-              { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
-            ]}
+            style={inputStyle}
           />
 
           {error ? (
@@ -108,28 +126,13 @@ export default function SignInScreen() {
             </ThemedText>
           ) : null}
 
-          <Pressable
+          <Button
+            label={mode === 'sign-in' ? 'Sign in' : 'Create account'}
             onPress={onSubmit}
             disabled={!canSubmit}
-            accessibilityRole="button"
-            accessibilityLabel={mode === 'sign-in' ? 'Sign in' : 'Create account'}
-            accessibilityState={{ disabled: !canSubmit }}
-            style={({ pressed }) => [
-              styles.submit,
-              {
-                backgroundColor: '#8B4513',
-                opacity: !canSubmit ? 0.6 : pressed ? 0.85 : 1,
-              },
-            ]}
-          >
-            {pending ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <ThemedText type="smallBold" style={styles.submitText}>
-                {mode === 'sign-in' ? 'Sign in' : 'Create account'}
-              </ThemedText>
-            )}
-          </Pressable>
+            loading={pending}
+            style={styles.submit}
+          />
 
           <Pressable
             onPress={() => {
@@ -143,12 +146,13 @@ export default function SignInScreen() {
             style={styles.switchMode}
           >
             <ThemedText type="small" themeColor="textSecondary">
-              {mode === 'sign-in'
-                ? "New to Mongmo? Create an account"
-                : 'Already have an account? Sign in'}
+              {mode === 'sign-in' ? 'New to Mongmo? ' : 'Already have an account? '}
+              <ThemedText type="smallBold" themeColor="primaryText">
+                {mode === 'sign-in' ? 'Create an account' : 'Sign in'}
+              </ThemedText>
             </ThemedText>
           </Pressable>
-        </View>
+        </Card>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -162,41 +166,49 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     padding: Spacing.four,
+    gap: Spacing.four,
+  },
+  hero: {
+    alignItems: 'center',
+    gap: Spacing.one,
+  },
+  sticker: {
+    borderWidth: 2,
+    borderRadius: 999,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.one,
+    transform: [{ rotate: '-4deg' }],
+    marginBottom: Spacing.two,
   },
   brand: {
     textAlign: 'center',
-    fontSize: 34,
-    lineHeight: 40,
+    fontSize: 76,
+    lineHeight: 76,
   },
   tagline: {
     textAlign: 'center',
-    marginTop: Spacing.one,
-    marginBottom: Spacing.five,
+    maxWidth: 320,
   },
   form: {
     gap: Spacing.one,
+    padding: Spacing.four,
   },
   fieldSpacing: {
     marginTop: Spacing.three,
   },
   input: {
-    minHeight: 48,
+    minHeight: 50,
     borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     paddingHorizontal: Spacing.three,
+    fontFamily: FontFamily.body,
+    fontSize: 16,
   },
   error: {
     marginTop: Spacing.two,
   },
   submit: {
-    minHeight: 50,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
     marginTop: Spacing.four,
-  },
-  submitText: {
-    color: '#FFFFFF',
   },
   switchMode: {
     minHeight: 44,

@@ -55,7 +55,7 @@ export default function LeaderboardList({ rows, hidden, period, onChangePeriod }
         <View
           style={[
             styles.hiddenNote,
-            { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
+            { backgroundColor: theme.backgroundElement, borderColor: theme.border },
           ]}
           accessibilityRole="text"
           accessibilityLabel="You are hidden from the leaderboard by your privacy setting."
@@ -77,7 +77,7 @@ export default function LeaderboardList({ rows, hidden, period, onChangePeriod }
               styles.row,
               {
                 backgroundColor: row.isMe ? theme.backgroundSelected : theme.backgroundElement,
-                borderColor: theme.backgroundSelected,
+                borderColor: theme.border,
               },
             ]}
           >
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   },
   hiddenNote: {
     borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.three,
   },
   rows: {
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.two,
     borderRadius: 12,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
   },

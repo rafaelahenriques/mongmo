@@ -18,7 +18,7 @@ export function ScreenFooter({ children }: PropsWithChildren) {
   return (
     <SafeAreaView
       edges={{ bottom: true }}
-      style={[styles.footer, { backgroundColor: theme.background, borderColor: theme.backgroundSelected }]}
+      style={[styles.footer, { backgroundColor: theme.background, borderColor: theme.border }]}
     >
       <View style={styles.inner}>{children}</View>
     </SafeAreaView>

@@ -29,7 +29,7 @@ function RecenterButtonComponent({ enabled, onPress }: RecenterButtonProps) {
         styles.button,
         {
           backgroundColor: theme.backgroundElement,
-          borderColor: theme.backgroundSelected,
+          borderColor: theme.border,
           opacity: !enabled ? 0.5 : pressed ? 0.7 : 1,
         },
       ]}
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
     // Elevation so it stays legible over map tiles.

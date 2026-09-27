@@ -67,7 +67,7 @@ export default function ExploreScreen() {
         <View
           style={[
             styles.errorStrip,
-            { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
+            { backgroundColor: theme.backgroundElement, borderColor: theme.border },
           ]}
           accessibilityRole="alert"
         >
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: Spacing.two,
     borderRadius: 10,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
   },

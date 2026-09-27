@@ -150,7 +150,7 @@ export default function ChallengeItem({
           styles.row,
           {
             backgroundColor: theme.backgroundElement,
-            borderColor: theme.backgroundSelected,
+            borderColor: theme.border,
             opacity: done ? 0.7 : pressed ? 0.8 : 1,
           },
         ]}
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.two,
     borderRadius: 14,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.three,
   },
   iconWrap: {

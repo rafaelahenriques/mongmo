@@ -1,10 +1,13 @@
 import { useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { ArrowRight, Coffee, Sparkles } from 'lucide-react-native';
 
 import EventCard from '@/components/events/EventCard';
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import Chip from '@/components/ui/Chip';
 import { Spacing } from '@/constants/theme';
 import { useActiveOrder } from '@/hooks/useActiveOrder';
 import { useEvents } from '@/hooks/useEvents';
@@ -25,8 +28,6 @@ const ORDER_STATUS_LABEL: Record<string, string> = {
   collected: 'Collected',
   cancelled: 'Cancelled',
 };
-
-const STORE_BROWN = '#8B4513';
 
 /**
  * Home tab: nearby pop-ups, whatever's in progress (an active order or the
@@ -79,70 +80,59 @@ export default function HomeScreen() {
       <ThemedText type="title" style={styles.greeting}>
         {firstName ? `Hi, ${firstName}` : 'Hi there'}
       </ThemedText>
-      <ThemedText type="small" themeColor="textSecondary" style={styles.tagline}>
-        Discover the next flavour.
+      <ThemedText type="label" themeColor="textSecondary" style={styles.tagline}>
+        Discover the next flavour
       </ThemedText>
 
       {/* Continue: whichever is more relevant right now — an order in
           flight, or a pop-up that's actually live. */}
       {activeOrder.data ? (
-        <Pressable
+        <Card
+          tone="accent"
           onPress={() => router.push('/(orders)')}
-          accessibilityRole="button"
           accessibilityLabel={`Your order is ${ORDER_STATUS_LABEL[activeOrder.data.status] ?? activeOrder.data.status}. View order.`}
-          style={({ pressed }) => [
-            styles.card,
-            { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected, opacity: pressed ? 0.85 : 1 },
-          ]}
+          style={styles.row}
         >
-          <Coffee size={20} color={theme.text} />
+          <Coffee size={22} color={theme.onAccent} />
           <View style={styles.cardTexts}>
-            <ThemedText type="smallBold">
+            <ThemedText type="section" style={{ color: theme.onAccent }}>
               {ORDER_STATUS_LABEL[activeOrder.data.status] ?? activeOrder.data.status}
             </ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
+            <ThemedText type="small" style={{ color: theme.onAccent }}>
               Your order is on its way — tap to view status.
             </ThemedText>
           </View>
-          <ArrowRight size={18} color={theme.textSecondary} />
-        </Pressable>
+          <ArrowRight size={20} color={theme.onAccent} />
+        </Card>
       ) : liveEvent ? (
-        <Pressable
+        <Card
+          tone="highlight"
           onPress={() => onSelectEvent(liveEvent.id)}
-          accessibilityRole="button"
           accessibilityLabel={`${liveEvent.title} is live now in ${liveEvent.city}. Open event.`}
-          style={({ pressed }) => [
-            styles.card,
-            { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected, opacity: pressed ? 0.85 : 1 },
-          ]}
+          style={styles.row}
         >
-          <Sparkles size={20} color={theme.text} />
+          <Sparkles size={22} color={theme.onHighlight} />
           <View style={styles.cardTexts}>
-            <ThemedText type="smallBold">Happening now: {liveEvent.title}</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
+            <Chip label="Live now" tone="neutral" style={styles.liveChip} />
+            <ThemedText type="section" style={{ color: theme.onHighlight }}>
+              {liveEvent.title}
+            </ThemedText>
+            <ThemedText type="small" style={{ color: theme.onHighlight }}>
               In {liveEvent.city} — check in and complete a challenge.
             </ThemedText>
           </View>
-          <ArrowRight size={18} color={theme.textSecondary} />
-        </Pressable>
+          <ArrowRight size={20} color={theme.onHighlight} />
+        </Card>
       ) : null}
 
-      <Pressable
-        onPress={onOrderUsual}
-        accessibilityRole="button"
+      <Button
+        label="Order your usual"
         accessibilityLabel="Order your usual from the café menu"
-        style={({ pressed }) => [
-          styles.usualButton,
-          { backgroundColor: STORE_BROWN, opacity: pressed ? 0.9 : 1 },
-        ]}
-      >
-        <Coffee size={18} color="#FFFFFF" />
-        <ThemedText type="smallBold" style={styles.usualText}>
-          Order your usual
-        </ThemedText>
-      </Pressable>
+        icon={<Coffee size={20} color={theme.onPrimary} />}
+        onPress={onOrderUsual}
+      />
 
-      <ThemedText type="smallBold" style={styles.sectionTitle}>
+      <ThemedText type="section" style={styles.sectionTitle}>
         Nearby pop-ups
       </ThemedText>
 
@@ -173,34 +163,24 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   greeting: {
-    fontSize: 30,
-    lineHeight: 36,
+    fontSize: 44,
+    lineHeight: 46,
   },
   tagline: {
     marginTop: -Spacing.two,
   },
-  card: {
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.three,
-    borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: Spacing.three,
   },
   cardTexts: {
     flex: 1,
     gap: 2,
   },
-  usualButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.one,
-    minHeight: 48,
-    borderRadius: 12,
-  },
-  usualText: {
-    color: '#FFFFFF',
+  liveChip: {
+    alignSelf: 'flex-start',
+    marginBottom: Spacing.one,
   },
   sectionTitle: {
     marginTop: Spacing.two,

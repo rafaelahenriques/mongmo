@@ -32,7 +32,7 @@ function MapViewWeb({ store, events, onSelectStore, onSelectEvent }: MapViewProp
           accessibilityLabel={`Open details for ${store.name}, ${status.label}`}
           style={({ pressed }) => [
             styles.card,
-            { backgroundColor: theme.backgroundElement, opacity: pressed ? 0.8 : 1 },
+            { backgroundColor: theme.backgroundElement, borderColor: theme.border, opacity: pressed ? 0.8 : 1 },
           ]}
         >
           <View style={styles.cardHeader}>
@@ -58,7 +58,7 @@ function MapViewWeb({ store, events, onSelectStore, onSelectEvent }: MapViewProp
           accessibilityLabel={`Open details for ${event.title} in ${event.city}`}
           style={({ pressed }) => [
             styles.card,
-            { backgroundColor: theme.backgroundElement, opacity: pressed ? 0.8 : 1 },
+            { backgroundColor: theme.backgroundElement, borderColor: theme.border, opacity: pressed ? 0.8 : 1 },
           ]}
         >
           <ThemedText type="smallBold">{event.title}</ThemedText>
@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   card: {
+    borderWidth: 2,
     borderRadius: 12,
     padding: Spacing.three,
     gap: Spacing.one,

@@ -1,6 +1,7 @@
-import { ActivityIndicator, Modal, Pressable, StyleSheet } from 'react-native';
+import { Modal, Pressable, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -37,10 +38,10 @@ export default function SimpleConfirmModal({
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="Close">
         <Pressable
-          style={[styles.card, { backgroundColor: theme.background }]}
+          style={[styles.card, { backgroundColor: theme.background, borderColor: theme.border, boxShadow: `4px 4px 0px ${theme.shadow}` }]}
           accessibilityViewIsModal
         >
-          <ThemedText type="smallBold">{title}</ThemedText>
+          <ThemedText type="section">{title}</ThemedText>
           <ThemedText type="small" themeColor="textSecondary" style={styles.body}>
             {body}
           </ThemedText>
@@ -51,25 +52,13 @@ export default function SimpleConfirmModal({
             </ThemedText>
           ) : null}
 
-          <Pressable
+          <Button
+            label={confirmLabel}
             onPress={onConfirm}
-            disabled={pending || Boolean(disabledReason)}
-            accessibilityRole="button"
-            accessibilityLabel={confirmLabel}
-            style={({ pressed }) => [
-              styles.button,
-              {
-                backgroundColor: '#8B4513',
-                opacity: disabledReason ? 0.5 : pending ? 0.7 : pressed ? 0.9 : 1,
-              },
-            ]}
-          >
-            {pending ? <ActivityIndicator color="#FFFFFF" /> : (
-              <ThemedText type="smallBold" style={styles.buttonText}>
-                {confirmLabel}
-              </ThemedText>
-            )}
-          </Pressable>
+            loading={pending}
+            disabled={Boolean(disabledReason)}
+            style={styles.button}
+          />
         </Pressable>
       </Pressable>
     </Modal>
@@ -88,6 +77,7 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 360,
     borderRadius: 16,
+    borderWidth: 2,
     padding: Spacing.four,
     gap: Spacing.two,
   },
@@ -96,12 +86,5 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: Spacing.two,
-    minHeight: 46,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: '#FFFFFF',
   },
 });

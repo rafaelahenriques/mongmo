@@ -4,6 +4,7 @@ import { Marker } from 'react-native-maps';
 import { Store as StoreIcon } from 'lucide-react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Colors } from '@/constants/theme';
 import { useBusyStore } from '@/state/busyStore';
 import { useLocationStore } from '@/state/locationStore';
 import { useTheme } from '@/hooks/useTheme';
@@ -16,8 +17,9 @@ export type StorePinProps = {
   onPress: () => void;
 };
 
-const STORE_BROWN = '#8B4513';
-const CLOSED_GRAY = '#8A8A8E';
+/** Map pins keep the light palette in both schemes — they sit on the map, not on a themed surface. */
+const STORE_OPEN = Colors.light.text;
+const STORE_CLOSED = Colors.light.textSecondary;
 
 /**
  * Pin for the single permanent store: brown while open, greyed when closed,
@@ -58,13 +60,13 @@ function StorePinComponent({ store, onPress }: StorePinProps) {
         onAccessibilityTap={onPress}
         style={[
           styles.pill,
-          { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
+          { backgroundColor: theme.backgroundElement, borderColor: theme.border },
         ]}
       >
         <View
           style={[
             styles.dot,
-            { backgroundColor: status.isOpen ? STORE_BROWN : CLOSED_GRAY },
+            { backgroundColor: status.isOpen ? STORE_OPEN : STORE_CLOSED },
           ]}
         >
           <StoreIcon size={14} color="#FFFFFF" strokeWidth={2.5} />

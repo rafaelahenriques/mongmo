@@ -147,7 +147,7 @@ export default function MapMode({
           <View
             style={[
               styles.emptyCard,
-              { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
+              { backgroundColor: theme.backgroundElement, borderColor: theme.border },
             ]}
             accessibilityRole="text"
             accessibilityLabel={`${EMPTY_FILTER_COPY[filter]} Tap the Mongmo store pin for hours, capacity and directions.`}
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   },
   emptyCard: {
     borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.three,
     gap: Spacing.one,
   },

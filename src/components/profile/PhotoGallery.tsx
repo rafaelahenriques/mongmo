@@ -25,7 +25,7 @@ export default function PhotoGallery({ checkIns }: PhotoGalleryProps) {
         accessibilityLabel="No photos yet. Open an event and tap Check in to add one."
         style={[
           styles.empty,
-          { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
+          { backgroundColor: theme.backgroundElement, borderColor: theme.border },
         ]}
       >
         <ThemedText style={styles.emptyEmoji}>📸</ThemedText>
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   },
   empty: {
     borderRadius: 14,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.four,
     alignItems: 'center',
     gap: Spacing.two,

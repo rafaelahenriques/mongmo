@@ -20,7 +20,7 @@ function OfflineBannerComponent() {
     <View
       style={[
         styles.banner,
-        { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
+        { backgroundColor: theme.backgroundElement, borderColor: theme.border },
       ]}
       accessibilityRole="alert"
       accessibilityLabel="You are offline. Showing last updated data."
@@ -37,7 +37,7 @@ export default memo(OfflineBannerComponent);
 const styles = StyleSheet.create({
   banner: {
     borderRadius: 10,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
     alignItems: 'center',
