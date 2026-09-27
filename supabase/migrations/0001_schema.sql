@@ -1,8 +1,12 @@
 -- Mongmo core schema.
 -- Tables map 1:1 to the domains described in AGENTS.md: stores, events,
 -- challenges, check-ins, badges, rewards and order-ahead pickup.
-
-create extension if not exists pgcrypto;
+--
+-- No pgcrypto dependency: gen_random_uuid() has been built into Postgres
+-- core since v13, and Supabase pre-installs pgcrypto in the `extensions`
+-- schema rather than `public` anyway, so anything from it (gen_random_bytes,
+-- crypt, digest) would need schema-qualifying to resolve — easiest to just
+-- not depend on it.
 
 -- ------------------------------------------------------------------
 -- Profiles (one row per auth.users row; role gates owner-only screens)
@@ -80,7 +84,7 @@ create table public.events (
   capacity integer not null default 0,
   occupancy integer not null default 0,
   status text not null default 'scheduled' check (status in ('scheduled', 'live', 'ended', 'cancelled')),
-  qr_token text not null default encode(gen_random_bytes(12), 'hex'),
+  qr_token text not null default replace(gen_random_uuid()::text, '-', ''),
   order_url text,
   created_by uuid references public.profiles (id),
   created_at timestamptz not null default now(),
