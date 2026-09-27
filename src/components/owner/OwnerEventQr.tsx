@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { QrCode } from 'lucide-react-native';
 import QRCode from 'react-native-qrcode-svg';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
 import { Spacing } from '@/constants/theme';
 import { useEventQrToken } from '@/hooks/useOwnerEvent';
 import { useTheme } from '@/hooks/useTheme';
@@ -19,14 +21,12 @@ export default function OwnerEventQr({ eventId }: OwnerEventQrProps) {
 
   if (!revealed) {
     return (
-      <Pressable
+      <Button
+        label="Show check-in QR code"
+        variant="accent"
+        icon={<QrCode size={20} color={theme.onAccent} />}
         onPress={() => setRevealed(true)}
-        accessibilityRole="button"
-        accessibilityLabel="Show check-in QR code"
-        style={[styles.button, { backgroundColor: theme.backgroundSelected }]}
-      >
-        <ThemedText type="smallBold">Show check-in QR code</ThemedText>
-      </Pressable>
+      />
     );
   }
 
@@ -43,9 +43,13 @@ export default function OwnerEventQr({ eventId }: OwnerEventQrProps) {
   }
 
   return (
-    <View style={[styles.card, { backgroundColor: '#FFFFFF' }]}>
-      <QRCode value={query.data} size={200} />
-      <ThemedText type="small" style={styles.token}>
+    // Always black on white, whatever the theme: that's what scanners read best.
+    <View style={[styles.card, { backgroundColor: '#FFFFFF', borderColor: theme.border }]}>
+      <QRCode value={query.data} size={220} />
+      <ThemedText type="label" style={styles.token}>
+        Scan to check in
+      </ThemedText>
+      <ThemedText type="small" style={styles.token} selectable>
         {query.data}
       </ThemedText>
     </View>
@@ -53,19 +57,14 @@ export default function OwnerEventQr({ eventId }: OwnerEventQrProps) {
 }
 
 const styles = StyleSheet.create({
-  button: {
-    minHeight: 44,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   card: {
     borderRadius: 16,
+    borderWidth: 2,
     padding: Spacing.four,
     alignItems: 'center',
     gap: Spacing.two,
   },
   token: {
-    color: '#666666',
+    color: '#342626',
   },
 });

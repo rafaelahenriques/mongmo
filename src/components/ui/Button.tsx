@@ -15,8 +15,8 @@ import { useTheme } from '@/hooks/useTheme';
 export type ButtonProps = {
   label: string;
   onPress: () => void;
-  /** primary: Bold Red · secondary: paper · accent: Light Blue sticker. */
-  variant?: 'primary' | 'secondary' | 'accent';
+  /** primary: Bold Red · secondary: paper · accent: Light Blue sticker · danger: paper, red label. */
+  variant?: 'primary' | 'secondary' | 'accent' | 'danger';
   icon?: ReactNode;
   loading?: boolean;
   disabled?: boolean;
@@ -52,7 +52,13 @@ export function Button({
         ? theme.accent
         : theme.backgroundElement;
   const foreground =
-    variant === 'primary' ? theme.onPrimary : variant === 'accent' ? theme.onAccent : theme.text;
+    variant === 'primary'
+      ? theme.onPrimary
+      : variant === 'accent'
+        ? theme.onAccent
+        : variant === 'danger'
+          ? theme.danger
+          : theme.text;
   const inactive = disabled || loading;
 
   return (

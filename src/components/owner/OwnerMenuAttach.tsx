@@ -35,7 +35,7 @@ export default function OwnerMenuAttach({ eventId }: OwnerMenuAttachProps) {
             accessibilityLabel={`${menu.name}, ${attached ? 'attached' : 'not attached'}`}
             style={[
               styles.row,
-              { borderColor: theme.backgroundSelected, backgroundColor: theme.backgroundElement },
+              { borderColor: theme.border, backgroundColor: theme.backgroundElement },
             ]}
           >
             <ThemedText type="small" style={styles.name}>
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: 10,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
   },
