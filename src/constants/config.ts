@@ -14,3 +14,10 @@ export const EVENTS_PAGE_URL = 'https://www.mongmo-store.com/events';
 
 /** How long the react-query cache is persisted for offline starts. */
 export const PERSIST_MAX_AGE_MS = 1000 * 60 * 60 * 24;
+
+/**
+ * Bump when a cached query's data shape changes: a persisted cache written
+ * with a different buster is discarded instead of restored. (2: the
+ * events-with-menu query went from a Set — persisted as `{}` — to an array.)
+ */
+export const PERSIST_BUSTER = '2';

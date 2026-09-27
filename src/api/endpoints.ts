@@ -220,9 +220,12 @@ type VisitedEventRow = {
 
 /** Past check-ins joined with their event, newest first — powers the photo gallery. */
 export async function getVisitedEvents(): Promise<CheckInRecord[]> {
+  // Scoped explicitly: RLS also lets an owner read every customer's check-ins.
+  const userId = await getCurrentUserId();
   const { data, error } = await supabase
     .from('check_ins')
     .select('checked_in_at, events(id, title, city, image_url, starts_at)')
+    .eq('user_id', userId)
     .order('checked_in_at', { ascending: false })
     .returns<VisitedEventRow[]>();
   if (error) throw toApiError(error);

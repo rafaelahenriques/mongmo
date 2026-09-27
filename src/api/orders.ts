@@ -1,5 +1,5 @@
 import { toApiError } from '@/api/errors';
-import { supabase } from '@/lib/supabase';
+import { getCurrentUserId, supabase } from '@/lib/supabase';
 import type { CartLocation } from '@/state/cartStore';
 import type { Database } from '@/types/database';
 
@@ -93,9 +93,12 @@ export async function getOrderItems(orderId: string): Promise<OrderItemRow[]> {
 
 /** Order history, newest first — excludes abandoned drafts. */
 export async function getMyOrders(): Promise<OrderRow[]> {
+  // Scoped explicitly: RLS also lets an owner read every customer's orders.
+  const userId = await getCurrentUserId();
   const { data, error } = await supabase
     .from('orders')
     .select('*')
+    .eq('user_id', userId)
     .neq('status', 'draft')
     .order('created_at', { ascending: false });
   if (error) throw toApiError(error);
