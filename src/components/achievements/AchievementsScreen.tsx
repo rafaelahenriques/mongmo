@@ -25,7 +25,7 @@ import type { LeaderboardPeriod, Reward } from '@/types';
  */
 export default function AchievementsScreen() {
   const theme = useTheme();
-  const { query, summary, userRewards, redeemReward } = useAchievements();
+  const { query, summary, userRewards, progress, redeemReward } = useAchievements();
   const [period, setPeriod] = useState<LeaderboardPeriod>('weekly');
   const leaderboard = useLeaderboard(period);
 
@@ -109,7 +109,12 @@ export default function AchievementsScreen() {
       <SectionHeader title="Badges" />
       <View style={styles.grid}>
         {badges.map((badge) => (
-          <BadgeCard key={badge.id} definition={badge} earned={earnedByBadge.get(badge.id)} />
+          <BadgeCard
+            key={badge.id}
+            definition={badge}
+            earned={earnedByBadge.get(badge.id)}
+            progress={progress[badge.key]}
+          />
         ))}
       </View>
 

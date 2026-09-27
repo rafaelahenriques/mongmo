@@ -141,6 +141,19 @@ export async function setLeaderboardVisible(visible: boolean): Promise<void> {
   if (error) throw toApiError(error);
 }
 
+export type BadgeProgress = { current: number; target: number };
+
+/**
+ * How far the signed-in user is towards every badge, keyed by badge key
+ * ("3 of 5"). The server's badge_progress() is the one definition of each
+ * badge's rule, so this always agrees with what gets awarded.
+ */
+export async function getBadgeProgress(): Promise<Record<string, BadgeProgress>> {
+  const { data, error } = await supabase.rpc('my_badge_progress');
+  if (error) throw toApiError(error);
+  return Object.fromEntries(data.map((row) => [row.key, { current: row.current, target: row.target }]));
+}
+
 /** Badge catalog (earned + locked) and the redeemable rewards catalog. */
 export async function getAchievements(): Promise<AchievementsResponse> {
   const [badgesResult, rewardsResult] = await Promise.all([

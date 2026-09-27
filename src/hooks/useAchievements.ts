@@ -3,13 +3,18 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
   getAchievements,
+  getBadgeProgress,
   getEarnedBadges,
   getPointsBalance,
   getProfileStats,
   getUserRewards,
   redeemReward,
 } from '@/api/endpoints';
-import type { EarnedBadge } from '@/types';
+import { useNow } from '@/hooks/useNow';
+import type { EarnedBadge, Reward } from '@/types';
+
+/** A reward the user has redeemed and not used yet. */
+export type UsableReward = { userRewardId: string; reward: Reward };
 
 export type AchievementsSummary = {
   points: number;
@@ -52,12 +57,17 @@ export function useAchievements() {
     queryFn: () => getUserRewards(),
   });
 
+  const progressQuery = useQuery({
+    queryKey: ['badges', 'progress'],
+    queryFn: () => getBadgeProgress(),
+  });
+
   const redeem = useMutation({
     mutationFn: (rewardId: string) => redeemReward(rewardId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['points'] });
       queryClient.invalidateQueries({ queryKey: ['user-rewards'] });
-      queryClient.invalidateQueries({ queryKey: ['badges', 'earned'] });
+      queryClient.invalidateQueries({ queryKey: ['badges'] });
       queryClient.invalidateQueries({ queryKey: ['profile-stats'] });
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
     },
@@ -73,10 +83,25 @@ export function useAchievements() {
     [pointsQuery.data, statsQuery.data, earnedQuery.data],
   );
 
+  // Hourly is plenty to drop a reward that has just expired.
+  const now = useNow(60 * 60_000).getTime();
+  const usableRewards = useMemo<UsableReward[]>(() => {
+    const catalog = new Map((query.data?.rewards ?? []).map((reward) => [reward.id, reward]));
+    return (userRewardsQuery.data ?? []).flatMap((entry) => {
+      const reward = catalog.get(entry.reward_id);
+      const expired = reward?.expiresAt ? Date.parse(reward.expiresAt) < now : false;
+      return reward && !entry.used_at && !expired ? [{ userRewardId: entry.id, reward }] : [];
+    });
+  }, [query.data, userRewardsQuery.data, now]);
+
   return {
     query,
     summary,
     userRewards: userRewardsQuery.data ?? [],
+    /** Redeemed, unused, unexpired rewards. */
+    usableRewards,
+    /** Progress towards each badge, by badge key. */
+    progress: progressQuery.data ?? {},
     redeemReward: redeem.mutate,
   };
 }

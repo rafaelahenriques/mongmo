@@ -22,7 +22,7 @@ export function useCheckInMutation(eventId: string) {
       queryClient.invalidateQueries({ queryKey: ['challenges', eventId] });
       queryClient.invalidateQueries({ queryKey: ['challenge-completions'] });
       queryClient.invalidateQueries({ queryKey: ['profile-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['badges', 'earned'] });
+      queryClient.invalidateQueries({ queryKey: ['badges'] });
       queryClient.invalidateQueries({ queryKey: ['points'] });
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
       queryClient.invalidateQueries({ queryKey: ['visited-events'] });
