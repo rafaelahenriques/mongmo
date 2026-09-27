@@ -13,7 +13,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useVisitedEvents } from '@/hooks/useVisitedEvents';
 import { useTheme } from '@/hooks/useTheme';
 import { confirmLogOut } from '@/services/auth';
-import { format as formatZoned } from 'date-fns-tz';
+import { formatInTimeZone } from 'date-fns-tz';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 
 /**
@@ -87,9 +87,7 @@ export default function ProfileScreen() {
   }
 
   const user = profile.data;
-  const memberSince = formatZoned(new Date(user.memberSince), 'MMM yyyy', {
-    timeZone: DISPLAY_TIME_ZONE,
-  });
+  const memberSince = formatInTimeZone(new Date(user.memberSince), DISPLAY_TIME_ZONE, 'MMM yyyy');
 
   return (
     <ScrollView
