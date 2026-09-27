@@ -1,5 +1,10 @@
-import AppTabs from "@/components/ui/app-tabs";
+import AppTabs from '@/components/ui/AppTabs';
+import { Providers } from '@/components/Providers';
 
 export default function RootLayout() {
-  return <AppTabs />;
+  return (
+    <Providers>
+      <AppTabs />
+    </Providers>
+  );
 }
