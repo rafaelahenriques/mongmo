@@ -6,7 +6,7 @@ import {
   statsRowToProfileStats,
   storeRowToStore,
 } from '@/api/mappers';
-import { toApiError } from '@/api/errors';
+import { ApiError, toApiError } from '@/api/errors';
 import { getCurrentUserId, supabase } from '@/lib/supabase';
 import { isThisWeek, isToday } from '@/utils/dateTime';
 import type { Database } from '@/types/database';
@@ -104,6 +104,31 @@ export async function getProfile(): Promise<UserProfile> {
   const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
   if (error) throw toApiError(error);
   return profileRowToUserProfile(data);
+}
+
+export type ProfileEdit = {
+  name: string;
+  bio: string;
+  homeCity: string;
+};
+
+/**
+ * Saves the signed-in user's editable details. Only these columns are
+ * writable for them at all (0011_profile_editing.sql); an empty home city is
+ * stored as none.
+ */
+export async function updateProfile(edit: ProfileEdit): Promise<void> {
+  const userId = await getCurrentUserId();
+  const { error } = await supabase
+    .from('profiles')
+    .update({ name: edit.name.trim(), bio: edit.bio.trim(), home_city: edit.homeCity.trim() || null })
+    .eq('id', userId);
+  if (error) {
+    // 23514 = a check constraint: something empty or too long slipped past the form.
+    throw error.code === '23514'
+      ? new ApiError('Check your details: your name is required and each field has a length limit.', 400)
+      : toApiError(error);
+  }
 }
 
 /** Updates the leaderboard-visibility privacy toggle (Settings → Privacy). */

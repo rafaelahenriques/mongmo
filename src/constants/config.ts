@@ -19,6 +19,7 @@ export const PERSIST_MAX_AGE_MS = 1000 * 60 * 60 * 24;
  * Bump when a cached query's data shape changes: a persisted cache written
  * with a different buster is discarded instead of restored. (2: the
  * events-with-menu query went from a Set — persisted as `{}` — to an array.
- * 3: badges carry their `key` instead of an emoji.)
+ * 3: badges carry their `key` instead of an emoji. 4: challenges carry
+ * their per-type `config`.)
  */
-export const PERSIST_BUSTER = '3';
+export const PERSIST_BUSTER = '4';

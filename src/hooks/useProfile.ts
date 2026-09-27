@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { getProfile, setLeaderboardVisible } from '@/api/endpoints';
+import { getProfile, setLeaderboardVisible, updateProfile, type ProfileEdit } from '@/api/endpoints';
 
 /** The signed-in user's profile (cached with the rest of the API cache). */
 export function useProfile() {
@@ -18,6 +18,20 @@ export function useSetLeaderboardVisible() {
     mutationFn: (visible: boolean) => setLeaderboardVisible(visible),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+    },
+  });
+}
+
+/** Saves the user's name, bio and home city (Profile → Edit). */
+export function useUpdateProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (edit: ProfileEdit) => updateProfile(edit),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      // The leaderboard shows names too.
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
     },
   });

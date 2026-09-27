@@ -1,48 +1,56 @@
 import { useState } from 'react';
-import { StyleSheet, TextInput } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
+import { OptionPill } from '@/components/ui/OptionPill';
 import { Sheet } from '@/components/ui/Sheet';
-import { FontFamily, Radius, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/useTheme';
+import { Spacing } from '@/constants/theme';
 
 export type CommunityVoteModalProps = {
   visible: boolean;
   title: string;
   description: string;
+  /** The owner's options; the vote is one of them. */
+  options: string[];
   pending?: boolean;
   onSubmit: (choice: string) => void;
   onClose: () => void;
 };
 
-/** Free-text vote for the Community challenge type ("vote for next month's truck"). */
+/** The Community challenge: pick one of the owner's options ("next month's truck"). */
 export default function CommunityVoteModal({
   visible,
   title,
   description,
+  options,
   pending = false,
   onSubmit,
   onClose,
 }: CommunityVoteModalProps) {
-  const theme = useTheme();
-  const [choice, setChoice] = useState('');
+  const [choice, setChoice] = useState<string | null>(null);
+  // Start from nothing picked whenever the sheet is reopened.
+  const close = () => {
+    setChoice(null);
+    onClose();
+  };
 
   return (
-    <Sheet visible={visible} title={title} subtitle={description} onClose={onClose}>
-      <TextInput
-        value={choice}
-        onChangeText={setChoice}
-        placeholder="Your vote"
-        placeholderTextColor={theme.textSecondary}
-        accessibilityLabel="Your vote"
-        style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }]}
-      />
+    <Sheet visible={visible} title={title} subtitle={description || 'Pick one.'} onClose={close}>
+      <View style={styles.options} accessibilityRole="radiogroup" accessibilityLabel="Options">
+        {options.map((option) => (
+          <OptionPill key={option} label={option} checked={choice === option} onPress={() => setChoice(option)} />
+        ))}
+      </View>
       <Button
         label="Submit vote"
         variant="brand"
-        onPress={() => onSubmit(choice.trim())}
+        onPress={() => {
+          if (!choice) return;
+          setChoice(null);
+          onSubmit(choice);
+        }}
         loading={pending}
-        disabled={choice.trim().length === 0}
+        disabled={choice === null}
         haptic="press"
       />
     </Sheet>
@@ -50,11 +58,9 @@ export default function CommunityVoteModal({
 }
 
 const styles = StyleSheet.create({
-  input: {
-    minHeight: 56,
-    borderRadius: Radius.pill,
-    paddingHorizontal: Spacing.four,
-    fontFamily: FontFamily.body,
-    fontSize: 16,
+  options: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.two,
   },
 });
