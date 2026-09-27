@@ -10,7 +10,7 @@ import type { Session } from '@supabase/supabase-js';
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { queryClient } from '@/api/queryClient';
-import { PERSIST_MAX_AGE_MS } from '@/constants/config';
+import { PERSIST_BUSTER, PERSIST_MAX_AGE_MS } from '@/constants/config';
 import { useEvents } from '@/hooks/useEvents';
 import { useGeofencing } from '@/hooks/useGeofencing';
 import { useOrderStatusNotifications } from '@/hooks/useOrderStatusNotifications';
@@ -50,7 +50,7 @@ export function Providers({ children, session }: ProvidersProps) {
     <GestureHandlerRootView style={styles.root}>
       <PersistQueryClientProvider
         client={queryClient}
-        persistOptions={{ persister, maxAge: PERSIST_MAX_AGE_MS }}
+        persistOptions={{ persister, maxAge: PERSIST_MAX_AGE_MS, buster: PERSIST_BUSTER }}
       >
         <ErrorBoundary>
           {session ? <AppServices>{children}</AppServices> : children}
