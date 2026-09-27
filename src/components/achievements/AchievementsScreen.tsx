@@ -11,7 +11,6 @@ import {
 import BadgeCard from '@/components/achievements/BadgeCard';
 import LeaderboardList from '@/components/achievements/LeaderboardList';
 import RewardRow from '@/components/achievements/RewardRow';
-import StreakCard from '@/components/achievements/StreakCard';
 import { ThemedText } from '@/components/ThemedText';
 import { Spacing } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
@@ -20,14 +19,14 @@ import { useTheme } from '@/hooks/useTheme';
 import type { LeaderboardPeriod, Reward } from '@/types';
 
 /**
- * Achievements tab content: points + streak header, badge grid (earned vs
- * locked), redeemable rewards and the weekly/all-time leaderboard.
- * Badge/reward copy comes from GET /achievements; stats are derived from
- * the locally persisted activity store.
+ * Achievements tab content: points header, badge grid (earned vs locked),
+ * redeemable rewards and the weekly/all-time leaderboard. Everything here
+ * is server-authoritative — badges, points and redemptions all come from
+ * Supabase, never decided on-device.
  */
 export default function AchievementsScreen() {
   const theme = useTheme();
-  const { query, summary, redemptions, redeemReward } = useAchievements();
+  const { query, summary, userRewards, redeemReward } = useAchievements();
   const [period, setPeriod] = useState<LeaderboardPeriod>('weekly');
   const leaderboard = useLeaderboard(period);
 
@@ -38,12 +37,18 @@ export default function AchievementsScreen() {
 
   const onRedeem = useCallback(
     (reward: Reward) => {
-      const success = redeemReward(reward);
-      AccessibilityInfo.announceForAccessibility(
-        success
-          ? `${reward.title} redeemed. Points balance updated.`
-          : `Not enough points yet for ${reward.title}.`,
-      );
+      redeemReward(reward.id, {
+        onSuccess: () => {
+          AccessibilityInfo.announceForAccessibility(
+            `${reward.title} redeemed. Points balance updated.`,
+          );
+        },
+        onError: () => {
+          AccessibilityInfo.announceForAccessibility(
+            `Couldn't redeem ${reward.title} — check your points balance.`,
+          );
+        },
+      });
     },
     [redeemReward],
   );
@@ -121,10 +126,6 @@ export default function AchievementsScreen() {
         </View>
       </View>
 
-      <View style={styles.section}>
-        <StreakCard currentDays={summary.currentStreakDays} longestDays={summary.longestStreakDays} />
-      </View>
-
       <ThemedText type="smallBold" style={styles.sectionTitle}>
         Badges
       </ThemedText>
@@ -143,7 +144,7 @@ export default function AchievementsScreen() {
             key={reward.id}
             reward={reward}
             points={summary.points}
-            redeemedCount={redemptions.filter((entry) => entry.rewardId === reward.id).length}
+            redeemedCount={userRewards.filter((entry) => entry.reward_id === reward.id).length}
             onRedeem={onRedeem}
           />
         ))}

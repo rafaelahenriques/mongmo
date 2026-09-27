@@ -3,7 +3,9 @@ import { Alert, Pressable, StyleSheet, Switch, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Spacing } from '@/constants/theme';
+import { useProfile, useSetLeaderboardVisible } from '@/hooks/useProfile';
 import { useTheme } from '@/hooks/useTheme';
+import { supabase } from '@/lib/supabase';
 import { useSettingsStore, type ThemeMode } from '@/state/settingsStore';
 
 const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
@@ -21,22 +23,19 @@ export default function SettingsPanel() {
   const theme = useTheme();
   const notificationsEnabled = useSettingsStore((state) => state.notificationsEnabled);
   const themeMode = useSettingsStore((state) => state.themeMode);
-  const leaderboardVisible = useSettingsStore((state) => state.leaderboardVisible);
   const setNotificationsEnabled = useSettingsStore((state) => state.setNotificationsEnabled);
   const setThemeMode = useSettingsStore((state) => state.setThemeMode);
-  const setLeaderboardVisible = useSettingsStore((state) => state.setLeaderboardVisible);
-  const logOut = useSettingsStore((state) => state.logOut);
+
+  const profile = useProfile();
+  const leaderboardVisible = profile.data?.leaderboardVisible ?? true;
+  const setLeaderboardVisible = useSetLeaderboardVisible();
 
   const onLogOut = useCallback(() => {
-    Alert.alert(
-      'Log out?',
-      'This clears your check-ins, points and badges stored on this device.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Log out', style: 'destructive', onPress: logOut },
-      ],
-    );
-  }, [logOut]);
+    Alert.alert('Log out?', 'You can sign back in any time — your points and badges are saved.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Log out', style: 'destructive', onPress: () => supabase.auth.signOut() },
+    ]);
+  }, []);
 
   return (
     <View style={[styles.panel, { borderColor: theme.backgroundSelected }]}>
@@ -65,7 +64,7 @@ export default function SettingsPanel() {
         </View>
         <Switch
           value={leaderboardVisible}
-          onValueChange={setLeaderboardVisible}
+          onValueChange={(value) => setLeaderboardVisible.mutate(value)}
           accessibilityLabel="Show me on the leaderboard"
           trackColor={{ true: theme.success, false: theme.backgroundSelected }}
           thumbColor="#FFFFFF"

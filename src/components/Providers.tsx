@@ -6,6 +6,7 @@ import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persi
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import * as Notifications from 'expo-notifications';
 import { useRouter, type Href } from 'expo-router';
+import type { Session } from '@supabase/supabase-js';
 
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { queryClient } from '@/api/queryClient';
@@ -26,15 +27,23 @@ const persister = createAsyncStoragePersister({
   key: 'mongmo-query-cache',
 });
 
+export type ProvidersProps = PropsWithChildren<{
+  /** `undefined` while the session is still loading, `null` when signed out. */
+  session: Session | null | undefined;
+}>;
+
 /**
  * App-wide providers + singleton services:
  *  - gesture root (host for react-native-gesture-handler views),
  *  - persisted react-query cache (offline last-known data),
  *  - error boundary,
- *  - user location watcher, live busy socket and geofencing registration,
+ *  - user location watcher, live busy channel and geofencing registration,
  *  - notification configuration + tap-to-open-event navigation.
+ *
+ * The services above all assume a signed-in user (their queries are RLS-
+ * gated to `auth.uid()`), so they only mount once `session` is present.
  */
-export function Providers({ children }: PropsWithChildren) {
+export function Providers({ children, session }: ProvidersProps) {
   return (
     <GestureHandlerRootView style={styles.root}>
       <PersistQueryClientProvider
@@ -42,7 +51,7 @@ export function Providers({ children }: PropsWithChildren) {
         persistOptions={{ persister, maxAge: PERSIST_MAX_AGE_MS }}
       >
         <ErrorBoundary>
-          <AppServices>{children}</AppServices>
+          {session ? <AppServices>{children}</AppServices> : children}
         </ErrorBoundary>
       </PersistQueryClientProvider>
     </GestureHandlerRootView>
