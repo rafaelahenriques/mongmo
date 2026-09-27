@@ -1,15 +1,13 @@
 import { Stack } from 'expo-router';
 
+import { useStackScreenOptions } from '@/hooks/useStackScreenOptions';
+
 export default function ExploreLayout() {
+  const screenOptions = useStackScreenOptions();
   return (
-    <Stack
-      screenOptions={{
-        headerShown: true,
-        headerTitle: 'Explore',
-      }}
-    >
-      <Stack.Screen name="index" />
-      <Stack.Screen name="event/[id]" options={{ headerTitle: 'Event' }} />
+    <Stack screenOptions={screenOptions}>
+      <Stack.Screen name="index" options={{ headerShown: false, headerTitle: 'Explore' }} />
+      <Stack.Screen name="event/[id]" options={{ headerTitle: '' }} />
     </Stack>
   );
 }

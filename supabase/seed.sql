@@ -116,15 +116,15 @@ on conflict (id) do nothing;
 -- ------------------------------------------------------------------
 -- Badges: the fixed, developer-defined achievement ladder.
 -- ------------------------------------------------------------------
-insert into public.badges (key, title, description, emoji, points, sort_order) values
-  ('first-sip', 'First Sip', 'Check in to your first pop-up', '🎯', 25, 1),
-  ('popup-scout', 'Pop-up Scout', 'Check in to 2 pop-ups', '🧭', 50, 2),
-  ('street-food-fan', 'Street Food Fan', 'Check in to 4 pop-ups', '🥡', 75, 3),
-  ('local-legend', 'Local Legend', 'Check in to 6 pop-ups', '🏆', 100, 4),
-  ('memory-maker', 'Memory Maker', 'Complete 3 challenges', '📸', 75, 5),
-  ('first-order', 'First Order', 'Place your first order', '🧋', 25, 6),
-  ('regular', 'Regular', 'Place 3 orders', '🔁', 75, 7),
-  ('event-eater', 'Event Eater', 'Order at 2 different pop-ups', '🍜', 50, 8)
+insert into public.badges (key, title, description, points, sort_order) values
+  ('first-sip', 'First Sip', 'Check in to your first pop-up', 25, 1),
+  ('popup-scout', 'Pop-up Scout', 'Check in to 2 pop-ups', 50, 2),
+  ('street-food-fan', 'Street Food Fan', 'Check in to 4 pop-ups', 75, 3),
+  ('local-legend', 'Local Legend', 'Check in to 6 pop-ups', 100, 4),
+  ('memory-maker', 'Memory Maker', 'Complete 3 challenges', 75, 5),
+  ('first-order', 'First Order', 'Place your first order', 25, 6),
+  ('regular', 'Regular', 'Place 3 orders', 75, 7),
+  ('event-eater', 'Event Eater', 'Order at 2 different pop-ups', 50, 8)
 on conflict (key) do nothing;
 
 -- ------------------------------------------------------------------

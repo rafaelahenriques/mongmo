@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { X } from 'lucide-react-native';
+
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/ThemedText';
-import { Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/useTheme';
+import { Button } from '@/components/ui/Button';
+import { Icon } from '@/components/ui/Icon';
+import { Radius, Spacing } from '@/constants/theme';
+import { haptics } from '@/services/haptics';
 
 export type QrScannerProps = {
   visible: boolean;
@@ -20,7 +23,7 @@ export type QrScannerProps = {
  * whether to close on success or let the user try again.
  */
 export default function QrScanner({ visible, title, onScan, onClose }: QrScannerProps) {
-  const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const [permission, requestPermission] = useCameraPermissions();
   const scannedRef = useRef(false);
 
@@ -32,6 +35,7 @@ export default function QrScanner({ visible, title, onScan, onClose }: QrScanner
     (result: { data: string }) => {
       if (scannedRef.current) return;
       scannedRef.current = true;
+      haptics.press();
       onScan(result.data);
     },
     [onScan],
@@ -57,34 +61,38 @@ export default function QrScanner({ visible, title, onScan, onClose }: QrScanner
             <ThemedText type="small" style={[styles.lightText, styles.permissionBody]}>
               Allow the camera to scan the QR code posted at the venue.
             </ThemedText>
-            <Pressable
-              onPress={requestPermission}
-              accessibilityRole="button"
+            <Button
+              label="Allow camera"
               accessibilityLabel="Allow camera access"
-              style={[styles.permissionButton, { backgroundColor: theme.text }]}
-            >
-              <ThemedText type="smallBold" style={{ color: theme.background }}>
-                Allow camera
-              </ThemedText>
-            </Pressable>
+              icon="camera"
+              variant="brand"
+              onPress={requestPermission}
+              style={styles.permissionButton}
+            />
           </View>
         )}
 
         {permission?.granted ? <View style={styles.frame} pointerEvents="none" /> : null}
 
-        <ThemedText type="smallBold" style={[styles.title, styles.lightText]}>
-          {title}
-        </ThemedText>
-
-        <Pressable
-          onPress={onClose}
-          accessibilityRole="button"
-          accessibilityLabel="Close scanner"
-          hitSlop={12}
-          style={styles.closeButton}
-        >
-          <X size={26} color="#FFFFFF" />
-        </Pressable>
+        <View style={[styles.topBar, { top: insets.top + Spacing.two }]}>
+          <View style={styles.titlePill}>
+            <ThemedText type="smallBold" style={styles.lightText} numberOfLines={1}>
+              {title}
+            </ThemedText>
+          </View>
+          <Pressable
+            onPress={() => {
+              haptics.tap();
+              onClose();
+            }}
+            accessibilityRole="button"
+            accessibilityLabel="Close scanner"
+            hitSlop={12}
+            style={styles.closeButton}
+          >
+            <Icon name="close" size={20} color="#FFFFFF" weight="bold" />
+          </Pressable>
+        </View>
       </View>
     </Modal>
   );
@@ -102,22 +110,32 @@ const styles = StyleSheet.create({
   frame: {
     width: FRAME_SIZE,
     height: FRAME_SIZE,
-    borderWidth: 3,
+    borderWidth: 4,
     borderColor: '#FFFFFF',
-    borderRadius: 24,
+    borderRadius: 32,
   },
-  title: {
+  topBar: {
     position: 'absolute',
-    top: 64,
-    left: Spacing.four,
-    right: Spacing.four,
-    textAlign: 'center',
+    left: Spacing.three,
+    right: Spacing.three,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  titlePill: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    borderRadius: Radius.pill,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two + 2,
   },
   closeButton: {
-    position: 'absolute',
-    top: 60,
-    right: Spacing.three,
-    padding: Spacing.two,
+    width: 44,
+    height: 44,
+    borderRadius: Radius.pill,
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   permissionState: {
     alignItems: 'center',
@@ -129,12 +147,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   permissionButton: {
-    marginTop: Spacing.two,
-    minHeight: 44,
-    paddingHorizontal: Spacing.four,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: Spacing.three,
+    alignSelf: 'stretch',
   },
   lightText: {
     color: '#FFFFFF',

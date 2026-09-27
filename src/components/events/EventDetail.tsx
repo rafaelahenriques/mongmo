@@ -1,77 +1,45 @@
-import { useCallback, useState, type ReactNode } from 'react';
-import {
-  AccessibilityInfo,
-  ActivityIndicator,
-  Alert,
-  Pressable,
-  ScrollView,
-  Share,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { useCallback, useState } from 'react';
+import { AccessibilityInfo, ActivityIndicator, Alert, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
-import * as Haptics from 'expo-haptics';
-import { Check, Clock, MapPin, Navigation, Share2, ShoppingBag } from 'lucide-react-native';
 
 import QrScanner from '@/components/camera/QrScanner';
 import ChallengesSection from '@/components/challenges/ChallengesSection';
 import CapacityMeter from '@/components/events/CapacityMeter';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import Chip from '@/components/ui/Chip';
+import { IconBadge } from '@/components/ui/IconBadge';
+import { IconButton } from '@/components/ui/IconButton';
+import { SectionHeader } from '@/components/ui/Screen';
 import { ThemedText } from '@/components/ThemedText';
 import { ApiError } from '@/api/errors';
 import { EVENTS_PAGE_URL, GEOFENCE_RADIUS_M } from '@/constants/config';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
 import { useCheckIn } from '@/hooks/useCheckIn';
 import { useCheckInMutation } from '@/hooks/useCheckInMutation';
 import { useEvent } from '@/hooks/useEvent';
+import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/services/haptics';
 import { useBusyStore } from '@/state/busyStore';
 import { useCartStore } from '@/state/cartStore';
 import { useLocationStore } from '@/state/locationStore';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
 
-
 export type EventDetailProps = {
   eventId: string;
 };
 
-type ActionButtonProps = {
-  label: string;
-  icon: ReactNode;
-  onPress: () => void;
-  variant?: 'primary' | 'secondary';
-  disabled?: boolean;
-};
-
-function ActionButton({
-  label,
-  icon,
-  onPress,
-  variant = 'secondary',
-  disabled = false,
-}: ActionButtonProps) {
-  return (
-    <Button
-      label={label}
-      icon={icon}
-      onPress={onPress}
-      variant={variant === 'primary' ? 'primary' : 'secondary'}
-      disabled={disabled}
-      style={styles.action}
-    />
-  );
-}
-
 /**
- * Full-screen pop-up event detail: hero image, time/location, live capacity,
- * menu preview and the check-in / order / share actions.
+ * Full-screen pop-up event detail: photo, when and where, live "how busy",
+ * check in / order, the menu and the event's challenges.
  */
 export default function EventDetail({ eventId }: EventDetailProps) {
   const theme = useTheme();
   const router = useRouter();
+  const tabBarInset = useTabBarInset();
   const query = useEvent(eventId);
   const event = query.data;
   const busyFromStore = useBusyStore((state) => (event ? state.busy[event.id] : undefined));
@@ -85,21 +53,19 @@ export default function EventDetail({ eventId }: EventDetailProps) {
     (qrToken: string) => {
       setScannerVisible(false);
       if (!userCoordinates) {
-        Alert.alert(
-          'Location needed',
-          'Turn on location access so we can confirm you’re at the venue.',
-        );
+        haptics.warning();
+        Alert.alert('Location needed', 'Turn on location access so we can confirm you’re at the venue.');
         return;
       }
       checkInMutation.mutate(
         { qrToken, coordinates: userCoordinates },
         {
           onSuccess: () => {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
+            haptics.success();
             AccessibilityInfo.announceForAccessibility('Checked in. Points and badges updated.');
           },
           onError: (error) => {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => undefined);
+            haptics.error();
             Alert.alert('Check-in failed', error instanceof Error ? error.message : 'Please try again.');
           },
         },
@@ -135,6 +101,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
     // Friendly client-side heads-up before even opening the camera — the
     // server (verify_check_in) is still the one that actually enforces this.
     if (userCoordinates && distanceInMeters(userCoordinates, event.coordinates) > GEOFENCE_RADIUS_M) {
+      haptics.warning();
       Alert.alert('Too far to check in', 'Get within 500 m of the venue, then scan the QR code.');
       return;
     }
@@ -143,11 +110,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
 
   if (!eventId) {
     return (
-      <StateCard
-        title="Event not found"
-        body="This link doesn't match any event. Check the events list for what's on."
-        theme={theme}
-      />
+      <StateCard title="Event not found" body="This link doesn't match any event. Check Explore for what's on." />
     );
   }
 
@@ -155,7 +118,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
     return (
       <View style={[styles.stateContainer, { backgroundColor: theme.background }]}>
         <ActivityIndicator size="large" color={theme.text} />
-        <ThemedText type="small" themeColor="textSecondary" style={styles.stateBody}>
+        <ThemedText type="small" themeColor="textSecondary">
           Loading event…
         </ThemedText>
       </View>
@@ -172,9 +135,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
             ? "This event may have been removed. It's not on the map anymore."
             : 'Check your connection — if you were offline, this event may not be saved for offline viewing yet.'
         }
-        retryLabel={notFound ? undefined : 'Try again'}
         onRetry={notFound ? undefined : () => query.refetch()}
-        theme={theme}
       />
     );
   }
@@ -182,112 +143,104 @@ export default function EventDetail({ eventId }: EventDetailProps) {
   const busy = busyFromStore ?? event.busy;
   const phase = getEventPhase(event.startsAt, event.endsAt);
   const isFull = busy.occupancy >= busy.capacity;
-  const distance = userCoordinates
-    ? distanceInMeters(userCoordinates, event.coordinates)
-    : null;
+  const distance = userCoordinates ? distanceInMeters(userCoordinates, event.coordinates) : null;
   const timeLabel = formatEventWindow(event.startsAt, event.endsAt, event.timeZone);
 
   return (
     <ScrollView
       style={[styles.scroll, { backgroundColor: theme.background }]}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + Spacing.five }]}
     >
-      <Image
-        source={{ uri: event.imageUrl }}
-        style={styles.hero}
-        contentFit="cover"
-        transition={200}
-        accessibilityLabel={`Photo for ${event.title}`}
-      />
-
-      <View style={styles.chips}>
-        <Chip
-          label={phase === 'live' ? 'Live now' : phase === 'upcoming' ? 'Upcoming' : 'Ended'}
-          tone={phase === 'live' ? 'live' : 'neutral'}
+      <View>
+        <Image
+          source={{ uri: event.imageUrl }}
+          style={[styles.photo, { backgroundColor: theme.backgroundSelected }]}
+          contentFit="cover"
+          transition={200}
+          accessibilityLabel={`Photo for ${event.title}`}
         />
-        {isFull ? <Chip label="Full" tone="danger" /> : null}
-        {event.tags.map((tag) => (
-          <Chip key={tag} label={tag} />
-        ))}
-      </View>
-
-      <ThemedText type="title" style={styles.title} accessibilityRole="header">
-        {event.title}
-      </ThemedText>
-
-      <View style={styles.metaRow}>
-        <Clock size={16} color={theme.textSecondary} />
-        <ThemedText type="small" themeColor="textSecondary" style={styles.metaText}>
-          {timeLabel}
-        </ThemedText>
-      </View>
-      <View style={styles.metaRow}>
-        <MapPin size={16} color={theme.textSecondary} />
-        <ThemedText type="small" themeColor="textSecondary" style={styles.metaText}>
-          {event.venue}, {event.city}
-        </ThemedText>
-      </View>
-      {distance !== null ? (
-        <View style={styles.metaRow}>
-          <Navigation size={16} color={theme.textSecondary} />
-          <ThemedText type="small" themeColor="textSecondary" style={styles.metaText}>
-            {formatDistance(distance)} away
-          </ThemedText>
-        </View>
-      ) : null}
-
-      <View style={styles.section}>
-        <CapacityMeter
-          occupancy={busy.occupancy}
-          capacity={busy.capacity}
-          label="How busy right now"
-        />
-      </View>
-
-      <ThemedText type="section" style={styles.sectionTitle}>
-        Menu preview
-      </ThemedText>
-      {event.menu.map((item) => (
-        <View key={item.id} style={styles.menuRow}>
-          <View style={styles.menuTexts}>
-            <ThemedText type="smallBold">{item.name}</ThemedText>
-            {item.description ? (
-              <ThemedText type="small" themeColor="textSecondary">
-                {item.description}
-              </ThemedText>
-            ) : null}
+        <View style={styles.photoBar} pointerEvents="box-none">
+          <View style={styles.chips}>
+            <Chip
+              label={phase === 'live' ? 'Live now' : phase === 'upcoming' ? 'Upcoming' : 'Ended'}
+              tone={phase === 'live' ? 'live' : 'dark'}
+            />
+            {isFull ? <Chip label="Full" tone="danger" /> : null}
           </View>
-          {item.price ? (
-            <ThemedText type="smallBold" themeColor="primaryText">
-              {item.price}
-            </ThemedText>
-          ) : null}
+          <IconButton icon="share" onPress={onShare} accessibilityLabel="Share" size={40} />
         </View>
-      ))}
+      </View>
 
-      <ThemedText type="small" themeColor="textSecondary" style={styles.description}>
-        {event.description}
-      </ThemedText>
+      <View style={styles.heading}>
+        <ThemedText type="title" accessibilityRole="header">
+          {event.title}
+        </ThemedText>
+        {event.tags.length > 0 ? (
+          <View style={styles.chips}>
+            {event.tags.map((tag) => (
+              <Chip key={tag} label={tag} />
+            ))}
+          </View>
+        ) : null}
+      </View>
+
+      <Card style={styles.facts}>
+        <Fact icon="clock" title={timeLabel} />
+        <View style={[styles.divider, { backgroundColor: theme.border }]} />
+        <Fact
+          icon="pin"
+          title={`${event.venue}, ${event.city}`}
+          subtitle={distance !== null ? `${formatDistance(distance)} away` : undefined}
+        />
+      </Card>
+
+      <Card>
+        <CapacityMeter occupancy={busy.occupancy} capacity={busy.capacity} label="How busy right now" />
+      </Card>
 
       <View style={styles.actions}>
-        <ActionButton
+        <Button
           label={checkedIn ? 'Checked in' : 'Check in'}
-          icon={<Check size={20} color={checkedIn ? theme.text : theme.onPrimary} />}
+          icon={checkedIn ? 'checkCircle' : 'scan'}
+          variant={checkedIn ? 'secondary' : 'brand'}
           onPress={onPressCheckIn}
-          variant={checkedIn ? 'secondary' : 'primary'}
           disabled={checkedIn}
+          haptic="press"
+          style={styles.action}
         />
-        <ActionButton
-          label="Order"
-          icon={<ShoppingBag size={18} color={theme.text} />}
-          onPress={openOrder}
-        />
-        <ActionButton
-          label="Share"
-          icon={<Share2 size={18} color={theme.text} />}
-          onPress={onShare}
-        />
+        <Button label="Order" icon="bag" variant="primary" onPress={openOrder} style={styles.action} />
       </View>
+
+      {event.menu.length > 0 ? (
+        <>
+          <SectionHeader title="Menu" />
+          <Card style={styles.menu}>
+            {event.menu.map((item, index) => (
+              <View key={item.id}>
+                {index > 0 ? <View style={[styles.divider, { backgroundColor: theme.border }]} /> : null}
+                <View style={styles.menuRow}>
+                  <View style={styles.menuTexts}>
+                    <ThemedText type="smallBold">{item.name}</ThemedText>
+                    {item.description ? (
+                      <ThemedText type="small" themeColor="textSecondary">
+                        {item.description}
+                      </ThemedText>
+                    ) : null}
+                  </View>
+                  {item.price ? <ThemedText type="smallBold">{item.price}</ThemedText> : null}
+                </View>
+              </View>
+            ))}
+          </Card>
+        </>
+      ) : null}
+
+      {event.description ? (
+        <>
+          <SectionHeader title="About" />
+          <ThemedText themeColor="textSecondary">{event.description}</ThemedText>
+        </>
+      ) : null}
 
       <ChallengesSection event={event} checkedIn={checkedIn} />
 
@@ -301,49 +254,39 @@ export default function EventDetail({ eventId }: EventDetailProps) {
   );
 }
 
-/** Centered loading/error/not-found card shared by the states above. */
-function StateCard({
-  title,
-  body,
-  retryLabel,
-  onRetry,
-  theme,
-}: {
-  title: string;
-  body: string;
-  retryLabel?: string;
-  onRetry?: () => void;
-  theme: ReturnType<typeof useTheme>;
-}) {
+function Fact({ icon, title, subtitle }: { icon: 'clock' | 'pin'; title: string; subtitle?: string }) {
   return (
-    <View style={[styles.stateContainer, { backgroundColor: theme.background }]}>
-      <View
-        style={[
-          styles.stateCard,
-          { backgroundColor: theme.backgroundElement, borderColor: theme.border },
-        ]}
-        accessibilityRole={retryLabel ? 'alert' : 'text'}
-      >
-        <ThemedText type="smallBold" style={styles.stateTitle}>
-          {title}
-        </ThemedText>
-        <ThemedText type="small" themeColor="textSecondary" style={styles.stateBody}>
-          {body}
-        </ThemedText>
-        {retryLabel && onRetry ? (
-          <Pressable
-            onPress={onRetry}
-            accessibilityRole="button"
-            accessibilityLabel={retryLabel}
-            style={({ pressed }) => [
-              styles.stateButton,
-              { backgroundColor: theme.backgroundSelected, opacity: pressed ? 0.8 : 1 },
-            ]}
-          >
-            <ThemedText type="smallBold">{retryLabel}</ThemedText>
-          </Pressable>
+    <View style={styles.fact}>
+      <IconBadge name={icon} size={36} />
+      <View style={styles.factTexts}>
+        <ThemedText type="smallBold">{title}</ThemedText>
+        {subtitle ? (
+          <ThemedText type="small" themeColor="textSecondary">
+            {subtitle}
+          </ThemedText>
         ) : null}
       </View>
+    </View>
+  );
+}
+
+/** Centered not-found / error state, with a retry when it's worth one. */
+function StateCard({ title, body, onRetry }: { title: string; body: string; onRetry?: () => void }) {
+  const theme = useTheme();
+  return (
+    <View style={[styles.stateContainer, { backgroundColor: theme.background }]}>
+      <Card style={styles.stateCard}>
+        <View accessibilityRole={onRetry ? 'alert' : 'text'} style={styles.stateTexts}>
+          <IconBadge name="alert" size={48} />
+          <ThemedText type="section" style={styles.center}>
+            {title}
+          </ThemedText>
+          <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
+            {body}
+          </ThemedText>
+        </View>
+        {onRetry ? <Button label="Try again" variant="ghost" size="medium" onPress={onRetry} /> : null}
+      </Card>
     </View>
   );
 }
@@ -353,96 +296,88 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    paddingBottom: Spacing.six,
+    padding: Spacing.three + Spacing.one,
+    gap: Spacing.three,
   },
-  hero: {
+  photo: {
     width: '100%',
-    height: 220,
+    height: 260,
+    borderRadius: Radius.large,
+  },
+  photoBar: {
+    position: 'absolute',
+    top: Spacing.three,
+    left: Spacing.three,
+    right: Spacing.three,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  heading: {
+    gap: Spacing.two,
   },
   chips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: Spacing.one,
-    paddingHorizontal: Spacing.three,
-    marginTop: Spacing.three,
+    gap: Spacing.one + 2,
+    flexShrink: 1,
   },
-  title: {
-    fontSize: 36,
-    lineHeight: 38,
-    paddingHorizontal: Spacing.three,
-    marginTop: Spacing.two,
+  facts: {
+    gap: Spacing.three,
   },
-  metaRow: {
+  fact: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: Spacing.two,
-    paddingHorizontal: Spacing.three,
-    marginTop: Spacing.one,
+    alignItems: 'center',
+    gap: Spacing.three,
   },
-  metaText: {
+  factTexts: {
     flex: 1,
+    gap: 2,
   },
-  section: {
-    paddingHorizontal: Spacing.three,
-    marginTop: Spacing.three,
+  divider: {
+    height: StyleSheet.hairlineWidth,
   },
-  sectionTitle: {
-    paddingHorizontal: Spacing.three,
-    marginTop: Spacing.four,
-    marginBottom: Spacing.one,
+  actions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.two + Spacing.one,
+  },
+  action: {
+    flexGrow: 1,
+    flexBasis: 140,
+  },
+  menu: {
+    paddingVertical: Spacing.two,
+    gap: 0,
   },
   menuRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: Spacing.two,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
+    paddingVertical: Spacing.two + Spacing.one,
   },
   menuTexts: {
     flex: 1,
     gap: 2,
   },
-  description: {
-    paddingHorizontal: Spacing.three,
-    marginTop: Spacing.three,
-  },
-  actions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.two,
-    paddingHorizontal: Spacing.three,
-    marginTop: Spacing.four,
-  },
-  action: {
-    flexGrow: 1,
-    minWidth: 132,
-  },
   stateContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: Spacing.two,
     padding: Spacing.four,
   },
   stateCard: {
-    borderRadius: 16,
-    borderWidth: 2,
-    padding: Spacing.four,
-    gap: Spacing.two,
     maxWidth: 360,
+    gap: Spacing.three,
+    padding: Spacing.four,
+  },
+  stateTexts: {
     alignItems: 'center',
+    gap: Spacing.two,
   },
-  stateTitle: {
+  center: {
     textAlign: 'center',
-    fontSize: 16,
-  },
-  stateBody: {
-    textAlign: 'center',
-  },
-  stateButton: {
-    marginTop: Spacing.one,
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
-    borderRadius: 10,
   },
 });

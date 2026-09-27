@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { advanceOrderStatus, getOwnerOrders } from '@/api/owner';
+import { haptics } from '@/services/haptics';
 
 /** Every non-draft order, for the owner's status board. */
 export function useOwnerOrders() {
@@ -15,7 +16,11 @@ export function useOwnerOrders() {
   const advance = useMutation({
     mutationFn: (params: { orderId: string; status: 'preparing' | 'ready' | 'collected' | 'cancelled' }) =>
       advanceOrderStatus(params.orderId, params.status),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['owner', 'orders'] }),
+    onSuccess: (_, { status }) => {
+      if (status === 'ready' || status === 'collected') haptics.success();
+      return queryClient.invalidateQueries({ queryKey: ['owner', 'orders'] });
+    },
+    onError: () => haptics.error(),
   });
 
   return {

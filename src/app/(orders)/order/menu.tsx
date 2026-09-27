@@ -1,26 +1,30 @@
 import { useCallback } from 'react';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import { Plus, ShoppingBag } from 'lucide-react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import Chip from '@/components/ui/Chip';
+import { IconButton } from '@/components/ui/IconButton';
 import { ScreenFooter } from '@/components/ui/ScreenFooter';
 import { Spacing } from '@/constants/theme';
 import { useMenu } from '@/hooks/useMenu';
+import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/services/haptics';
 import { useCartStore, cartSubtotalCents } from '@/state/cartStore';
 import { formatCents } from '@/utils/orderFormat';
 
 /**
  * Order flow, step 2: "Pop-up menu" / "At Mongmo café" — available until
- * sold out. Tapping a row opens the item for a description + quantity;
+ * sold out. Tapping a card opens the item for a description + quantity;
  * the + button adds one straight from the list.
  */
 export default function OrderMenuScreen() {
   const theme = useTheme();
   const router = useRouter();
+  const tabBarInset = useTabBarInset();
   const location = useCartStore((state) => state.location);
   const items = useCartStore((state) => state.items);
   const menuQuery = useMenu(location);
@@ -37,78 +41,93 @@ export default function OrderMenuScreen() {
 
   if (!location) return null;
 
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <ThemedText type="section" style={styles.heading}>
-          {location.type === 'store' ? 'Vietnamese coffee and pastries' : `${location.eventTitle} — pop-up menu`}
-        </ThemedText>
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          // With a footer the footer clears the tab bar; without one the list must.
+          { paddingBottom: items.length > 0 ? Spacing.four : tabBarInset + Spacing.four },
+        ]}
+      >
+        <View style={styles.heading}>
+          <Chip
+            label={location.type === 'store' ? 'At Mongmo café' : 'Pop-up menu'}
+            tone={location.type === 'store' ? 'neutral' : 'live'}
+            icon={location.type === 'store' ? 'store' : undefined}
+          />
+          <ThemedText type="title">
+            {location.type === 'store' ? 'Coffee & pastries' : location.eventTitle}
+          </ThemedText>
+        </View>
 
         {menuQuery.isPending ? (
           <ActivityIndicator size="small" color={theme.text} style={styles.loader} />
         ) : menuQuery.isError ? (
           <ThemedText type="small" themeColor="textSecondary">
-            Couldn&apos;t load the menu. Pull to refresh or try again shortly.
+            Couldn&apos;t load the menu. Try again shortly.
           </ThemedText>
         ) : (menuQuery.data ?? []).length === 0 ? (
           <ThemedText type="small" themeColor="textSecondary">
             Nothing available right now — check back soon.
           </ThemedText>
         ) : (
-          (menuQuery.data ?? []).map((item) => (
-            <Pressable
-              key={item.id}
-              onPress={() => router.push({ pathname: '/(orders)/order/item/[id]', params: { id: item.id } })}
-              accessibilityRole="button"
-              accessibilityLabel={`${item.name}, ${formatCents(item.priceCents)}. Open item.`}
-              style={({ pressed }) => [
-                styles.row,
-                {
-                  backgroundColor: theme.backgroundElement,
-                  borderColor: theme.border,
-                  boxShadow: pressed ? undefined : `3px 3px 0px ${theme.shadow}`,
-                  transform: pressed ? [{ translateX: 3 }, { translateY: 3 }] : [],
-                },
-              ]}
-            >
-              <View style={styles.rowTexts}>
-                <ThemedText type="smallBold">{item.name}</ThemedText>
-                {item.description ? (
-                  <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
-                    {item.description}
-                  </ThemedText>
-                ) : null}
-                <ThemedText type="smallBold" themeColor="primaryText">
-                  {formatCents(item.priceCents)}
-                </ThemedText>
-              </View>
-              <Pressable
-                onPress={() => {
-                  useCartStore.getState().addItem({
-                    menuItemId: item.id,
-                    name: item.name,
-                    priceCents: item.priceCents,
-                  });
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => undefined);
-                }}
-                accessibilityRole="button"
-                accessibilityLabel={`Add ${item.name} to cart`}
-                hitSlop={8}
-                style={[styles.addButton, { backgroundColor: theme.primary, borderColor: theme.border }]}
-              >
-                <Plus size={20} color={theme.onPrimary} strokeWidth={3} />
-              </Pressable>
-            </Pressable>
-          ))
+          (menuQuery.data ?? []).map((item) => {
+            const inCart = items.find((line) => line.menuItemId === item.id)?.quantity ?? 0;
+            return (
+              // The card is not itself a button: the text opens the item and
+              // the + adds one, as two sibling controls (never nested).
+              <Card key={item.id} style={styles.row}>
+                <Pressable
+                  onPress={() => {
+                    haptics.tap();
+                    router.push({ pathname: '/(orders)/order/item/[id]', params: { id: item.id } });
+                  }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${item.name}, ${formatCents(item.priceCents)}. Open item.`}
+                  style={({ pressed }) => [styles.rowTexts, { opacity: pressed ? 0.6 : 1 }]}
+                >
+                  <ThemedText type="section">{item.name}</ThemedText>
+                  {item.description ? (
+                    <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
+                      {item.description}
+                    </ThemedText>
+                  ) : null}
+                  <View style={styles.priceRow}>
+                    <ThemedText type="smallBold">{formatCents(item.priceCents)}</ThemedText>
+                    {inCart > 0 ? <Chip label={`${inCart} in cart`} tone="info" /> : null}
+                  </View>
+                </Pressable>
+                <IconButton
+                  icon="add"
+                  tone="primary"
+                  size={44}
+                  haptic="press"
+                  onPress={() =>
+                    useCartStore.getState().addItem({
+                      menuItemId: item.id,
+                      name: item.name,
+                      priceCents: item.priceCents,
+                    })
+                  }
+                  accessibilityLabel={`Add ${item.name} to cart`}
+                />
+              </Card>
+            );
+          })
         )}
       </ScrollView>
 
       {items.length > 0 ? (
         <ScreenFooter>
           <Button
-            label={`View cart · ${items.length} · ${formatCents(cartSubtotalCents(items))}`}
+            label={`View cart · ${itemCount} · ${formatCents(cartSubtotalCents(items))}`}
             accessibilityLabel={`View cart, ${items.length} item${items.length === 1 ? '' : 's'}, ${formatCents(cartSubtotalCents(items))}`}
-            icon={<ShoppingBag size={20} color={theme.onPrimary} />}
+            variant="brand"
+            icon="bag"
+            arrow
             onPress={() => router.push('/(orders)/order/cart')}
           />
         </ScreenFooter>
@@ -122,11 +141,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: Spacing.three,
-    gap: Spacing.two,
+    padding: Spacing.three + Spacing.one,
+    gap: Spacing.two + Spacing.one,
   },
   heading: {
-    marginBottom: Spacing.one,
+    gap: Spacing.two,
+    marginBottom: Spacing.two,
   },
   loader: {
     marginVertical: Spacing.four,
@@ -134,23 +154,16 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.two,
-    borderRadius: 14,
-    borderWidth: 2,
-    padding: Spacing.three,
-    marginRight: 3,
-    marginBottom: Spacing.one,
+    gap: Spacing.three,
   },
   rowTexts: {
     flex: 1,
-    gap: 2,
+    gap: Spacing.one,
   },
-  addButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
+  priceRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: Spacing.two,
+    marginTop: Spacing.one,
   },
 });

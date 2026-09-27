@@ -1,13 +1,16 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, TextInput, View, type KeyboardTypeOptions } from 'react-native';
-import { LocateFixed } from 'lucide-react-native';
+import { StyleSheet, View, type KeyboardTypeOptions } from 'react-native';
 
 import type { OwnerEventInput } from '@/api/owner';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { FontFamily, Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/useTheme';
+import { IconBadge } from '@/components/ui/IconBadge';
+import type { IconName } from '@/components/ui/Icon';
+import { OptionPill } from '@/components/ui/OptionPill';
+import { TextField } from '@/components/ui/TextField';
+import { Spacing } from '@/constants/theme';
+import { haptics } from '@/services/haptics';
 import { getCurrentPlace } from '@/services/location';
 import { formatEventWindow } from '@/utils/dateTime';
 
@@ -69,7 +72,6 @@ export default function OwnerEventForm({
   submitError,
   onSubmit,
 }: OwnerEventFormProps) {
-  const theme = useTheme();
   const [defaultStart] = useState(() => roundDown(new Date()).toISOString());
 
   const [title, setTitle] = useState(initial?.title ?? '');
@@ -94,11 +96,6 @@ export default function OwnerEventForm({
   const timesValid = !Number.isNaN(Date.parse(startsAt)) && !Number.isNaN(Date.parse(endsAt));
   const durationHours = timesValid ? (Date.parse(endsAt) - Date.parse(startsAt)) / 3_600_000 : null;
 
-  const inputStyle = [
-    styles.input,
-    { color: theme.text, backgroundColor: theme.background, borderColor: theme.border },
-  ];
-
   const field = (
     label: string,
     value: string,
@@ -112,25 +109,16 @@ export default function OwnerEventForm({
       half?: boolean;
     },
   ) => (
-    <View style={[styles.field, options?.half && styles.half]}>
-      <ThemedText type="label">{label}</ThemedText>
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        keyboardType={options?.keyboardType ?? 'default'}
-        multiline={options?.multiline}
-        placeholder={options?.placeholder}
-        placeholderTextColor={theme.textSecondary}
-        accessibilityLabel={label}
-        accessibilityHint={options?.hint}
-        style={[inputStyle, options?.multiline && styles.multiline]}
-      />
-      {options?.hint ? (
-        <ThemedText type="small" themeColor="textSecondary">
-          {options.hint}
-        </ThemedText>
-      ) : null}
-    </View>
+    <TextField
+      label={label}
+      value={value}
+      onChangeText={onChangeText}
+      keyboardType={options?.keyboardType ?? 'default'}
+      multiline={options?.multiline}
+      placeholder={options?.placeholder}
+      hint={options?.hint}
+      half={options?.half}
+    />
   );
 
   const onUseCurrentLocation = async () => {
@@ -147,7 +135,9 @@ export default function OwnerEventForm({
       setLocationNote(
         `Pinned to where you are${place.accuracy ? ` (±${Math.round(place.accuracy)} m)` : ''}.`,
       );
+      haptics.success();
     } catch (locationError) {
+      haptics.error();
       setError(locationError instanceof Error ? locationError.message : 'Couldn’t get your location.');
     } finally {
       setLocating(false);
@@ -166,24 +156,28 @@ export default function OwnerEventForm({
     const lat = Number(latitude);
     const lng = Number(longitude);
     const cap = Number(capacity);
+    const fail = (message: string) => {
+      haptics.error();
+      setError(message);
+    };
     if (!title.trim() || !city.trim() || !venue.trim()) {
-      setError('Name, city and venue are required.');
+      fail('Name, city and venue are required.');
       return;
     }
     if (!latitude.trim() || !longitude.trim() || Number.isNaN(lat) || Number.isNaN(lng)) {
-      setError('Set the location — tap "Use my current location" or type the coordinates.');
+      fail('Set the location — tap "Use my current location" or type the coordinates.');
       return;
     }
     if (!timesValid) {
-      setError('Start and end must be ISO timestamps, e.g. 2026-10-01T17:00:00+02:00.');
+      fail('Start and end must be ISO timestamps, e.g. 2026-10-01T17:00:00+02:00.');
       return;
     }
     if (Date.parse(endsAt) <= Date.parse(startsAt)) {
-      setError('The end has to be after the start.');
+      fail('The end has to be after the start.');
       return;
     }
     if (Number.isNaN(cap) || cap <= 0) {
-      setError('Capacity must be a positive number.');
+      fail('Capacity must be a positive number.');
       return;
     }
     onSubmit({
@@ -204,14 +198,16 @@ export default function OwnerEventForm({
 
   return (
     <View style={styles.form}>
-      <Card>
-        <ThemedText type="section">Basics</ThemedText>
+      <Card style={styles.group}>
+        <GroupTitle icon="sparkles" title="Basics" />
         {field('Name', title, setTitle, { placeholder: 'e.g. Bánh mì on the Grote Markt' })}
         <View style={styles.field}>
-          <ThemedText type="label">Kind</ThemedText>
+          <ThemedText type="smallBold" themeColor="textSecondary">
+            Kind
+          </ThemedText>
           <View style={styles.pills} accessibilityRole="radiogroup" accessibilityLabel="Kind of pop-up">
             {typeOptions.map((option) => (
-              <Pill
+              <OptionPill
                 key={option.value}
                 label={option.label}
                 checked={type === option.value}
@@ -224,12 +220,12 @@ export default function OwnerEventForm({
         {field('Description', description, setDescription, { multiline: true })}
       </Card>
 
-      <Card>
-        <ThemedText type="section">Where</ThemedText>
+      <Card style={styles.group}>
+        <GroupTitle icon="pin" title="Where" />
         <Button
           label="Use my current location"
-          variant="accent"
-          icon={<LocateFixed size={20} color={theme.onAccent} />}
+          variant="primary"
+          icon="locate"
           onPress={onUseCurrentLocation}
           loading={locating}
         />
@@ -246,26 +242,30 @@ export default function OwnerEventForm({
         </View>
       </Card>
 
-      <Card>
-        <ThemedText type="section">When</ThemedText>
+      <Card style={styles.group}>
+        <GroupTitle icon="calendar" title="When" />
         {timesValid ? (
           <ThemedText type="smallBold" themeColor="primaryText">
             {formatEventWindow(startsAt, endsAt, timeZone)}
           </ThemedText>
         ) : null}
         <View style={styles.field}>
-          <ThemedText type="label">Starts</ThemedText>
+          <ThemedText type="smallBold" themeColor="textSecondary">
+            Starts
+          </ThemedText>
           <View style={styles.pills}>
             {START_PRESETS.map((preset) => (
-              <Pill key={preset.label} label={preset.label} onPress={() => onPickStart(preset.start())} />
+              <OptionPill key={preset.label} label={preset.label} onPress={() => onPickStart(preset.start())} />
             ))}
           </View>
         </View>
         <View style={styles.field}>
-          <ThemedText type="label">Runs for</ThemedText>
+          <ThemedText type="smallBold" themeColor="textSecondary">
+            Runs for
+          </ThemedText>
           <View style={styles.pills} accessibilityRole="radiogroup" accessibilityLabel="Duration">
             {DURATION_PRESETS.map((hours) => (
-              <Pill
+              <OptionPill
                 key={hours}
                 label={`${hours} h`}
                 checked={durationHours === hours}
@@ -278,8 +278,8 @@ export default function OwnerEventForm({
         {field('End time (ISO)', endsAt, setEndsAt)}
       </Card>
 
-      <Card>
-        <ThemedText type="section">Look</ThemedText>
+      <Card style={styles.group}>
+        <GroupTitle icon="photo" title="Look" />
         {field('Hero image URL', imageUrl, setImageUrl, { placeholder: 'https://… (optional)' })}
       </Card>
 
@@ -289,37 +289,19 @@ export default function OwnerEventForm({
         </ThemedText>
       ) : null}
 
-      <Button label={submitLabel} onPress={onPressSubmit} loading={pending} />
+      <Button label={submitLabel} variant="brand" haptic="press" onPress={onPressSubmit} loading={pending} />
     </View>
   );
 }
 
-/**
- * Option chip. With `checked` it's a radio in a group (kind, duration);
- * without, a one-tap preset button (start time).
- */
-function Pill({ label, checked, onPress }: { label: string; checked?: boolean; onPress: () => void }) {
-  const theme = useTheme();
-  const selected = checked === true;
+function GroupTitle({ icon, title }: { icon: IconName; title: string }) {
   return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole={checked === undefined ? 'button' : 'radio'}
-      accessibilityState={checked === undefined ? undefined : { checked }}
-      accessibilityLabel={label}
-      style={({ pressed }) => [
-        styles.pill,
-        {
-          backgroundColor: selected ? theme.highlight : theme.background,
-          borderColor: theme.border,
-          opacity: pressed ? 0.7 : 1,
-        },
-      ]}
-    >
-      <ThemedText type="label" style={{ color: selected ? theme.onHighlight : theme.text }}>
-        {label}
+    <View style={styles.groupTitle}>
+      <IconBadge name={icon} size={32} />
+      <ThemedText type="section" accessibilityRole="header">
+        {title}
       </ThemedText>
-    </Pressable>
+    </View>
   );
 }
 
@@ -327,38 +309,24 @@ const styles = StyleSheet.create({
   form: {
     gap: Spacing.three,
   },
-  field: {
-    gap: Spacing.one,
+  group: {
+    gap: Spacing.three,
   },
-  half: {
-    flex: 1,
+  groupTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  field: {
+    gap: Spacing.one + 2,
   },
   row: {
     flexDirection: 'row',
     gap: Spacing.two,
   },
-  input: {
-    minHeight: 46,
-    borderRadius: 10,
-    borderWidth: 2,
-    paddingHorizontal: Spacing.three,
-    fontFamily: FontFamily.body,
-    fontSize: 16,
-  },
-  multiline: {
-    minHeight: 88,
-    paddingTop: Spacing.two,
-    textAlignVertical: 'top',
-  },
   pills: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.two,
-  },
-  pill: {
-    borderWidth: 2,
-    borderRadius: 999,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.one + 2,
   },
 });

@@ -1,12 +1,18 @@
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { Trash2 } from 'lucide-react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 
+import { CHALLENGE_ICON } from '@/components/challenges/challengeIcons';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { IconButton } from '@/components/ui/IconButton';
+import { ListRow } from '@/components/ui/ListRow';
+import { OptionPill } from '@/components/ui/OptionPill';
+import { TextField } from '@/components/ui/TextField';
 import { Spacing } from '@/constants/theme';
 import { useOwnerChallenges } from '@/hooks/useOwnerChallenges';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/services/haptics';
 import type { Challenge } from '@/types';
 import type { ChallengeType } from '@/types/database';
 
@@ -23,11 +29,13 @@ const CHALLENGE_TYPES: ChallengeType[] = [
   'community',
 ];
 
+const typeLabel = (type: ChallengeType) => type.replace('_', ' ');
+
 export type OwnerChallengesManagerProps = {
   eventId: string;
 };
 
-/** Owner: add/edit/remove challenges for one event, from the fixed type list. */
+/** Owner: add/remove challenges for one event, from the fixed type list. */
 export default function OwnerChallengesManager({ eventId }: OwnerChallengesManagerProps) {
   const theme = useTheme();
   const { challenges, create, remove } = useOwnerChallenges(eventId);
@@ -38,14 +46,19 @@ export default function OwnerChallengesManager({ eventId }: OwnerChallengesManag
 
   const onAdd = () => {
     const pointsValue = Number(points);
-    if (!title.trim() || Number.isNaN(pointsValue) || pointsValue < 0) return;
+    if (!title.trim() || Number.isNaN(pointsValue) || pointsValue < 0) {
+      haptics.error();
+      return;
+    }
     create({ type, title: title.trim(), description: description.trim(), points: pointsValue });
+    haptics.success();
     setTitle('');
     setDescription('');
     setPoints('20');
   };
 
   const onRemove = (challenge: Challenge) => {
+    haptics.warning();
     Alert.alert('Remove challenge?', challenge.title, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Remove', style: 'destructive', onPress: () => remove(challenge.id) },
@@ -54,121 +67,73 @@ export default function OwnerChallengesManager({ eventId }: OwnerChallengesManag
 
   return (
     <View style={styles.container}>
-      {challenges.map((challenge) => (
-        <View
-          key={challenge.id}
-          style={[styles.row, { borderColor: theme.border, backgroundColor: theme.backgroundElement }]}
-        >
-          <View style={styles.rowTexts}>
-            <ThemedText type="smallBold">
-              {challenge.title} · {challenge.type}
-            </ThemedText>
-            <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
-              {challenge.description} · +{challenge.points} pts
-            </ThemedText>
-          </View>
-          <Pressable
-            onPress={() => onRemove(challenge)}
-            accessibilityRole="button"
-            accessibilityLabel={`Remove ${challenge.title}`}
-            hitSlop={8}
-          >
-            <Trash2 size={18} color={theme.danger} />
-          </Pressable>
-        </View>
-      ))}
+      {challenges.length > 0 ? (
+        <Card style={styles.list}>
+          {challenges.map((challenge, index) => (
+            <View key={challenge.id}>
+              {index > 0 ? <View style={[styles.divider, { backgroundColor: theme.border }]} /> : null}
+              <ListRow
+                title={challenge.title}
+                subtitle={`${typeLabel(challenge.type)} · +${challenge.points} pts`}
+                icon={CHALLENGE_ICON[challenge.type]}
+                trailing={
+                  <IconButton
+                    icon="trash"
+                    tone="muted"
+                    size={34}
+                    onPress={() => onRemove(challenge)}
+                    accessibilityLabel={`Remove ${challenge.title}`}
+                  />
+                }
+              />
+            </View>
+          ))}
+        </Card>
+      ) : null}
 
-      <ThemedText type="label" style={styles.addTitle}>
-        Add a challenge
-      </ThemedText>
-
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typeRow}>
-        {CHALLENGE_TYPES.map((option) => {
-          const selected = option === type;
-          return (
-            <Pressable
+      <Card style={styles.form}>
+        <ThemedText type="section">Add a challenge</ThemedText>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.typeRow}>
+          {CHALLENGE_TYPES.map((option) => (
+            <OptionPill
               key={option}
+              label={typeLabel(option)}
+              icon={CHALLENGE_ICON[option]}
+              checked={option === type}
               onPress={() => setType(option)}
-              accessibilityRole="radio"
-              accessibilityState={{ checked: selected }}
-              accessibilityLabel={option.replace('_', ' ')}
-              style={[
-                styles.typeChip,
-                { backgroundColor: selected ? theme.highlight : theme.backgroundElement, borderColor: theme.border },
-              ]}
-            >
-              <ThemedText type="label" style={{ color: selected ? theme.onHighlight : theme.text }}>
-                {option.replace('_', ' ')}
-              </ThemedText>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
-
-      <TextInput
-        value={title}
-        onChangeText={setTitle}
-        placeholder="Title"
-        placeholderTextColor={theme.textSecondary}
-        accessibilityLabel="Challenge title"
-        style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
-      />
-      <TextInput
-        value={description}
-        onChangeText={setDescription}
-        placeholder="Description"
-        placeholderTextColor={theme.textSecondary}
-        accessibilityLabel="Challenge description"
-        style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
-      />
-      <TextInput
-        value={points}
-        onChangeText={setPoints}
-        placeholder="Points"
-        keyboardType="numeric"
-        placeholderTextColor={theme.textSecondary}
-        accessibilityLabel="Challenge points"
-        style={[styles.input, { color: theme.text, backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
-      />
-
-      <Button label="Add challenge" variant="secondary" onPress={onAdd} />
+            />
+          ))}
+        </ScrollView>
+        <TextField label="Challenge title" value={title} onChangeText={setTitle} placeholder="Rate the bánh mì" />
+        <TextField
+          label="Challenge description"
+          value={description}
+          onChangeText={setDescription}
+          placeholder="What should people do?"
+        />
+        <TextField label="Challenge points" value={points} onChangeText={setPoints} keyboardType="numeric" />
+        <Button label="Add challenge" variant="primary" icon="add" onPress={onAdd} haptic="none" />
+      </Card>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    gap: Spacing.two,
+    gap: Spacing.three,
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-    borderRadius: 12,
-    borderWidth: 2,
-    padding: Spacing.two,
+  list: {
+    paddingVertical: Spacing.two,
+    gap: 0,
   },
-  rowTexts: {
-    flex: 1,
-    gap: 2,
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    marginLeft: 40 + Spacing.three,
   },
-  addTitle: {
-    marginTop: Spacing.two,
+  form: {
+    gap: Spacing.three,
   },
   typeRow: {
-    flexGrow: 0,
-  },
-  typeChip: {
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.one,
-    borderRadius: 999,
-    borderWidth: 2,
-    marginRight: Spacing.one,
-  },
-  input: {
-    minHeight: 42,
-    borderRadius: 10,
-    borderWidth: 2,
-    paddingHorizontal: Spacing.three,
+    gap: Spacing.two,
   },
 });

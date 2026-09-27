@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
 import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { ArrowRight, CalendarRange, ClipboardList, Plus } from 'lucide-react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Card } from '@/components/ui/Card';
-import { Spacing } from '@/constants/theme';
+import { Icon } from '@/components/ui/Icon';
+import { IconBadge } from '@/components/ui/IconBadge';
+import { ScreenScroll, SectionHeader } from '@/components/ui/Screen';
+import { Radius, Spacing } from '@/constants/theme';
 import { useOwnerEvents } from '@/hooks/useOwnerEvents';
 import { useOwnerOrders } from '@/hooks/useOwnerOrders';
 import { useTheme } from '@/hooks/useTheme';
@@ -39,22 +41,20 @@ export default function OwnerHomeScreen() {
   }, [eventsQuery.data]);
 
   return (
-    <ScrollView
-      style={[styles.scroll, { backgroundColor: theme.background }]}
-      contentContainerStyle={styles.content}
-    >
-      <ThemedText type="section">Orders</ThemedText>
+    <ScreenScroll>
+      <SectionHeader title="Orders" />
       <Card
-        tone="accent"
+        tone="primary"
         onPress={() => router.push('/(profile)/owner/orders')}
         accessibilityLabel={`Manage incoming orders: ${orderCounts.new} new, ${orderCounts.preparing} preparing, ${orderCounts.ready} ready`}
+        style={styles.ordersCard}
       >
         <View style={styles.cardHeader}>
-          <ClipboardList size={22} color={theme.onAccent} />
-          <ThemedText type="section" style={[styles.flex, { color: theme.onAccent }]}>
+          <IconBadge name="receipt" tone="accent" size={44} />
+          <ThemedText type="section" style={[styles.flex, { color: theme.onPrimary }]}>
             Manage orders
           </ThemedText>
-          <ArrowRight size={20} color={theme.onAccent} />
+          <Icon name="arrowRight" size={20} color={theme.onPrimary} weight="bold" />
         </View>
         <View style={styles.counters}>
           <Counter label="New" value={orderCounts.new} emphasized={orderCounts.new > 0} />
@@ -63,22 +63,20 @@ export default function OwnerHomeScreen() {
         </View>
       </Card>
 
-      <ThemedText type="section" style={styles.sectionTitle}>
-        Pop-ups
-      </ThemedText>
+      <SectionHeader title="Pop-ups" />
       <Card
-        tone="primary"
+        tone="brand"
         onPress={() => router.push('/(profile)/owner/event/new')}
         accessibilityLabel="Create a new pop-up event"
       >
         <View style={styles.cardHeader}>
-          <Plus size={24} color={theme.onPrimary} strokeWidth={3} />
-          <ThemedText type="section" style={[styles.flex, { color: theme.onPrimary }]}>
+          <IconBadge name="add" tone="card" size={44} />
+          <ThemedText type="section" style={[styles.flex, { color: theme.onBrand }]}>
             Create new pop-up
           </ThemedText>
-          <ArrowRight size={20} color={theme.onPrimary} />
+          <Icon name="arrowRight" size={20} color={theme.onBrand} weight="bold" />
         </View>
-        <ThemedText type="small" style={{ color: theme.onPrimary }}>
+        <ThemedText type="small" style={{ color: theme.onBrand }}>
           Set one up where you&apos;re standing, or plan the next one.
         </ThemedText>
       </Card>
@@ -88,18 +86,17 @@ export default function OwnerHomeScreen() {
         accessibilityLabel={`Manage pop-ups: ${eventCounts.live} live, ${eventCounts.upcoming} upcoming`}
       >
         <View style={styles.cardHeader}>
-          <CalendarRange size={22} color={theme.text} />
+          <IconBadge name="calendar" tone="muted" size={44} />
           <ThemedText type="section" style={styles.flex}>
             Manage pop-ups
           </ThemedText>
-          <ArrowRight size={20} color={theme.text} />
+          <Icon name="arrowRight" size={20} color={theme.text} weight="bold" />
         </View>
         <ThemedText type="small" themeColor="textSecondary">
-          {eventCounts.live} live · {eventCounts.upcoming} upcoming — QR codes, menus and
-          challenges.
+          {eventCounts.live} live · {eventCounts.upcoming} upcoming — QR codes, menus and challenges.
         </ThemedText>
       </Card>
-    </ScrollView>
+    </ScreenScroll>
   );
 }
 
@@ -107,19 +104,15 @@ export default function OwnerHomeScreen() {
 function Counter({ label, value, emphasized = false }: { label: string; value: number; emphasized?: boolean }) {
   const theme = useTheme();
   return (
-    <View
-      style={[
-        styles.counter,
-        {
-          backgroundColor: emphasized ? theme.highlight : theme.backgroundElement,
-          borderColor: theme.border,
-        },
-      ]}
-    >
-      <ThemedText type="subtitle" style={{ color: emphasized ? theme.onHighlight : theme.text }}>
+    <View style={[styles.counter, { backgroundColor: emphasized ? theme.brandFill : 'rgba(255, 255, 255, 0.08)' }]}>
+      <ThemedText type="subtitle" style={[styles.counterValue, { color: emphasized ? theme.onBrand : theme.onPrimary }]}>
         {value}
       </ThemedText>
-      <ThemedText type="label" style={{ color: emphasized ? theme.onHighlight : theme.text }}>
+      <ThemedText
+        type="small"
+        numberOfLines={1}
+        style={{ color: emphasized ? theme.onBrand : theme.onPrimary, opacity: 0.85 }}
+      >
         {label}
       </ThemedText>
     </View>
@@ -127,21 +120,13 @@ function Counter({ label, value, emphasized = false }: { label: string; value: n
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-  },
-  content: {
-    padding: Spacing.three,
-    paddingBottom: Spacing.six,
+  ordersCard: {
     gap: Spacing.three,
-  },
-  sectionTitle: {
-    marginTop: Spacing.three,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.two,
+    gap: Spacing.three,
   },
   flex: {
     flex: 1,
@@ -149,13 +134,16 @@ const styles = StyleSheet.create({
   counters: {
     flexDirection: 'row',
     gap: Spacing.two,
-    marginTop: Spacing.one,
   },
   counter: {
     flex: 1,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderRadius: 12,
-    paddingVertical: Spacing.two,
+    borderRadius: Radius.medium,
+    paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.two + 2,
+    gap: 2,
+  },
+  counterValue: {
+    fontSize: 36,
+    lineHeight: 38,
   },
 });

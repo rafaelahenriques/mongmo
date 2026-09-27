@@ -2,7 +2,9 @@ import { StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 
 import { ThemedText } from '@/components/ThemedText';
-import { Spacing } from '@/constants/theme';
+import { Card } from '@/components/ui/Card';
+import { IconBadge } from '@/components/ui/IconBadge';
+import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import type { CheckInRecord } from '@/types';
 
@@ -20,20 +22,20 @@ export default function PhotoGallery({ checkIns }: PhotoGalleryProps) {
 
   if (photos.length === 0) {
     return (
-      <View
-        accessibilityRole="text"
-        accessibilityLabel="No photos yet. Open an event and tap Check in to add one."
-        style={[
-          styles.empty,
-          { backgroundColor: theme.backgroundElement, borderColor: theme.border },
-        ]}
-      >
-        <ThemedText style={styles.emptyEmoji}>📸</ThemedText>
-        <ThemedText type="small" themeColor="textSecondary" style={styles.emptyText}>
-          No photos yet — open an event and tap <ThemedText type="smallBold">Check in</ThemedText>{' '}
-          to start your gallery.
-        </ThemedText>
-      </View>
+      <Card tone="muted" style={styles.empty}>
+        <View
+          accessible
+          accessibilityRole="text"
+          accessibilityLabel="No photos yet. Open an event and tap Check in to add one."
+          style={styles.emptyInner}
+        >
+          <IconBadge name="photo" tone="card" size={52} />
+          <ThemedText type="small" themeColor="textSecondary" style={styles.emptyText}>
+            No photos yet — open an event and tap <ThemedText type="smallBold">Check in</ThemedText> to start
+            your gallery.
+          </ThemedText>
+        </View>
+      </Card>
     );
   }
 
@@ -43,7 +45,7 @@ export default function PhotoGallery({ checkIns }: PhotoGalleryProps) {
         <View key={photo.eventId} style={styles.cell}>
           <Image
             source={{ uri: photo.imageUrl }}
-            style={styles.photo}
+            style={[styles.photo, { backgroundColor: theme.backgroundSelected }]}
             contentFit="cover"
             transition={200}
             accessibilityRole="image"
@@ -65,29 +67,25 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   cell: {
-    flexBasis: '31%',
-    flexGrow: 1,
+    // A third of the row each, so one photo doesn't stretch to full width.
+    width: '31.5%',
     gap: Spacing.half,
   },
   photo: {
     width: '100%',
     aspectRatio: 1,
-    borderRadius: 12,
+    borderRadius: Radius.medium,
   },
   caption: {
     fontSize: 12,
     lineHeight: 16,
   },
   empty: {
-    borderRadius: 14,
-    borderWidth: 2,
     padding: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.two,
   },
-  emptyEmoji: {
-    fontSize: 28,
-    lineHeight: 34,
+  emptyInner: {
+    alignItems: 'center',
+    gap: Spacing.three,
   },
   emptyText: {
     textAlign: 'center',

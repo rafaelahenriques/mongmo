@@ -4,12 +4,14 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-na
 import OwnerEventForm from '@/components/owner/OwnerEventForm';
 import { Spacing } from '@/constants/theme';
 import { useCreateEvent } from '@/hooks/useOwnerEvent';
+import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 
 /** Owner: create a new pop-up, then land on its manage screen (QR, menu, challenges). */
 export default function OwnerEventCreateScreen() {
   const theme = useTheme();
   const router = useRouter();
+  const tabBarInset = useTabBarInset();
   const createEvent = useCreateEvent();
 
   return (
@@ -17,7 +19,10 @@ export default function OwnerEventCreateScreen() {
       style={[styles.flex, { backgroundColor: theme.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + Spacing.five }]}
+        keyboardShouldPersistTaps="handled"
+      >
         <OwnerEventForm
           submitLabel="Create pop-up"
           pending={createEvent.isPending}
@@ -38,7 +43,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: Spacing.three,
-    paddingBottom: Spacing.six,
+    padding: Spacing.three + Spacing.one,
   },
 });

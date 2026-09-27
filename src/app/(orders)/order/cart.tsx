@@ -1,12 +1,17 @@
 import { useRouter } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { Minus, Plus, Trash2 } from 'lucide-react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import Chip from '@/components/ui/Chip';
+import { IconBadge } from '@/components/ui/IconBadge';
+import { IconButton } from '@/components/ui/IconButton';
 import { ScreenFooter } from '@/components/ui/ScreenFooter';
+import { Stepper } from '@/components/ui/Stepper';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/services/haptics';
 import { useCartStore, cartSubtotalCents } from '@/state/cartStore';
 import { formatCents } from '@/utils/orderFormat';
 
@@ -22,15 +27,16 @@ export default function OrderCartScreen() {
   if (items.length === 0) {
     return (
       <View style={[styles.empty, { backgroundColor: theme.background }]}>
-        <ThemedText type="section">Your cart is empty</ThemedText>
-        <ThemedText type="small" themeColor="textSecondary" style={styles.emptyBody}>
+        <IconBadge name="bag" size={64} />
+        <ThemedText type="subtitle">Your cart is empty</ThemedText>
+        <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
           Add something from the menu first.
         </ThemedText>
         <Button
           label="Back to menu"
           variant="secondary"
+          size="medium"
           onPress={() => router.push('/(orders)/order/menu')}
-          style={styles.emptyButton}
         />
       </View>
     );
@@ -39,66 +45,55 @@ export default function OrderCartScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <ScrollView contentContainerStyle={styles.content}>
-        <ThemedText type="small" themeColor="textSecondary">
-          {location?.type === 'event' ? `Pickup at the truck — ${location.eventTitle}` : 'Pickup at Mongmo café'}
-        </ThemedText>
+        <Chip
+          label={location?.type === 'event' ? `Pickup at the truck · ${location.eventTitle}` : 'Pickup at Mongmo café'}
+          icon={location?.type === 'event' ? 'takeout' : 'store'}
+        />
 
-        {items.map((item) => (
-          <View
-            key={item.menuItemId}
-            style={[styles.row, { borderColor: theme.border }]}
-          >
-            <View style={styles.rowTexts}>
-              <ThemedText type="smallBold">{item.name}</ThemedText>
-              <ThemedText type="small" themeColor="textSecondary">
-                {formatCents(item.priceCents)} each
-              </ThemedText>
+        <Card style={styles.list}>
+          {items.map((item, index) => (
+            <View key={item.menuItemId}>
+              {index > 0 ? <View style={[styles.divider, { backgroundColor: theme.border }]} /> : null}
+              <View style={styles.row}>
+                <View style={styles.rowTexts}>
+                  <ThemedText type="smallBold">{item.name}</ThemedText>
+                  <ThemedText type="small" themeColor="textSecondary">
+                    {formatCents(item.priceCents * item.quantity)}
+                  </ThemedText>
+                </View>
+                <Stepper
+                  value={item.quantity}
+                  onChange={(quantity) => setQuantity(item.menuItemId, quantity)}
+                  itemName={item.name}
+                />
+                <IconButton
+                  icon="trash"
+                  tone="muted"
+                  size={34}
+                  onPress={() => {
+                    haptics.warning();
+                    removeItem(item.menuItemId);
+                  }}
+                  accessibilityLabel={`Remove ${item.name} from cart`}
+                />
+              </View>
             </View>
-
-            <View style={styles.stepper}>
-              <Pressable
-                onPress={() => setQuantity(item.menuItemId, item.quantity - 1)}
-                accessibilityRole="button"
-                accessibilityLabel={`Decrease quantity of ${item.name}`}
-                style={[styles.stepButton, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
-              >
-                <Minus size={16} color={theme.text} />
-              </Pressable>
-              <ThemedText type="smallBold" style={styles.quantity}>
-                {item.quantity}
-              </ThemedText>
-              <Pressable
-                onPress={() => setQuantity(item.menuItemId, item.quantity + 1)}
-                accessibilityRole="button"
-                accessibilityLabel={`Increase quantity of ${item.name}`}
-                style={[styles.stepButton, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
-              >
-                <Plus size={16} color={theme.text} />
-              </Pressable>
-              <Pressable
-                onPress={() => removeItem(item.menuItemId)}
-                accessibilityRole="button"
-                accessibilityLabel={`Remove ${item.name} from cart`}
-                hitSlop={8}
-                style={styles.removeButton}
-              >
-                <Trash2 size={16} color={theme.danger} />
-              </Pressable>
-            </View>
-          </View>
-        ))}
+          ))}
+        </Card>
       </ScrollView>
 
       <ScreenFooter>
         <View style={styles.subtotalRow}>
-          <ThemedText type="section">Subtotal</ThemedText>
-          <ThemedText type="section" themeColor="primaryText">
-            {formatCents(cartSubtotalCents(items))}
+          <ThemedText type="small" themeColor="textSecondary">
+            Subtotal
           </ThemedText>
+          <ThemedText type="subtitle">{formatCents(cartSubtotalCents(items))}</ThemedText>
         </View>
         <Button
           label="Continue"
           accessibilityLabel="Continue to pickup time"
+          variant="brand"
+          arrow
           onPress={() => router.push('/(orders)/order/pickup-time')}
         />
       </ScreenFooter>
@@ -111,8 +106,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: Spacing.three,
-    gap: Spacing.two,
+    padding: Spacing.three + Spacing.one,
+    gap: Spacing.three,
   },
   empty: {
     flex: 1,
@@ -121,47 +116,30 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     padding: Spacing.four,
   },
-  emptyBody: {
+  center: {
     textAlign: 'center',
+    marginBottom: Spacing.two,
+  },
+  list: {
+    paddingVertical: Spacing.two,
+    gap: 0,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    paddingVertical: Spacing.two,
     gap: Spacing.two,
+    paddingVertical: Spacing.two + Spacing.one,
   },
   rowTexts: {
     flex: 1,
     gap: 2,
   },
-  stepper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.one,
-  },
-  stepButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  quantity: {
-    minWidth: 22,
-    textAlign: 'center',
-  },
-  removeButton: {
-    marginLeft: Spacing.two,
-    padding: Spacing.one,
+  divider: {
+    height: StyleSheet.hairlineWidth,
   },
   subtotalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-  },
-  emptyButton: {
-    marginTop: Spacing.two,
+    alignItems: 'baseline',
   },
 });

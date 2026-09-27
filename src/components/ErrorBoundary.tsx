@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
+import { IconBadge } from '@/components/ui/IconBadge';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -39,7 +40,8 @@ function ErrorFallback({ onRetry }: { onRetry: () => void }) {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]} accessibilityRole="alert">
-      <ThemedText type="title" style={[styles.title, { color: theme.primary }]}>
+      <IconBadge name="alert" size={72} />
+      <ThemedText type="title" style={styles.title}>
         Something went wrong
       </ThemedText>
       <ThemedText themeColor="textSecondary" style={styles.body}>
@@ -49,6 +51,7 @@ function ErrorFallback({ onRetry }: { onRetry: () => void }) {
       <Button
         label="Try again"
         accessibilityLabel="Dismiss the error and try again"
+        variant="brand"
         onPress={onRetry}
         style={styles.button}
       />
@@ -65,6 +68,7 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: 'center',
+    marginTop: Spacing.three,
   },
   body: {
     textAlign: 'center',

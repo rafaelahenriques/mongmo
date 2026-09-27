@@ -2,9 +2,9 @@ import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 
-import Chip from '@/components/ui/Chip';
+import { Icon } from '@/components/ui/Icon';
 import { ThemedText } from '@/components/ThemedText';
-import { Colors } from '@/constants/theme';
+import { Colors, Radius } from '@/constants/theme';
 import { useBusyStore } from '@/state/busyStore';
 import { useLocationStore } from '@/state/locationStore';
 import { useTheme } from '@/hooks/useTheme';
@@ -17,9 +17,8 @@ export type EventPinProps = {
   onPress: () => void;
 };
 
-/** Required pin color for pop-ups (design brief). */
-/** Brand red, same in both schemes — pins sit on the map, not on a themed surface. */
-const EVENT_RED = Colors.light.primary;
+/** Bold Red in both schemes — pins sit on the map, not on a themed surface. */
+const EVENT_RED = Colors.light.brandFill;
 
 /**
  * Pin for a temporary pop-up: red dot + pill with distance and the live
@@ -59,23 +58,20 @@ function EventPinComponent({ event, onPress }: EventPinProps) {
         onAccessibilityTap={onPress}
         style={[
           styles.pill,
-          { backgroundColor: theme.backgroundElement, borderColor: theme.border },
+          { backgroundColor: theme.backgroundElement, boxShadow: `0px 6px 16px rgba(42, 32, 32, 0.18)` },
         ]}
       >
-        <View style={[styles.dot, { backgroundColor: EVENT_RED }]} />
+        <View style={[styles.dot, { backgroundColor: EVENT_RED }]}>
+          <Icon name={phase === 'live' ? 'flame' : 'food'} size={14} color="#FFFFFF" />
+        </View>
         <View style={styles.texts}>
           <ThemedText type="smallBold" numberOfLines={1}>
             {event.title}
           </ThemedText>
-          <ThemedText
-            type="small"
-            numberOfLines={1}
-            style={isFull ? { color: theme.danger, fontWeight: '700' } : { color: theme.textSecondary }}
-          >
+          <ThemedText type={isFull ? 'smallBold' : 'small'} numberOfLines={1} themeColor={isFull ? 'danger' : 'textSecondary'}>
             {subline}
           </ThemedText>
         </View>
-        {isFull ? <Chip label="FULL" tone="danger" /> : null}
       </View>
     </Marker>
   );
@@ -88,18 +84,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
+    borderRadius: Radius.pill,
+    paddingLeft: 5,
+    paddingRight: 14,
+    paddingVertical: 5,
     maxWidth: 240,
   },
   dot: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
+    width: 30,
+    height: 30,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   texts: {
     flexShrink: 1,
