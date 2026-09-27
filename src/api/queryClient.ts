@@ -1,5 +1,5 @@
 import NetInfo from '@react-native-community/netinfo';
-import { QueryClient, onlineManager } from '@tanstack/react-query';
+import { QueryCache, QueryClient, onlineManager } from '@tanstack/react-query';
 
 /**
  * Drive react-query's online state from NetInfo. While offline, fetches pause
@@ -15,6 +15,16 @@ onlineManager.setEventListener((setOnline) =>
 );
 
 export const queryClient = new QueryClient({
+  // Screens only say "Couldn't load …"; in development, also print *why*
+  // (a missing grant, an empty table, an expired session…) to the Metro
+  // log, once per query after its retries are exhausted.
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      if (__DEV__) {
+        console.warn(`Query ${JSON.stringify(query.queryKey)} failed: ${error.message}`);
+      }
+    },
+  }),
   defaultOptions: {
     queries: {
       retry: 2,
