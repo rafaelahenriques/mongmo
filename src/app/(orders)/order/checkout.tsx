@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
 import { Spacing } from '@/constants/theme';
 import { usePlaceOrder } from '@/hooks/usePlaceOrder';
 import { useTheme } from '@/hooks/useTheme';
@@ -51,8 +52,8 @@ export default function OrderCheckoutScreen() {
       style={[styles.scroll, { backgroundColor: theme.background }]}
       contentContainerStyle={styles.content}
     >
-      <View style={[styles.prototypeBadge, { backgroundColor: theme.backgroundSelected }]}>
-        <ThemedText type="small" themeColor="textSecondary">
+      <View style={[styles.prototypeBadge, { backgroundColor: theme.accent, borderColor: theme.border }]}>
+        <ThemedText type="label" style={{ color: theme.onAccent }}>
           Prototype payment — no real card is charged
         </ThemedText>
       </View>
@@ -66,9 +67,11 @@ export default function OrderCheckoutScreen() {
         </View>
       ))}
 
-      <View style={[styles.row, styles.totalRow, { borderColor: theme.backgroundSelected }]}>
-        <ThemedText type="smallBold">Estimated total</ThemedText>
-        <ThemedText type="smallBold">{formatCents(cartSubtotalCents(items))}</ThemedText>
+      <View style={[styles.row, styles.totalRow, { borderColor: theme.border }]}>
+        <ThemedText type="section">Estimated total</ThemedText>
+        <ThemedText type="section" themeColor="primaryText">
+          {formatCents(cartSubtotalCents(items))}
+        </ThemedText>
       </View>
 
       {error ? (
@@ -77,24 +80,13 @@ export default function OrderCheckoutScreen() {
         </ThemedText>
       ) : null}
 
-      <Pressable
-        onPress={onPay}
-        disabled={placeOrder.isPending}
-        accessibilityRole="button"
+      <Button
+        label="Place order"
         accessibilityLabel="Place order with prototype payment"
-        style={({ pressed }) => [
-          styles.button,
-          { backgroundColor: '#8B4513', opacity: placeOrder.isPending ? 0.7 : pressed ? 0.9 : 1 },
-        ]}
-      >
-        {placeOrder.isPending ? (
-          <ActivityIndicator color="#FFFFFF" />
-        ) : (
-          <ThemedText type="smallBold" style={styles.buttonText}>
-            Place order
-          </ThemedText>
-        )}
-      </Pressable>
+        onPress={onPay}
+        loading={placeOrder.isPending}
+        style={styles.button}
+      />
     </ScrollView>
   );
 }
@@ -109,6 +101,7 @@ const styles = StyleSheet.create({
   },
   prototypeBadge: {
     borderRadius: 10,
+    borderWidth: 2,
     padding: Spacing.two,
     marginBottom: Spacing.two,
     alignItems: 'center',
@@ -124,12 +117,5 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: Spacing.four,
-    minHeight: 50,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: '#FFFFFF',
   },
 });

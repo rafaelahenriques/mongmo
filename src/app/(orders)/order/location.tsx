@@ -66,7 +66,7 @@ export default function OrderLocationScreen() {
           accessibilityLabel={`At Mongmo café, ${storeQuery.data.address}`}
           style={({ pressed }) => [
             styles.card,
-            { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected, opacity: pressed ? 0.85 : 1 },
+            { backgroundColor: theme.backgroundElement, borderColor: theme.border, opacity: pressed ? 0.85 : 1 },
           ]}
         >
           <ThemedText type="smallBold">At Mongmo café</ThemedText>
@@ -84,7 +84,7 @@ export default function OrderLocationScreen() {
           accessibilityLabel={`At the pop-up, ${event.title}, ${event.venue}`}
           style={({ pressed }) => [
             styles.card,
-            { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected, opacity: pressed ? 0.85 : 1 },
+            { backgroundColor: theme.backgroundElement, borderColor: theme.border, opacity: pressed ? 0.85 : 1 },
           ]}
         >
           <ThemedText type="smallBold">Pickup at the truck — {event.title}</ThemedText>
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 16,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.three,
     gap: Spacing.half,
   },

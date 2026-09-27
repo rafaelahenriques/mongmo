@@ -11,6 +11,7 @@ export type OwnerEventSummary = {
   venue: string;
   startsAt: string;
   endsAt: string;
+  timeZone: string;
   status: 'scheduled' | 'live' | 'ended' | 'cancelled';
   capacity: number;
 };
@@ -19,7 +20,7 @@ export type OwnerEventSummary = {
 export async function getOwnerEvents(): Promise<OwnerEventSummary[]> {
   const { data, error } = await supabase
     .from('events')
-    .select('id, title, type, city, venue, starts_at, ends_at, status, capacity')
+    .select('id, title, type, city, venue, starts_at, ends_at, time_zone, status, capacity')
     .order('starts_at', { ascending: false });
   if (error) throw toApiError(error);
 
@@ -31,6 +32,7 @@ export async function getOwnerEvents(): Promise<OwnerEventSummary[]> {
     venue: row.venue,
     startsAt: row.starts_at,
     endsAt: row.ends_at,
+    timeZone: row.time_zone,
     status: row.status,
     capacity: row.capacity,
   }));

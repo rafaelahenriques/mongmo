@@ -3,6 +3,8 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Minus, Plus, Trash2 } from 'lucide-react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
+import { ScreenFooter } from '@/components/ui/ScreenFooter';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useCartStore, cartSubtotalCents } from '@/state/cartStore';
@@ -20,18 +22,16 @@ export default function OrderCartScreen() {
   if (items.length === 0) {
     return (
       <View style={[styles.empty, { backgroundColor: theme.background }]}>
-        <ThemedText type="smallBold">Your cart is empty</ThemedText>
+        <ThemedText type="section">Your cart is empty</ThemedText>
         <ThemedText type="small" themeColor="textSecondary" style={styles.emptyBody}>
           Add something from the menu first.
         </ThemedText>
-        <Pressable
+        <Button
+          label="Back to menu"
+          variant="secondary"
           onPress={() => router.push('/(orders)/order/menu')}
-          accessibilityRole="button"
-          accessibilityLabel="Back to menu"
-          style={({ pressed }) => [styles.button, { backgroundColor: theme.backgroundSelected, opacity: pressed ? 0.8 : 1 }]}
-        >
-          <ThemedText type="smallBold">Back to menu</ThemedText>
-        </Pressable>
+          style={styles.emptyButton}
+        />
       </View>
     );
   }
@@ -46,7 +46,7 @@ export default function OrderCartScreen() {
         {items.map((item) => (
           <View
             key={item.menuItemId}
-            style={[styles.row, { borderColor: theme.backgroundSelected }]}
+            style={[styles.row, { borderColor: theme.border }]}
           >
             <View style={styles.rowTexts}>
               <ThemedText type="smallBold">{item.name}</ThemedText>
@@ -60,7 +60,7 @@ export default function OrderCartScreen() {
                 onPress={() => setQuantity(item.menuItemId, item.quantity - 1)}
                 accessibilityRole="button"
                 accessibilityLabel={`Decrease quantity of ${item.name}`}
-                style={[styles.stepButton, { backgroundColor: theme.backgroundSelected }]}
+                style={[styles.stepButton, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
               >
                 <Minus size={16} color={theme.text} />
               </Pressable>
@@ -71,7 +71,7 @@ export default function OrderCartScreen() {
                 onPress={() => setQuantity(item.menuItemId, item.quantity + 1)}
                 accessibilityRole="button"
                 accessibilityLabel={`Increase quantity of ${item.name}`}
-                style={[styles.stepButton, { backgroundColor: theme.backgroundSelected }]}
+                style={[styles.stepButton, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
               >
                 <Plus size={16} color={theme.text} />
               </Pressable>
@@ -89,22 +89,19 @@ export default function OrderCartScreen() {
         ))}
       </ScrollView>
 
-      <View style={[styles.footer, { borderColor: theme.backgroundSelected }]}>
+      <ScreenFooter>
         <View style={styles.subtotalRow}>
-          <ThemedText type="smallBold">Subtotal</ThemedText>
-          <ThemedText type="smallBold">{formatCents(cartSubtotalCents(items))}</ThemedText>
-        </View>
-        <Pressable
-          onPress={() => router.push('/(orders)/order/pickup-time')}
-          accessibilityRole="button"
-          accessibilityLabel="Continue to pickup time"
-          style={({ pressed }) => [styles.button, { backgroundColor: '#8B4513', opacity: pressed ? 0.9 : 1 }]}
-        >
-          <ThemedText type="smallBold" style={styles.buttonText}>
-            Continue
+          <ThemedText type="section">Subtotal</ThemedText>
+          <ThemedText type="section" themeColor="primaryText">
+            {formatCents(cartSubtotalCents(items))}
           </ThemedText>
-        </Pressable>
-      </View>
+        </View>
+        <Button
+          label="Continue"
+          accessibilityLabel="Continue to pickup time"
+          onPress={() => router.push('/(orders)/order/pickup-time')}
+        />
+      </ScreenFooter>
     </View>
   );
 }
@@ -145,9 +142,10 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
   },
   stepButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -159,22 +157,11 @@ const styles = StyleSheet.create({
     marginLeft: Spacing.two,
     padding: Spacing.one,
   },
-  footer: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    padding: Spacing.three,
-    gap: Spacing.two,
-  },
   subtotalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  button: {
-    minHeight: 48,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: '#FFFFFF',
+  emptyButton: {
+    marginTop: Spacing.two,
   },
 });

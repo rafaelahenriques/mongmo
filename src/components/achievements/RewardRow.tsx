@@ -22,7 +22,7 @@ export default function RewardRow({ reward, points, redeemedCount, onRedeem }: R
     <View
       style={[
         styles.row,
-        { backgroundColor: theme.backgroundElement, borderColor: theme.backgroundSelected },
+        { backgroundColor: theme.backgroundElement, borderColor: theme.border },
       ]}
     >
       <View style={styles.texts}>
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.two,
     borderRadius: 14,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 2,
     padding: Spacing.three,
   },
   texts: {

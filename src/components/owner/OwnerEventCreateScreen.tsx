@@ -1,33 +1,44 @@
 import { useRouter } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 
 import OwnerEventForm from '@/components/owner/OwnerEventForm';
+import { Spacing } from '@/constants/theme';
 import { useCreateEvent } from '@/hooks/useOwnerEvent';
 import { useTheme } from '@/hooks/useTheme';
 
-/** Owner: create a new pop-up event. */
+/** Owner: create a new pop-up, then land on its manage screen (QR, menu, challenges). */
 export default function OwnerEventCreateScreen() {
   const theme = useTheme();
   const router = useRouter();
   const createEvent = useCreateEvent();
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <OwnerEventForm
-        submitLabel="Create event"
-        pending={createEvent.isPending}
-        onSubmit={(input) =>
-          createEvent.mutate(input, {
-            onSuccess: (id) => router.replace({ pathname: '/(profile)/owner/event/[id]', params: { id } }),
-          })
-        }
-      />
-    </View>
+    <KeyboardAvoidingView
+      style={[styles.flex, { backgroundColor: theme.background }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <OwnerEventForm
+          submitLabel="Create pop-up"
+          pending={createEvent.isPending}
+          submitError={createEvent.error?.message}
+          onSubmit={(input) =>
+            createEvent.mutate(input, {
+              onSuccess: (id) => router.replace({ pathname: '/(profile)/owner/event/[id]', params: { id } }),
+            })
+          }
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  flex: {
     flex: 1,
+  },
+  content: {
+    padding: Spacing.three,
+    paddingBottom: Spacing.six,
   },
 });

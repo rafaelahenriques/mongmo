@@ -5,6 +5,7 @@ import * as Haptics from 'expo-haptics';
 import { Minus, Plus } from 'lucide-react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
 import { Spacing } from '@/constants/theme';
 import { useMenu } from '@/hooks/useMenu';
 import { useTheme } from '@/hooks/useTheme';
@@ -60,40 +61,38 @@ export default function OrderItemScreen() {
           {item.description}
         </ThemedText>
       ) : null}
-      <ThemedText type="smallBold">{formatCents(item.priceCents)}</ThemedText>
+      <ThemedText type="section" themeColor="primaryText">
+        {formatCents(item.priceCents)}
+      </ThemedText>
 
       <View style={styles.stepper}>
         <Pressable
           onPress={() => setQuantity((current) => Math.max(1, current - 1))}
           accessibilityRole="button"
           accessibilityLabel="Decrease quantity"
-          style={[styles.stepButton, { backgroundColor: theme.backgroundSelected }]}
+          style={[styles.stepButton, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
         >
           <Minus size={18} color={theme.text} />
         </Pressable>
-        <ThemedText type="smallBold" style={styles.quantity}>
+        <ThemedText type="subtitle" style={styles.quantity}>
           {quantity}
         </ThemedText>
         <Pressable
           onPress={() => setQuantity((current) => current + 1)}
           accessibilityRole="button"
           accessibilityLabel="Increase quantity"
-          style={[styles.stepButton, { backgroundColor: theme.backgroundSelected }]}
+          style={[styles.stepButton, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
         >
           <Plus size={18} color={theme.text} />
         </Pressable>
       </View>
 
-      <Pressable
-        onPress={onAdd}
-        accessibilityRole="button"
+      <Button
+        label={`Add to cart · ${formatCents(item.priceCents * quantity)}`}
         accessibilityLabel={`Add ${quantity} ${item.name} to cart, ${formatCents(item.priceCents * quantity)}`}
-        style={({ pressed }) => [styles.addButton, { backgroundColor: '#8B4513', opacity: pressed ? 0.9 : 1 }]}
-      >
-        <ThemedText type="smallBold" style={styles.addText}>
-          Add to cart · {formatCents(item.priceCents * quantity)}
-        </ThemedText>
-      </Pressable>
+        onPress={onAdd}
+        style={styles.addButton}
+      />
     </View>
   );
 }
@@ -110,8 +109,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 26,
-    lineHeight: 32,
+    fontSize: 36,
+    lineHeight: 38,
   },
   stepper: {
     flexDirection: 'row',
@@ -120,25 +119,18 @@ const styles = StyleSheet.create({
     marginTop: Spacing.three,
   },
   stepButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   quantity: {
-    fontSize: 20,
     minWidth: 28,
     textAlign: 'center',
   },
   addButton: {
     marginTop: Spacing.four,
-    minHeight: 50,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  addText: {
-    color: '#FFFFFF',
   },
 });

@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Switch, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
 import { Spacing } from '@/constants/theme';
 import { useProfile, useSetLeaderboardVisible } from '@/hooks/useProfile';
 import { useTheme } from '@/hooks/useTheme';
@@ -43,8 +44,8 @@ function NotificationToggleRow({
         value={value}
         onValueChange={onValueChange}
         accessibilityLabel={label}
-        trackColor={{ true: theme.success, false: theme.backgroundSelected }}
-        thumbColor="#FFFFFF"
+        trackColor={{ true: theme.primary, false: theme.backgroundSelected }}
+        thumbColor={theme.backgroundElement}
       />
     </View>
   );
@@ -67,7 +68,7 @@ export default function SettingsPanel() {
   const setLeaderboardVisible = useSetLeaderboardVisible();
 
   return (
-    <View style={[styles.panel, { borderColor: theme.backgroundSelected }]}>
+    <View style={[styles.panel, { borderColor: theme.border }]}>
       {NOTIFICATION_OPTIONS.map((option) => (
         <NotificationToggleRow
           key={option.key}
@@ -102,7 +103,7 @@ export default function SettingsPanel() {
           </ThemedText>
         </View>
         <View
-          style={[styles.segment, { backgroundColor: theme.backgroundElement }]}
+          style={[styles.segment, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
           accessibilityRole="tablist"
           accessibilityLabel="Appearance"
         >
@@ -117,13 +118,13 @@ export default function SettingsPanel() {
                 accessibilityLabel={`${option.label} appearance`}
                 style={[
                   styles.segmentItem,
-                  selected && { backgroundColor: theme.backgroundSelected },
+                  selected && { backgroundColor: theme.highlight },
                 ]}
               >
                 <ThemedText
-                  type="small"
+                  type="label"
                   themeColor={selected ? undefined : 'textSecondary'}
-                  style={selected ? styles.segmentSelectedText : undefined}
+                  style={selected ? { color: theme.onHighlight } : undefined}
                 >
                   {option.label}
                 </ThemedText>
@@ -133,16 +134,7 @@ export default function SettingsPanel() {
         </View>
       </View>
 
-      <Pressable
-        onPress={confirmLogOut}
-        accessibilityRole="button"
-        accessibilityLabel="Log out"
-        style={({ pressed }) => [styles.logout, { opacity: pressed ? 0.7 : 1 }]}
-      >
-        <ThemedText type="smallBold" style={styles.logoutText}>
-          Log out
-        </ThemedText>
-      </Pressable>
+      <Button label="Log out" variant="secondary" onPress={confirmLogOut} style={styles.logout} />
     </View>
   );
 }
@@ -165,6 +157,7 @@ const styles = StyleSheet.create({
   segment: {
     flexDirection: 'row',
     borderRadius: 999,
+    borderWidth: 2,
     padding: Spacing.half,
     gap: Spacing.half,
   },
@@ -175,18 +168,7 @@ const styles = StyleSheet.create({
     minWidth: 56,
     alignItems: 'center',
   },
-  segmentSelectedText: {
-    fontWeight: '700',
-  },
   logout: {
-    minHeight: 46,
-    borderRadius: 12,
-    backgroundColor: '#B3261E',
-    alignItems: 'center',
-    justifyContent: 'center',
     marginTop: Spacing.one,
-  },
-  logoutText: {
-    color: '#FFFFFF',
   },
 });

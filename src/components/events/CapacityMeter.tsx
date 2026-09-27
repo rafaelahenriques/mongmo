@@ -32,13 +32,13 @@ function CapacityMeterComponent({ occupancy, capacity, label }: CapacityMeterPro
       style={styles.wrap}
     >
       <View style={styles.header}>
-        <ThemedText type="smallBold">{label}</ThemedText>
+        <ThemedText type="label">{label}</ThemedText>
         <ThemedText type="small" style={{ color: isFull ? theme.danger : theme.textSecondary }}>
           {valueText}
         </ThemedText>
       </View>
       <View
-        style={[styles.track, { backgroundColor: theme.backgroundSelected }]}
+        style={[styles.track, { backgroundColor: theme.backgroundSelected, borderColor: theme.border }]}
         importantForAccessibility="no"
       >
         <View
@@ -61,13 +61,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   track: {
-    height: 8,
-    borderRadius: 4,
+    height: 12,
+    borderRadius: 6,
+    borderWidth: 1.5,
     overflow: 'hidden',
   },
   fill: {
     height: '100%',
-    borderRadius: 4,
     flexBasis: 0,
   },
 });
