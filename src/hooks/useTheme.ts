@@ -11,10 +11,15 @@ import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useSettingsStore } from '@/state/settingsStore';
 
-export function useTheme() {
+/** Resolved scheme after the settings override ('unspecified' falls back to light). */
+export function useResolvedScheme(): 'light' | 'dark' {
   const systemScheme = useColorScheme();
   const themeMode = useSettingsStore((state) => state.themeMode);
 
   const scheme = themeMode === 'system' ? systemScheme : themeMode;
-  return Colors[scheme === 'unspecified' ? 'light' : scheme];
+  return scheme === 'unspecified' ? 'light' : scheme;
+}
+
+export function useTheme() {
+  return Colors[useResolvedScheme()];
 }
