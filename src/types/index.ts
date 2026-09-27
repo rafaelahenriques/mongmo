@@ -184,6 +184,8 @@ export type ChallengeConfigByType = {
   streak: { popupCount: number };
   /** Vote for one of `options`. */
   community: { options: string[] };
+  /** Keep the phone moving for `seconds` (a dance meter, for DJ nights). */
+  motion: { seconds: number };
 };
 
 /** A challenge type with its settings; checking `type` narrows `config`. */
