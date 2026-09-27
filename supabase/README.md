@@ -26,7 +26,7 @@ Postgres so the client can only ever *ask*, never *decide*.
    `supabase/seed.sql`, and **Run**. It's idempotent, and its pop-up dates
    are relative to "now" — re-run it whenever you want a live pop-up again
    (it refreshes the seven demo pop-ups, from two days ago to two weeks out,
-   and their challenges).
+   their challenges, and how busy they are).
 4. Copy `.env.example` to `.env` and fill in the project URL and anon key
    (Supabase dashboard → Project Settings → API, or the values `supabase
    start` prints for a local project).
@@ -127,6 +127,26 @@ caches your profile, so it won't notice the new role until it refetches.
 Once you're an owner, the Profile tab shows an "Owner tools" card, and you can promote others from
 there too if owner UI for that gets added later (right now, only the schema
 supports it — see `is_owner()` and the `prevent_role_escalation` trigger).
+
+## Cleaning up for a demo or submission
+
+`supabase/scripts/clean_accounts.sql` deletes every account, with
+everything it made: check-ins, challenge completions, points, badges,
+rewards, orders, and the pop-ups it created. The demo pop-ups from
+`seed.sql` stay. It also deletes every challenge-photo record. There's no
+undo, so do it in this order:
+
+1. **Photos:** dashboard → **Storage** → `challenge-photos` → "..." →
+   **Empty bucket**. Supabase deletes stored files only through its Storage
+   API, not from SQL. The job is queued and can take a few minutes.
+2. **Accounts:** to keep some (e.g. your own owner account), put their
+   emails in the script's `array[...]` first. Then paste the whole file
+   into the **SQL Editor** and **Run**. It ends by listing what's left.
+3. **Demo:** re-run `seed.sql`, which puts the demo pop-ups back on
+   today's dates and resets how busy they are.
+
+If you deleted your own account too, sign up again and follow
+[Becoming an owner](#becoming-an-owner).
 
 ## Troubleshooting
 

@@ -48,13 +48,14 @@ insert into public.stores (
 on conflict (id) do nothing;
 
 -- ------------------------------------------------------------------
--- Events: three pop-ups, Kortrijk and Antwerpen, dated relative to when
--- this runs (Brussels wall-clock time) instead of fixed calendar dates,
--- which would all be in the past a few days after writing them.
+-- Events: seven demo pop-ups, dated relative to when this runs (Brussels
+-- wall-clock time) instead of fixed calendar dates, which would all be in
+-- the past a few days after writing them.
 --   e1: ended two days ago
---   e2: upcoming, in three days
---   e3: live right now (started an hour ago, ends in five) — the one with
---       challenges, so check-in and the challenge engine can be tried today.
+--   e3: live right now (started an hour ago, ends in five), so check-in,
+--       ordering and the challenges can be tried today
+--   e4: tomorrow night; e2, e5, e6, e7: three days to two weeks out
+-- Re-running moves them back to these dates and resets how busy they are.
 -- ------------------------------------------------------------------
 insert into public.events (
   id, title, type, city, venue, latitude, longitude, starts_at, ends_at, time_zone,
@@ -140,7 +141,8 @@ insert into public.events (
 on conflict (id) do update set
   starts_at = excluded.starts_at,
   ends_at = excluded.ends_at,
-  status = excluded.status;
+  status = excluded.status,
+  occupancy = excluded.occupancy;
 
 insert into public.event_menus (event_id, menu_id)
 select id, '00000000-0000-0000-0000-0000000000d1'
