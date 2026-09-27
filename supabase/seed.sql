@@ -1,18 +1,25 @@
 -- Local/demo seed data, modeled on the real Mongmo site (mongmo-store.com)
--- and its published pop-up calendar. Re-applied whenever you run
--- `supabase db reset`. Not meant for a production project.
+-- and its published pop-up calendar. Not meant for a production project.
+--
+-- `supabase db reset` applies this automatically for a local project, but
+-- `supabase db push` does NOT — for a hosted project, paste this file into
+-- the dashboard's SQL Editor (see supabase/README.md). It's safe to re-run:
+-- every insert is idempotent, and re-running refreshes the pop-up dates so
+-- there's always one live, one upcoming and one past event to try.
 
 -- ------------------------------------------------------------------
 -- Menu: Mongmo's core Vietnamese menu, shared by the store and every event.
 -- ------------------------------------------------------------------
 insert into public.menus (id, name, description, active) values
-  ('00000000-0000-0000-0000-0000000000d1', 'Mongmo pop-up menu', 'Vietnamese coffee and pastries, available until sold out.', true);
+  ('00000000-0000-0000-0000-0000000000d1', 'Mongmo pop-up menu', 'Vietnamese coffee and pastries, available until sold out.', true)
+on conflict (id) do nothing;
 
 insert into public.menu_items (id, menu_id, name, description, price_cents, category, sort_order, available) values
   ('00000000-0000-0000-0000-0000000000d2', '00000000-0000-0000-0000-0000000000d1', 'Bánh mì', 'Grilled pork, pickled vegetables & coriander', 650, 'savoury', 1, true),
   ('00000000-0000-0000-0000-0000000000d3', '00000000-0000-0000-0000-0000000000d1', 'Chả giò', 'Crispy spring rolls, 4 pieces', 500, 'savoury', 2, true),
   ('00000000-0000-0000-0000-0000000000d4', '00000000-0000-0000-0000-0000000000d1', 'Cà phê sữa đá', 'Iced coffee with condensed milk', 350, 'drinks', 3, true),
-  ('00000000-0000-0000-0000-0000000000d5', '00000000-0000-0000-0000-0000000000d1', 'Bánh flan', 'Coconut crème caramel', 400, 'sweets', 4, true);
+  ('00000000-0000-0000-0000-0000000000d5', '00000000-0000-0000-0000-0000000000d1', 'Bánh flan', 'Coconut crème caramel', 400, 'sweets', 4, true)
+on conflict (id) do nothing;
 
 -- ------------------------------------------------------------------
 -- Store: the one permanent Mongmo café, Kortrijk.
@@ -37,10 +44,17 @@ insert into public.stores (
   '+32 56 94 43 81',
   'https://bestel.mongmo-store.com/nl',
   '00000000-0000-0000-0000-0000000000d1'
-);
+)
+on conflict (id) do nothing;
 
 -- ------------------------------------------------------------------
--- Events: three pop-ups, Kortrijk and Antwerpen.
+-- Events: three pop-ups, Kortrijk and Antwerpen, dated relative to when
+-- this runs (Brussels wall-clock time) instead of fixed calendar dates,
+-- which would all be in the past a few days after writing them.
+--   e1: ended two days ago
+--   e2: upcoming, in three days
+--   e3: live right now (started an hour ago, ends in five) — the one with
+--       challenges, so check-in and the challenge engine can be tried today.
 -- ------------------------------------------------------------------
 insert into public.events (
   id, title, type, city, venue, latitude, longitude, starts_at, ends_at, time_zone,
@@ -49,7 +63,10 @@ insert into public.events (
   (
     '00000000-0000-0000-0000-0000000000e1',
     'Bar Amorse × Mongmo', 'bar-takeover', 'Kortrijk', 'In front of Mongmo, Jan Palfijnstraat 26',
-    50.8300, 3.2685, '2026-09-25T17:00:00+02:00', '2026-09-25T23:00:00+02:00', 'Europe/Brussels',
+    50.8300, 3.2685,
+    (date_trunc('day', now() at time zone 'Europe/Brussels') - interval '2 days' + interval '17 hours') at time zone 'Europe/Brussels',
+    (date_trunc('day', now() at time zone 'Europe/Brussels') - interval '2 days' + interval '23 hours') at time zone 'Europe/Brussels',
+    'Europe/Brussels',
     'Bar Amorse takes over the street in front of Mongmo for an evening of natural wine, records and Vietnamese bar snacks.',
     'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80',
     array['Food & drinks', 'Music'], 80, 18, 'ended', 'https://bestel.mongmo-store.com/nl'
@@ -57,32 +74,44 @@ insert into public.events (
   (
     '00000000-0000-0000-0000-0000000000e2',
     'Moonfest Chinatown Antwerpen', 'city-pop-up', 'Antwerpen', 'Van Wesenbekestraat, Chinatown',
-    51.2178, 4.4175, '2026-09-26T12:00:00+02:00', '2026-09-26T22:00:00+02:00', 'Europe/Brussels',
+    51.2178, 4.4175,
+    (date_trunc('day', now() at time zone 'Europe/Brussels') + interval '3 days' + interval '12 hours') at time zone 'Europe/Brussels',
+    (date_trunc('day', now() at time zone 'Europe/Brussels') + interval '3 days' + interval '22 hours') at time zone 'Europe/Brussels',
+    'Europe/Brussels',
     'Moonfest lights up Antwerp''s Chinatown with lanterns, street food and live performances — Mongmo brings a full bakery stand.',
     'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80',
-    array['Festival', 'Street food'], 400, 140, 'ended', 'https://bestel.mongmo-store.com/nl'
+    array['Festival', 'Street food'], 400, 140, 'scheduled', 'https://bestel.mongmo-store.com/nl'
   ),
   (
     '00000000-0000-0000-0000-0000000000e3',
     'Bar Amorse × Mongmo', 'bar-takeover', 'Kortrijk', 'In front of Mongmo, Jan Palfijnstraat 26',
-    50.8279, 3.2649, '2026-09-27T12:00:00+02:00', '2026-09-27T18:00:00+02:00', 'Europe/Brussels',
-    'A Sunday wrap-up session with Bar Amorse: brunch plates, coffee from the bakery and slow records on the street.',
+    50.8279, 3.2649,
+    date_trunc('hour', now()) - interval '1 hour',
+    date_trunc('hour', now()) + interval '5 hours',
+    'Europe/Brussels',
+    'A wrap-up session with Bar Amorse: brunch plates, coffee from the bakery and slow records on the street.',
     'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80',
     array['Food & drinks', 'Music'], 80, 9, 'live', 'https://bestel.mongmo-store.com/nl'
-  );
+  )
+on conflict (id) do update set
+  starts_at = excluded.starts_at,
+  ends_at = excluded.ends_at,
+  status = excluded.status;
 
 insert into public.event_menus (event_id, menu_id) values
   ('00000000-0000-0000-0000-0000000000e1', '00000000-0000-0000-0000-0000000000d1'),
   ('00000000-0000-0000-0000-0000000000e2', '00000000-0000-0000-0000-0000000000d1'),
-  ('00000000-0000-0000-0000-0000000000e3', '00000000-0000-0000-0000-0000000000d1');
+  ('00000000-0000-0000-0000-0000000000e3', '00000000-0000-0000-0000-0000000000d1')
+on conflict do nothing;
 
 -- One challenge per category on the live event, so the generic engine has
 -- something of every type to render.
-insert into public.challenges (event_id, type, title, description, points, sort_order) values
-  ('00000000-0000-0000-0000-0000000000e3', 'check_in', 'Scan in at Bar Amorse', 'Scan the event QR code when you arrive.', 20, 1),
-  ('00000000-0000-0000-0000-0000000000e3', 'taste', 'Rate the bánh mì', 'Tell us what you thought after you eat.', 15, 2),
-  ('00000000-0000-0000-0000-0000000000e3', 'social', 'Bring a friend', 'Share your referral code with someone new.', 25, 3),
-  ('00000000-0000-0000-0000-0000000000e3', 'discovery', 'Find the hidden sticker', 'Look for the Mongmo sticker somewhere on the street.', 20, 4);
+insert into public.challenges (id, event_id, type, title, description, points, sort_order) values
+  ('00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000e3', 'check_in', 'Scan in at Bar Amorse', 'Scan the event QR code when you arrive.', 20, 1),
+  ('00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000e3', 'taste', 'Rate the bánh mì', 'Tell us what you thought after you eat.', 15, 2),
+  ('00000000-0000-0000-0000-0000000000c3', '00000000-0000-0000-0000-0000000000e3', 'social', 'Bring a friend', 'Share your referral code with someone new.', 25, 3),
+  ('00000000-0000-0000-0000-0000000000c4', '00000000-0000-0000-0000-0000000000e3', 'discovery', 'Find the hidden sticker', 'Look for the Mongmo sticker somewhere on the street.', 20, 4)
+on conflict (id) do nothing;
 
 -- ------------------------------------------------------------------
 -- Badges: the fixed, developer-defined achievement ladder.
@@ -95,14 +124,16 @@ insert into public.badges (key, title, description, emoji, points, sort_order) v
   ('memory-maker', 'Memory Maker', 'Complete 3 challenges', '📸', 75, 5),
   ('first-order', 'First Order', 'Place your first order', '🧋', 25, 6),
   ('regular', 'Regular', 'Place 3 orders', '🔁', 75, 7),
-  ('event-eater', 'Event Eater', 'Order at 2 different pop-ups', '🍜', 50, 8);
+  ('event-eater', 'Event Eater', 'Order at 2 different pop-ups', '🍜', 50, 8)
+on conflict (key) do nothing;
 
 -- ------------------------------------------------------------------
 -- Rewards: kept deliberately simple (flat discounts or a free item),
 -- per AGENTS.md's guidance to avoid stacked/percentage reward rules.
 -- ------------------------------------------------------------------
-insert into public.rewards (title, description, cost_points, discount_cents, active) values
-  ('Mongmo sticker pack', 'Limited pop-up artwork, 4 pieces', 100, null, true),
-  ('€2 off your next order', 'Pickup or delivery, one-time use', 150, 200, true),
-  ('Free cà phê sữa đá', 'Any size, on us', 200, null, true),
-  ('Free bánh mì', 'Grilled pork or tofu, your pick', 350, null, true);
+insert into public.rewards (id, title, description, cost_points, discount_cents, active) values
+  ('00000000-0000-0000-0000-0000000000a1', 'Mongmo sticker pack', 'Limited pop-up artwork, 4 pieces', 100, null, true),
+  ('00000000-0000-0000-0000-0000000000a2', '€2 off your next order', 'Pickup or delivery, one-time use', 150, 200, true),
+  ('00000000-0000-0000-0000-0000000000a3', 'Free cà phê sữa đá', 'Any size, on us', 200, null, true),
+  ('00000000-0000-0000-0000-0000000000a4', 'Free bánh mì', 'Grilled pork or tofu, your pick', 350, null, true)
+on conflict (id) do nothing;
