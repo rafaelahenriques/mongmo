@@ -13,6 +13,11 @@ const BADGE_ICONS: Record<string, IconName> = {
   'first-order': 'coffee',
   regular: 'repeat',
   'event-eater': 'food',
+  'city-hopper': 'pin',
+  'event-hopper': 'ticket',
+  shutterbug: 'photo',
+  'taste-tester': 'star',
+  'challenge-champion': 'medal',
 };
 
 export function badgeIcon(key: string | undefined): IconName {
