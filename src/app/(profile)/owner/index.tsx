@@ -1,3 +1,3 @@
-import OwnerEventsScreen from '@/components/owner/OwnerEventsScreen';
+import OwnerHomeScreen from '@/components/owner/OwnerHomeScreen';
 
-export default OwnerEventsScreen;
+export default OwnerHomeScreen;
