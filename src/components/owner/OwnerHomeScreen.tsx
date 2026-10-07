@@ -111,6 +111,8 @@ function Counter({ label, value, emphasized = false }: { label: string; value: n
       <ThemedText
         type="small"
         numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.8}
         style={{ color: emphasized ? theme.onBrand : theme.onPrimary, opacity: 0.85 }}
       >
         {label}
