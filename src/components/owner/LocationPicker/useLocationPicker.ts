@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { haptics } from '@/services/haptics';
 import { describePlace, getCurrentPlace, searchPlace } from '@/services/location';
+import type { PlaceSuggestion } from '@/services/placeSearch';
 import type { Coordinates } from '@/types';
 
 /** The form's location fields. Coordinates stay text so they can be typed on web. */
@@ -32,9 +33,12 @@ const coordinateText = (coordinates: Coordinates) => ({
 });
 
 /**
- * The three ways to set where a pop-up is, shared by the native picker (with
- * a map) and the web one:
- *  - search an address: moves the pin there and names the city and street;
+ * The ways to set where a pop-up is, shared by the native picker (with a
+ * map) and the web one:
+ *  - pick an address suggestion while typing: moves the pin there and fills
+ *    in the venue and city;
+ *  - search the typed text (the fallback when there's no suggestion): the
+ *    same, through the OS geocoder;
  *  - use my current location: pins where the owner stands, and suggests a
  *    city and street only where they're still empty;
  *  - move the pin: the same gentle suggestions.
@@ -73,6 +77,15 @@ export function useLocationPicker({ value, onChange }: LocationPickerProps) {
     }
   };
 
+  const pick = (place: PlaceSuggestion) => {
+    onChange({
+      ...coordinateText(place),
+      city: place.city ?? value.city,
+      venue: place.venue,
+    });
+    report(`Pinned to ${[place.title, place.city].filter(Boolean).join(', ')}.`, false);
+  };
+
   const locate = async () => {
     setBusy('locate');
     try {
@@ -104,5 +117,5 @@ export function useLocationPicker({ value, onChange }: LocationPickerProps) {
     setNote('Pin moved.');
   };
 
-  return { busy, note, problem, search, locate, move };
+  return { busy, note, problem, pick, search, locate, move };
 }
