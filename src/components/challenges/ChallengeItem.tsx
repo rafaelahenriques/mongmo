@@ -172,7 +172,7 @@ export default function ChallengeItem({
       >
         <IconBadge name={CHALLENGE_TYPES[challenge.type].icon} tone={done ? 'success' : 'muted'} size={44} />
         <View style={styles.texts}>
-          <ThemedText type="smallBold" numberOfLines={1}>
+          <ThemedText type="smallBold" numberOfLines={2}>
             {challenge.title}
           </ThemedText>
           {challenge.description ? (

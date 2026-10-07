@@ -36,8 +36,13 @@ export type ButtonProps = {
 };
 
 const HEIGHT = { large: 56, medium: 46, small: 36 } as const;
+const PADDING = { large: Spacing.four, medium: Spacing.three, small: Spacing.three } as const;
 
-/** Pill button. Shrinks a touch when pressed; labels stay at AA contrast. */
+/**
+ * Pill button. Shrinks a touch when pressed; labels stay at AA contrast.
+ * The label never leaves the pill: if the button is narrower than it, it
+ * ends with "…" (lay buttons out with ButtonRow so that stays rare).
+ */
 export function Button({
   label,
   onPress,
@@ -78,7 +83,7 @@ export function Button({
         styles.button,
         {
           minHeight: HEIGHT[size],
-          paddingHorizontal: size === 'small' ? Spacing.three : Spacing.four,
+          paddingHorizontal: PADDING[size],
           paddingRight: arrow ? Spacing.one + 2 : undefined,
           backgroundColor: colors.background,
           opacity: disabled ? 0.4 : 1,
@@ -96,7 +101,7 @@ export function Button({
             {icon ? <Icon name={icon} size={iconSize} color={colors.foreground} /> : null}
             <ThemedText
               type="button"
-              style={[{ color: colors.foreground }, size === 'small' && styles.smallLabel]}
+              style={[styles.label, { color: colors.foreground }, size === 'small' && styles.smallLabel]}
               numberOfLines={1}
             >
               {label}
@@ -123,6 +128,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,
+    maxWidth: '100%',
   },
   spread: {
     alignSelf: 'stretch',
@@ -133,6 +139,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,
+    flexShrink: 1,
+  },
+  label: {
     flexShrink: 1,
   },
   smallLabel: {

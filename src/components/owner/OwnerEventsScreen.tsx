@@ -112,13 +112,13 @@ function OwnerEventRow({
     >
       <View style={styles.rowTexts}>
         <Chip label={OWNER_GROUP_LABEL[group]} tone={OWNER_GROUP_TONE[group]} />
-        <ThemedText type="section" numberOfLines={1}>
+        <ThemedText type="section" numberOfLines={2}>
           {event.title}
         </ThemedText>
         <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
           {formatEventWindow(event.startsAt, event.endsAt, event.timeZone)}
         </ThemedText>
-        <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
+        <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
           {event.venue}, {event.city}
         </ThemedText>
       </View>

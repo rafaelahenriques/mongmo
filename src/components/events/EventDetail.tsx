@@ -17,6 +17,7 @@ import QrScanner from '@/components/camera/QrScanner';
 import ChallengesSection from '@/components/challenges/ChallengesSection';
 import CapacityMeter from '@/components/events/CapacityMeter';
 import { Button } from '@/components/ui/Button';
+import { ButtonRow } from '@/components/ui/ButtonRow';
 import { Card } from '@/components/ui/Card';
 import Chip from '@/components/ui/Chip';
 import { IconBadge } from '@/components/ui/IconBadge';
@@ -243,7 +244,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
       ) : null}
 
       {phase === 'live' ? (
-        <View style={styles.actions}>
+        <ButtonRow>
           <Button
             label={checkedIn ? 'Checked in' : 'Check in'}
             icon={checkedIn ? 'checkCircle' : 'scan'}
@@ -251,12 +252,11 @@ export default function EventDetail({ eventId }: EventDetailProps) {
             onPress={onPressCheckIn}
             disabled={checkedIn}
             haptic="press"
-            style={styles.action}
           />
           {event.menu.length > 0 ? (
-            <Button label="Order" icon="bag" variant="primary" onPress={openOrder} style={styles.action} />
+            <Button label="Order" icon="bag" variant="primary" onPress={openOrder} />
           ) : null}
-        </View>
+        </ButtonRow>
       ) : (
         <Card tone="muted" style={styles.notice}>
           <IconBadge name={phase === 'upcoming' ? 'calendar' : 'clock'} tone="card" size={40} />
@@ -274,14 +274,13 @@ export default function EventDetail({ eventId }: EventDetailProps) {
       )}
 
       {phase !== 'ended' ? (
-        <View style={styles.actions}>
+        <ButtonRow>
           <Button
             label="Add to calendar"
             icon="calendar"
             variant={phase === 'upcoming' ? 'primary' : 'ghost'}
             size="medium"
             onPress={onAddToCalendar}
-            style={styles.action}
           />
           <Button
             label="Directions"
@@ -289,9 +288,8 @@ export default function EventDetail({ eventId }: EventDetailProps) {
             variant="ghost"
             size="medium"
             onPress={() => openDirections(event.coordinates, `${event.title}, ${event.venue}`)}
-            style={styles.action}
           />
-        </View>
+        </ButtonRow>
       ) : null}
 
       {event.menu.length > 0 ? (
@@ -423,15 +421,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-  },
-  actions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.two + Spacing.one,
-  },
-  action: {
-    flexGrow: 1,
-    flexBasis: 140,
   },
   notice: {
     flexDirection: 'row',
