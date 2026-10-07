@@ -9,6 +9,7 @@ import PhotoGallery from '@/components/profile/PhotoGallery';
 import { OWNER_GROUP_LABEL, OWNER_GROUP_TONE, ownerEventGroup } from '@/components/owner/ownerEventPhase';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
+import { ButtonRow } from '@/components/ui/ButtonRow';
 import { Card } from '@/components/ui/Card';
 import Chip from '@/components/ui/Chip';
 import { Icon } from '@/components/ui/Icon';
@@ -155,7 +156,7 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
       />
 
       <SectionHeader title="Wrap up" />
-      <View style={styles.wrapUp}>
+      <ButtonRow>
         <Button
           label="End pop-up"
           accessibilityLabel="End this event"
@@ -163,7 +164,6 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
           icon="check"
           onPress={onEndEvent}
           disabled={finished}
-          style={styles.flex}
         />
         <Button
           label="Cancel pop-up"
@@ -172,9 +172,8 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
           icon="close"
           onPress={onCancelEvent}
           disabled={event.status === 'cancelled'}
-          style={styles.flex}
         />
-      </View>
+      </ButtonRow>
     </ScrollView>
   );
 }
@@ -203,10 +202,6 @@ const styles = StyleSheet.create({
   },
   preview: {
     marginTop: Spacing.two,
-  },
-  wrapUp: {
-    flexDirection: 'row',
-    gap: Spacing.two,
   },
   flex: {
     flex: 1,

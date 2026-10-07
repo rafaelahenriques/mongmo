@@ -8,19 +8,20 @@ import { Icon } from '@/components/ui/Icon';
 import { TextField } from '@/components/ui/TextField';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { PlaceSearchField } from './PlaceSearchField';
 import { pinnedPoint, useLocationPicker, type LocationPickerProps } from './useLocationPicker';
 
 const PIN_DELTA = 0.006;
 
 /**
- * iOS/Android: search an address or use where you are, then drag the pin (or
- * tap the map) to fine-tune. The raw coordinates hide behind a toggle.
+ * iOS/Android: type an address and pick a suggestion, or use where you are,
+ * then drag the pin (or tap the map) to fine-tune. The raw coordinates hide
+ * behind a toggle.
  */
 export function LocationPicker(props: LocationPickerProps) {
   const { value, onChange } = props;
   const theme = useTheme();
-  const { busy, note, problem, search, locate, move } = useLocationPicker(props);
-  const [query, setQuery] = useState('');
+  const { busy, note, problem, pick, search, locate, move } = useLocationPicker(props);
   const [showCoordinates, setShowCoordinates] = useState(false);
   const mapRef = useRef<MapView>(null);
   const point = pinnedPoint(value);
@@ -35,29 +36,7 @@ export function LocationPicker(props: LocationPickerProps) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchRow}>
-        <View style={styles.flex}>
-          <TextField
-            label="Search an address"
-            value={query}
-            onChangeText={setQuery}
-            placeholder="e.g. Grote Markt, Kortrijk"
-            returnKeyType="search"
-            autoCorrect={false}
-            onSubmitEditing={() => search(query)}
-          />
-        </View>
-        <Button
-          label="Find"
-          size="medium"
-          variant="primary"
-          loading={busy === 'search'}
-          disabled={!query.trim() || busy !== null}
-          onPress={() => search(query)}
-          accessibilityLabel="Find this address"
-          style={styles.findButton}
-        />
-      </View>
+      <PlaceSearchField onPick={pick} onSubmitText={search} searching={busy === 'search'} />
 
       <Button
         label="Use my current location"
@@ -151,14 +130,6 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
-  },
-  searchRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: Spacing.two,
-  },
-  findButton: {
-    minHeight: 50,
   },
   mapFrame: {
     height: 200,

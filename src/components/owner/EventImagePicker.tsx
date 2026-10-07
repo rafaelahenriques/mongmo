@@ -6,6 +6,7 @@ import type { ImagePickerOptions } from 'expo-image-picker';
 import { uploadEventImage } from '@/api/eventImages';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
+import { ButtonRow } from '@/components/ui/ButtonRow';
 import { IconBadge } from '@/components/ui/IconBadge';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
@@ -92,7 +93,7 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
         </ThemedText>
       ) : null}
 
-      <View style={styles.actions}>
+      <ButtonRow>
         <Button
           label={value ? 'Change photo' : 'Choose photo'}
           variant="primary"
@@ -100,7 +101,6 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
           icon="photo"
           disabled={uploading || !available}
           onPress={() => choose('library')}
-          style={styles.flex}
         />
         {Platform.OS !== 'web' ? (
           <Button
@@ -110,10 +110,9 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
             icon="camera"
             disabled={uploading || !available}
             onPress={() => choose('camera')}
-            style={styles.flex}
           />
         ) : null}
-      </View>
+      </ButtonRow>
       {value ? (
         <Button label="Remove photo" variant="danger" size="small" icon="trash" onPress={() => onChange('')} />
       ) : null}
@@ -151,12 +150,5 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.35)',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-  },
-  flex: {
-    flex: 1,
   },
 });

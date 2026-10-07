@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import CapacityMeter from '@/components/events/CapacityMeter';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
+import { ButtonRow } from '@/components/ui/ButtonRow';
 import { Card } from '@/components/ui/Card';
 import Chip from '@/components/ui/Chip';
 import { Radius, Spacing } from '@/constants/theme';
@@ -61,7 +62,7 @@ export default function StoreSheetContent({ store, busy, onClose }: StoreSheetCo
         arrow
         onPress={openOrder}
       />
-      <View style={styles.actions}>
+      <ButtonRow>
         <Button
           label="Directions"
           accessibilityLabel="Directions, opens your maps app"
@@ -69,7 +70,6 @@ export default function StoreSheetContent({ store, busy, onClose }: StoreSheetCo
           size="medium"
           icon="distance"
           onPress={onDirections}
-          style={styles.flex}
         />
         <Button
           label="Call"
@@ -78,9 +78,8 @@ export default function StoreSheetContent({ store, busy, onClose }: StoreSheetCo
           size="medium"
           icon="phone"
           onPress={callStore}
-          style={styles.flex}
         />
-      </View>
+      </ButtonRow>
 
       <View style={styles.section}>
         <ThemedText type="section">Opening hours</ThemedText>
@@ -125,10 +124,6 @@ export default function StoreSheetContent({ store, busy, onClose }: StoreSheetCo
 const styles = StyleSheet.create({
   container: {
     gap: Spacing.three,
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: Spacing.two,
   },
   flex: {
     flex: 1,
