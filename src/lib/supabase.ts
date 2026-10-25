@@ -9,12 +9,16 @@ import type { Database } from '@/types/database';
 // the value in .env is a common way to end up with a non-empty but invalid
 // URL, which otherwise surfaces as supabase-js's generic "Invalid supabaseUrl"
 // with no hint of *why* the value it read was invalid.
-function readEnvVar(name: string): string {
-  return (process.env[name] ?? '').trim().replace(/^['"]|['"]$/g, '');
+function cleanEnvVar(value: string | undefined): string {
+  return (value ?? '').trim().replace(/^['"]|['"]$/g, '');
 }
 
-const SUPABASE_URL = readEnvVar('EXPO_PUBLIC_SUPABASE_URL');
-const SUPABASE_ANON_KEY = readEnvVar('EXPO_PUBLIC_SUPABASE_ANON_KEY');
+// Each variable must be read as a literal `process.env.EXPO_PUBLIC_*` member
+// expression: that's the only form Expo inlines into the bundle. A dynamic
+// `process.env[name]` still works in dev (Metro serves a live env object) but
+// comes back undefined in Release / EAS builds and crashes the app at launch.
+const SUPABASE_URL = cleanEnvVar(process.env.EXPO_PUBLIC_SUPABASE_URL);
+const SUPABASE_ANON_KEY = cleanEnvVar(process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY);
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   throw new Error(
