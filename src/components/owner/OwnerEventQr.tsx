@@ -4,7 +4,7 @@ import QRCode from 'react-native-qrcode-svg';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
-import { Radius, Spacing } from '@/constants/theme';
+import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useEventQrToken } from '@/hooks/useOwnerEvent';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -64,6 +64,6 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   token: {
-    color: '#342626',
+    color: Colors.light.text,
   },
 });

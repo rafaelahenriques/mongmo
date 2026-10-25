@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   backdrop: {
-    backgroundColor: 'rgba(22, 17, 17, 0.45)',
+    backgroundColor: 'rgba(28, 29, 25, 0.45)',
   },
   sheet: {
     borderTopLeftRadius: Radius.large + 4,

@@ -9,8 +9,8 @@ import { useTheme } from '@/hooks/useTheme';
 export type ChipProps = {
   label: string;
   /**
-   * neutral: soft fill · dark: Cool Brown · live: Bold Red with a dot ·
-   * info: Light Blue · success/danger/warning: soft fill, semantic label (AA).
+   * neutral: rose fill · dark: Shadow Grey · live: sage with a dot ·
+   * info: cream · success/danger/warning: rose fill, semantic label (AA).
    */
   tone?: 'neutral' | 'dark' | 'live' | 'info' | 'success' | 'danger' | 'warning';
   icon?: IconName;

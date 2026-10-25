@@ -17,11 +17,12 @@ export type EventPinProps = {
   onPress: () => void;
 };
 
-/** Bold Red in both schemes — pins sit on the map, not on a themed surface. */
-const EVENT_RED = Colors.light.brandFill;
+/** Sage with an ink symbol in both schemes — pins sit on the map, not on a themed surface. */
+const EVENT_FILL = Colors.light.brandFill;
+const EVENT_SYMBOL = Colors.light.onBrand;
 
 /**
- * Pin for a temporary pop-up: red dot + pill with distance and the live
+ * Pin for a temporary pop-up: sage dot + pill with distance and the live
  * occupancy, marked FULL when the event is at capacity.
  */
 function EventPinComponent({ event, onPress }: EventPinProps) {
@@ -58,11 +59,11 @@ function EventPinComponent({ event, onPress }: EventPinProps) {
         onAccessibilityTap={onPress}
         style={[
           styles.pill,
-          { backgroundColor: theme.backgroundElement, boxShadow: `0px 6px 16px rgba(42, 32, 32, 0.18)` },
+          { backgroundColor: theme.backgroundElement, boxShadow: `0px 6px 16px rgba(46, 47, 42, 0.18)` },
         ]}
       >
-        <View style={[styles.dot, { backgroundColor: EVENT_RED }]}>
-          <Icon name={phase === 'live' ? 'flame' : 'food'} size={14} color="#FFFFFF" />
+        <View style={[styles.dot, { backgroundColor: EVENT_FILL }]}>
+          <Icon name={phase === 'live' ? 'flame' : 'food'} size={14} color={EVENT_SYMBOL} />
         </View>
         <View style={styles.texts}>
           <ThemedText type="smallBold" numberOfLines={1}>

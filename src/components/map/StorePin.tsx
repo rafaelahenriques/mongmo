@@ -60,7 +60,7 @@ function StorePinComponent({ store, onPress }: StorePinProps) {
         onAccessibilityTap={onPress}
         style={[
           styles.pill,
-          { backgroundColor: theme.backgroundElement, boxShadow: `0px 6px 16px rgba(42, 32, 32, 0.18)` },
+          { backgroundColor: theme.backgroundElement, boxShadow: `0px 6px 16px rgba(46, 47, 42, 0.18)` },
         ]}
       >
         <View
