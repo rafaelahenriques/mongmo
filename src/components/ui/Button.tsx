@@ -17,7 +17,7 @@ export type ButtonProps = {
   label: string;
   onPress: () => void;
   /**
-   * primary: Cool Brown pill · brand: Bold Red (the one main action on a
+   * primary: Shadow Grey pill · brand: Weathered Sage (the one main action on a
    * screen) · secondary: white · ghost: muted fill · danger: muted, red label.
    */
   variant?: 'primary' | 'brand' | 'secondary' | 'ghost' | 'danger';

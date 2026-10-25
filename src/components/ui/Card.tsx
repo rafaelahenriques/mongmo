@@ -11,7 +11,7 @@ export type CardProps = PropsWithChildren<{
   disabled?: boolean;
   accessibilityLabel?: string;
   accessibilityHint?: string;
-  /** default: white · muted: soft fill · brand: Bold Red · accent: Light Blue · primary: Cool Brown. */
+  /** default: white · muted: rose fill · brand: sage · accent: cream · primary: Shadow Grey. */
   tone?: 'default' | 'muted' | 'brand' | 'accent' | 'primary';
   style?: StyleProp<ViewStyle>;
 }>;

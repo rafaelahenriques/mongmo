@@ -4,7 +4,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 
 /**
- * The app's switch: Bold Red when on, a selection tick of haptics on change.
+ * The app's switch: sage when on, a selection tick of haptics on change.
  * react-native-web colours the "on" thumb from its own `activeThumbColor`
  * prop (teal by default), which React Native's types don't include.
  */

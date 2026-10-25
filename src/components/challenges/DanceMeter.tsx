@@ -27,8 +27,8 @@ const NO_SENSOR = 'This device has no motion sensor — try it on your phone.';
 
 /** Always on dark: it's a dance floor, whatever the app's theme. */
 const INK = '#FFFFFF';
-const FLOOR = Colors.light.primary;
-const RED = Colors.light.brandFill;
+const FLOOR = Colors.dark.background;
+const SAGE = Colors.light.brandFill;
 
 /**
  * The Motion challenge: a full-screen dance meter. While the phone is moving
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     width: 260,
     height: 260,
     borderRadius: Radius.pill,
-    backgroundColor: RED,
+    backgroundColor: SAGE,
   },
   readout: {
     alignItems: 'center',
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
   fill: {
     height: '100%',
     borderRadius: Radius.pill,
-    backgroundColor: RED,
+    backgroundColor: SAGE,
   },
   message: {
     textAlign: 'center',
