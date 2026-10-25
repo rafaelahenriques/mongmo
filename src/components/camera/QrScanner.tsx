@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
-import { Radius, Spacing } from '@/constants/theme';
+import { Ink, inkAlpha, Paper, Radius, Spacing } from '@/constants/theme';
 import { haptics } from '@/services/haptics';
 
 export type QrScannerProps = {
@@ -90,7 +90,7 @@ export default function QrScanner({ visible, title, onScan, onClose }: QrScanner
             hitSlop={12}
             style={styles.closeButton}
           >
-            <Icon name="close" size={20} color="#FFFFFF" weight="bold" />
+            <Icon name="close" size={20} color={Paper} weight="bold" />
           </Pressable>
         </View>
       </View>
@@ -103,7 +103,7 @@ const FRAME_SIZE = 240;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: Ink,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     width: FRAME_SIZE,
     height: FRAME_SIZE,
     borderWidth: 4,
-    borderColor: '#FFFFFF',
+    borderColor: Paper,
     borderRadius: 32,
   },
   topBar: {
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   },
   titlePill: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    backgroundColor: inkAlpha(0.55),
     borderRadius: Radius.pill,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two + 2,
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: Radius.pill,
-    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    backgroundColor: inkAlpha(0.55),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -151,6 +151,6 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   lightText: {
-    color: '#FFFFFF',
+    color: Paper,
   },
 });

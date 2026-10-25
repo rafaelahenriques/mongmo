@@ -4,7 +4,7 @@ import { Marker } from 'react-native-maps';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Icon } from '@/components/ui/Icon';
-import { Colors, Radius } from '@/constants/theme';
+import { Colors, Paper, Radius } from '@/constants/theme';
 import { useBusyStore } from '@/state/busyStore';
 import { useLocationStore } from '@/state/locationStore';
 import { useTheme } from '@/hooks/useTheme';
@@ -69,7 +69,7 @@ function StorePinComponent({ store, onPress }: StorePinProps) {
             { backgroundColor: status.isOpen ? STORE_OPEN : STORE_CLOSED },
           ]}
         >
-          <Icon name="store" size={14} color="#FFFFFF" />
+          <Icon name="store" size={14} color={Paper} />
         </View>
         <View style={styles.texts}>
           <ThemedText type="smallBold" numberOfLines={1}>

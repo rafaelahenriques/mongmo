@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Colors, Paper, paperAlpha, Radius, Spacing } from '@/constants/theme';
 import { haptics } from '@/services/haptics';
 import { checkMotion, requestMotionAccess, watchMotion, type MotionSubscription } from '@/services/motion';
 import { UPDATE_APP_MESSAGE } from '@/services/nativeModules';
@@ -26,7 +26,6 @@ const SILENCE_MS = 3000;
 const NO_SENSOR = 'This device has no motion sensor — try it on your phone.';
 
 /** Always on dark: it's a dance floor, whatever the app's theme. */
-const INK = '#FFFFFF';
 const FLOOR = Colors.dark.background;
 const SAGE = Colors.light.brandFill;
 
@@ -141,7 +140,7 @@ function DanceSession({ visible, title, seconds, onDone, onClose }: DanceMeterPr
             hitSlop={12}
             style={styles.close}
           >
-            <Icon name="close" size={20} color={INK} weight="bold" />
+            <Icon name="close" size={20} color={Paper} weight="bold" />
           </Pressable>
         </View>
 
@@ -185,7 +184,7 @@ function DanceSession({ visible, title, seconds, onDone, onClose }: DanceMeterPr
                     : unavailableReason}
           </ThemedText>
 
-          {status === 'checking' ? <ActivityIndicator color={INK} /> : null}
+          {status === 'checking' ? <ActivityIndicator color={Paper} /> : null}
           {status === 'ready' ? (
             <Button label="Start dancing" variant="brand" icon="dance" haptic="none" onPress={start} />
           ) : null}
@@ -218,7 +217,7 @@ const styles = StyleSheet.create({
   },
   titlePill: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: paperAlpha(0.12),
     borderRadius: Radius.pill,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two + 2,
@@ -227,7 +226,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: Radius.pill,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: paperAlpha(0.12),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -256,7 +255,7 @@ const styles = StyleSheet.create({
   track: {
     height: 14,
     borderRadius: Radius.pill,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: paperAlpha(0.15),
     overflow: 'hidden',
   },
   fill: {
@@ -268,9 +267,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   ink: {
-    color: INK,
+    color: Paper,
   },
   dim: {
-    color: 'rgba(255, 255, 255, 0.75)',
+    color: paperAlpha(0.75),
   },
 });

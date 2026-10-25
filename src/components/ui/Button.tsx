@@ -18,7 +18,7 @@ export type ButtonProps = {
   onPress: () => void;
   /**
    * primary: Shadow Grey pill · brand: Weathered Sage (the one main action on a
-   * screen) · secondary: white · ghost: muted fill · danger: muted, red label.
+   * screen) · secondary: Paper · ghost: rose fill · danger: rose, red label.
    */
   variant?: 'primary' | 'brand' | 'secondary' | 'ghost' | 'danger';
   size?: 'large' | 'medium' | 'small';
@@ -26,6 +26,7 @@ export type ButtonProps = {
   /** A trailing arrow in a circle, for "go somewhere" actions. */
   arrow?: boolean;
   loading?: boolean;
+  /** Muted rose with a grey label, still readable (AA) rather than faded out. */
   disabled?: boolean;
   /** Feedback on press; `press` for weightier actions. */
   haptic?: 'tap' | 'press' | 'none';
@@ -58,13 +59,15 @@ export function Button({
   style,
 }: ButtonProps) {
   const theme = useTheme();
-  const colors = {
-    primary: { background: theme.primary, foreground: theme.onPrimary },
-    brand: { background: theme.brandFill, foreground: theme.onBrand },
-    secondary: { background: theme.backgroundElement, foreground: theme.text },
-    ghost: { background: theme.backgroundSelected, foreground: theme.text },
-    danger: { background: theme.backgroundSelected, foreground: theme.danger },
-  }[variant];
+  const colors = disabled
+    ? { background: theme.backgroundSelected, foreground: theme.textSecondary }
+    : {
+        primary: { background: theme.primary, foreground: theme.onPrimary },
+        brand: { background: theme.brandFill, foreground: theme.onBrand },
+        secondary: { background: theme.backgroundElement, foreground: theme.text },
+        ghost: { background: theme.backgroundSelected, foreground: theme.text },
+        danger: { background: theme.backgroundSelected, foreground: theme.danger },
+      }[variant];
   const inactive = disabled || loading;
   const iconSize = size === 'small' ? 15 : 18;
 
@@ -86,8 +89,7 @@ export function Button({
           paddingHorizontal: PADDING[size],
           paddingRight: arrow ? Spacing.one + 2 : undefined,
           backgroundColor: colors.background,
-          opacity: disabled ? 0.4 : 1,
-          boxShadow: variant === 'secondary' ? `0px 4px 14px ${theme.shadow}` : undefined,
+          boxShadow: variant === 'secondary' && !disabled ? `0px 4px 14px ${theme.shadow}` : undefined,
           transform: [{ scale: pressed && !inactive ? 0.97 : 1 }],
         },
         style,
