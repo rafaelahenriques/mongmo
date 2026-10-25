@@ -175,7 +175,7 @@ export default function HomeScreen() {
 /** The "Details →" pill in hero cards (decorative; the card is the button). */
 function DetailsPill({ label, dark = false }: { label: string; dark?: boolean }) {
   const theme = useTheme();
-  // Red on white (4.7:1) on the red card; inverted ink on the primary card.
+  // Sage on ink (6.9:1) on the sage card; inverted ink on the primary card.
   const background = dark ? theme.onPrimary : theme.onBrand;
   const foreground = dark ? theme.primary : theme.brandFill;
   return (

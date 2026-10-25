@@ -17,7 +17,7 @@ export type SegmentOption<T extends string> = {
 };
 
 /**
- * Pill segmented control: the selected option is a solid Cool Brown pill.
+ * Pill segmented control: the selected option is a solid Shadow Grey pill.
  * `fill` shares the full width equally between the options, so four of
  * them fit a small phone.
  */

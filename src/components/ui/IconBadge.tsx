@@ -7,7 +7,7 @@ import { useTheme } from '@/hooks/useTheme';
 export type IconBadgeProps = {
   name: IconName;
   size?: number;
-  /** muted: soft fill · card: white · brand: Bold Red · accent: Light Blue · primary: Cool Brown · success. */
+  /** muted: rose fill · card: white · brand: sage · accent: cream · primary: Shadow Grey · success. */
   tone?: 'muted' | 'card' | 'brand' | 'accent' | 'primary' | 'success';
   style?: StyleProp<ViewStyle>;
 };

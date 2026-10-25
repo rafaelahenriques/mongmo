@@ -5,7 +5,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
-/** Profile photo, or the name's initials on Light Blue when there isn't one. */
+/** Profile photo, or the name's initials on cream when there isn't one. */
 export function Avatar({ name, url, size = 84 }: { name: string; url: string; size?: number }) {
   const theme = useTheme();
   const initials = name

@@ -21,7 +21,7 @@ export type BadgeCardProps = {
 };
 
 /**
- * One badge tile: its symbol on Bold Red with the unlock date when earned;
+ * One badge tile: its symbol on sage with the unlock date when earned;
  * muted with a lock, and the requirement as its hint, while still locked.
  */
 export default function BadgeCard({ definition, earned, progress }: BadgeCardProps) {

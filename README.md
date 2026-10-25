@@ -85,3 +85,11 @@ npx expo run:ios       # or: npx expo run:android
 ```
 
 After the first native build, `npx expo start` is enough for day-to-day work. Open it from the installed development build, not Expo Go.
+
+## License
+
+Proprietary. © 2026 Rafaela Henriques and Mongmo, all rights reserved; see
+[LICENSE](LICENSE). The open-source packages, fonts, icons and data the app
+uses keep their own licences, listed in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). After changing
+dependencies, regenerate that file with `npm run licenses`.

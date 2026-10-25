@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
-import { Radius, Spacing } from '@/constants/theme';
+import { Ink, inkAlpha, Paper, paperAlpha, Radius, Spacing } from '@/constants/theme';
 import { haptics } from '@/services/haptics';
 
 export type PhotoCaptureProps = {
@@ -97,7 +97,7 @@ function CaptureSession({ visible, title, prompt, count, onDone, onClose }: Phot
             hitSlop={12}
             style={styles.closeButton}
           >
-            <Icon name="close" size={20} color="#FFFFFF" weight="bold" />
+            <Icon name="close" size={20} color={Paper} weight="bold" />
           </Pressable>
         </View>
 
@@ -119,7 +119,7 @@ function CaptureSession({ visible, title, prompt, count, onDone, onClose }: Phot
                     >
                       <Image source={{ uri }} style={styles.thumb} contentFit="cover" />
                       <View style={styles.thumbBadge}>
-                        <Icon name="repeat" size={11} color="#FFFFFF" />
+                        <Icon name="repeat" size={11} color={Paper} />
                       </View>
                     </Pressable>
                   ) : (
@@ -151,7 +151,7 @@ function CaptureSession({ visible, title, prompt, count, onDone, onClose }: Phot
                 style={styles.shutterRing}
               >
                 <View style={[styles.shutter, { opacity: capturing ? 0.6 : 1 }]}>
-                  {capturing ? <ActivityIndicator color="#000000" /> : <Icon name="camera" size={26} color="#000000" />}
+                  {capturing ? <ActivityIndicator color={Ink} /> : <Icon name="camera" size={26} color={Ink} />}
                 </View>
               </Pressable>
             )}
@@ -165,7 +165,7 @@ function CaptureSession({ visible, title, prompt, count, onDone, onClose }: Phot
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: Ink,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   },
   titlePill: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    backgroundColor: inkAlpha(0.55),
     borderRadius: Radius.large,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two + 2,
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: Radius.pill,
-    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    backgroundColor: inkAlpha(0.55),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   thumbEmpty: {
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    borderColor: paperAlpha(0.5),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: Radius.pill,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: inkAlpha(0.6),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -232,13 +232,13 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: Radius.pill,
     borderWidth: 3,
-    borderColor: '#FFFFFF',
+    borderColor: Paper,
   },
   shutter: {
     width: 68,
     height: 68,
     borderRadius: Radius.pill,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Paper,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -260,9 +260,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   lightText: {
-    color: '#FFFFFF',
+    color: Paper,
   },
   dimText: {
-    color: 'rgba(255, 255, 255, 0.8)',
+    color: paperAlpha(0.8),
   },
 });

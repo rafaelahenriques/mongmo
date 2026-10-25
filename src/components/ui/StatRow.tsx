@@ -10,7 +10,7 @@ export type Stat = {
   label: string;
   value: string;
   caption?: string;
-  /** Shows the value in Bold Red (the one number that matters most). */
+  /** Shows the value in the brand sage (the one number that matters most). */
   emphasis?: boolean;
 };
 

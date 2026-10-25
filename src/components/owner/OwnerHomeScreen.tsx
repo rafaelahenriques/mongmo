@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
 import { IconBadge } from '@/components/ui/IconBadge';
 import { ScreenScroll, SectionHeader } from '@/components/ui/Screen';
-import { Radius, Spacing } from '@/constants/theme';
+import { paperAlpha, Radius, Spacing } from '@/constants/theme';
 import { useOwnerEvents } from '@/hooks/useOwnerEvents';
 import { useOwnerOrders } from '@/hooks/useOwnerOrders';
 import { useTheme } from '@/hooks/useTheme';
@@ -104,7 +104,7 @@ export default function OwnerHomeScreen() {
 function Counter({ label, value, emphasized = false }: { label: string; value: number; emphasized?: boolean }) {
   const theme = useTheme();
   return (
-    <View style={[styles.counter, { backgroundColor: emphasized ? theme.brandFill : 'rgba(255, 255, 255, 0.08)' }]}>
+    <View style={[styles.counter, { backgroundColor: emphasized ? theme.brandFill : paperAlpha(0.08) }]}>
       <ThemedText type="subtitle" style={[styles.counterValue, { color: emphasized ? theme.onBrand : theme.onPrimary }]}>
         {value}
       </ThemedText>
