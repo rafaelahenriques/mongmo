@@ -16,14 +16,27 @@ import { Platform } from 'react-native';
  * they sit on: the page (a light tint of concrete), white cards, rose fills
  * and cream highlights. Ratios are noted against the weakest of those.
  */
+/**
+ * The brand never uses pure white or pure black. Paper is the near-white
+ * (Aged Concrete White lifted almost to white) for cards and for text on
+ * dark fills; Ink is the near-black (Shadow Grey deepened almost to black)
+ * for the dark-mode page, camera screens and the QR code.
+ */
+export const Paper = '#FCFBF8';
+export const Ink = '#1C1D19';
+
+/** Paper or Ink at `opacity`, for scrims, glass buttons and bar tracks. */
+export const paperAlpha = (opacity: number) => `rgba(252, 251, 248, ${opacity})`;
+export const inkAlpha = (opacity: number) => `rgba(28, 29, 25, ${opacity})`;
+
 export const Colors = {
   light: {
-    /** Ink, from Shadow Grey — 9.4:1 on rose, 13.5:1 on cards. */
+    /** Ink, from Shadow Grey — 9.4:1 on rose, 13:1 on cards. */
     text: '#2E2F2A',
     /** Aged Concrete White lightened to a warm off-white page. */
     background: '#F1EFEA',
     /** Cards and sheets. */
-    backgroundElement: '#FFFFFF',
+    backgroundElement: Paper,
     /** Dusty Interior Rose: fields, chips, icon circles, pressed rows. */
     backgroundSelected: '#E5D4D3',
     /** Muted ink — 4.8:1 on rose, 6:1 on the page. */
@@ -32,10 +45,13 @@ export const Colors = {
     border: '#D6D1C4',
     /** Soft card shadow colour. */
     shadow: 'rgba(46, 47, 42, 0.10)',
-    /** Shadow Grey pill buttons and dark cards, white text (5.8:1). */
+    /** Shadow Grey pill buttons and dark cards, Paper text (5.6:1). */
     primary: '#65665D',
-    onPrimary: '#FFFFFF',
-    /** Deep sage, decorative: big numerals, stars, dots (3:1, large only). */
+    onPrimary: Paper,
+    /**
+     * Deep sage: big numerals, stars, progress fills and switches — 3.3:1 on
+     * rose, 4.5:1 on cards (large text and graphics need 3:1).
+     */
     brand: '#388075',
     /** Weathered Sage: the main call to action, with ink on it (6.9:1). */
     brandFill: '#80C7BC',
@@ -54,13 +70,13 @@ export const Colors = {
     /** Warm white ink — 10.9:1 even on fills. */
     text: '#F2F0EA',
     /** Shadow Grey, deepened. */
-    background: '#1C1D19',
+    background: Ink,
     backgroundElement: '#272822',
     backgroundSelected: '#34352E',
     /** 6:1 on fills. */
     textSecondary: '#B8B4A8',
     border: '#3B3C35',
-    shadow: 'rgba(0, 0, 0, 0)',
+    shadow: inkAlpha(0),
     /** Aged Concrete pill with ink (10.4:1). */
     primary: '#D6D1C4',
     onPrimary: '#22231E',

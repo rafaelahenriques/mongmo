@@ -8,7 +8,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { ButtonRow } from '@/components/ui/ButtonRow';
 import { IconBadge } from '@/components/ui/IconBadge';
-import { Radius, Spacing } from '@/constants/theme';
+import { inkAlpha, Paper, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { hasNativeFeature, UPDATE_APP_MESSAGE } from '@/services/nativeModules';
@@ -82,7 +82,7 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
         )}
         {uploading ? (
           <View style={styles.uploading}>
-            <ActivityIndicator color="#FFFFFF" accessibilityLabel="Uploading photo" />
+            <ActivityIndicator color={Paper} accessibilityLabel="Uploading photo" />
           </View>
         ) : null}
       </View>
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     left: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    backgroundColor: inkAlpha(0.35),
     alignItems: 'center',
     justifyContent: 'center',
   },

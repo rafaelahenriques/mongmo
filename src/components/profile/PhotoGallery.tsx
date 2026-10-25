@@ -8,7 +8,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { Card } from '@/components/ui/Card';
 import { IconBadge } from '@/components/ui/IconBadge';
 import { IconButton } from '@/components/ui/IconButton';
-import { Radius, Spacing } from '@/constants/theme';
+import { Ink, inkAlpha, Paper, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 
@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   },
   viewer: {
     flex: 1,
-    backgroundColor: '#000000',
+    backgroundColor: Ink,
   },
   viewerBar: {
     position: 'absolute',
@@ -132,12 +132,12 @@ const styles = StyleSheet.create({
   },
   viewerTitle: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    backgroundColor: inkAlpha(0.55),
     borderRadius: Radius.pill,
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two + 2,
   },
   light: {
-    color: '#FFFFFF',
+    color: Paper,
   },
 });

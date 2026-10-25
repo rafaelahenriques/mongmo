@@ -4,7 +4,7 @@ import QRCode from 'react-native-qrcode-svg';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Colors, Ink, Paper, Radius, Spacing } from '@/constants/theme';
 import { useEventQrToken } from '@/hooks/useOwnerEvent';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -42,9 +42,9 @@ export default function OwnerEventQr({ eventId }: OwnerEventQrProps) {
   }
 
   return (
-    // Always black on white, whatever the theme: that's what scanners read best.
+    // Always Ink on Paper, whatever the theme: dark on light is what scanners read best.
     <View style={[styles.card, { boxShadow: `0px 10px 28px ${theme.shadow}` }]}>
-      <QRCode value={query.data} size={220} />
+      <QRCode value={query.data} size={220} color={Ink} backgroundColor={Paper} />
       <ThemedText type="label" style={styles.token}>
         Scan to check in
       </ThemedText>
@@ -57,7 +57,7 @@ export default function OwnerEventQr({ eventId }: OwnerEventQrProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Paper,
     borderRadius: Radius.large,
     padding: Spacing.four,
     alignItems: 'center',

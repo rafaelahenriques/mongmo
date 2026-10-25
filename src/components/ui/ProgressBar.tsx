@@ -3,7 +3,10 @@ import { StyleSheet, View, type ColorValue } from 'react-native';
 import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
-/** A thin rounded bar, filled to `value` (0–1). Decorative: say the numbers in text. */
+/**
+ * A thin rounded bar, filled to `value` (0–1). Decorative: say the numbers in
+ * text. The default deep sage on rose keeps the fill at 3:1 against its track.
+ */
 export function ProgressBar({ value, color, track }: { value: number; color?: ColorValue; track?: ColorValue }) {
   const theme = useTheme();
   const clamped = Math.min(1, Math.max(0, value));
@@ -13,7 +16,7 @@ export function ProgressBar({ value, color, track }: { value: number; color?: Co
       importantForAccessibility="no-hide-descendants"
       accessibilityElementsHidden
     >
-      <View style={[styles.fill, { width: `${clamped * 100}%`, backgroundColor: color ?? theme.brandFill }]} />
+      <View style={[styles.fill, { width: `${clamped * 100}%`, backgroundColor: color ?? theme.brand }]} />
     </View>
   );
 }
