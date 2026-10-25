@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useCallback, useState } from 'react';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider } from 'expo-router';
@@ -6,10 +6,11 @@ import { ThemeProvider } from 'expo-router';
 import SignInScreen from '@/components/auth/SignInScreen';
 import AppTabs from '@/components/ui/AppTabs';
 import { Providers } from '@/components/Providers';
+import { SplashIntro } from '@/components/SplashIntro';
 import { FONT_ASSETS } from '@/constants/fonts';
 import { useNavigationTheme } from '@/hooks/useNavigationTheme';
 import { useSession } from '@/hooks/useSession';
-import { useResolvedScheme, useTheme } from '@/hooks/useTheme';
+import { useResolvedScheme } from '@/hooks/useTheme';
 
 export default function RootLayout() {
   const navTheme = useNavigationTheme();
@@ -19,6 +20,8 @@ export default function RootLayout() {
   // blocking the app, hence `|| fontError`.
   const [fontsLoaded, fontError] = useFonts(FONT_ASSETS);
   const ready = session !== undefined && (fontsLoaded || fontError !== null);
+  const [introDone, setIntroDone] = useState(false);
+  const finishIntro = useCallback(() => setIntroDone(true), []);
 
   return (
     <Providers session={session}>
@@ -26,26 +29,11 @@ export default function RootLayout() {
           resolved scheme as the screens, settings override included. */}
       <ThemeProvider value={navTheme}>
         <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-        {!ready ? <SplashLoading /> : session ? <AppTabs /> : <SignInScreen />}
+        {ready && (session ? <AppTabs /> : <SignInScreen />)}
+        {/* The logo animation plays over the app while it reads the cached
+            session and loads fonts, then fades out to reveal it. */}
+        {!introDone && <SplashIntro ready={ready} onDone={finishIntro} />}
       </ThemeProvider>
     </Providers>
   );
 }
-
-/** Shown for the brief moment it takes to read a cached session and load fonts at launch. */
-function SplashLoading() {
-  const theme = useTheme();
-  return (
-    <View style={[styles.splash, { backgroundColor: theme.background }]}>
-      <ActivityIndicator size="large" color={theme.text} />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  splash: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
