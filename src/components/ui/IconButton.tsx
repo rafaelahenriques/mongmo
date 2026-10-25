@@ -5,7 +5,10 @@ import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 
-/** Circular icon-only button (share, close, add…). Needs an accessibility label. */
+/**
+ * Circular icon-only button (share, close, add…). Needs an accessibility
+ * label. Disabled, it turns muted rose with a grey icon (still 3:1 or more).
+ */
 export function IconButton({
   icon,
   onPress,
@@ -27,12 +30,14 @@ export function IconButton({
   style?: StyleProp<ViewStyle>;
 }) {
   const theme = useTheme();
-  const { background, foreground } = {
-    card: { background: theme.backgroundElement, foreground: theme.text },
-    muted: { background: theme.backgroundSelected, foreground: theme.text },
-    primary: { background: theme.primary, foreground: theme.onPrimary },
-    brand: { background: theme.brandFill, foreground: theme.onBrand },
-  }[tone];
+  const { background, foreground } = disabled
+    ? { background: theme.backgroundSelected, foreground: theme.textSecondary }
+    : {
+        card: { background: theme.backgroundElement, foreground: theme.text },
+        muted: { background: theme.backgroundSelected, foreground: theme.text },
+        primary: { background: theme.primary, foreground: theme.onPrimary },
+        brand: { background: theme.brandFill, foreground: theme.onBrand },
+      }[tone];
 
   return (
     <Pressable
@@ -51,8 +56,7 @@ export function IconButton({
           width: size,
           height: size,
           backgroundColor: background,
-          opacity: disabled ? 0.4 : 1,
-          boxShadow: tone === 'card' ? `0px 4px 12px ${theme.shadow}` : undefined,
+          boxShadow: tone === 'card' && !disabled ? `0px 4px 12px ${theme.shadow}` : undefined,
           transform: [{ scale: pressed && !disabled ? 0.94 : 1 }],
         },
         style,

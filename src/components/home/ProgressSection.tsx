@@ -80,10 +80,11 @@ export function ProgressSection() {
             <ThemedText type="small" style={{ color: theme.onPrimary }}>
               {nextReward.costPoints - summary.points} to go for “{nextReward.title}”
             </ThemedText>
+            {/* On the Shadow Grey card: the card's own text colour, on a faint track of it (3:1 or more). */}
             <ProgressBar
               value={summary.points / nextReward.costPoints}
-              color={theme.brand}
-              track="rgba(255, 255, 255, 0.18)"
+              color={theme.onPrimary}
+              track={`${theme.onPrimary}33`}
             />
           </View>
         ) : null}

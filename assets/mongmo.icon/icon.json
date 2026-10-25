@@ -1,13 +1,13 @@
 {
   "fill": {
-    "automatic-gradient": "extended-srgb:0.82353,0.24706,0.12157,1.00000"
+    "automatic-gradient": "extended-srgb:0.50196,0.78039,0.73725,1.00000"
   },
   "groups": [
     {
       "layers": [
         {
-          "image-name": "M.svg",
-          "name": "M",
+          "image-name": "mark.svg",
+          "name": "Mark",
           "position": {
             "scale": 1,
             "translation-in-points": [

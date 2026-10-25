@@ -8,68 +8,89 @@ import '@/global.css';
 import { Platform } from 'react-native';
 
 /**
- * Mongmo palette, contemporary: warm off-white background, white cards,
- * Cool Brown ink and pill buttons, Bold Red as the one accent (live, points,
- * the main call to action), Light Blue for soft highlights.
- * Contrast (WCAG) is noted where text sits on a color.
+ * Mongmo brand palette:
+ *   Weathered Sage #80C7BC · Faded Warm Cream #F1E4B2 · Dusty Interior Rose
+ *   #E5D4D3 · Aged Concrete White #D6D1C4 · Shadow Grey #65665D.
+ * They are soft tones, so they're surfaces and fills; the text colours are
+ * deeper shades of them, chosen to pass WCAG AA (4.5:1) on every surface
+ * they sit on: the page (a light tint of concrete), white cards, rose fills
+ * and cream highlights. Ratios are noted against the weakest of those.
  */
+/**
+ * The brand never uses pure white or pure black. Paper is the near-white
+ * (Aged Concrete White lifted almost to white) for cards and for text on
+ * dark fills; Ink is the near-black (Shadow Grey deepened almost to black)
+ * for the dark-mode page, camera screens and the QR code.
+ */
+export const Paper = '#FCFBF8';
+export const Ink = '#1C1D19';
+
+/** Paper or Ink at `opacity`, for scrims, glass buttons and bar tracks. */
+export const paperAlpha = (opacity: number) => `rgba(252, 251, 248, ${opacity})`;
+export const inkAlpha = (opacity: number) => `rgba(28, 29, 25, ${opacity})`;
+
 export const Colors = {
   light: {
-    /** Cool Brown ink — 13.9:1 on background, 15.8:1 on cards. */
-    text: '#2A2020',
-    /** Warm off-white page. */
-    background: '#F4EFE9',
+    /** Ink, from Shadow Grey — 9.4:1 on rose, 13:1 on cards. */
+    text: '#2E2F2A',
+    /** Aged Concrete White lightened to a warm off-white page. */
+    background: '#F1EFEA',
     /** Cards and sheets. */
-    backgroundElement: '#FFFFFF',
-    /** Muted fills: chips, inputs, icon circles, pressed rows. */
-    backgroundSelected: '#EDE6DE',
-    /** Muted ink — 5:1 on background, 4.6:1 on backgroundSelected. */
-    textSecondary: '#705E58',
-    /** Hairline dividers. */
-    border: '#E6DDD3',
-    /** Soft card shadow color. */
-    shadow: 'rgba(42, 32, 32, 0.08)',
-    /** Pill buttons: Cool Brown with white text (14.5:1). */
-    primary: '#342626',
-    onPrimary: '#FFFFFF',
-    /** Bold Red, decorative: big numerals, dots, icons (large-text use only). */
-    brand: '#E8492A',
-    /** Red fill that carries white text at AA (4.7:1) — the main call to action. */
-    brandFill: '#D23F1F',
-    onBrand: '#FFFFFF',
-    /** Red for small text on background/cards (4.6:1 / 5.3:1). */
-    primaryText: '#C6391B',
-    /** Light Blue soft highlight — brown text on it is 11:1. */
-    accent: '#BDDDFC',
-    onAccent: '#2A2020',
-    /** AA on cards (>= 4.5:1). */
-    success: '#0F6B33',
-    danger: '#B3261E',
-    warning: '#8A5300',
+    backgroundElement: Paper,
+    /** Dusty Interior Rose: fields, chips, icon circles, pressed rows. */
+    backgroundSelected: '#E5D4D3',
+    /** Muted ink — 4.8:1 on rose, 6:1 on the page. */
+    textSecondary: '#5A5B53',
+    /** Aged Concrete White: hairline dividers and outlines. */
+    border: '#D6D1C4',
+    /** Soft card shadow colour. */
+    shadow: 'rgba(46, 47, 42, 0.10)',
+    /** Shadow Grey pill buttons and dark cards, Paper text (5.6:1). */
+    primary: '#65665D',
+    onPrimary: Paper,
+    /**
+     * Deep sage: big numerals, stars, progress fills and switches — 3.3:1 on
+     * rose, 4.5:1 on cards (large text and graphics need 3:1).
+     */
+    brand: '#388075',
+    /** Weathered Sage: the main call to action, with ink on it (6.9:1). */
+    brandFill: '#80C7BC',
+    onBrand: '#2E2F2A',
+    /** Deep sage for small text: links, "Live" (4.9:1). */
+    primaryText: '#2B6259',
+    /** Faded Warm Cream highlight: rewards, pickup code, avatar. */
+    accent: '#F1E4B2',
+    onAccent: '#2E2F2A',
+    /** AA (4.5:1) on every light surface. */
+    success: '#21653F',
+    danger: '#A33024',
+    warning: '#7A5115',
   },
   dark: {
-    /** Soft Cream ink — 16.8:1 on background. */
-    text: '#FDF1E2',
-    background: '#161111',
-    backgroundElement: '#231B1B',
-    backgroundSelected: '#302626',
-    /** 8.4:1 on background, 6.6:1 on backgroundSelected. */
-    textSecondary: '#BCAAA3',
-    border: '#3A2E2E',
-    shadow: 'rgba(0, 0, 0, 0)',
-    /** Inverted pill: cream with brown text (14.2:1). */
-    primary: '#FDF1E2',
-    onPrimary: '#2A2020',
-    brand: '#F0553A',
-    brandFill: '#D23F1F',
-    onBrand: '#FFFFFF',
-    /** 6.6:1 on cards. */
-    primaryText: '#FF7A5C',
-    accent: '#BDDDFC',
-    onAccent: '#2A2020',
-    success: '#6EE7A0',
-    danger: '#FF8A80',
-    warning: '#F5B24A',
+    /** Warm white ink — 10.9:1 even on fills. */
+    text: '#F2F0EA',
+    /** Shadow Grey, deepened. */
+    background: Ink,
+    backgroundElement: '#272822',
+    backgroundSelected: '#34352E',
+    /** 6:1 on fills. */
+    textSecondary: '#B8B4A8',
+    border: '#3B3C35',
+    shadow: inkAlpha(0),
+    /** Aged Concrete pill with ink (10.4:1). */
+    primary: '#D6D1C4',
+    onPrimary: '#22231E',
+    brand: '#80C7BC',
+    /** Weathered Sage with ink (8.1:1). */
+    brandFill: '#80C7BC',
+    onBrand: '#22231E',
+    /** 6.4:1 on fills. */
+    primaryText: '#80C7BC',
+    accent: '#F1E4B2',
+    onAccent: '#22231E',
+    success: '#3BB16F',
+    danger: '#E18278',
+    warning: '#D68D24',
   },
 } as const;
 

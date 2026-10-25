@@ -29,7 +29,7 @@ export async function ensureNotificationPermission(): Promise<boolean> {
         name: 'Pop-up alerts',
         importance: Notifications.AndroidImportance.DEFAULT,
         vibrationPattern: [0, 200],
-        lightColor: '#8B4513',
+        lightColor: '#388075',
       });
     }
 
