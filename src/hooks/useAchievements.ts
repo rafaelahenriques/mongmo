@@ -103,5 +103,6 @@ export function useAchievements() {
     /** Progress towards each badge, by badge key. */
     progress: progressQuery.data ?? {},
     redeemReward: redeem.mutate,
+    redeemPending: redeem.isPending,
   };
 }

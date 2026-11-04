@@ -2,10 +2,8 @@ import { useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatInTimeZone } from 'date-fns-tz';
 
-import { Wordmark } from '@/components/brand/Wordmark';
 import { ThemedText } from '@/components/ThemedText';
 import { BigNumber } from '@/components/ui/BigNumber';
 import { Button } from '@/components/ui/Button';
@@ -15,6 +13,7 @@ import { PhotoHero } from '@/components/ui/PhotoHero';
 import { RoundIconButton } from '@/components/ui/RoundIconButton';
 import { usePullToRefresh } from '@/components/ui/Screen';
 import { StampRow } from '@/components/ui/Stamps';
+import { AppHeader } from '@/components/ui/AppHeader';
 import { StepBar } from '@/components/ui/StepBar';
 import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
@@ -49,7 +48,6 @@ const ORDER_STEP: Record<string, number> = { paid: 0, preparing: 1, ready: 2 };
 export default function HomeScreen() {
   const theme = useTheme();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const refresh = usePullToRefresh();
   const profile = useProfile();
   const store = useStore();
@@ -107,160 +105,166 @@ export default function HomeScreen() {
   notes.order = order ? notes.featured + 1 : notes.featured;
   notes.points = notes.order + 1;
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: theme.background }}
-      refreshControl={
-        <RefreshControl refreshing={refresh.refreshing} onRefresh={refresh.onRefresh} tintColor={theme.onSurfaceDark} />
-      }
-    >
-      <PhotoHero
-        imageUrl={featured?.imageUrl}
-        title={featured?.title ?? 'Mongmo'}
-        live={featured ? getEventPhase(featured.startsAt, featured.endsAt) === 'live' : false}
-        meta={featured && coordinates ? formatDistance(distanceInMeters(coordinates, featured.coordinates)) : undefined}
-        onPress={featured ? () => openEvent(featured.id) : undefined}
-        accessibilityLabel={featured ? `${featured.title}. Open the pop-up.` : undefined}
-        top={
-          <View style={[styles.heroTop, { top: insets.top + 2 }]}>
-            <Wordmark height={28.5} />
-            <Pressable
-              onPress={() => router.push('/(home)/notifications')}
-              accessibilityRole="button"
-              accessibilityLabel={`Notifications${feed.unseen ? `, ${feed.unseen} new` : ''}`}
-              hitSlop={12}
-            >
-              <ThemedText type="captionBold" style={{ color: theme.onSurfaceDark }}>
-                {[firstName ? `Hi, ${firstName}` : 'Hi', feed.unseen ? `${feed.unseen} new` : null]
-                  .filter(Boolean)
-                  .join(' · ')}
-              </ThemedText>
-            </Pressable>
-          </View>
-        }
-      />
-
-      {featured ? (
-        <View style={styles.page}>
-          <View style={[styles.rule, { backgroundColor: theme.text }]} />
-          <FeaturedRow
-            event={featured}
-            index={notes.featured}
-            onCheckIn={() =>
-              router.push({ pathname: '/(popups)/check-in/[id]', params: { id: featured.id } })
-            }
-            onOrder={() => orderAt(featured)}
-            onOpen={() => openEvent(featured.id)}
+    <View style={[styles.screen, { backgroundColor: theme.background }]}>
+      <AppHeader />
+      <ScrollView
+        style={{ flex: 1, backgroundColor: theme.background }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refresh.refreshing}
+            onRefresh={refresh.onRefresh}
+            tintColor={theme.onSurfaceDark}
           />
-        </View>
-      ) : null}
+        }
+      >
+        <PhotoHero
+          imageUrl={featured?.imageUrl}
+          title={featured?.title ?? 'Mongmo'}
+          live={featured ? getEventPhase(featured.startsAt, featured.endsAt) === 'live' : false}
+          meta={
+            featured && coordinates ? formatDistance(distanceInMeters(coordinates, featured.coordinates)) : undefined
+          }
+          onPress={featured ? () => openEvent(featured.id) : undefined}
+          accessibilityLabel={featured ? `${featured.title}. Open the pop-up.` : undefined}
+          top={
+            <View style={styles.heroTop}>
+              <Pressable
+                onPress={() => router.push('/(home)/notifications')}
+                accessibilityRole="button"
+                accessibilityLabel={`Notifications${feed.unseen ? `, ${feed.unseen} new` : ''}`}
+                hitSlop={12}
+              >
+                <ThemedText type="captionBold" style={{ color: theme.onSurfaceDark }}>
+                  {[firstName ? `Hi, ${firstName}` : 'Hi', feed.unseen ? `${feed.unseen} new` : null]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </ThemedText>
+              </Pressable>
+            </View>
+          }
+        />
 
-      {order ? (
-        <View style={[styles.block, { backgroundColor: theme.backgroundSelected }]}>
-          <ColumnRow label="Your order" index={notes.order}>
+        {featured ? (
+          <View style={styles.page}>
+            <View style={[styles.rule, { backgroundColor: theme.text }]} />
+            <FeaturedRow
+              event={featured}
+              index={notes.featured}
+              onCheckIn={() => router.push({ pathname: '/(popups)/check-in/[id]', params: { id: featured.id } })}
+              onOrder={() => orderAt(featured)}
+              onOpen={() => openEvent(featured.id)}
+            />
+          </View>
+        ) : null}
+
+        {order ? (
+          <View style={[styles.block, { backgroundColor: theme.backgroundSelected }]}>
+            <ColumnRow label="Your order" index={notes.order}>
+              <View style={styles.titleRow}>
+                <ThemedText type="title">{ORDER_TITLE[order.status] ?? 'In progress'}</ThemedText>
+                <RoundIconButton
+                  icon="arrowRight"
+                  onPress={() =>
+                    router.push({
+                      pathname: '/(orders)/order/status/[id]',
+                      params: { id: order.id },
+                    })
+                  }
+                  accessibilityLabel="Open your order"
+                />
+              </View>
+              <ThemedText type="caption" themeColor="textSecondary">
+                {pickupCode(order.id)}
+                {order.pickup_at ? ` · Pick up at ${new Date(order.pickup_at).toTimeString().slice(0, 5)}` : ''}
+              </ThemedText>
+              <View style={styles.steps}>
+                <StepBar steps={ORDER_STEPS} reached={ORDER_STEP[order.status] ?? 0} />
+              </View>
+            </ColumnRow>
+          </View>
+        ) : null}
+
+        <View style={styles.page}>
+          <ColumnRow label="My points" index={notes.points} style={styles.points}>
             <View style={styles.titleRow}>
-              <ThemedText type="title">{ORDER_TITLE[order.status] ?? 'In progress'}</ThemedText>
+              <BigNumber value={summary.points} word="Points" />
               <RoundIconButton
-                icon="arrowRight"
-                onPress={() =>
-                  router.push({
-                    pathname: '/(orders)/order/status/[id]',
-                    params: { id: order.id },
-                  })
-                }
-                accessibilityLabel="Open your order"
+                icon="qrcode"
+                onPress={() => router.push('/(wallet)/card')}
+                accessibilityLabel="Show my membership QR code"
               />
             </View>
-            <ThemedText type="caption" themeColor="textSecondary">
-              {pickupCode(order.id)}
-              {order.pickup_at ? ` · Pick up at ${new Date(order.pickup_at).toTimeString().slice(0, 5)}` : ''}
-            </ThemedText>
-            <View style={styles.steps}>
-              <StepBar steps={ORDER_STEPS} reached={ORDER_STEP[order.status] ?? 0} />
+            <StampRow earned={stamps} total={STAMPS} style={styles.stamps} />
+            <View style={styles.titleRow}>
+              <ThemedText type="caption" themeColor="textSecondary" style={styles.flex}>
+                {nextReward
+                  ? `${nextReward.costPoints - summary.points} more to your next reward`
+                  : 'You can redeem a reward'}
+              </ThemedText>
+              <Pressable
+                onPress={() => router.push('/(wallet)')}
+                accessibilityRole="link"
+                hitSlop={10}
+                style={styles.link}
+              >
+                <ThemedText type="captionBold">Rewards</ThemedText>
+                <Icon name="arrowRight" size={14} color={theme.text} weight="bold" />
+              </Pressable>
             </View>
           </ColumnRow>
         </View>
-      ) : null}
 
-      <View style={styles.page}>
-        <ColumnRow label="My points" index={notes.points} style={styles.points}>
-          <View style={styles.titleRow}>
-            <BigNumber value={summary.points} word="Points" />
-            <RoundIconButton
-              icon="qrcode"
-              onPress={() => router.push('/(profile)/achievements')}
-              accessibilityLabel="Show my membership QR code"
-            />
-          </View>
-          <StampRow earned={stamps} total={STAMPS} style={styles.stamps} />
-          <View style={styles.titleRow}>
-            <ThemedText type="caption" themeColor="textSecondary" style={styles.flex}>
-              {nextReward
-                ? `${nextReward.costPoints - summary.points} more to your next reward`
-                : 'You can redeem a reward'}
+        <View style={[styles.nextUp, { backgroundColor: theme.surfaceDark }]}>
+          <View style={styles.nextHead}>
+            <ThemedText type="title" style={{ color: theme.onSurfaceDark }} accessibilityRole="header">
+              Next up
             </ThemedText>
-            <Pressable
-              onPress={() => router.push('/(profile)/achievements')}
-              accessibilityRole="link"
-              hitSlop={10}
-              style={styles.link}
-            >
-              <ThemedText type="captionBold">Rewards</ThemedText>
-              <Icon name="arrowRight" size={14} color={theme.text} weight="bold" />
+            <Pressable onPress={() => router.push('/(popups)')} accessibilityRole="link" hitSlop={10}>
+              <ThemedText type="captionBold" style={{ color: theme.onSurfaceDark }}>
+                View all
+              </ThemedText>
             </Pressable>
           </View>
-        </ColumnRow>
-      </View>
-
-      <View style={[styles.nextUp, { backgroundColor: theme.surfaceDark }]}>
-        <View style={styles.nextHead}>
-          <ThemedText type="title" style={{ color: theme.onSurfaceDark }} accessibilityRole="header">
-            Next up
-          </ThemedText>
-          <Pressable onPress={() => router.push('/(popups)')} accessibilityRole="link" hitSlop={10}>
-            <ThemedText type="captionBold" style={{ color: theme.onSurfaceDark }}>
-              View all
-            </ThemedText>
-          </Pressable>
+          {upcoming.length === 0 ? (
+            <Pressable onPress={orderFromStore} accessibilityRole="button" style={styles.upRow}>
+              <ThemedText type="caption" style={{ color: theme.faded }}>
+                Nothing else planned yet. Order ahead from the café meanwhile.
+              </ThemedText>
+            </Pressable>
+          ) : (
+            upcoming.map((event, index) => (
+              <Pressable
+                key={event.id}
+                onPress={() => openEvent(event.id)}
+                accessibilityRole="button"
+                accessibilityLabel={`${event.title}, ${upcomingWhen(event)}`}
+                style={[
+                  styles.upRow,
+                  index < upcoming.length - 1 && {
+                    borderBottomWidth: 1,
+                    borderBottomColor: theme.onSurfaceDark,
+                  },
+                ]}
+              >
+                <View style={[styles.thumb, { backgroundColor: theme.textSecondary }]}>
+                  {event.imageUrl ? (
+                    <Image source={{ uri: event.imageUrl }} style={StyleSheet.absoluteFill} contentFit="cover" />
+                  ) : null}
+                </View>
+                <View style={styles.flex}>
+                  <ThemedText type="smallBold" style={{ color: theme.onSurfaceDark }} numberOfLines={1}>
+                    {event.title}
+                  </ThemedText>
+                  <ThemedText type="caption" style={{ color: theme.border }} numberOfLines={1}>
+                    {upcomingWhen(event)}
+                  </ThemedText>
+                </View>
+              </Pressable>
+            ))
+          )}
         </View>
-        {upcoming.length === 0 ? (
-          <Pressable onPress={orderFromStore} accessibilityRole="button" style={styles.upRow}>
-            <ThemedText type="caption" style={{ color: theme.faded }}>
-              Nothing else planned yet. Order ahead from the café meanwhile.
-            </ThemedText>
-          </Pressable>
-        ) : (
-          upcoming.map((event, index) => (
-            <Pressable
-              key={event.id}
-              onPress={() => openEvent(event.id)}
-              accessibilityRole="button"
-              accessibilityLabel={`${event.title}, ${upcomingWhen(event)}`}
-              style={[
-                styles.upRow,
-                index < upcoming.length - 1 && {
-                  borderBottomWidth: 1,
-                  borderBottomColor: theme.onSurfaceDark,
-                },
-              ]}
-            >
-              <View style={[styles.thumb, { backgroundColor: theme.textSecondary }]}>
-                {event.imageUrl ? (
-                  <Image source={{ uri: event.imageUrl }} style={StyleSheet.absoluteFill} contentFit="cover" />
-                ) : null}
-              </View>
-              <View style={styles.flex}>
-                <ThemedText type="smallBold" style={{ color: theme.onSurfaceDark }} numberOfLines={1}>
-                  {event.title}
-                </ThemedText>
-                <ThemedText type="caption" style={{ color: theme.border }} numberOfLines={1}>
-                  {upcomingWhen(event)}
-                </ThemedText>
-              </View>
-            </Pressable>
-          ))
-        )}
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -315,13 +319,16 @@ function FeaturedRow({
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
   heroTop: {
     position: 'absolute',
+    top: 14,
     left: PageInset,
     right: PageInset,
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
   },
   page: {
     paddingHorizontal: PageInset,

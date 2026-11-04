@@ -23,15 +23,11 @@ export function useRealtime(): RealtimeStatus {
 
     const channel = supabase
       .channel('busy-counts')
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'stores' },
-        (payload) => onUpdate(payload.new as OccupancyRow),
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'stores' }, (payload) =>
+        onUpdate(payload.new as OccupancyRow),
       )
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'events' },
-        (payload) => onUpdate(payload.new as OccupancyRow),
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'events' }, (payload) =>
+        onUpdate(payload.new as OccupancyRow),
       )
       .subscribe((channelStatus) => {
         setStatus(channelStatus === 'SUBSCRIBED' ? 'live' : 'connecting');

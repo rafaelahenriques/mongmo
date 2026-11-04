@@ -69,7 +69,11 @@ export function Segmented<T extends string>({
         if (look === 'switch') {
           const color = selected ? theme.onPrimary : theme.text;
           return (
-            <Pressable key={option.value} {...common} style={[styles.switchOption, selected && { backgroundColor: theme.primary }]}>
+            <Pressable
+              key={option.value}
+              {...common}
+              style={[styles.switchOption, selected && { backgroundColor: theme.primary }]}
+            >
               {option.icon ? <Icon name={option.icon} size={12} color={color} /> : null}
               <ThemedText type="captionBold" style={{ color }}>
                 {label}

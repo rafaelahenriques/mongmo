@@ -74,15 +74,7 @@ export function usePullToRefresh() {
 }
 
 /** Big in-page heading for tab roots: optional eyebrow, title, trailing control. */
-export function LargeHeader({
-  eyebrow,
-  title,
-  trailing,
-}: {
-  eyebrow?: string;
-  title: string;
-  trailing?: ReactNode;
-}) {
+export function LargeHeader({ eyebrow, title, trailing }: { eyebrow?: string; title: string; trailing?: ReactNode }) {
   return (
     <View style={styles.header}>
       <View style={styles.headerTexts}>

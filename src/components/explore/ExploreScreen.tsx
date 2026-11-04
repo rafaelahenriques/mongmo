@@ -1,10 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatInTimeZone } from 'date-fns-tz';
 
-import { Wordmark } from '@/components/brand/Wordmark';
 import FilterBar from '@/components/map/FilterBar';
 import OfflineBanner from '@/components/map/OfflineBanner';
 import StoreSheet from '@/components/map/StoreSheet';
@@ -12,6 +10,7 @@ import ListMode from '@/components/explore/ListMode';
 import MapMode from '@/components/explore/MapMode';
 import ModeToggle, { type ExploreMode } from '@/components/explore/ModeToggle';
 import { ThemedText } from '@/components/ThemedText';
+import { AppHeader } from '@/components/ui/AppHeader';
 import { Button } from '@/components/ui/Button';
 import { ColumnRow } from '@/components/ui/ColumnRow';
 import { Icon } from '@/components/ui/Icon';
@@ -37,7 +36,6 @@ import type { PopUpEvent } from '@/types';
 export default function ExploreScreen() {
   const theme = useTheme();
   const router = useRouter();
-  const insets = useSafeAreaInsets();
   const [mode, setMode] = useState<ExploreMode>('map');
   const [sheetVisible, setSheetVisible] = useState(false);
 
@@ -82,20 +80,20 @@ export default function ExploreScreen() {
   // No-op unless EXPO_PUBLIC_UI_TOUR=1 (headless screenshot walkthrough).
   useUiTour({ events, openSheet: onSelectStore, closeSheet: onCloseSheet, setFilter, setMode });
 
-  const topRow = (
+  const toggle = (
     <View style={styles.topRow}>
-      <Wordmark height={20} />
       <ModeToggle value={mode} onChange={setMode} />
     </View>
   );
 
   if (mode === 'list') {
     return (
-      <View style={[styles.container, { backgroundColor: theme.background, paddingTop: insets.top + 12 }]}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <AppHeader />
         <ListMode
           header={
             <View style={styles.listHeader}>
-              {topRow}
+              {toggle}
               <OfflineBanner />
               <ThemedText type="title" accessibilityRole="header" style={styles.listTitle}>
                 {events.length === 1 ? '1 Mongmo nearby' : `${events.length} Mongmos nearby`}
@@ -120,6 +118,7 @@ export default function ExploreScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <AppHeader />
       <View style={styles.flex}>
         <MapMode
           store={store}
@@ -131,8 +130,8 @@ export default function ExploreScreen() {
           onSelectStore={onSelectStore}
           onSelectEvent={onSelectEvent}
         />
-        <View style={[styles.overlay, { top: insets.top + 12 }]} pointerEvents="box-none">
-          {topRow}
+        <View style={styles.overlay} pointerEvents="box-none">
+          {toggle}
           <OfflineBanner />
         </View>
       </View>
@@ -186,7 +185,11 @@ function LiveNow({
   const hours = `${formatInTimeZone(new Date(event.startsAt), event.timeZone, 'HH:mm')} – ${formatInTimeZone(new Date(event.endsAt), event.timeZone, 'HH:mm')}`;
   return (
     <ColumnRow label="Right now" index={index}>
-      <Pressable onPress={() => onOpen(event.id)} accessibilityRole="button" accessibilityLabel={`${event.title}. Open.`}>
+      <Pressable
+        onPress={() => onOpen(event.id)}
+        accessibilityRole="button"
+        accessibilityLabel={`${event.title}. Open.`}
+      >
         <ThemedText type="title" numberOfLines={2}>
           {event.title}
         </ThemedText>
@@ -255,17 +258,18 @@ const styles = StyleSheet.create({
   },
   overlay: {
     position: 'absolute',
+    top: 12,
     left: PageInset,
     right: PageInset,
     gap: 8,
   },
   topRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
   },
   listHeader: {
     gap: 12,
+    paddingTop: 12,
   },
   listTitle: {
     marginTop: 18,

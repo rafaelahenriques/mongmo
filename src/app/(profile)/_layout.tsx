@@ -6,9 +6,8 @@ export default function ProfileLayout() {
   const screenOptions = useStackScreenOptions();
   return (
     <Stack screenOptions={screenOptions}>
-      <Stack.Screen name="index" options={{ headerShown: false, headerTitle: 'Profile' }} />
+      <Stack.Screen name="index" options={{ headerShown: false, headerTitle: 'Account' }} />
       <Stack.Screen name="edit" options={{ headerTitle: 'Edit profile' }} />
-      <Stack.Screen name="achievements" options={{ headerTitle: 'Achievements' }} />
       <Stack.Screen name="owner/index" options={{ headerTitle: 'Owner tools' }} />
       <Stack.Screen name="owner/events" options={{ headerTitle: 'Manage pop-ups' }} />
       <Stack.Screen name="owner/event/new" options={{ headerTitle: 'New pop-up' }} />

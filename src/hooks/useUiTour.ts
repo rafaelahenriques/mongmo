@@ -59,15 +59,17 @@ export function useUiTour(controls: UiTourControls): void {
 
     // Capture-debug aid: every step logs its fire time so screenshot timing
     // can be decoded against the Metro log instead of guessed.
-    const step = (label: string, run: () => void): (() => void) => () => {
-      console.log(`[ui-tour] ${label}`, Date.now(), 'at', pathnameRef.current);
-      run();
-      // Capture-debug: prove whether the router accepted the navigation
-      // (JS state) even if the native paint that follows does not appear.
-      setTimeout(() => {
-        console.log(`[ui-tour] ${label}-after`, Date.now(), 'at', pathnameRef.current);
-      }, 700);
-    };
+    const step =
+      (label: string, run: () => void): (() => void) =>
+      () => {
+        console.log(`[ui-tour] ${label}`, Date.now(), 'at', pathnameRef.current);
+        run();
+        // Capture-debug: prove whether the router accepted the navigation
+        // (JS state) even if the native paint that follows does not appear.
+        setTimeout(() => {
+          console.log(`[ui-tour] ${label}-after`, Date.now(), 'at', pathnameRef.current);
+        }, 700);
+      };
 
     // scheme = what RN's Appearance reports (diagnoses whether a simctl
     // appearance flip even reaches app processes on this simulator).
@@ -78,7 +80,7 @@ export function useUiTour(controls: UiTourControls): void {
           // and no-ops when pushed from the map, but pops to the profile
           // index when pushed from inside the profile stack.
           setTimeout(
-            step('achievements', () => routerRef.current.push('/(profile)/achievements')),
+            step('achievements', () => routerRef.current.push('/(achievements)/achievements')),
             4_000,
           ),
           // Dark capture: flips the manual theme override (the exact store
@@ -89,19 +91,40 @@ export function useUiTour(controls: UiTourControls): void {
             console.log('[ui-tour] dark-on', Date.now());
             useSettingsStore.getState().setThemeMode('dark');
           }, 5_000),
-          setTimeout(step('profile', () => routerRef.current.push('/(profile)')), 14_000),
+          setTimeout(
+            step('profile', () => routerRef.current.push('/(profile)')),
+            14_000,
+          ),
           setTimeout(() => {
             console.log('[ui-tour] dark-off', Date.now());
             useSettingsStore.getState().setThemeMode('system');
           }, 22_000),
         ]
       : [
-          setTimeout(step('openSheet', () => controlsRef.current.openSheet()), 8_000),
-          setTimeout(step('closeSheet', () => controlsRef.current.closeSheet()), 17_000),
-          setTimeout(step('week', () => controlsRef.current.setFilter('week')), 20_000),
-          setTimeout(step('all', () => controlsRef.current.setFilter('all')), 25_000),
-          setTimeout(step('today', () => controlsRef.current.setFilter('today')), 29_000),
-          setTimeout(step('list', () => controlsRef.current.setMode('list')), 34_000),
+          setTimeout(
+            step('openSheet', () => controlsRef.current.openSheet()),
+            8_000,
+          ),
+          setTimeout(
+            step('closeSheet', () => controlsRef.current.closeSheet()),
+            17_000,
+          ),
+          setTimeout(
+            step('week', () => controlsRef.current.setFilter('week')),
+            20_000,
+          ),
+          setTimeout(
+            step('all', () => controlsRef.current.setFilter('all')),
+            25_000,
+          ),
+          setTimeout(
+            step('today', () => controlsRef.current.setFilter('today')),
+            29_000,
+          ),
+          setTimeout(
+            step('list', () => controlsRef.current.setMode('list')),
+            34_000,
+          ),
           setTimeout(
             step('detail', () => {
               const first = controlsRef.current.events[0];

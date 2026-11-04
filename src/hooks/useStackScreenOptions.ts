@@ -4,7 +4,7 @@ import { TopBar } from '@/components/ui/TopBar';
 import { useTheme } from '@/hooks/useTheme';
 
 type HeaderProps = {
-  navigation: { goBack: () => void };
+  navigation: { goBack: () => void; canGoBack: () => boolean };
   route: { name: string };
   options: { title?: string; headerTitle?: unknown; headerRight?: (props: { tintColor?: string }) => ReactNode };
   back?: unknown;
@@ -23,7 +23,9 @@ export function useStackScreenOptions() {
       header: ({ navigation, route, options, back }: HeaderProps) =>
         createElement(TopBar, {
           title: typeof options.headerTitle === 'string' ? options.headerTitle : (options.title ?? route.name),
-          onBack: back ? navigation.goBack : undefined,
+          // A screen opened from the top bar (Achievements) is its stack's
+          // first: back returns to the tab it was opened from.
+          onBack: back || navigation.canGoBack() ? navigation.goBack : undefined,
           trailing: options.headerRight?.({ tintColor: theme.text }),
         }),
       contentStyle: { backgroundColor: theme.background },

@@ -15,6 +15,7 @@ import { IconButton } from '@/components/ui/IconButton';
 import { ListRow } from '@/components/ui/ListRow';
 import { ScreenScroll, SectionHeader } from '@/components/ui/Screen';
 import { StatRow } from '@/components/ui/StatRow';
+import { TopBar } from '@/components/ui/TopBar';
 import { Spacing } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useMyPhotos } from '@/hooks/usePhotos';
@@ -35,7 +36,7 @@ export default function ProfileScreen() {
   const { summary } = useAchievements();
   const photos = useMyPhotos();
 
-  const openAchievements = useCallback(() => router.push('/(profile)/achievements'), [router]);
+  const openAchievements = useCallback(() => router.push('/(achievements)/achievements'), [router]);
   const openOwnerTools = useCallback(() => router.push('/(profile)/owner'), [router]);
 
   if (profile.isPending) {
@@ -72,78 +73,84 @@ export default function ProfileScreen() {
   const memberSince = formatInTimeZone(new Date(user.memberSince), DISPLAY_TIME_ZONE, 'MMM yyyy');
 
   return (
-    <ScreenScroll topInset>
-      <View style={styles.identity}>
-        <Avatar name={user.name} url={user.avatarUrl} />
-        <View style={styles.identityTexts}>
-          <ThemedText type="title" numberOfLines={2} accessibilityRole="header">
-            {user.name}
-          </ThemedText>
-          {user.bio ? (
-            <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
-              {user.bio}
+    <View style={[styles.screen, { backgroundColor: theme.background }]}>
+      <TopBar title="Account" onBack={() => (router.canGoBack() ? router.back() : router.replace('/(home)'))} />
+      <ScreenScroll>
+        <View style={styles.identity}>
+          <Avatar name={user.name} url={user.avatarUrl} />
+          <View style={styles.identityTexts}>
+            <ThemedText type="title" numberOfLines={2} accessibilityRole="header">
+              {user.name}
             </ThemedText>
-          ) : null}
+            {user.bio ? (
+              <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
+                {user.bio}
+              </ThemedText>
+            ) : null}
+          </View>
+          <IconButton
+            icon="edit"
+            tone="card"
+            size={40}
+            onPress={() => router.push('/(profile)/edit')}
+            accessibilityLabel="Edit profile"
+          />
         </View>
-        <IconButton
-          icon="edit"
-          tone="card"
-          size={40}
-          onPress={() => router.push('/(profile)/edit')}
-          accessibilityLabel="Edit profile"
+        <View style={styles.chips}>
+          {user.homeCity ? <Chip label={user.homeCity} icon="pin" /> : null}
+          <Chip label={`Since ${memberSince}`} icon="calendar" />
+          {user.role === 'owner' ? <Chip label="Owner" tone="dark" icon="store" /> : null}
+        </View>
+
+        <StatRow
+          stats={[
+            { label: 'Events', value: String(summary.eventsAttended), caption: 'attended' },
+            { label: 'Points', value: summary.points.toLocaleString(), caption: 'earned', emphasis: true },
+            { label: 'Badges', value: String(summary.earned.length), caption: 'unlocked' },
+          ]}
         />
-      </View>
-      <View style={styles.chips}>
-        {user.homeCity ? <Chip label={user.homeCity} icon="pin" /> : null}
-        <Chip label={`Since ${memberSince}`} icon="calendar" />
-        {user.role === 'owner' ? <Chip label="Owner" tone="dark" icon="store" /> : null}
-      </View>
 
-      <StatRow
-        stats={[
-          { label: 'Events', value: String(summary.eventsAttended), caption: 'attended' },
-          { label: 'Points', value: summary.points.toLocaleString(), caption: 'earned', emphasis: true },
-          { label: 'Badges', value: String(summary.earned.length), caption: 'unlocked' },
-        ]}
-      />
+        <Card style={styles.links}>
+          <ListRow
+            title="Achievements"
+            subtitle="Badges, rewards and the leaderboard"
+            icon="trophy"
+            iconTone="accent"
+            onPress={openAchievements}
+            accessibilityLabel="View your achievements and rewards"
+          />
+          {user.role === 'owner' ? (
+            <>
+              <View style={[styles.divider, { backgroundColor: theme.border }]} />
+              <ListRow
+                title="Owner tools"
+                subtitle="Pop-ups, challenges, menus and orders"
+                icon="store"
+                iconTone="primary"
+                onPress={openOwnerTools}
+                accessibilityLabel="Owner tools: manage events, challenges and orders"
+              />
+            </>
+          ) : null}
+        </Card>
 
-      <Card style={styles.links}>
-        <ListRow
-          title="Achievements"
-          subtitle="Badges, rewards and the leaderboard"
-          icon="trophy"
-          iconTone="accent"
-          onPress={openAchievements}
-          accessibilityLabel="View your achievements and rewards"
+        <SectionHeader title="Your photos" />
+        <PhotoGallery
+          photos={photos.data ?? []}
+          emptyText="Photos you take for challenges show up here. Check in at a pop-up and try a photo challenge."
         />
-        {user.role === 'owner' ? (
-          <>
-            <View style={[styles.divider, { backgroundColor: theme.border }]} />
-            <ListRow
-              title="Owner tools"
-              subtitle="Pop-ups, challenges, menus and orders"
-              icon="store"
-              iconTone="primary"
-              onPress={openOwnerTools}
-              accessibilityLabel="Owner tools: manage events, challenges and orders"
-            />
-          </>
-        ) : null}
-      </Card>
 
-      <SectionHeader title="Your photos" />
-      <PhotoGallery
-        photos={photos.data ?? []}
-        emptyText="Photos you take for challenges show up here. Check in at a pop-up and try a photo challenge."
-      />
-
-      <SectionHeader title="Settings" />
-      <SettingsPanel />
-    </ScreenScroll>
+        <SectionHeader title="Settings" />
+        <SettingsPanel />
+      </ScreenScroll>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
   identity: {
     flexDirection: 'row',
     alignItems: 'center',
