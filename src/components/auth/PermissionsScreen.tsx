@@ -53,8 +53,8 @@ export function PermissionsScreen() {
       style={{ flex: 1, backgroundColor: theme.background }}
       contentContainerStyle={[styles.content, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}
     >
-      {BrandPhotos.truck ? (
-        <Image source={BrandPhotos.truck} style={styles.photo} contentFit="cover" accessibilityIgnoresInvertColors />
+      {BrandPhotos.permissions ? (
+        <Image source={BrandPhotos.permissions} style={styles.photo} contentFit="cover" accessibilityIgnoresInvertColors />
       ) : null}
       <View style={styles.texts}>
         <ThemedText type="title" accessibilityRole="header">

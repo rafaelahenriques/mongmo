@@ -84,7 +84,7 @@ export default function WalletScreen() {
               </ThemedText>
             </View>
           </View>
-          {BrandPhotos.flatlay ? <Image source={BrandPhotos.flatlay} style={styles.photo} contentFit="cover" /> : null}
+          {BrandPhotos.wallet ? <Image source={BrandPhotos.wallet} style={styles.photo} contentFit="cover" /> : null}
           <SquareIconButton
             icon="qrcode"
             tone="dark"

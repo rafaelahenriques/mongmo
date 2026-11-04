@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import type { OrderMenuItem } from '@/api/orders';
 import { CategoryIcon } from '@/components/order/CategoryIcon';
 import { ThemedText } from '@/components/ThemedText';
+import { PRODUCT_PHOTO_POSITION, productPhoto } from '@/constants/productPhotos';
 import { CardShadow } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
@@ -28,6 +29,7 @@ export function ProductCard({
 }) {
   const theme = useTheme();
   const name = shortItemName(item.name, item.category);
+  const photo = productPhoto(item);
   const section = withSection && name !== item.name ? item.category : null;
   return (
     <Pressable
@@ -44,13 +46,19 @@ export function ProductCard({
       ]}
     >
       <View style={[styles.photoBox, { backgroundColor: theme.backgroundSelected }]}>
-        <View style={[styles.plate, { backgroundColor: theme.backgroundElement }]}>
-          {item.imageUrl ? (
-            <Image source={{ uri: item.imageUrl }} style={StyleSheet.absoluteFill} contentFit="cover" />
-          ) : (
+        {photo ? (
+          <Image
+            source={photo}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+            contentPosition={PRODUCT_PHOTO_POSITION}
+            accessibilityIgnoresInvertColors
+          />
+        ) : (
+          <View style={[styles.plate, { backgroundColor: theme.backgroundElement }]}>
             <CategoryIcon section={item.category ?? item.name} size={46} />
-          )}
-        </View>
+          </View>
+        )}
       </View>
       <View style={styles.texts}>
         {section ? (
