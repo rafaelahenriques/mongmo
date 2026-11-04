@@ -20,6 +20,10 @@ export type ListRowProps = {
   onPress?: () => void;
   /** Leaves off the stone rule under the row (the last row of a group). */
   last?: boolean;
+  /** No chevron on a row that acts rather than goes somewhere (Log out). */
+  chevron?: boolean;
+  /** Red title, for Delete account. */
+  danger?: boolean;
   accessibilityLabel?: string;
 };
 
@@ -36,6 +40,8 @@ export function ListRow({
   trailing,
   onPress,
   last = false,
+  chevron = true,
+  danger = false,
   accessibilityLabel,
 }: ListRowProps) {
   const theme = useTheme();
@@ -44,7 +50,9 @@ export function ListRow({
     <>
       {icon ? <IconBadge name={icon} tone={iconTone} size={40} /> : null}
       <View style={styles.texts}>
-        <ThemedText type="smallBold">{title}</ThemedText>
+        <ThemedText type="smallBold" themeColor={danger ? 'danger' : undefined}>
+          {title}
+        </ThemedText>
         {subtitle ? (
           <ThemedText type="caption" themeColor="textSecondary">
             {subtitle}
@@ -53,7 +61,7 @@ export function ListRow({
       </View>
       {value ? <ThemedText type="captionBold">{value}</ThemedText> : null}
       {trailing}
-      {onPress ? <Icon name="chevronRight" size={16} color={theme.text} /> : null}
+      {onPress && chevron ? <Icon name="chevronRight" size={16} color={theme.text} /> : null}
     </>
   );
 

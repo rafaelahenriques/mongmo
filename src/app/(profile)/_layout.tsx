@@ -8,6 +8,7 @@ export default function ProfileLayout() {
     <Stack screenOptions={screenOptions}>
       <Stack.Screen name="index" options={{ headerShown: false, headerTitle: 'Account' }} />
       <Stack.Screen name="edit" options={{ headerTitle: 'Edit profile' }} />
+      <Stack.Screen name="settings" options={{ headerTitle: 'Settings' }} />
       <Stack.Screen name="owner/index" options={{ headerTitle: 'Owner tools' }} />
       <Stack.Screen name="owner/events" options={{ headerTitle: 'Manage pop-ups' }} />
       <Stack.Screen name="owner/event/new" options={{ headerTitle: 'New pop-up' }} />

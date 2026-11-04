@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { Button } from '@/components/ui/Button';
 import { ColumnRow } from '@/components/ui/ColumnRow';
+import { OptionPill } from '@/components/ui/OptionPill';
 import { PhotoHero } from '@/components/ui/PhotoHero';
 import { Stepper } from '@/components/ui/Stepper';
 import { PageInset } from '@/constants/theme';
@@ -18,7 +19,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { cartSubtotalCents, useCartStore } from '@/state/cartStore';
 import type { OrderMenuItem } from '@/api/orders';
-import { formatCents, priceParts } from '@/utils/orderFormat';
+import { formatCents, priceParts, shortItemName } from '@/utils/orderFormat';
 import { pickupSlots } from '@/utils/pickupSlots';
 
 type Section = { name: string; items: OrderMenuItem[] };
@@ -144,7 +145,8 @@ export default function MenuScreen() {
 
           {sections.map((section, index) => {
             const prices = new Set(section.items.map((item) => item.priceCents));
-            const shared = prices.size === 1 ? priceParts(section.items[0]!.priceCents) : null;
+            const shared =
+              prices.size === 1 && section.items[0]!.priceCents > 0 ? priceParts(section.items[0]!.priceCents) : null;
             return (
               <View key={section.name}>
                 <View style={[styles.hairline, { backgroundColor: theme.border }]} />
@@ -166,16 +168,20 @@ export default function MenuScreen() {
                     ) : null
                   }
                 >
-                  {section.items.map((item, at) => (
-                    <MenuRow
-                      key={item.id}
-                      item={item}
-                      showPrice={!shared}
-                      last={at === section.items.length - 1}
-                      onOpen={() => router.push({ pathname: '/(orders)/order/item/[id]', params: { id: item.id } })}
-                      onAdd={() => add(item)}
-                    />
-                  ))}
+                  {section.items.every((item) => item.priceCents === 0) ? (
+                    <ChoiceRow items={section.items} />
+                  ) : (
+                    section.items.map((item, at) => (
+                      <MenuRow
+                        key={item.id}
+                        item={item}
+                        showPrice={!shared}
+                        last={at === section.items.length - 1}
+                        onOpen={() => router.push({ pathname: '/(orders)/order/item/[id]', params: { id: item.id } })}
+                        onAdd={() => add(item)}
+                      />
+                    ))
+                  )}
                 </ColumnRow>
               </View>
             );
@@ -192,6 +198,33 @@ export default function MenuScreen() {
           />
         </View>
       ) : null}
+    </View>
+  );
+}
+
+/**
+ * A section where everything is free is a choice, one of them (the dip):
+ * pills, the chosen one sage. It goes on the order as its own line.
+ */
+function ChoiceRow({ items }: { items: OrderMenuItem[] }) {
+  const lines = useCartStore((state) => state.items);
+  const chosen = items.find((item) => lines.some((line) => line.menuItemId === item.id))?.id;
+  const choose = (item: OrderMenuItem) => {
+    const cart = useCartStore.getState();
+    for (const other of items) if (other.id !== item.id) cart.removeItem(other.id);
+    if (chosen === item.id) cart.removeItem(item.id);
+    else cart.addItem({ menuItemId: item.id, name: item.name, priceCents: 0 });
+  };
+  return (
+    <View style={styles.choices} accessibilityRole="radiogroup">
+      {items.map((item) => (
+        <OptionPill
+          key={item.id}
+          label={shortItemName(item.name, item.category)}
+          checked={chosen === item.id}
+          onPress={() => choose(item)}
+        />
+      ))}
     </View>
   );
 }
@@ -223,7 +256,10 @@ function MenuRow({
         accessibilityLabel={`${item.name}, ${formatCents(item.priceCents)} euro. Open.`}
         style={({ pressed }) => [styles.flex, { opacity: pressed ? 0.6 : 1 }]}
       >
-        <ThemedText type="smallBold">{item.name}</ThemedText>
+        {/* A section of one, named like its section, needs no second name. */}
+        {item.name.toLowerCase() !== item.category?.trim().toLowerCase() ? (
+          <ThemedText type="smallBold">{shortItemName(item.name, item.category)}</ThemedText>
+        ) : null}
         {showPrice ? (
           <ThemedText type="caption" themeColor="textSecondary">
             {formatCents(item.priceCents)}
@@ -308,6 +344,12 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 14,
     paddingVertical: 5,
+  },
+  choices: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    paddingVertical: 4,
   },
   footer: {
     position: 'absolute',

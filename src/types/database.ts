@@ -242,6 +242,7 @@ export type Database = {
     };
     Functions: {
       my_points_balance: { Args: Record<string, never>; Returns: number };
+      delete_my_account: { Args: Record<string, never>; Returns: undefined };
       my_badge_progress: {
         Args: Record<string, never>;
         Returns: { key: string; current: number; target: number }[];

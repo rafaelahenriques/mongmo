@@ -14,7 +14,7 @@ import { useMenu } from '@/hooks/useMenu';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { useCartStore } from '@/state/cartStore';
-import { formatCents } from '@/utils/orderFormat';
+import { formatCents, shortItemName } from '@/utils/orderFormat';
 
 /**
  * O-02 Item: the photo, the name big in uppercase with its price, what's
@@ -51,6 +51,8 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
     );
   }
 
+  const short = shortItemName(item.name, item.category);
+
   const onAdd = () => {
     const cart = useCartStore.getState();
     const inCart = cart.items.find((line) => line.menuItemId === item.id)?.quantity ?? 0;
@@ -84,11 +86,12 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
 
         <View style={styles.page}>
           <View style={styles.title}>
-            <ThemedText type="item" accessibilityRole="header" style={styles.flex}>
-              {item.name.toUpperCase()}
+            <ThemedText type="item" accessibilityRole="header" accessibilityLabel={item.name} style={styles.flex}>
+              {(short !== item.name && item.category ? item.category : item.name).toUpperCase()}
             </ThemedText>
             <ThemedText type="item">{formatCents(item.priceCents)}</ThemedText>
           </View>
+          {short !== item.name ? <ThemedText type="section">{short}</ThemedText> : null}
           {item.description ? (
             <ThemedText type="default" themeColor="textSecondary">
               {item.description}

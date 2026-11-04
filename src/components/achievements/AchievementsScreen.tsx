@@ -1,170 +1,105 @@
-import { useCallback, useMemo, useState } from 'react';
-import { AccessibilityInfo, ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { formatInTimeZone } from 'date-fns-tz';
 
-import BadgeCard from '@/components/achievements/BadgeCard';
-import LeaderboardList from '@/components/achievements/LeaderboardList';
-import RewardRow from '@/components/achievements/RewardRow';
+import { badgeIcon } from '@/components/achievements/badgeIcons';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { IconBadge } from '@/components/ui/IconBadge';
-import { ScreenScroll, SectionHeader } from '@/components/ui/Screen';
-import { StatRow } from '@/components/ui/StatRow';
-import { Spacing } from '@/constants/theme';
+import { Coin } from '@/components/ui/Coin';
+import { TopBar } from '@/components/ui/TopBar';
+import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
-import { useLeaderboard } from '@/hooks/useLeaderboard';
+import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
-import { haptics } from '@/services/haptics';
-import type { LeaderboardPeriod, Reward } from '@/types';
+import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 
 /**
- * Achievements tab content: points header, badge grid (earned vs locked),
- * redeemable rewards and the weekly/all-time leaderboard. Everything here
- * is server-authoritative — badges, points and redemptions all come from
- * Supabase, never decided on-device.
+ * M-06 Achievements (the trophy in the top bar): every badge as a coin,
+ * sage once earned and stone until then, with how far along you are.
  */
 export default function AchievementsScreen() {
   const theme = useTheme();
-  const { query, summary, userRewards, progress, redeemReward } = useAchievements();
-  const [period, setPeriod] = useState<LeaderboardPeriod>('weekly');
-  const leaderboard = useLeaderboard(period);
-
-  const earnedByBadge = useMemo(
-    () => new Map(summary.earned.map((badge) => [badge.badgeId, badge])),
-    [summary.earned],
-  );
-
-  const onRedeem = useCallback(
-    (reward: Reward) => {
-      redeemReward(reward.id, {
-        onSuccess: () => {
-          haptics.success();
-          AccessibilityInfo.announceForAccessibility(
-            `${reward.title} redeemed. Points balance updated.`,
-          );
-        },
-        onError: () => {
-          haptics.error();
-          AccessibilityInfo.announceForAccessibility(
-            `Couldn't redeem ${reward.title} — check your points balance.`,
-          );
-        },
-      });
-    },
-    [redeemReward],
-  );
-
-  if (query.isPending) {
-    return (
-      <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.text} />
-        <ThemedText type="small" themeColor="textSecondary">
-          Loading achievements…
-        </ThemedText>
-      </View>
-    );
-  }
-
-  if (query.isError || !query.data) {
-    return (
-      <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <IconBadge name="alert" size={56} />
-        <ThemedText type="section">Couldn’t load achievements</ThemedText>
-        <ThemedText type="small" themeColor="textSecondary" style={styles.stateBody}>
-          Your badges and points are safe — this is only the catalog. Check your connection.
-        </ThemedText>
-        <Button label="Try again" size="medium" onPress={() => query.refetch()} />
-      </View>
-    );
-  }
-
-  const { badges, rewards } = query.data;
+  const router = useRouter();
+  const tabBarInset = useTabBarInset();
+  const { query, summary, progress } = useAchievements();
+  const badges = query.data?.badges ?? [];
+  const earned = new Map(summary.earned.map((badge) => [badge.badgeId, badge]));
 
   return (
-    <ScreenScroll>
-      <Card tone="brand" style={styles.pointsCard}>
-        <View
-          accessible
-          accessibilityRole="header"
-          accessibilityLabel={`${summary.points} points, ${summary.eventsAttended} events attended`}
-        >
-          <ThemedText type="label" style={{ color: theme.onBrand, opacity: 0.85 }}>
-            Your points
-          </ThemedText>
-          <ThemedText type="display" style={[styles.points, { color: theme.onBrand }]}>
-            {summary.points.toLocaleString()}
-          </ThemedText>
-        </View>
-        <IconBadge name="star" tone="card" size={52} />
-      </Card>
-
-      <StatRow
-        stats={[
-          { label: 'Events', value: String(summary.eventsAttended) },
-          { label: 'Cities', value: String(summary.citiesVisited) },
-          { label: 'Badges', value: `${summary.earned.length}/${badges.length}` },
-        ]}
+    <View style={[styles.screen, { backgroundColor: theme.background }]}>
+      <TopBar
+        title="Achievements"
+        value={badges.length ? `${earned.size}/${badges.length}` : undefined}
+        onBack={() => (router.canGoBack() ? router.back() : router.replace('/(home)'))}
       />
-
-      <SectionHeader title="Badges" />
-      <View style={styles.grid}>
-        {badges.map((badge) => (
-          <BadgeCard
-            key={badge.id}
-            definition={badge}
-            earned={earnedByBadge.get(badge.id)}
-            progress={progress[badge.key]}
-          />
-        ))}
-      </View>
-
-      <SectionHeader title="Rewards" />
-      <View style={styles.list}>
-        {rewards.map((reward) => (
-          <RewardRow
-            key={reward.id}
-            reward={reward}
-            points={summary.points}
-            redeemedCount={userRewards.filter((entry) => entry.reward_id === reward.id).length}
-            onRedeem={onRedeem}
-          />
-        ))}
-      </View>
-
-      <SectionHeader title="Leaderboard" />
-      <LeaderboardList rows={leaderboard.rows} hidden={leaderboard.hidden} period={period} onChangePeriod={setPeriod} />
-    </ScreenScroll>
+      {query.isPending ? (
+        <ActivityIndicator color={theme.text} style={styles.loader} />
+      ) : query.isError ? (
+        <View style={styles.message}>
+          <ThemedText type="caption" themeColor="textSecondary">
+            Couldn’t load your achievements.
+          </ThemedText>
+          <Button label="Try again" variant="ghost" size="small" onPress={() => query.refetch()} />
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={[styles.list, { paddingBottom: tabBarInset + 32 }]}>
+          {badges.map((badge) => {
+            const got = earned.get(badge.id);
+            const step = progress[badge.key];
+            const status = got
+              ? `Earned ${formatInTimeZone(new Date(got.earnedAt), DISPLAY_TIME_ZONE, 'd MMM')}`
+              : step
+                ? `${step.current} of ${step.target}`
+                : 'Not yet';
+            return (
+              <View
+                key={badge.id}
+                style={styles.row}
+                accessible
+                accessibilityLabel={`${badge.title}. ${badge.description}. ${status}.`}
+              >
+                <Coin icon={badgeIcon(badge.key)} earned={Boolean(got)} size={76} />
+                <View style={styles.texts}>
+                  <ThemedText type="section" themeColor={got ? 'text' : 'textSecondary'}>
+                    {status}
+                  </ThemedText>
+                  <ThemedText type="card">{badge.title}</ThemedText>
+                  <ThemedText type="caption" themeColor="textSecondary">
+                    {badge.description}
+                  </ThemedText>
+                </View>
+              </View>
+            );
+          })}
+        </ScrollView>
+      )}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  pointsCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: Spacing.four,
+  screen: {
+    flex: 1,
   },
-  points: {
-    fontSize: 80,
-    lineHeight: 80,
+  loader: {
+    marginVertical: 32,
   },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.two + Spacing.one,
+  message: {
+    paddingHorizontal: PageInset,
+    gap: 8,
   },
   list: {
-    gap: Spacing.two + Spacing.one,
+    paddingHorizontal: PageInset,
+    paddingTop: 6,
+    gap: 16,
   },
-  state: {
-    flex: 1,
+  row: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: Spacing.four,
-    gap: Spacing.three,
+    gap: 16,
   },
-  stateBody: {
-    textAlign: 'center',
-    maxWidth: 320,
+  texts: {
+    flex: 1,
+    gap: 1,
   },
 });
