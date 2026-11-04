@@ -6,6 +6,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 
 import { updateProfile } from '@/api/endpoints';
 import { PickupHeader } from '@/components/order/PickupHeader';
+import { PickupCalendar } from '@/components/order/PickupCalendar';
 import { TimePills } from '@/components/order/TimePills';
 import { ThemedText } from '@/components/ThemedText';
 import { BlockButton } from '@/components/ui/BlockButton';
@@ -18,6 +19,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useEventsWithMenu } from '@/hooks/useEventsWithMenu';
 import { usePickupPlace } from '@/hooks/usePickupPlace';
 import { usePlaceOrder } from '@/hooks/usePlaceOrder';
+import { useNow } from '@/hooks/useNow';
 import { useProfile } from '@/hooks/useProfile';
 import { useStore } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
@@ -27,7 +29,7 @@ import { haptics } from '@/services/haptics';
 import { cartSubtotalCents, useCartStore } from '@/state/cartStore';
 import { getEventPhase } from '@/utils/dateTime';
 import { formatCents } from '@/utils/orderFormat';
-import { pickupSlots, type PickupDay } from '@/utils/pickupSlots';
+import { pickupDays } from '@/utils/pickupSlots';
 
 /**
  * O-04 Checkout: where (the bakery or the live pop-up), when (today or
@@ -51,8 +53,11 @@ export default function CheckoutScreen() {
   });
   const { usableRewards } = useAchievements();
   const placeOrder = usePlaceOrder();
-  const [day, setDay] = useState<PickupDay | null>(null);
+  /** The chosen pickup day, yyyy-MM-dd; until one's tapped, the first open day. */
+  const [day, setDay] = useState<string | null>(null);
   const [slot, setSlot] = useState(0);
+  // Re-reads the clock each minute: times that have passed drop off.
+  const now = useNow();
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -63,11 +68,21 @@ export default function CheckoutScreen() {
     (event) => withMenu.data?.includes(event.id) && getEventPhase(event.startsAt, event.endsAt) === 'live',
   );
 
-  const today = useMemo(() => (place ? pickupSlots(place.pickup, 'today') : []), [place]);
-  const tomorrow = useMemo(() => (place ? pickupSlots(place.pickup, 'tomorrow') : []), [place]);
-  const chosenDay: PickupDay = day ?? (today.length || !tomorrow.length ? 'today' : 'tomorrow');
-  const slots = chosenDay === 'today' ? today : tomorrow;
+  const days = useMemo(() => (place ? pickupDays(place.pickup, now) : []), [place, now]);
+  const zone = place?.timeZone ?? 'Europe/Brussels';
+  const todayYmd = formatInTimeZone(now, zone, 'yyyy-MM-dd');
+  const tomorrowYmd = formatInTimeZone(now.getTime() + 86_400_000, zone, 'yyyy-MM-dd');
+  const openDays = days.filter((entry) => entry.slots.length);
+  const chosenDay = openDays.find((entry) => entry.ymd === day) ?? openDays[0];
+  const slots = chosenDay?.slots ?? [];
   const pickupAt = slots[Math.min(slot, slots.length - 1)];
+  const dayWords = !chosenDay
+    ? ''
+    : chosenDay.ymd === todayYmd
+      ? 'today'
+      : chosenDay.ymd === tomorrowYmd
+        ? 'tomorrow'
+        : formatInTimeZone(chosenDay.slots[0], zone, 'EEE d MMM');
 
   const discount = usableRewards.find(({ userRewardId: id, reward }) => id === userRewardId && reward.discountCents);
   const subtotal = cartSubtotalCents(items);
@@ -162,30 +177,21 @@ export default function CheckoutScreen() {
 
         <View style={styles.group}>
           <ThemedText type="smallBold">When</ThemedText>
-          {today.length && tomorrow.length ? (
-            <Segmented
-              look="blocks"
-              accessibilityLabel="Which day"
-              value={chosenDay}
-              onChange={(next) => {
+          {/* The café: a calendar of the next two weeks. A pop-up only on its own night(s). */}
+          {chosenDay && (place?.kind === 'store' || openDays.length > 1) ? (
+            <PickupCalendar
+              days={days}
+              selected={chosenDay.ymd}
+              today={todayYmd}
+              onSelect={(next) => {
                 setDay(next);
                 setSlot(0);
               }}
-              options={[
-                { value: 'today', label: 'Today' },
-                { value: 'tomorrow', label: 'Tomorrow' },
-              ]}
             />
-          ) : tomorrow.length ? (
-            <ThemedText type="caption" themeColor="textSecondary">
-              Closed for the rest of today. Pick up tomorrow.
-            </ThemedText>
           ) : null}
           {times.length ? (
             <>
-              <ThemedText type="section">
-                {`Ready at ${times[Math.min(slot, times.length - 1)]}${chosenDay === 'tomorrow' ? ' tomorrow' : ''}`}
-              </ThemedText>
+              <ThemedText type="section">{`Ready at ${times[Math.min(slot, times.length - 1)]}, ${dayWords}`}</ThemedText>
               <TimePills times={times} index={Math.min(slot, times.length - 1)} onChange={setSlot} />
             </>
           ) : (
