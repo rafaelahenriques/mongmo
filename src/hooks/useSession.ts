@@ -13,7 +13,10 @@ export function useSession() {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      if (data.session) void dropIfAccountGone();
+    });
 
     const { data: subscription } = supabase.auth.onAuthStateChange((event, next) => {
       setSession(next);
@@ -28,4 +31,17 @@ export function useSession() {
   }, []);
 
   return session;
+}
+
+/**
+ * A stored session can outlive its account (deleted on another phone, or by
+ * hand in the dashboard): every write would then fail. Ask the server once
+ * at start, and sign out locally if the account is gone. Network errors
+ * leave the session alone, so the app still opens offline.
+ */
+async function dropIfAccountGone() {
+  const { error } = await supabase.auth.getUser();
+  if (!error) return;
+  const gone = error.code === 'user_not_found' || error.code === 'session_not_found' || error.status === 403;
+  if (gone) await supabase.auth.signOut({ scope: 'local' });
 }

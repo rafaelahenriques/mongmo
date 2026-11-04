@@ -76,7 +76,7 @@ export default function PointsHistoryScreen() {
 const styles = StyleSheet.create({
   content: {
     paddingHorizontal: PageInset,
-    paddingTop: 4,
+    paddingTop: 24,
     gap: 14,
   },
   list: {

@@ -192,7 +192,7 @@ export default function ExploreScreen() {
                 <Button label="Try again" variant="ghost" size="small" onPress={() => eventsQuery.refetch()} />
               </View>
             ) : live ? (
-              <LiveNow event={live} index={1} onOpen={onSelectEvent} onCheckIn={onCheckIn} />
+              <LiveNow event={live} onOpen={onSelectEvent} onCheckIn={onCheckIn} />
             ) : !eventsQuery.isPending && !next ? (
               <ThemedText type="caption" themeColor="textSecondary" style={styles.message}>
                 No pop-ups {filter === 'today' ? 'today' : filter === 'week' ? 'this week' : 'planned'}. The café is
@@ -202,7 +202,7 @@ export default function ExploreScreen() {
             {next ? (
               <>
                 {live ? <View style={[styles.hairline, { backgroundColor: theme.border }]} /> : null}
-                <NextUp event={next} index={live ? 2 : 1} onOpen={onSelectEvent} />
+                <NextUp event={next} onOpen={onSelectEvent} />
               </>
             ) : null}
           </>
@@ -214,15 +214,13 @@ export default function ExploreScreen() {
   );
 }
 
-/** "Right now¹": the nearest live pop-up, with check in and directions. */
+/** "Right now": the nearest live pop-up, with check in and directions. */
 function LiveNow({
   event,
-  index,
   onOpen,
   onCheckIn,
 }: {
   event: PopUpEvent;
-  index: number;
   onOpen: (id: string) => void;
   onCheckIn: (id: string) => void;
 }) {
@@ -231,7 +229,7 @@ function LiveNow({
   const distance = coordinates ? formatDistance(distanceInMeters(coordinates, event.coordinates)) : null;
   const hours = `${formatInTimeZone(new Date(event.startsAt), event.timeZone, 'HH:mm')} – ${formatInTimeZone(new Date(event.endsAt), event.timeZone, 'HH:mm')}`;
   return (
-    <ColumnRow label="Right now" index={index}>
+    <ColumnRow label="Right now">
       <Pressable
         onPress={() => onOpen(event.id)}
         accessibilityRole="button"
@@ -259,8 +257,8 @@ function LiveNow({
   );
 }
 
-/** "Next up²": the next pop-up to start, one line and an arrow. */
-function NextUp({ event, index, onOpen }: { event: PopUpEvent; index: number; onOpen: (id: string) => void }) {
+/** "Next up": the next pop-up to start, one line and an arrow. */
+function NextUp({ event, onOpen }: { event: PopUpEvent; onOpen: (id: string) => void }) {
   const theme = useTheme();
   const coordinates = useLocationStore((state) => state.coordinates);
   const distance = coordinates ? formatDistance(distanceInMeters(coordinates, event.coordinates)) : null;
@@ -279,7 +277,7 @@ function NextUp({ event, index, onOpen }: { event: PopUpEvent; index: number; on
       accessibilityRole="button"
       accessibilityLabel={`Next up: ${event.title}, ${when}`}
     >
-      <ColumnRow label="Next up" index={index}>
+      <ColumnRow label="Next up">
         <View style={styles.nextRow}>
           <View style={styles.flex}>
             <ThemedText type="smallBold" numberOfLines={1}>

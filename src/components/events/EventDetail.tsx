@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ChallengesSection from '@/components/challenges/ChallengesSection';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Icon } from '@/components/ui/Icon';
 import { IconBadge } from '@/components/ui/IconBadge';
 import { PhotoHero } from '@/components/ui/PhotoHero';
 import { usePullToRefresh } from '@/components/ui/Screen';
@@ -198,8 +199,9 @@ export default function EventDetail({ eventId }: EventDetailProps) {
             />
           </View>
         ) : (
-          <Card tone="muted" style={styles.notice}>
-            <IconBadge name={phase === 'upcoming' ? 'calendar' : 'clock'} tone="card" size={40} />
+          // Plain text, not a card: nothing here to tap until it starts.
+          <View style={styles.notice} accessible>
+            <Icon name="clock" size={20} color={theme.textSecondary} />
             <View style={styles.flex}>
               <ThemedText type="smallBold">
                 {phase === 'upcoming' ? `Check-in opens ${opensAt}` : 'This pop-up has ended'}
@@ -210,7 +212,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
                   : 'Keep an eye on Pop-ups for the next one.'}
               </ThemedText>
             </View>
-          </Card>
+          </View>
         )}
 
         {phase !== 'ended' ? (
@@ -307,8 +309,8 @@ const styles = StyleSheet.create({
   },
   notice: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.three,
+    alignItems: 'flex-start',
+    gap: Spacing.two,
   },
   stateContainer: {
     flex: 1,

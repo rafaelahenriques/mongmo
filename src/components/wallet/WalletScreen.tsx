@@ -5,6 +5,7 @@ import { Image } from 'expo-image';
 
 import { ThemedText } from '@/components/ThemedText';
 import { AppHeader } from '@/components/ui/AppHeader';
+import { Icon, type IconName } from '@/components/ui/Icon';
 import { ListRow } from '@/components/ui/ListRow';
 import { usePullToRefresh } from '@/components/ui/Screen';
 import { SquareIconButton } from '@/components/ui/SquareIconButton';
@@ -95,26 +96,37 @@ export default function WalletScreen() {
         </View>
 
         <View style={styles.page}>
+          {/* Next reward: what it is, the card toward it, how far off. */}
           <View style={styles.stamps}>
-            <View style={styles.stampsHead}>
-              <ThemedText type="captionBold" style={styles.flex}>
-                {nextReward ? `${stamps.earned} of ${stamps.total} stamps` : 'Stamp card full'}
-              </ThemedText>
-              <ThemedText type="caption" themeColor="textSecondary">
-                {STAMP_VALUE_LABEL}
-              </ThemedText>
-            </View>
-            <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} height={44} />
-            <ThemedText type="caption" themeColor="textSecondary">
+            <ThemedText type="label" themeColor="textSecondary">
+              {nextReward ? 'Next reward' : 'Your stamp card'}
+            </ThemedText>
+            <ThemedText type="subtitle" accessibilityRole="header">
               {nextReward
-                ? `${nextReward.costPoints - points} more points to: ${nextReward.title}`
+                ? nextReward.title
                 : rewards.length
-                  ? 'You can redeem a reward.'
-                  : 'Earn points at every pop-up.'}
+                  ? 'Full: redeem a reward below'
+                  : 'Earn points at every pop-up'}
             </ThemedText>
-            <ThemedText type="caption" themeColor="textSecondary">
-              {`Earn ${POINTS_PER_EURO} points for every €1 you spend, and up to ${CHALLENGE_POINTS_PER_DAY} a day from challenges at a pop-up.`}
+            <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} height={44} />
+            {nextReward ? (
+              <ThemedText type="smallBold">
+                {`${stamps.earned} of ${stampsLabel(stamps.total)} · ${nextReward.costPoints - points} points to go`}
+              </ThemedText>
+            ) : null}
+          </View>
+
+          {/* How points come in, kept apart from the progress above. */}
+          <View style={styles.earn}>
+            <ThemedText type="smallBold" accessibilityRole="header">
+              How to earn
             </ThemedText>
+            <EarnLine icon="bag" text={`${POINTS_PER_EURO} points for every €1 you spend`} />
+            <EarnLine
+              icon="trophy"
+              text={`Up to ${CHALLENGE_POINTS_PER_DAY} points a day from challenges at a pop-up`}
+            />
+            <EarnLine icon="star" text={STAMP_VALUE_LABEL} />
           </View>
 
           {usableRewards.length ? (
@@ -174,7 +186,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   hero: {
-    height: 236,
+    height: 252,
     marginBottom: 18,
   },
   block: {
@@ -184,8 +196,8 @@ const styles = StyleSheet.create({
     bottom: 26,
     width: '68%',
     paddingHorizontal: PageInset,
-    paddingTop: 18,
-    paddingBottom: 18,
+    paddingTop: 26,
+    paddingBottom: 20,
     justifyContent: 'space-between',
   },
   number: {
@@ -217,10 +229,13 @@ const styles = StyleSheet.create({
   stamps: {
     gap: 8,
   },
-  stampsHead: {
+  earn: {
+    gap: 8,
+  },
+  earnLine: {
     flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 12,
+    alignItems: 'center',
+    gap: 10,
   },
   flex: {
     flex: 1,
@@ -229,3 +244,15 @@ const styles = StyleSheet.create({
     gap: 8,
   },
 });
+
+function EarnLine({ icon, text }: { icon: IconName; text: string }) {
+  const theme = useTheme();
+  return (
+    <View style={styles.earnLine}>
+      <Icon name={icon} size={18} color={theme.text} />
+      <ThemedText type="small" style={styles.flex}>
+        {text}
+      </ThemedText>
+    </View>
+  );
+}

@@ -10,6 +10,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { BlockButton } from '@/components/ui/BlockButton';
 import { Button } from '@/components/ui/Button';
+import { Icon } from '@/components/ui/Icon';
 import { Segmented } from '@/components/ui/Segmented';
 import { CardShadow, PageInset } from '@/constants/theme';
 import { useMenu } from '@/hooks/useMenu';
@@ -92,12 +93,13 @@ export default function MenuScreen() {
           accessibilityLabel={`Pick up at ${place?.name ?? ''}, ${when}. Change.`}
           style={({ pressed }) => [styles.pickup, { borderColor: theme.border, opacity: pressed ? 0.7 : 1 }]}
         >
+          <Icon name="pin" size={24} color={theme.text} />
           <View style={styles.flex}>
-            <ThemedText type="caption" themeColor="textSecondary">
+            <ThemedText type="label" themeColor="textSecondary">
               Pick up at
             </ThemedText>
-            <ThemedText type="smallBold">{place?.name ?? ' '}</ThemedText>
-            <ThemedText type="caption" themeColor="textSecondary">
+            <ThemedText type="section">{place?.name ?? ' '}</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
               {when}
             </ThemedText>
           </View>
@@ -239,15 +241,15 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: PageInset,
-    paddingTop: 14,
-    gap: 16,
+    paddingTop: 20,
+    gap: 18,
   },
   pickup: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
     borderBottomWidth: 1,
-    paddingBottom: 12,
+    paddingBottom: 16,
   },
   loader: {
     marginVertical: 24,

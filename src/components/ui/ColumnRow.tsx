@@ -6,20 +6,16 @@ import { useTheme } from '@/hooks/useTheme';
 
 /**
  * The editorial label column from the design's Home and Menu: a small
- * label with a footnote number on the left ("Right now¹"), the content in
- * the column to its right.
+ * label on the left ("Right now"), the content in the column to its right.
  */
 export function ColumnRow({
   label,
-  index,
   children,
   aside,
   inverse = false,
   style,
 }: PropsWithChildren<{
   label: string;
-  /** The footnote number after the label. */
-  index?: number;
   /** Under the label, in its column: a section's price on the menu. */
   aside?: ReactNode;
   inverse?: boolean;
@@ -34,11 +30,6 @@ export function ColumnRow({
           <ThemedText type="captionBold" style={{ color }}>
             {label}
           </ThemedText>
-          {index !== undefined ? (
-            <ThemedText type="micro" style={{ color }}>
-              {index}
-            </ThemedText>
-          ) : null}
         </View>
         {aside}
       </View>
@@ -56,7 +47,7 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   side: {
-    width: 100,
+    width: 88,
     gap: 4,
   },
   label: {

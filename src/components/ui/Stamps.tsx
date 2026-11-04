@@ -1,6 +1,7 @@
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { OMark } from '@/components/brand/OMark';
+import { Paper } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
 /** Stamps on one line before the card wraps. */
@@ -18,12 +19,15 @@ export function StampRow({
   total = 6,
   partial = 0,
   height = 50,
+  onBrand = false,
   style,
 }: {
   earned: number;
   total?: number;
   /** How far the next stamp has filled, 0 to 1. */
   partial?: number;
+  /** On a sage card: earned stamps in ink, the rest in paper. */
+  onBrand?: boolean;
   height?: number;
   style?: StyleProp<ViewStyle>;
 }) {
@@ -33,6 +37,8 @@ export function StampRow({
   const perRow = Math.ceil(total / rows);
   const width = (height * 34) / 50;
   const fill = Math.max(0, Math.min(1, partial));
+  const on = onBrand ? theme.onBrand : theme.brand;
+  const off = onBrand ? Paper : theme.border;
   return (
     <View style={[styles.card, style]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       {Array.from({ length: rows }, (_, row) => (
@@ -44,10 +50,10 @@ export function StampRow({
             if (index === filled && fill > 0) {
               return (
                 <View key={index} style={{ width, height }}>
-                  <OMark height={height} color={theme.border} variant="outline" />
+                  <OMark height={height} color={off} variant="outline" />
                   <View style={[styles.fill, { height: height * fill }]}>
                     <View style={styles.fillMark}>
-                      <OMark height={height} color={theme.brand} variant="solid" />
+                      <OMark height={height} color={on} variant="solid" />
                     </View>
                   </View>
                 </View>
@@ -57,7 +63,7 @@ export function StampRow({
               <OMark
                 key={index}
                 height={height}
-                color={index < filled ? theme.brand : theme.border}
+                color={index < filled ? on : off}
                 variant={index < filled ? 'solid' : 'outline'}
               />
             );

@@ -109,41 +109,41 @@ const styles = StyleSheet.create({
   },
   default: {
     fontFamily: FontFamily.body,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 15,
+    lineHeight: 22,
   },
   /** Secondary lines: times, places, hints (same as caption). */
   small: {
     fontFamily: FontFamily.body,
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 14,
+    lineHeight: 19,
   },
   /** Row titles, names, values. */
   smallBold: {
     fontFamily: FontFamily.bodySemiBold,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 15,
+    lineHeight: 21,
   },
   caption: {
     fontFamily: FontFamily.body,
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 14,
+    lineHeight: 19,
   },
   captionBold: {
     fontFamily: FontFamily.bodySemiBold,
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 14,
+    lineHeight: 19,
   },
-  /** Step labels and footnote numbers. */
+  /** Step labels and small tags. */
   micro: {
     fontFamily: FontFamily.bodyMedium,
-    fontSize: 10,
-    lineHeight: 12,
+    fontSize: 11,
+    lineHeight: 14,
   },
   link: {
     fontFamily: FontFamily.bodySemiBold,
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 14,
+    lineHeight: 19,
     textDecorationLine: 'underline',
   },
   linkPrimary: {

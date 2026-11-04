@@ -5,7 +5,6 @@ import { Image } from 'expo-image';
 import { formatInTimeZone } from 'date-fns-tz';
 
 import { ThemedText } from '@/components/ThemedText';
-import { BigNumber } from '@/components/ui/BigNumber';
 import { Button } from '@/components/ui/Button';
 import { ColumnRow } from '@/components/ui/ColumnRow';
 import { Icon } from '@/components/ui/Icon';
@@ -15,7 +14,7 @@ import { usePullToRefresh } from '@/components/ui/Screen';
 import { StampRow } from '@/components/ui/Stamps';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { StepBar } from '@/components/ui/StepBar';
-import { PageInset } from '@/constants/theme';
+import { PageInset, Paper } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveOrder } from '@/hooks/useActiveOrder';
 import { useEvents } from '@/hooks/useEvents';
@@ -93,10 +92,6 @@ export default function HomeScreen() {
     router.navigate('/(orders)');
   };
 
-  // Footnote numbers for the label column, in the order the blocks show.
-  const notes = { featured: featured ? 1 : 0, order: 0, points: 0 };
-  notes.order = order ? notes.featured + 1 : notes.featured;
-  notes.points = notes.order + 1;
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <AppHeader />
@@ -142,7 +137,6 @@ export default function HomeScreen() {
             <View style={[styles.rule, { backgroundColor: theme.text }]} />
             <FeaturedRow
               event={featured}
-              index={notes.featured}
               onCheckIn={() => router.push({ pathname: '/(popups)/check-in/[id]', params: { id: featured.id } })}
               onOrder={() => orderAt(featured)}
               onOpen={() => openEvent(featured.id)}
@@ -152,7 +146,7 @@ export default function HomeScreen() {
 
         {order ? (
           <View style={[styles.block, { backgroundColor: theme.backgroundSelected }]}>
-            <ColumnRow label="Your order" index={notes.order}>
+            <ColumnRow label="Your order">
               <View style={styles.titleRow}>
                 <ThemedText type="title">{ORDER_STATUS_TITLE[order.status]}</ThemedText>
                 <RoundIconButton
@@ -178,33 +172,57 @@ export default function HomeScreen() {
         ) : null}
 
         <View style={styles.page}>
-          <ColumnRow label="My points" index={notes.points} style={styles.points}>
+          {/* A card, not one big button: the QR button and the Wallet link
+              inside it are buttons of their own. */}
+          <View style={[styles.pointsCard, { backgroundColor: theme.brandFill }]}>
             <View style={styles.titleRow}>
-              <BigNumber value={summary.points} word="Points" />
+              <View style={styles.flex} accessible accessibilityLabel={`My points: ${summary.points}`}>
+                <ThemedText type="captionBold" style={{ color: theme.onBrand }}>
+                  My points
+                </ThemedText>
+                <View style={styles.pointsLine}>
+                  <ThemedText type="display" style={[styles.pointsNumber, { color: theme.onBrand }]}>
+                    {summary.points}
+                  </ThemedText>
+                  <ThemedText type="title" style={{ color: Paper }}>
+                    POINTS
+                  </ThemedText>
+                </View>
+              </View>
               <RoundIconButton
                 icon="qrcode"
                 onPress={() => router.push('/(wallet)/card')}
                 accessibilityLabel="Show my membership QR code"
               />
             </View>
-            <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} style={styles.stamps} />
-            <View style={styles.titleRow}>
-              <ThemedText type="caption" themeColor="textSecondary" style={styles.flex}>
-                {nextReward
-                  ? `${STAMP_VALUE_LABEL} · ${nextReward.costPoints - summary.points} more to your next reward`
-                  : 'You can redeem a reward'}
-              </ThemedText>
-              <Pressable
-                onPress={() => router.push('/(wallet)')}
-                accessibilityRole="link"
-                hitSlop={10}
-                style={styles.link}
-              >
-                <ThemedText type="captionBold">Rewards</ThemedText>
-                <Icon name="arrowRight" size={14} color={theme.text} weight="bold" />
-              </Pressable>
-            </View>
-          </ColumnRow>
+            <StampRow
+              earned={stamps.earned}
+              total={stamps.total}
+              partial={stamps.partial}
+              height={40}
+              onBrand
+              style={styles.stamps}
+            />
+            <Pressable
+              onPress={() => router.navigate('/(wallet)')}
+              accessibilityRole="button"
+              accessibilityHint="Opens Wallet"
+              hitSlop={8}
+              style={({ pressed }) => [styles.titleRow, { opacity: pressed ? 0.7 : 1 }]}
+            >
+              <View style={styles.flex}>
+                <ThemedText type="smallBold" style={{ color: theme.onBrand }}>
+                  {nextReward
+                    ? `${nextReward.costPoints - summary.points} more points to: ${nextReward.title}`
+                    : 'You can redeem a reward'}
+                </ThemedText>
+                <ThemedText type="caption" style={{ color: theme.onBrand }}>
+                  {STAMP_VALUE_LABEL}
+                </ThemedText>
+              </View>
+              <Icon name="arrowRight" size={20} color={theme.onBrand} weight="bold" />
+            </Pressable>
+          </View>
         </View>
 
         <View style={[styles.nextUp, { backgroundColor: theme.surfaceDark }]}>
@@ -271,16 +289,14 @@ function upcomingWhen(event: PopUpEvent): string {
   return `${day}, ${formatInTimeZone(start, event.timeZone, 'HH:mm')}. ${event.city}.`;
 }
 
-/** "Right now¹": the live (or next) pop-up, with check in and order buttons. */
+/** "Right now": the live (or next) pop-up, with check in and order buttons. */
 function FeaturedRow({
   event,
-  index,
   onCheckIn,
   onOrder,
   onOpen,
 }: {
   event: PopUpEvent;
-  index: number;
   onCheckIn: () => void;
   onOrder: () => void;
   onOpen: () => void;
@@ -288,22 +304,29 @@ function FeaturedRow({
   const busy = useBusyStore((state) => state.busy[event.id] ?? event.busy);
   const live = getEventPhase(event.startsAt, event.endsAt) === 'live';
   return (
-    <ColumnRow label={live ? 'Right now' : 'Coming up'} index={index}>
+    <ColumnRow label={live ? 'Right now' : 'Coming up'}>
       <ThemedText type="smallBold">{event.venue}</ThemedText>
       <ThemedText type="caption" themeColor="textSecondary">
         {formatEventWindow(event.startsAt, event.endsAt, event.timeZone)}
         {'\n'}How busy: {busy.occupancy} of {busy.capacity}
       </ThemedText>
+      {/* Two short labels in equal halves: they fit on any phone. */}
       <View style={styles.actions}>
         {live ? (
           <>
             <Button label="Check in" variant="brand" onPress={onCheckIn} style={styles.flex} />
-            <Button label="Order here" variant="ghost" onPress={onOrder} style={styles.flex} />
+            <Button label="Order" variant="ghost" onPress={onOrder} style={styles.flex} />
           </>
         ) : (
           <>
-            <Button label="See details" variant="brand" onPress={onOpen} style={styles.flex} />
-            <Button label="Order ahead" variant="ghost" onPress={onOrder} style={styles.flex} />
+            <Button label="Details" variant="brand" onPress={onOpen} style={styles.flex} />
+            <Button
+              label="Order"
+              accessibilityLabel="Order ahead"
+              variant="ghost"
+              onPress={onOrder}
+              style={styles.flex}
+            />
           </>
         )}
       </View>
@@ -345,12 +368,24 @@ const styles = StyleSheet.create({
   steps: {
     paddingTop: 8,
   },
-  points: {
-    paddingTop: 2,
-    paddingBottom: 18,
+  pointsCard: {
+    marginTop: 14,
+    marginBottom: 22,
+    padding: 18,
+    gap: 12,
+  },
+  pointsLine: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 8,
+  },
+  pointsNumber: {
+    fontSize: 56,
+    // Never below the font size: iOS cuts the top off the glyphs.
+    lineHeight: 60,
   },
   stamps: {
-    marginVertical: 4,
+    marginVertical: 2,
   },
   link: {
     flexDirection: 'row',
@@ -359,7 +394,7 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 8,
     paddingTop: 8,
   },
   flex: {

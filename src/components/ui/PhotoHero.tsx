@@ -66,7 +66,15 @@ export function PhotoHero({
       <View style={styles.bottom} pointerEvents="none">
         {live ? <Chip label="Live now" tone="live" /> : null}
         <View style={styles.nameRow}>
-          <ThemedText type="name" style={[styles.name, { color: theme.onSurfaceDark }]} numberOfLines={2}>
+          {/* A long name gets a smaller size and a third line, and shrinks
+              further (iOS, Android) rather than ending in "…". */}
+          <ThemedText
+            type="name"
+            style={[styles.name, title.length > 18 && styles.nameLong, { color: theme.onSurfaceDark }]}
+            numberOfLines={3}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
+          >
             {title}
           </ThemedText>
           {meta ? (
@@ -98,6 +106,10 @@ const styles = StyleSheet.create({
   },
   name: {
     flex: 1,
+  },
+  nameLong: {
+    fontSize: 34,
+    lineHeight: 38,
   },
   meta: {
     marginTop: 3,

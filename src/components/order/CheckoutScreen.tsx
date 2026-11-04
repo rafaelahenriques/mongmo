@@ -6,7 +6,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 
 import { updateProfile } from '@/api/endpoints';
 import { PickupHeader } from '@/components/order/PickupHeader';
-import { TimeWheel } from '@/components/order/TimeWheel';
+import { TimePills } from '@/components/order/TimePills';
 import { ThemedText } from '@/components/ThemedText';
 import { BlockButton } from '@/components/ui/BlockButton';
 import { ListRow } from '@/components/ui/ListRow';
@@ -182,7 +182,12 @@ export default function CheckoutScreen() {
             </ThemedText>
           ) : null}
           {times.length ? (
-            <TimeWheel times={times} index={Math.min(slot, times.length - 1)} onChange={setSlot} />
+            <>
+              <ThemedText type="section">
+                {`Ready at ${times[Math.min(slot, times.length - 1)]}${chosenDay === 'tomorrow' ? ' tomorrow' : ''}`}
+              </ThemedText>
+              <TimePills times={times} index={Math.min(slot, times.length - 1)} onChange={setSlot} />
+            </>
           ) : (
             <ThemedText type="caption" themeColor="danger" accessibilityRole="alert">
               {place

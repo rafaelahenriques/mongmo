@@ -4,20 +4,24 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Wordmark } from '@/components/brand/Wordmark';
+import { ThemedText } from '@/components/ThemedText';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { CardShadow, PageInset } from '@/constants/theme';
+import { useAchievements } from '@/hooks/useAchievements';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 
 /**
- * The top bar on each tab's first screen: the wordmark, then achievements
- * (the trophy) and your account (the person) on the right. Something of
- * the screen's own can sit next to the wordmark (`left`).
+ * The top bar on each tab's first screen: the wordmark, then your points
+ * in a pill (to Wallet), achievements (the trophy) and your account (the
+ * person) on the right. Something of the screen's own can sit next to the
+ * wordmark (`left`).
  */
 export function AppHeader({ left }: { left?: ReactNode }) {
   const theme = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const points = useAchievements().summary.points;
 
   return (
     <View style={[styles.bar, { backgroundColor: theme.band, boxShadow: CardShadow, paddingTop: insets.top + 10 }]}>
@@ -25,6 +29,21 @@ export function AppHeader({ left }: { left?: ReactNode }) {
         <Wordmark height={20} color={theme.bandMark} />
         {left}
       </View>
+      <Pressable
+        onPress={() => {
+          haptics.tap();
+          router.navigate('/(wallet)');
+        }}
+        accessibilityRole="button"
+        accessibilityLabel={`${points} points. Open Wallet.`}
+        hitSlop={6}
+        style={({ pressed }) => [styles.pill, { backgroundColor: theme.onBand, opacity: pressed ? 0.7 : 1 }]}
+      >
+        <Icon name="star" size={14} color={theme.band} weight="bold" />
+        <ThemedText type="smallBold" style={{ color: theme.band }}>
+          {points}
+        </ThemedText>
+      </Pressable>
       <HeaderIcon icon="trophy" label="Achievements" onPress={() => router.push('/(achievements)/achievements')} />
       <HeaderIcon icon="person" label="Account" onPress={() => router.push('/(profile)')} />
     </View>
@@ -63,6 +82,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+  },
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    height: 32,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    marginRight: 4,
   },
   icon: {
     width: 40,

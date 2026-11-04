@@ -101,9 +101,26 @@ export async function getEvent(id: string): Promise<PopUpEvent> {
 /** The signed-in user's profile. */
 export async function getProfile(): Promise<UserProfile> {
   const userId = await getCurrentUserId();
-  const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+  const read = () => supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+  let { data, error } = await read();
   if (error) throw toApiError(error);
+  if (!data) {
+    // Signed in but no profile (an older account): make it, then read it.
+    await ensureProfile();
+    ({ data, error } = await read());
+    if (error) throw toApiError(error);
+    if (!data) throw new Error('Couldn’t set up your profile.');
+  }
   return profileRowToUserProfile(data);
+}
+
+/**
+ * Makes the signed-in user's profile if it's missing (0019_ensure_profile.sql).
+ * Orders, check-ins and points all hang off it.
+ */
+export async function ensureProfile(): Promise<void> {
+  const { error } = await supabase.rpc('ensure_profile');
+  if (error) throw toApiError(error);
 }
 
 export type ProfileEdit = {
@@ -312,10 +329,11 @@ export async function getProfileStats(): Promise<ProfileStats> {
   return statsRowToProfileStats(data[0]);
 }
 
-/** Spends points on a reward; the server validates balance + expiry. */
-export async function redeemReward(rewardId: string): Promise<void> {
-  const { error } = await supabase.rpc('redeem_reward', { p_reward_id: rewardId });
+/** Spends points on a reward; the server validates balance + expiry. Resolves to the redeemed reward's id. */
+export async function redeemReward(rewardId: string): Promise<string> {
+  const { data, error } = await supabase.rpc('redeem_reward', { p_reward_id: rewardId });
   if (error) throw toApiError(error);
+  return (data as { id: string }).id;
 }
 
 /** Verifies + records a check-in: QR token match, event window, geofence. */
