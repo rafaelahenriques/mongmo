@@ -20,8 +20,17 @@ export type NotificationPrefs = {
 type SettingsState = {
   notifications: NotificationPrefs;
   themeMode: ThemeMode;
+  /** When the Notifications list was last opened, for Home's "3 new". */
+  notificationsSeenAt: string | null;
+  /** The photo-first Opening screen shows on the very first launch only. */
+  openingSeen: boolean;
+  /** The location and notification switches were offered after sign-in. */
+  permissionsAsked: boolean;
   setNotificationPref: (key: keyof NotificationPrefs, enabled: boolean) => void;
   setThemeMode: (mode: ThemeMode) => void;
+  markNotificationsSeen: () => void;
+  markOpeningSeen: () => void;
+  markPermissionsAsked: () => void;
 };
 
 const DEFAULTS = {
@@ -32,6 +41,9 @@ const DEFAULTS = {
     achievements: true,
   } satisfies NotificationPrefs,
   themeMode: 'system' as ThemeMode,
+  notificationsSeenAt: null as string | null,
+  openingSeen: false,
+  permissionsAsked: false,
 };
 
 /**
@@ -46,6 +58,9 @@ export const useSettingsStore = create<SettingsState>()(
       setNotificationPref: (key, enabled) =>
         set((state) => ({ notifications: { ...state.notifications, [key]: enabled } })),
       setThemeMode: (mode) => set({ themeMode: mode }),
+      markNotificationsSeen: () => set({ notificationsSeenAt: new Date().toISOString() }),
+      markOpeningSeen: () => set({ openingSeen: true }),
+      markPermissionsAsked: () => set({ permissionsAsked: true }),
     }),
     {
       name: 'mongmo-settings',

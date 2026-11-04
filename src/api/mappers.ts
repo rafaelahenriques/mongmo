@@ -63,6 +63,7 @@ export function eventRowToEvent(row: EventRow, menuItemRows: MenuItemRow[] = [])
     menu: menuItemRows.map(menuItemRowToMenuItem),
     orderUrl: row.order_url ?? '',
     busy: { occupancy: row.occupancy, capacity: row.capacity },
+    createdAt: row.created_at,
   };
 }
 

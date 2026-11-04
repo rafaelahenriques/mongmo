@@ -3,6 +3,7 @@ import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider } from 'expo-router';
 
+import { PermissionsScreen } from '@/components/auth/PermissionsScreen';
 import SignInScreen from '@/components/auth/SignInScreen';
 import AppTabs from '@/components/ui/AppTabs';
 import { Providers } from '@/components/Providers';
@@ -11,6 +12,7 @@ import { FONT_ASSETS } from '@/constants/fonts';
 import { useNavigationTheme } from '@/hooks/useNavigationTheme';
 import { useSession } from '@/hooks/useSession';
 import { useResolvedScheme } from '@/hooks/useTheme';
+import { useSettingsStore } from '@/state/settingsStore';
 
 /** Open on Home: "/" also matches the other tabs' first screens. */
 export const unstable_settings = { initialRouteName: '(home)' };
@@ -24,6 +26,9 @@ export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts(FONT_ASSETS);
   const ready = session !== undefined && (fontsLoaded || fontError !== null);
   const [introDone, setIntroDone] = useState(false);
+  // Headless screenshot runs can't answer system permission prompts.
+  const permissionsAsked =
+    useSettingsStore((state) => state.permissionsAsked) || process.env.EXPO_PUBLIC_UI_TOUR === '1';
   const finishIntro = useCallback(() => setIntroDone(true), []);
 
   return (
@@ -32,7 +37,7 @@ export default function RootLayout() {
           resolved scheme as the screens, settings override included. */}
       <ThemeProvider value={navTheme}>
         <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-        {ready && (session ? <AppTabs /> : <SignInScreen />)}
+        {ready && (session ? permissionsAsked ? <AppTabs /> : <PermissionsScreen /> : <SignInScreen />)}
         {/* The logo animation plays over the app while it reads the cached
             session and loads fonts, then fades out to reveal it. */}
         {!introDone && <SplashIntro ready={ready} onDone={finishIntro} />}

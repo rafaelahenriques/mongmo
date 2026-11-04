@@ -101,6 +101,6 @@ export function nearbyNotification(event: { id: string; title: string; city: str
   return {
     title: `${event.title} is nearby`,
     body: `You're within 500 m of the pop-up in ${event.city}. Tap to see details.`,
-    url: `/(explore)/event/${event.id}`,
+    url: `/(popups)/event/${event.id}`,
   };
 }

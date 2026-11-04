@@ -116,7 +116,7 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
           variant="ghost"
           size="medium"
           icon="eye"
-          onPress={() => router.push({ pathname: '/(explore)/event/[id]', params: { id: eventId } })}
+          onPress={() => router.push({ pathname: '/(popups)/event/[id]', params: { id: eventId } })}
           style={styles.preview}
         />
       </Card>

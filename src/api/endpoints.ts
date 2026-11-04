@@ -217,6 +217,80 @@ export async function getPointsBalance(): Promise<number> {
   return data;
 }
 
+/** One line of the points ledger, with what it was for. */
+export type PointsHistoryEntry = {
+  id: string;
+  points: number;
+  source: 'challenge_completion' | 'badge' | 'reward_redeemed';
+  /** The challenge, badge or reward. */
+  title: string;
+  /** The pop-up a challenge belonged to. */
+  place: string | null;
+  challengeType: string | null;
+  createdAt: string;
+};
+
+type CompletionTitleRow = {
+  id: string;
+  challenges: { title: string; type: string; events: { title: string } | null } | null;
+};
+
+/**
+ * The points ledger, newest first, with each entry's challenge, badge or
+ * reward resolved to a title (RLS limits every table to the user's own rows).
+ */
+export async function getPointsHistory(limit = 50): Promise<PointsHistoryEntry[]> {
+  const { data: rows, error } = await supabase
+    .from('point_events')
+    .select('id, points, source, source_id, created_at')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw toApiError(error);
+  const idsFor = (source: string) =>
+    rows.filter((row) => row.source === source && row.source_id).map((row) => row.source_id as string);
+
+  const [completions, badges, rewards] = await Promise.all([
+    supabase.from('challenge_completions').select('id, challenges(title, type, events(title))').in('id', idsFor('challenge_completion')),
+    supabase.from('user_badges').select('id, badges(title)').in('id', idsFor('badge')),
+    supabase.from('user_rewards').select('id, rewards(title)').in('id', idsFor('reward_redeemed')),
+  ]);
+  for (const result of [completions, badges, rewards]) if (result.error) throw toApiError(result.error);
+
+  const completionById = new Map(
+    ((completions.data ?? []) as unknown as CompletionTitleRow[]).map((row) => [row.id, row.challenges]),
+  );
+  const badgeById = new Map(
+    ((badges.data ?? []) as unknown as { id: string; badges: { title: string } | null }[]).map((row) => [row.id, row.badges]),
+  );
+  const rewardById = new Map(
+    ((rewards.data ?? []) as unknown as { id: string; rewards: { title: string } | null }[]).map((row) => [row.id, row.rewards]),
+  );
+
+  return rows.map((row) => {
+    const challenge = row.source === 'challenge_completion' ? completionById.get(row.source_id ?? '') : null;
+    const title =
+      row.source === 'challenge_completion'
+        ? (challenge?.title ?? 'Challenge')
+        : row.source === 'badge'
+          ? `Badge: ${badgeById.get(row.source_id ?? '')?.title ?? 'unlocked'}`
+          : `Reward redeemed`;
+    return {
+      id: row.id,
+      points: row.points,
+      source: row.source,
+      title,
+      place:
+        row.source === 'challenge_completion'
+          ? (challenge?.events?.title ?? null)
+          : row.source === 'reward_redeemed'
+            ? (rewardById.get(row.source_id ?? '')?.title ?? null)
+            : null,
+      challengeType: challenge?.type ?? null,
+      createdAt: row.created_at,
+    };
+  });
+}
+
 /** Cumulative stats for the Profile screen (events attended, orders, etc.). */
 export async function getProfileStats(): Promise<ProfileStats> {
   const { data, error } = await supabase.rpc('my_stats');
