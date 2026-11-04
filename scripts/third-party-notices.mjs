@@ -94,7 +94,7 @@ const texts = atomicIds
   .filter(([, text]) => text);
 
 const fontLicense = (pkg) => readFileSync(join(ROOT, 'node_modules/@expo-google-fonts', pkg, 'LICENSE_FONT'), 'utf8');
-const ofl = fontLicense('barlow-condensed');
+const ofl = fontLicense('outfit');
 const fontCopyright = (pkg) => fontLicense(pkg).split('\n')[0].replace(/,\s*$/, '');
 
 const out = `# Third-party notices
@@ -110,7 +110,7 @@ end up inside the app; they are listed anyway. Don't edit this file by hand.
 
 Both are used under the SIL Open Font License 1.1 (full text below).
 
-- **Barlow Condensed:** ${fontCopyright('barlow-condensed')}
+- **Outfit:** ${fontCopyright('outfit')}
 - **Be Vietnam Pro:** ${fontCopyright('be-vietnam-pro')}
 
 ## Icons, maps and data

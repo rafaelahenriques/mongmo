@@ -56,6 +56,7 @@ left, per "no hardcoded/mock data."
 | `0013_event_images.sql` | `event-images` bucket for uploaded pop-up photos (public read, owner-only writes, images up to 5 MB); caps challenge photos at 10 MB. |
 | `0014_more_badges.sql` | Five more badges — city-hopper, event-hopper, shutterbug, taste-tester, challenge-champion — and the extended `evaluate_badges()` that awards them (distinct check-in cities/events, photo/taste challenge completions, 10 challenges total). |
 | `0015_live_orders_motion_badges.sql` | **Security fix:** `award_badge`/`evaluate_badges` are no longer callable through the API (anyone signed in could award themselves badges). Pop-up orders only while the pop-up runs; the `motion` (dance meter) challenge type; a starter photo challenge on every new pop-up; four more badges — night-owl, dance-machine, crowd-voice, early-bird — with `badge_progress()` as the single definition of every badge's rule (`evaluate_badges` awards from it, `my_badge_progress()` shows progress in the app). |
+| `0016_delete_account.sql` | `delete_my_account()`: Settings → Delete account. Removes the signed-in user, their orders and everything that hangs off their profile; pop-ups an owner created stay, without a creator. |
 
 ### Points ledger, not a running total
 
@@ -122,9 +123,9 @@ update public.profiles set role = 'owner'
 where id = (select id from auth.users where email = 'you@example.com');
 ```
 
-Then **log out and sign back in** in the app (Profile → Log out): the app
+Then **log out and sign back in** in the app (Account → Settings → Log out): the app
 caches your profile, so it won't notice the new role until it refetches.
-Once you're an owner, the Profile tab shows an "Owner tools" card, and you can promote others from
+Once you're an owner, Account (the person in the top bar) shows "Owner tools", and you can promote others from
 there too if owner UI for that gets added later (right now, only the schema
 supports it — see `is_owner()` and the `prevent_role_escalation` trigger).
 
