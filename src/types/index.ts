@@ -197,7 +197,7 @@ export type ChallengeRules = {
 
 /**
  * A single challenge on an event. Every type shares this shape; its rules
- * decide the interaction (components/challenges/ChallengeItem.tsx) and what
+ * decide the interaction (components/challenges/ChallengeList.tsx) and what
  * the server checks before it counts.
  */
 export type Challenge = ChallengeRules & {

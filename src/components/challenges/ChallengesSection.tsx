@@ -1,13 +1,15 @@
-import { useCallback } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
 
-import ChallengeItem from '@/components/challenges/ChallengeItem';
+import ChallengeList, { challengeLockedReason } from '@/components/challenges/ChallengeList';
 import { ThemedText } from '@/components/ThemedText';
-import { Spacing } from '@/constants/theme';
+import { TextLink } from '@/components/ui/TextLink';
 import { useChallenges } from '@/hooks/useChallenges';
-import { useTheme } from '@/hooks/useTheme';
 import type { PopUpEvent } from '@/types';
 import type { EventPhase } from '@/utils/dateTime';
+
+/** How many the pop-up page shows before "See all". */
+const PREVIEW = 3;
 
 export type ChallengesSectionProps = {
   event: PopUpEvent;
@@ -18,42 +20,17 @@ export type ChallengesSectionProps = {
 };
 
 /**
- * The event's challenges, each opening its type-specific interaction —
- * reached from Event Detail, never a dedicated tab (AGENTS.md).
+ * The challenges on the pop-up page (P-03): "Challenges, 1 of 5 done", the
+ * first few as task cards, and the whole list (X-01) a tap away.
  */
 export default function ChallengesSection({ event, checkedIn, phase, opensAt }: ChallengesSectionProps) {
-  const theme = useTheme();
-  const { challenges, isLoading, completedByChallenge, complete, completePending } = useChallenges(event.id);
+  const router = useRouter();
+  const { challenges, completedByChallenge } = useChallenges(event.id);
 
-  // The server says exactly what's missing ("Take 3 photos — 1 uploaded so
-  // far", "This one opens at 18:00"), so show its message as is.
-  const onComplete = useCallback(
-    (challengeId: string) => (data: Record<string, unknown>) =>
-      complete(
-        { challengeId, data },
-        { onError: (error) => Alert.alert('Not yet', error instanceof Error ? error.message : 'Please try again.') },
-      ),
-    [complete],
-  );
+  if (challenges.length === 0) return null;
 
-  if (isLoading) {
-    return <ActivityIndicator size="small" color={theme.text} style={styles.loader} />;
-  }
-
-  if (challenges.length === 0) {
-    return null;
-  }
-
-  const completedCount = challenges.filter((challenge) => completedByChallenge.has(challenge.id)).length;
-  // Why a challenge can't be started yet (the server says the same).
-  const lockedReason =
-    phase === 'upcoming'
-      ? `Challenges open when the pop-up starts — ${opensAt}.`
-      : phase === 'ended'
-        ? 'This pop-up has ended.'
-        : !checkedIn
-          ? 'Check in to this event before completing its challenges.'
-          : undefined;
+  const done = challenges.filter((challenge) => completedByChallenge.has(challenge.id)).length;
+  const lockedReason = challengeLockedReason(phase, checkedIn, opensAt);
 
   return (
     <View style={styles.section}>
@@ -62,7 +39,7 @@ export default function ChallengesSection({ event, checkedIn, phase, opensAt }: 
           Challenges
         </ThemedText>
         <ThemedText type="caption" themeColor="textSecondary">
-          {completedCount} of {challenges.length} done
+          {done} of {challenges.length} done
         </ThemedText>
       </View>
       {lockedReason ? (
@@ -70,38 +47,25 @@ export default function ChallengesSection({ event, checkedIn, phase, opensAt }: 
           {phase === 'live' ? 'Check in to start them. Each one earns points.' : lockedReason}
         </ThemedText>
       ) : null}
-      <View style={styles.list}>
-        {challenges.map((challenge) => (
-          <ChallengeItem
-            key={challenge.id}
-            challenge={challenge}
-            completion={completedByChallenge.get(challenge.id)}
-            event={event}
-            lockedReason={lockedReason}
-            onComplete={onComplete(challenge.id)}
-            pending={completePending}
-          />
-        ))}
-      </View>
+      <ChallengeList event={event} lockedReason={lockedReason} limit={PREVIEW} />
+      {challenges.length > PREVIEW ? (
+        <TextLink
+          label={`See all ${challenges.length}`}
+          onPress={() => router.push({ pathname: '/(popups)/challenges/[id]', params: { id: event.id } })}
+        />
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   section: {
-    marginTop: Spacing.two,
-    gap: Spacing.two,
+    marginTop: 8,
+    gap: 10,
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'baseline',
     justifyContent: 'space-between',
-  },
-  list: {
-    gap: Spacing.two,
-    marginTop: Spacing.one,
-  },
-  loader: {
-    marginVertical: Spacing.four,
   },
 });

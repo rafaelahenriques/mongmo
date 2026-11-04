@@ -121,7 +121,7 @@ export const Fonts = Platform.select({
 
 /**
  * Brand typefaces, loaded at startup (see FONT_ASSETS). Outfit for headings,
- * card titles and the word tab bar; Be Vietnam Pro for text. Both cover
+ * card titles and labels; Be Vietnam Pro for text. Both cover
  * every Vietnamese diacritic (Cà phê sữa đá, Bánh mì…).
  *
  * Each weight is its own family: pick the family, don't set `fontWeight`.
@@ -165,7 +165,7 @@ export const Spacing = {
 } as const;
 
 /**
- * The word tab bar sits below the screens (it takes its own space), so
+ * The tab bar sits below the screens (it takes its own space), so
  * screens need no extra inset for it.
  */
 export const BottomTabInset = 0;

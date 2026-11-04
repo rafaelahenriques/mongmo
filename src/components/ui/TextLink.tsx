@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Icon } from '@/components/ui/Icon';
@@ -10,10 +10,12 @@ export function TextLink({
   label,
   onPress,
   accessibilityHint,
+  style,
 }: {
   label: string;
   onPress: () => void;
   accessibilityHint?: string;
+  style?: StyleProp<ViewStyle>;
 }) {
   const theme = useTheme();
   return (
@@ -26,7 +28,7 @@ export function TextLink({
       accessibilityLabel={label}
       accessibilityHint={accessibilityHint}
       hitSlop={10}
-      style={({ pressed }) => [styles.link, { opacity: pressed ? 0.6 : 1 }]}
+      style={({ pressed }) => [styles.link, { opacity: pressed ? 0.6 : 1 }, style]}
     >
       <ThemedText type="label">{label}</ThemedText>
       <Icon name="arrowRight" size={16} color={theme.text} weight="bold" />
