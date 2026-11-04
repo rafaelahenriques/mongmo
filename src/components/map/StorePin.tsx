@@ -2,9 +2,7 @@ import { memo, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 
-import { ThemedText } from '@/components/ThemedText';
 import { BrandPin } from '@/components/map/BrandPin';
-import { CardShadow, Colors } from '@/constants/theme';
 import { useBusyStore } from '@/state/busyStore';
 import { useLocationStore } from '@/state/locationStore';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
@@ -16,12 +14,10 @@ export type StorePinProps = {
   onPress: () => void;
 };
 
-/** Pins sit on the map, not on a themed surface: always the light palette. */
-const INK = Colors.light.text;
 
 /**
  * The café on the map: the Ộ in sage on an ink disc (the pop-ups are
- * sage or paper), and its name.
+ * sage or paper). Tap it for the rest.
  */
 function StorePinComponent({ store, onPress }: StorePinProps) {
   const busy = useBusyStore((state) => state.busy[store.id] ?? store.busy);
@@ -37,11 +33,6 @@ function StorePinComponent({ store, onPress }: StorePinProps) {
     <Marker coordinate={store.coordinates} anchor={{ x: 0.5, y: 0.5 }} onPress={onPress}>
       <View accessible accessibilityRole="button" accessibilityLabel={label} onAccessibilityTap={onPress} style={styles.pin}>
         <BrandPin tone="cafe" size={44} />
-        <View style={[styles.label, { backgroundColor: Colors.light.backgroundElement, boxShadow: CardShadow }]}>
-          <ThemedText type="captionBold" numberOfLines={1} style={{ color: INK }}>
-            {store.name}
-          </ThemedText>
-        </View>
       </View>
     </Marker>
   );
@@ -52,11 +43,5 @@ export default memo(StorePinComponent);
 const styles = StyleSheet.create({
   pin: {
     alignItems: 'center',
-    gap: 4,
-    maxWidth: 200,
-  },
-  label: {
-    paddingHorizontal: 6,
-    paddingVertical: 3,
   },
 });

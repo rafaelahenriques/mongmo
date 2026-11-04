@@ -70,7 +70,7 @@ export default function LeaderboardList({ rows, hidden, period, onChangePeriod }
                   {row.rank}
                 </ThemedText>
                 <ThemedText type="smallBold" style={styles.flex} numberOfLines={1}>
-                  {row.isMe ? `${row.name} (you)` : row.name}
+                  {row.isMe ? `${shortName(row.name)} (you)` : shortName(row.name)}
                 </ThemedText>
                 <ThemedText type="smallBold">{row.points.toLocaleString()}</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
@@ -121,3 +121,18 @@ const styles = StyleSheet.create({
     width: 32,
   },
 });
+
+/**
+ * A name as the leaderboard shows it: first name and initial ("Rafaela H."),
+ * so a long name fits and a name made from an email address
+ * ("rafaela.henriques") doesn't show it.
+ */
+export function shortName(name: string): string {
+  const [first = '', second] = name
+    .trim()
+    .split(/[\s._-]+/)
+    .filter(Boolean);
+  const cap = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);
+  if (!first) return 'Mongmo fan';
+  return second ? `${cap(first)} ${second.charAt(0).toUpperCase()}.` : cap(first);
+}

@@ -26,7 +26,7 @@ export function AppHeader({ left }: { left?: ReactNode }) {
   return (
     <View style={[styles.bar, { backgroundColor: theme.band, boxShadow: CardShadow, paddingTop: insets.top + 10 }]}>
       <View style={styles.left}>
-        <Wordmark height={20} color={theme.bandMark} />
+        <Wordmark height={28} color={theme.bandMark} />
         {left}
       </View>
       <Pressable

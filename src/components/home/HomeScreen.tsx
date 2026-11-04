@@ -4,6 +4,7 @@ import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-n
 import { Image } from 'expo-image';
 import { formatInTimeZone } from 'date-fns-tz';
 
+import { shortName } from '@/components/achievements/LeaderboardList';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { ColumnRow } from '@/components/ui/ColumnRow';
@@ -75,7 +76,8 @@ export default function HomeScreen() {
   );
   const stamps = stampCard(summary.points, nextReward);
 
-  const firstName = profile.data?.name.split(' ')[0] ?? '';
+  // "rafaela.henriques" (a name made from an email) greets as "Rafaela".
+  const firstName = profile.data?.name ? shortName(profile.data.name).split(' ')[0] : '';
   const order = activeOrder.data;
   const openEvent = (id: string) => router.push({ pathname: '/(popups)/event/[id]', params: { id } });
   const orderAt = (event: PopUpEvent) => {
@@ -199,7 +201,6 @@ export default function HomeScreen() {
               earned={stamps.earned}
               total={stamps.total}
               partial={stamps.partial}
-              height={40}
               onBrand
               style={styles.stamps}
             />
