@@ -27,7 +27,8 @@ export function StampRow({
   const theme = useTheme();
   const filled = Math.max(0, Math.min(total, Math.round(earned)));
   const fill = Math.max(0, Math.min(1, partial));
-  const on = onBrand ? theme.onBrand : theme.brandFill;
+  // Deep sage on the page (6.7:1 on paper), ink on a sage card.
+  const on = onBrand ? theme.onBrand : theme.primaryText;
   const off = onBrand ? Paper : theme.backgroundSelected;
 
   return (

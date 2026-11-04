@@ -30,8 +30,7 @@ export function confirmLogOut() {
  */
 export async function confirmDeleteAccount(): Promise<void> {
   const title = 'Delete your account?';
-  const message =
-    'Your points, badges, rewards, photos and order history go for good. This can’t be undone.';
+  const message = 'Your points, badges, rewards, photos and order history go for good. This can’t be undone.';
   const yes =
     Platform.OS === 'web'
       ? window.confirm(`${title}\n\n${message}`)

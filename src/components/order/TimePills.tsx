@@ -56,7 +56,7 @@ export function TimePills({
               styles.pill,
               {
                 backgroundColor: on ? theme.brandFill : theme.backgroundElement,
-                borderColor: on ? theme.brandFill : theme.border,
+                borderColor: on ? theme.brandFill : theme.outline,
                 opacity: pressed ? 0.8 : 1,
               },
             ]}

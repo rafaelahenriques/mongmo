@@ -41,7 +41,7 @@ export function TextField({
           {
             color: theme.text,
             backgroundColor: theme.backgroundElement,
-            borderColor: surface === 'muted' ? theme.backgroundElement : theme.border,
+            borderColor: surface === 'muted' ? theme.backgroundElement : theme.outline,
           },
           multiline && styles.multiline,
         ]}
