@@ -16,6 +16,8 @@ export type ResolvedPlace = {
   openLabel: string;
   /** For pickup times. */
   pickup: PickupPlace;
+  /** The pop-up's own photo, if it has one. */
+  imageUrl: string | null;
 };
 
 /** The café or pop-up a cart (or an order) is for; null until it loads. */
@@ -34,6 +36,7 @@ export function usePlace(location: CartLocation | null): ResolvedPlace | null {
       timeZone: data.timeZone,
       openLabel: `Until ${new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: data.timeZone }).format(new Date(data.endsAt))}`,
       pickup: { kind: 'event', startsAt: data.startsAt, endsAt: data.endsAt, timeZone: data.timeZone },
+      imageUrl: data.imageUrl || null,
     };
   }
   if (location?.type === 'store' && store.data) {
@@ -46,6 +49,7 @@ export function usePlace(location: CartLocation | null): ResolvedPlace | null {
       timeZone: data.timeZone,
       openLabel: getStoreStatus(data.hours, data.timeZone).label,
       pickup: { kind: 'store', hours: data.hours, timeZone: data.timeZone },
+      imageUrl: null,
     };
   }
   return null;

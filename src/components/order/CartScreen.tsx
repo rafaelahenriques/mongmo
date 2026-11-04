@@ -92,7 +92,7 @@ export default function CartScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
-      <PickupHeader place={place?.name ?? ''} onBack={back} />
+      <PickupHeader place={place?.name ?? ''} image={place?.imageUrl} onBack={back} />
       {removed ? (
         <View
           style={[styles.undo, { backgroundColor: theme.surfaceDark }]}

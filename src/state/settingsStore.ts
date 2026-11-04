@@ -15,6 +15,8 @@ export type NotificationPrefs = {
   rewardExpiring: boolean;
   /** A badge was just unlocked. */
   achievements: boolean;
+  /** Something left in the cart. */
+  cartReminder: boolean;
 };
 
 type SettingsState = {
@@ -39,6 +41,7 @@ const DEFAULTS = {
     orderUpdates: true,
     rewardExpiring: true,
     achievements: true,
+    cartReminder: true,
   } satisfies NotificationPrefs,
   themeMode: 'system' as ThemeMode,
   notificationsSeenAt: null as string | null,
@@ -68,8 +71,8 @@ export const useSettingsStore = create<SettingsState>()(
       // v1 stored a single `notificationsEnabled` boolean; v2 split it into
       // per-type toggles, seeded from the old value so existing installs
       // keep their choice instead of silently reverting to the defaults.
-      // v3 added `achievements` (on by default).
-      version: 3,
+      // v3 added `achievements`, v4 `cartReminder` (both on by default).
+      version: 4,
       migrate: (persisted, version) => {
         if (!persisted || typeof persisted !== 'object') return persisted as SettingsState;
         let state = persisted as Partial<SettingsState> & { notificationsEnabled?: boolean };
@@ -77,11 +80,20 @@ export const useSettingsStore = create<SettingsState>()(
           const enabled = state.notificationsEnabled ?? true;
           state = {
             themeMode: state.themeMode ?? DEFAULTS.themeMode,
-            notifications: { nearby: enabled, orderUpdates: enabled, rewardExpiring: enabled, achievements: true },
+            notifications: {
+              nearby: enabled,
+              orderUpdates: enabled,
+              rewardExpiring: enabled,
+              achievements: true,
+              cartReminder: true,
+            },
           };
         }
         if (version < 3 && state.notifications) {
           state = { ...state, notifications: { ...state.notifications, achievements: true } };
+        }
+        if (version < 4 && state.notifications) {
+          state = { ...state, notifications: { ...state.notifications, cartReminder: true } };
         }
         return state as SettingsState;
       },

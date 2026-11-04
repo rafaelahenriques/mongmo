@@ -13,6 +13,7 @@ import { queryClient } from '@/api/queryClient';
 import { PERSIST_BUSTER, PERSIST_MAX_AGE_MS } from '@/constants/config';
 import { useEvents } from '@/hooks/useEvents';
 import { useBadgeUnlockNotifications } from '@/hooks/useBadgeUnlockNotifications';
+import { useCartReminder } from '@/hooks/useCartReminder';
 import { useGeofencing } from '@/hooks/useGeofencing';
 import { useNearbyAlerts } from '@/hooks/useNearbyAlerts';
 import { useOrderStatusNotifications } from '@/hooks/useOrderStatusNotifications';
@@ -72,6 +73,7 @@ function AppServices({ children }: PropsWithChildren) {
   useStore();
   useOrderStatusNotifications();
   useRewardExpiryNotifications();
+  useCartReminder();
 
   // All upcoming events power the geofence region set, independent of the
   // filter currently selected on the map.

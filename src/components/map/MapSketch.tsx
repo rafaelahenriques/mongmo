@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Circle, G, Line, Path, Rect } from 'react-native-svg';
 
+import { Colors } from '@/constants/theme';
 import { useResolvedScheme, useTheme } from '@/hooks/useTheme';
 
 /** Canvas, blocks and roads, light and dark. */
@@ -100,11 +101,7 @@ function MapSketchComponent({
             <Circle cx={38} cy={84} r={2.4} fill={theme.text} />
           </>
         ) : null}
-        {route ? (
-          <Pin x={64} y={29} scale={0.34} color={theme.brand} />
-        ) : pin ? (
-          <Pin x={52} y={48} scale={0.62} color={theme.text} />
-        ) : null}
+        {route ? <Pin x={64} y={29} scale={0.34} /> : pin ? <Pin x={52} y={48} scale={0.62} /> : null}
       </Svg>
     </View>
   );
@@ -112,13 +109,27 @@ function MapSketchComponent({
 
 export const MapSketch = memo(MapSketchComponent);
 
-/** The solid Ộ pin (see OMark), centred on its ring at x, y. */
-function Pin({ x, y, scale, color }: { x: number; y: number; scale: number; color: string }) {
+/**
+ * The pin, as on the live map (see BrandPin): the Ộ in ink on a sage disc
+ * ringed in paper, centred at x, y. Light palette: it sits on the map.
+ */
+function Pin({ x, y, scale }: { x: number; y: number; scale: number }) {
+  const ink = Colors.light.text;
   return (
-    <G transform={`translate(${x} ${y}) scale(${scale}) translate(-17 -26)`}>
-      <Path d="M10 9 L17 3 L24 9" stroke={color} strokeWidth={4.5} strokeLinecap="square" fill="none" />
-      <Circle cx={17} cy={26} r={11.5} stroke={color} strokeWidth={7} fill="none" />
-      <Circle cx={17} cy={46} r={3.5} fill={color} />
+    <G transform={`translate(${x} ${y}) scale(${scale})`}>
+      <Circle
+        cx={0}
+        cy={0}
+        r={27}
+        fill={Colors.light.brandFill}
+        stroke={Colors.light.backgroundElement}
+        strokeWidth={4}
+      />
+      <G transform="scale(0.68) translate(-17 -26)">
+        <Path d="M10 9 L17 3 L24 9" stroke={ink} strokeWidth={4.5} strokeLinecap="square" fill="none" />
+        <Circle cx={17} cy={26} r={11.5} stroke={ink} strokeWidth={7} fill="none" />
+        <Circle cx={17} cy={46} r={3.5} fill={ink} />
+      </G>
     </G>
   );
 }

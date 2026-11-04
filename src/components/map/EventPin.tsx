@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 
-import { OMark } from '@/components/brand/OMark';
+import { BrandPin } from '@/components/map/BrandPin';
 import { ThemedText } from '@/components/ThemedText';
 import { CardShadow, Colors } from '@/constants/theme';
 import { useBusyStore } from '@/state/busyStore';
@@ -17,13 +17,12 @@ export type EventPinProps = {
 };
 
 /** Pins sit on the map, not on a themed surface: always the light palette. */
-const PIN = Colors.light.text;
-const LIVE_PIN = Colors.light.brandFill;
 const LABEL_BG = Colors.light.backgroundElement;
 
 /**
- * A pop-up on the map: the logo's Ộ as the pin (sage and bigger when live)
- * over a small square label with its name.
+ * A pop-up on the map: the logo's Ộ on a round colour (sage, bigger and
+ * pointed when live; paper when still to come) over a small label with
+ * its name.
  */
 function EventPinComponent({ event, onPress }: EventPinProps) {
   const busy = useBusyStore((state) => state.busy[event.id] ?? event.busy);
@@ -47,7 +46,7 @@ function EventPinComponent({ event, onPress }: EventPinProps) {
         onAccessibilityTap={onPress}
         style={styles.pin}
       >
-        <OMark height={live ? 50 : 36} color={live ? LIVE_PIN : PIN} />
+        <BrandPin tone={live ? 'live' : 'upcoming'} size={live ? 52 : 40} point={live} />
         <View style={[styles.label, { backgroundColor: LABEL_BG, boxShadow: CardShadow }]}>
           <ThemedText type="captionBold" numberOfLines={1} style={{ color: Colors.light.text }}>
             {live ? `${event.title} · Live` : event.title}

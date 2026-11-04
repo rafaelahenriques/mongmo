@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 
 import { ThemedText } from '@/components/ThemedText';
-import { Icon } from '@/components/ui/Icon';
+import { BrandPin } from '@/components/map/BrandPin';
 import { CardShadow, Colors } from '@/constants/theme';
 import { useBusyStore } from '@/state/busyStore';
 import { useLocationStore } from '@/state/locationStore';
@@ -18,11 +18,10 @@ export type StorePinProps = {
 
 /** Pins sit on the map, not on a themed surface: always the light palette. */
 const INK = Colors.light.text;
-const PAPER = Colors.light.background;
 
 /**
- * The café on the map: a dark square with the shop symbol (square, because
- * it is a fixed place, not a pop-up) and its name.
+ * The café on the map: the Ộ in sage on an ink disc (the pop-ups are
+ * sage or paper), and its name.
  */
 function StorePinComponent({ store, onPress }: StorePinProps) {
   const busy = useBusyStore((state) => state.busy[store.id] ?? store.busy);
@@ -37,9 +36,7 @@ function StorePinComponent({ store, onPress }: StorePinProps) {
   return (
     <Marker coordinate={store.coordinates} anchor={{ x: 0.5, y: 0.5 }} onPress={onPress}>
       <View accessible accessibilityRole="button" accessibilityLabel={label} onAccessibilityTap={onPress} style={styles.pin}>
-        <View style={[styles.square, { backgroundColor: status.isOpen ? INK : Colors.light.textSecondary }]}>
-          <Icon name="store" size={16} color={PAPER} />
-        </View>
+        <BrandPin tone="cafe" size={44} />
         <View style={[styles.label, { backgroundColor: Colors.light.backgroundElement, boxShadow: CardShadow }]}>
           <ThemedText type="captionBold" numberOfLines={1} style={{ color: INK }}>
             {store.name}
@@ -57,12 +54,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     maxWidth: 200,
-  },
-  square: {
-    width: 30,
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   label: {
     paddingHorizontal: 6,
