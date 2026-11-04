@@ -40,7 +40,7 @@ export default function NotificationsScreen() {
     const target = item.target;
     if (target.tab === 'orders') router.push({ pathname: '/(orders)/order/status/[id]', params: { id: target.orderId } });
     else if (target.tab === 'event') router.push({ pathname: '/(popups)/event/[id]', params: { id: target.eventId } });
-    else router.push('/(profile)/achievements');
+    else router.push('/(wallet)');
   };
 
   const today = items.filter((item) => isToday(item.at));

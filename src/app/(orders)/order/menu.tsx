@@ -58,9 +58,7 @@ export default function OrderMenuScreen() {
             tone={location.type === 'store' ? 'neutral' : 'live'}
             icon={location.type === 'store' ? 'store' : undefined}
           />
-          <ThemedText type="title">
-            {location.type === 'store' ? 'Coffee & pastries' : location.eventTitle}
-          </ThemedText>
+          <ThemedText type="title">{location.type === 'store' ? 'Coffee & pastries' : location.eventTitle}</ThemedText>
         </View>
 
         {menuQuery.isPending ? (

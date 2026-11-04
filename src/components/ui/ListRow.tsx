@@ -45,7 +45,11 @@ export function ListRow({
       {icon ? <IconBadge name={icon} tone={iconTone} size={40} /> : null}
       <View style={styles.texts}>
         <ThemedText type="smallBold">{title}</ThemedText>
-        {subtitle ? <ThemedText type="caption" themeColor="textSecondary">{subtitle}</ThemedText> : null}
+        {subtitle ? (
+          <ThemedText type="caption" themeColor="textSecondary">
+            {subtitle}
+          </ThemedText>
+        ) : null}
       </View>
       {value ? <ThemedText type="captionBold">{value}</ThemedText> : null}
       {trailing}

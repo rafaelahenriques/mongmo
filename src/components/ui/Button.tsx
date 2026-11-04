@@ -1,11 +1,4 @@
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  View,
-  type StyleProp,
-  type ViewStyle,
-} from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Icon, type IconName } from '@/components/ui/Icon';

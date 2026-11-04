@@ -9,6 +9,7 @@ import Chip from '@/components/ui/Chip';
 import { Icon } from '@/components/ui/Icon';
 import { IconBadge } from '@/components/ui/IconBadge';
 import { ListRow } from '@/components/ui/ListRow';
+import { AppHeader } from '@/components/ui/AppHeader';
 import { LargeHeader, ScreenScroll, SectionHeader } from '@/components/ui/Screen';
 import { Spacing } from '@/constants/theme';
 import { useMyOrders } from '@/hooks/useMyOrders';
@@ -43,94 +44,101 @@ export default function OrdersScreen() {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <ScreenScroll topInset>
-      <LargeHeader eyebrow="Pickup only" title="Orders" />
+    <View style={[styles.screen, { backgroundColor: theme.background }]}>
+      <AppHeader />
+      <ScreenScroll>
+        <LargeHeader eyebrow="Pickup only" title="Orders" />
 
-      {items.length > 0 ? (
-        <Card
-          tone="brand"
-          onPress={resumeCart}
-          accessibilityLabel={`Resume cart, ${items.length} item${items.length === 1 ? '' : 's'}, ${formatCents(cartSubtotalCents(items))}`}
-          style={styles.row}
-        >
-          <IconBadge name="bag" tone="card" size={48} />
-          <View style={styles.cardTexts}>
-            <ThemedText type="section" style={{ color: theme.onBrand }}>
-              Your cart · {itemCount}
-            </ThemedText>
-            <ThemedText type="small" style={{ color: theme.onBrand }} numberOfLines={1}>
-              {location?.type === 'event' ? location.eventTitle : 'Mongmo café'} · {formatCents(cartSubtotalCents(items))}
-            </ThemedText>
-          </View>
-          <Icon name="arrowRight" size={20} color={theme.onBrand} weight="bold" />
-        </Card>
-      ) : null}
-
-      {activeOrders.map((order) => (
-        <Card
-          key={order.id}
-          tone="primary"
-          onPress={() => openStatus(order.id)}
-          accessibilityLabel={`Order ${ORDER_STATUS_LABEL[order.status]}, ${formatCents(order.total_cents)}`}
-          style={styles.row}
-        >
-          <IconBadge name="takeout" tone="accent" size={48} />
-          <View style={styles.cardTexts}>
-            <ThemedText type="section" style={{ color: theme.onPrimary }}>
-              {ORDER_STATUS_LABEL[order.status]}
-            </ThemedText>
-            <ThemedText type="small" style={{ color: theme.onPrimary, opacity: 0.8 }}>
-              {formatCents(order.total_cents)} · tap for your pickup code
-            </ThemedText>
-          </View>
-          <Icon name="arrowRight" size={20} color={theme.onPrimary} weight="bold" />
-        </Card>
-      ))}
-
-      <Button label="Start an order" accessibilityLabel="Start a new order" icon="add" arrow onPress={startOrder} />
-
-      <SectionHeader title="History" />
-
-      {ordersQuery.isPending ? (
-        <ActivityIndicator size="small" color={theme.text} style={styles.loader} />
-      ) : pastOrders.length === 0 ? (
-        <Card tone="muted" style={styles.empty}>
-          <Icon name="receipt" size={22} color={theme.textSecondary} />
-          <ThemedText type="small" themeColor="textSecondary" style={styles.cardTexts}>
-            No past orders yet — your first one will show up here.
-          </ThemedText>
-        </Card>
-      ) : (
-        <Card style={styles.history}>
-          {pastOrders.map((order, index) => (
-            <View key={order.id}>
-              {index > 0 ? <View style={[styles.divider, { backgroundColor: theme.border }]} /> : null}
-              <ListRow
-                title={new Date(order.created_at).toLocaleDateString(undefined, {
-                  weekday: 'short',
-                  day: 'numeric',
-                  month: 'short',
-                })}
-                subtitle={formatCents(order.total_cents)}
-                icon="receipt"
-                trailing={
-                  <Chip
-                    label={ORDER_STATUS_LABEL[order.status]}
-                    tone={order.status === 'cancelled' ? 'danger' : 'neutral'}
-                  />
-                }
-                onPress={() => openStatus(order.id)}
-                accessibilityLabel={`Past order, ${ORDER_STATUS_LABEL[order.status]}, ${formatCents(order.total_cents)}`}
-              />
+        {items.length > 0 ? (
+          <Card
+            tone="brand"
+            onPress={resumeCart}
+            accessibilityLabel={`Resume cart, ${items.length} item${items.length === 1 ? '' : 's'}, ${formatCents(cartSubtotalCents(items))}`}
+            style={styles.row}
+          >
+            <IconBadge name="bag" tone="card" size={48} />
+            <View style={styles.cardTexts}>
+              <ThemedText type="section" style={{ color: theme.onBrand }}>
+                Your cart · {itemCount}
+              </ThemedText>
+              <ThemedText type="small" style={{ color: theme.onBrand }} numberOfLines={1}>
+                {location?.type === 'event' ? location.eventTitle : 'Mongmo café'} ·{' '}
+                {formatCents(cartSubtotalCents(items))}
+              </ThemedText>
             </View>
-          ))}
-        </Card>
-      )}
-    </ScreenScroll>
+            <Icon name="arrowRight" size={20} color={theme.onBrand} weight="bold" />
+          </Card>
+        ) : null}
+
+        {activeOrders.map((order) => (
+          <Card
+            key={order.id}
+            tone="primary"
+            onPress={() => openStatus(order.id)}
+            accessibilityLabel={`Order ${ORDER_STATUS_LABEL[order.status]}, ${formatCents(order.total_cents)}`}
+            style={styles.row}
+          >
+            <IconBadge name="takeout" tone="accent" size={48} />
+            <View style={styles.cardTexts}>
+              <ThemedText type="section" style={{ color: theme.onPrimary }}>
+                {ORDER_STATUS_LABEL[order.status]}
+              </ThemedText>
+              <ThemedText type="small" style={{ color: theme.onPrimary, opacity: 0.8 }}>
+                {formatCents(order.total_cents)} · tap for your pickup code
+              </ThemedText>
+            </View>
+            <Icon name="arrowRight" size={20} color={theme.onPrimary} weight="bold" />
+          </Card>
+        ))}
+
+        <Button label="Start an order" accessibilityLabel="Start a new order" icon="add" arrow onPress={startOrder} />
+
+        <SectionHeader title="History" />
+
+        {ordersQuery.isPending ? (
+          <ActivityIndicator size="small" color={theme.text} style={styles.loader} />
+        ) : pastOrders.length === 0 ? (
+          <Card tone="muted" style={styles.empty}>
+            <Icon name="receipt" size={22} color={theme.textSecondary} />
+            <ThemedText type="small" themeColor="textSecondary" style={styles.cardTexts}>
+              No past orders yet — your first one will show up here.
+            </ThemedText>
+          </Card>
+        ) : (
+          <Card style={styles.history}>
+            {pastOrders.map((order, index) => (
+              <View key={order.id}>
+                {index > 0 ? <View style={[styles.divider, { backgroundColor: theme.border }]} /> : null}
+                <ListRow
+                  title={new Date(order.created_at).toLocaleDateString(undefined, {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
+                  })}
+                  subtitle={formatCents(order.total_cents)}
+                  icon="receipt"
+                  trailing={
+                    <Chip
+                      label={ORDER_STATUS_LABEL[order.status]}
+                      tone={order.status === 'cancelled' ? 'danger' : 'neutral'}
+                    />
+                  }
+                  onPress={() => openStatus(order.id)}
+                  accessibilityLabel={`Past order, ${ORDER_STATUS_LABEL[order.status]}, ${formatCents(order.total_cents)}`}
+                />
+              </View>
+            ))}
+          </Card>
+        )}
+      </ScreenScroll>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

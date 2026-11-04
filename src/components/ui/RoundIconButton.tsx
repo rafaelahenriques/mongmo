@@ -31,7 +31,13 @@ export function RoundIconButton({
       hitSlop={6}
       style={({ pressed }) => [
         styles.button,
-        { width: size, height: size, borderRadius: size / 2, backgroundColor: theme.primary, opacity: pressed ? 0.8 : 1 },
+        {
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          backgroundColor: theme.primary,
+          opacity: pressed ? 0.8 : 1,
+        },
       ]}
     >
       <Icon name={icon} size={Math.round(size * 0.47)} color={theme.onPrimary} weight="semibold" />

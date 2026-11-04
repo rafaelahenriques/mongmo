@@ -33,10 +33,7 @@ export function Sheet({ visible, title, subtitle, onClose, children }: SheetProp
           accessibilityLabel="Close"
         />
         <View
-          style={[
-            styles.sheet,
-            { backgroundColor: theme.background, paddingBottom: insets.bottom + Spacing.four },
-          ]}
+          style={[styles.sheet, { backgroundColor: theme.background, paddingBottom: insets.bottom + Spacing.four }]}
           accessibilityViewIsModal
         >
           <View style={[styles.grabber, { backgroundColor: theme.border }]} />

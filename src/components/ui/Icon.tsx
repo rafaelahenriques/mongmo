@@ -65,6 +65,7 @@ import {
   User,
   Users,
   Utensils,
+  Wallet,
   X,
   type LucideIcon,
 } from 'lucide-react-native';
@@ -136,6 +137,7 @@ const ICONS = {
   starOutline: { sf: 'star', fallback: Star },
   sparkles: { sf: 'sparkles', fallback: Sparkles },
   trophy: { sf: 'trophy', fallback: Trophy },
+  wallet: { sf: 'wallet.pass', fallback: Wallet },
   medal: { sf: 'medal', fallback: Medal },
   award: { sf: 'rosette', fallback: Award },
   flame: { sf: 'flame', fallback: Flame },

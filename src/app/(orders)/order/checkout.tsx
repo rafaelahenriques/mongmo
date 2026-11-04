@@ -71,7 +71,10 @@ export default function OrderCheckoutScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <ThemedText type="subtitle">Checkout</ThemedText>
         <View style={styles.chips}>
-          <Chip label={location.type === 'event' ? location.eventTitle : 'Mongmo café'} icon={location.type === 'event' ? 'takeout' : 'store'} />
+          <Chip
+            label={location.type === 'event' ? location.eventTitle : 'Mongmo café'}
+            icon={location.type === 'event' ? 'takeout' : 'store'}
+          />
           <Chip label={pickupLabel} icon="clock" />
         </View>
 
@@ -128,7 +131,11 @@ export default function OrderCheckoutScreen() {
                   <ThemedText type="smallBold" style={styles.rowName}>
                     {reward.title}
                   </ThemedText>
-                  <Icon name={selected ? 'checkCircle' : 'add'} size={20} color={selected ? theme.success : theme.textSecondary} />
+                  <Icon
+                    name={selected ? 'checkCircle' : 'add'}
+                    size={20}
+                    color={selected ? theme.success : theme.textSecondary}
+                  />
                 </Pressable>
               );
             })}

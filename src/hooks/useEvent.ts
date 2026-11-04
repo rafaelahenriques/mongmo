@@ -12,8 +12,7 @@ export function useEvent(id: string) {
     queryFn: () => getEvent(id),
     enabled: id.length > 0,
     staleTime: 60_000,
-    retry: (failureCount, error) =>
-      !(error instanceof ApiError && error.status === 404) && failureCount < 2,
+    retry: (failureCount, error) => !(error instanceof ApiError && error.status === 404) && failureCount < 2,
   });
 
   useEffect(() => {

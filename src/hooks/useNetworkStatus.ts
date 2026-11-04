@@ -12,9 +12,7 @@ export function useNetworkStatus(): NetworkStatus {
   useEffect(
     () =>
       NetInfo.addEventListener((state) => {
-        setIsOffline(
-          state.isConnected === false || state.isInternetReachable === false,
-        );
+        setIsOffline(state.isConnected === false || state.isInternetReachable === false);
       }),
     [],
   );

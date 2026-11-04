@@ -21,11 +21,7 @@ export function StampRow({
   const theme = useTheme();
   const filled = Math.max(0, Math.min(total, Math.round(earned)));
   return (
-    <View
-      style={[styles.row, style]}
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-    >
+    <View style={[styles.row, style]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       {Array.from({ length: total }, (_, index) => (
         <OMark
           key={index}

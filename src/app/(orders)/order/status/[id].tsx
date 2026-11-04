@@ -84,7 +84,13 @@ export default function OrderStatusScreen() {
                   <View
                     style={[
                       styles.node,
-                      { backgroundColor: reached ? (current ? theme.brandFill : theme.primary) : theme.backgroundSelected },
+                      {
+                        backgroundColor: reached
+                          ? current
+                            ? theme.brandFill
+                            : theme.primary
+                          : theme.backgroundSelected,
+                      },
                     ]}
                   >
                     <Icon
