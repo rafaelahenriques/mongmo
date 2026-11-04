@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 
@@ -19,9 +19,11 @@ import { useAchievements } from '@/hooks/useAchievements';
 import { useMenu } from '@/hooks/useMenu';
 import { usePickupPlace } from '@/hooks/usePickupPlace';
 import { useTheme } from '@/hooks/useTheme';
+import { confirm } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import { cartSubtotalCents, cartUnitCents, useCartStore, type CartItem } from '@/state/cartStore';
 import { formatCents, shortItemName } from '@/utils/orderFormat';
+import { stampsFor, stampsLabel } from '@/utils/stamps';
 
 /** How long "Product removed · UNDO" stays up. */
 const UNDO_MS = 4000;
@@ -39,7 +41,7 @@ export default function CartScreen() {
   const userRewardId = useCartStore((state) => state.userRewardId);
   const place = usePickupPlace();
   const menu = useMenu(location);
-  const { query, summary, usableRewards } = useAchievements();
+  const { query, summary, usableRewards, redeemRewardAsync } = useAchievements();
   const [removed, setRemoved] = useState<{ line: CartItem; index: number } | null>(null);
   const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -61,13 +63,45 @@ export default function CartScreen() {
   }, [menu.data, items, byId]);
 
   // Only discount rewards come off an order; free items are handed over at pickup.
+  // Already redeemed (and unused): switch it on. Enough points: switching it
+  // on redeems it then and there. Not enough yet: say how far off it is.
   const discount = usableRewards.find(({ reward }) => reward.discountCents);
   const using = Boolean(discount && userRewardId === discount.userRewardId);
   const subtotal = cartSubtotalCents(items);
   const off = using && discount ? Math.min(discount.reward.discountCents ?? 0, subtotal) : 0;
-  const nextDiscount = (query.data?.rewards ?? [])
-    .filter((reward) => reward.discountCents && reward.costPoints > summary.points)
+  const offer = (query.data?.rewards ?? [])
+    .filter((reward) => reward.discountCents)
     .sort((a, b) => a.costPoints - b.costPoints)[0];
+  const affordable = Boolean(offer && summary.points >= offer.costPoints);
+  const [redeeming, setRedeeming] = useState(false);
+
+  const onReward = async (on: boolean) => {
+    if (!on) {
+      useCartStore.getState().setUserRewardId(null);
+      return;
+    }
+    if (discount) {
+      useCartStore.getState().setUserRewardId(discount.userRewardId);
+      return;
+    }
+    if (!offer || !affordable) return;
+    const yes = await confirm(
+      `Use ${stampsLabel(stampsFor(offer.costPoints))} for ${offer.title.toLowerCase()}?`,
+      `${offer.costPoints} points come off your balance, and ${formatCents(offer.discountCents ?? 0)} off this order.`,
+      'Use it',
+    );
+    if (!yes) return;
+    setRedeeming(true);
+    try {
+      const id = await redeemRewardAsync(offer.id);
+      haptics.success();
+      useCartStore.getState().setUserRewardId(id);
+    } catch (error) {
+      Alert.alert('Couldn’t use the reward', error instanceof Error ? error.message : 'Please try again.');
+    } finally {
+      setRedeeming(false);
+    }
+  };
 
   const remove = (line: CartItem) => {
     haptics.press();
@@ -193,26 +227,33 @@ export default function CartScreen() {
               );
             })}
 
-            {discount || nextDiscount ? (
+            {discount || offer ? (
               <View style={[styles.reward, { borderColor: theme.border }]}>
+                {discount || affordable ? null : <Icon name="lock" size={20} color={theme.textSecondary} />}
                 <View style={styles.flex}>
-                  <ThemedText type="smallBold">Use a reward</ThemedText>
+                  <ThemedText type="smallBold" themeColor={discount || affordable ? 'text' : 'textSecondary'}>
+                    {discount ? discount.reward.title : (offer?.title ?? '')}
+                  </ThemedText>
                   <ThemedText type="caption" themeColor="textSecondary">
                     {discount
-                      ? `${discount.reward.title}: −${formatCents(discount.reward.discountCents ?? 0)}`
-                      : nextDiscount
-                        ? `${nextDiscount.title} for ${nextDiscount.costPoints} points. ${nextDiscount.costPoints - summary.points} more to go.`
-                        : ''}
+                      ? using
+                        ? `${formatCents(off)} off this order.`
+                        : 'Redeemed. Switch it on to use it now.'
+                      : offer && affordable
+                        ? `Use ${stampsLabel(stampsFor(offer.costPoints))} (${offer.costPoints} points).`
+                        : offer
+                          ? `At ${stampsLabel(stampsFor(offer.costPoints))}: ${offer.costPoints - summary.points} more points to go.`
+                          : ''}
                   </ThemedText>
                 </View>
-                <Toggle
-                  value={using}
-                  disabled={!discount}
-                  onValueChange={(on) =>
-                    useCartStore.getState().setUserRewardId(on && discount ? discount.userRewardId : null)
-                  }
-                  accessibilityLabel="Use a reward"
-                />
+                {discount || affordable ? (
+                  <Toggle
+                    value={using}
+                    disabled={redeeming}
+                    onValueChange={(on) => void onReward(on)}
+                    accessibilityLabel={discount ? `Use ${discount.reward.title}` : `Use ${offer?.title ?? 'a reward'}`}
+                  />
+                ) : null}
               </View>
             ) : null}
 

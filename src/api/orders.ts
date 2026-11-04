@@ -74,6 +74,10 @@ export async function placeOrder(
   /** A redeemed discount reward to apply; the server checks it's yours and unused. */
   userRewardId: string | null = null,
 ): Promise<OrderRow> {
+  // An order needs the profile it belongs to; older accounts may lack one.
+  const { error: profileError } = await supabase.rpc('ensure_profile');
+  if (profileError) throw toApiError(profileError);
+
   const { data: order, error } = await supabase.rpc('create_order', {
     p_store_id: location.type === 'store' ? location.storeId : null,
     p_event_id: location.type === 'event' ? location.eventId : null,

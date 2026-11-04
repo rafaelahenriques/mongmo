@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CategoryIcon } from '@/components/order/CategoryIcon';
 import { ThemedText } from '@/components/ThemedText';
-import { BlockButton } from '@/components/ui/BlockButton';
+import { Button } from '@/components/ui/Button';
 import { SquareIconButton } from '@/components/ui/SquareIconButton';
 import { OptionPill } from '@/components/ui/OptionPill';
 import { Segmented } from '@/components/ui/Segmented';
@@ -81,7 +81,7 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}>
         <View style={[styles.photo, { height: 220 + insets.top, backgroundColor: theme.backgroundSelected }]}>
           {photo ? (
             <Image
@@ -165,9 +165,17 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
             </ThemedText>
             <Stepper value={quantity} onChange={setQuantity} min={1} max={20} label={item.name} />
           </View>
+          <Button
+            label={`Add to cart · ${formatCents(unit * quantity)}`}
+            accessibilityLabel={`Add ${quantity} to cart, ${formatCents(unit * quantity)} euro`}
+            variant="brand"
+            icon="bag"
+            haptic="press"
+            onPress={onAdd}
+            style={styles.add}
+          />
         </View>
       </ScrollView>
-      <BlockButton label="Add to order" value={formatCents(unit * quantity)} onPress={onAdd} bottomInset />
     </View>
   );
 }
@@ -206,7 +214,10 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   scroll: {
-    paddingBottom: 24,
+    paddingBottom: 40,
+  },
+  add: {
+    marginTop: 18,
   },
   photo: {
     alignItems: 'center',
