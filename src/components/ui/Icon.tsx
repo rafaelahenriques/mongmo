@@ -9,6 +9,7 @@ import {
   BookOpen,
   Briefcase,
   Calendar,
+  CalendarPlus,
   Camera,
   Check,
   ChevronLeft,
@@ -114,6 +115,8 @@ const ICONS = {
   clock: { sf: 'clock', fallback: Clock },
   timer: { sf: 'stopwatch', fallback: Timer },
   calendar: { sf: 'calendar', fallback: Calendar },
+  calendarAdd: { sf: 'calendar.badge.plus', fallback: CalendarPlus },
+  directions: { sf: 'arrow.triangle.turn.up.right.diamond', fallback: Navigation },
 
   qrcode: { sf: 'qrcode', fallback: QrCode },
   scan: { sf: 'qrcode.viewfinder', fallback: ScanLine },
