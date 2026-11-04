@@ -3,8 +3,6 @@ import { StyleSheet, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 
 import { BrandPin } from '@/components/map/BrandPin';
-import { ThemedText } from '@/components/ThemedText';
-import { CardShadow, Colors } from '@/constants/theme';
 import { useBusyStore } from '@/state/busyStore';
 import { useLocationStore } from '@/state/locationStore';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
@@ -16,13 +14,10 @@ export type EventPinProps = {
   onPress: () => void;
 };
 
-/** Pins sit on the map, not on a themed surface: always the light palette. */
-const LABEL_BG = Colors.light.backgroundElement;
-
 /**
- * A pop-up on the map: the logo's Ộ on a round colour (sage, bigger and
- * pointed when live; paper when still to come) over a small label with
- * its name.
+ * A pop-up on the map: just the pin, the logo's Ộ on a round colour
+ * (sage, bigger and pointed when live; paper when still to come). Tap it
+ * for the rest; screen readers hear the name, distance and how busy.
  */
 function EventPinComponent({ event, onPress }: EventPinProps) {
   const busy = useBusyStore((state) => state.busy[event.id] ?? event.busy);
@@ -47,11 +42,6 @@ function EventPinComponent({ event, onPress }: EventPinProps) {
         style={styles.pin}
       >
         <BrandPin tone={live ? 'live' : 'upcoming'} size={live ? 52 : 40} point={live} />
-        <View style={[styles.label, { backgroundColor: LABEL_BG, boxShadow: CardShadow }]}>
-          <ThemedText type="captionBold" numberOfLines={1} style={{ color: Colors.light.text }}>
-            {live ? `${event.title} · Live` : event.title}
-          </ThemedText>
-        </View>
       </View>
     </Marker>
   );
@@ -62,11 +52,5 @@ export default memo(EventPinComponent);
 const styles = StyleSheet.create({
   pin: {
     alignItems: 'center',
-    gap: 4,
-    maxWidth: 220,
-  },
-  label: {
-    paddingHorizontal: 6,
-    paddingVertical: 3,
   },
 });

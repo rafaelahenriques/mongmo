@@ -54,7 +54,7 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
           </>
         )}
         <View style={[styles.back, { top: insets.top + 10 }]}>
-          <SquareIconButton icon="chevronLeft" onPress={back} accessibilityLabel="Back" />
+          <SquareIconButton icon="chevronLeft" onPress={back} accessibilityLabel="Back" size={44} />
         </View>
       </View>
     );
@@ -98,7 +98,7 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
             </View>
           )}
           <View style={[styles.back, { top: insets.top + 10 }]}>
-            <SquareIconButton icon="chevronLeft" onPress={back} accessibilityLabel="Back" />
+            <SquareIconButton icon="chevronLeft" onPress={back} accessibilityLabel="Back" size={44} />
           </View>
         </View>
 

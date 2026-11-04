@@ -18,7 +18,8 @@ export type SegmentOption<T extends string> = {
 
 /**
  * One of a few options, in the three looks the design gives different jobs:
- * - `words`: underlined words that filter a list (Today · This week · All).
+ * - `words`: a row of pill buttons, ink when picked, that switch a list
+ *   or a view (Menu | Reorder, Badges | Leaderboard, Today · This week).
  * - `switch`: a dark pill that changes the view (Map | List).
  * - `blocks`: square segments, sage when picked, that set a value
  *   (Bakery | Live pop-up, Mango | Peanut).
@@ -103,11 +104,16 @@ export function Segmented<T extends string>({
         }
 
         return (
-          <Pressable key={option.value} {...common} hitSlop={8}>
-            <ThemedText
-              type={selected ? 'captionBold' : 'caption'}
-              style={[{ color: selected ? theme.text : theme.textSecondary }, selected && styles.underline]}
-            >
+          <Pressable
+            key={option.value}
+            {...common}
+            hitSlop={4}
+            style={({ pressed }) => [
+              styles.pill,
+              { backgroundColor: selected ? theme.primary : theme.backgroundSelected, opacity: pressed ? 0.8 : 1 },
+            ]}
+          >
+            <ThemedText type="smallBold" style={{ color: selected ? theme.onPrimary : theme.text }}>
               {label}
             </ThemedText>
           </Pressable>
@@ -122,10 +128,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
-    gap: Spacing.three,
+    gap: Spacing.two,
   },
-  underline: {
-    textDecorationLine: 'underline',
+  pill: {
+    height: 40,
+    paddingHorizontal: 18,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   switch: {
     flexDirection: 'row',

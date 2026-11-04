@@ -90,9 +90,9 @@ const styles = StyleSheet.create({
   /** Uppercase labels: the tab bar, top bars, block buttons, segments. */
   label: {
     fontFamily: FontFamily.heavy,
-    fontSize: 13,
-    lineHeight: 16,
-    letterSpacing: tracking(13, 2),
+    fontSize: 14,
+    lineHeight: 18,
+    letterSpacing: tracking(14, 2),
     textTransform: 'uppercase',
   },
   /** Menu item names and prices on the menu board. */
@@ -137,8 +137,8 @@ const styles = StyleSheet.create({
   /** Step labels and small tags. */
   micro: {
     fontFamily: FontFamily.bodyMedium,
-    fontSize: 11,
-    lineHeight: 14,
+    fontSize: 12,
+    lineHeight: 15,
   },
   link: {
     fontFamily: FontFamily.bodySemiBold,

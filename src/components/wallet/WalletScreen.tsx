@@ -3,6 +3,7 @@ import { AccessibilityInfo, Alert, RefreshControl, ScrollView, StyleSheet, View 
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 
+import { shortName } from '@/components/achievements/LeaderboardList';
 import { ThemedText } from '@/components/ThemedText';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { Icon, type IconName } from '@/components/ui/Icon';
@@ -72,7 +73,7 @@ export default function WalletScreen() {
           <View style={[styles.block, { backgroundColor: theme.brandFill }]}>
             {profile.data?.name ? (
               <ThemedText type="captionBold" style={{ color: theme.onBrand }}>
-                {profile.data.name}
+                {shortName(profile.data.name)}
               </ThemedText>
             ) : null}
             <View accessible accessibilityLabel={`${points} points`}>
@@ -108,7 +109,7 @@ export default function WalletScreen() {
                   ? 'Full: redeem a reward below'
                   : 'Earn points at every pop-up'}
             </ThemedText>
-            <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} height={44} />
+            <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
             {nextReward ? (
               <ThemedText type="smallBold">
                 {`${stamps.earned} of ${stampsLabel(stamps.total)} · ${nextReward.costPoints - points} points to go`}

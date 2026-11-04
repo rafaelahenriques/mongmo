@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ChallengesSection from '@/components/challenges/ChallengesSection';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Icon } from '@/components/ui/Icon';
+import { Icon, type IconName } from '@/components/ui/Icon';
 import { IconBadge } from '@/components/ui/IconBadge';
 import { PhotoHero } from '@/components/ui/PhotoHero';
 import { usePullToRefresh } from '@/components/ui/Screen';
@@ -146,18 +146,27 @@ export default function EventDetail({ eventId }: EventDetailProps) {
         height={380}
         top={
           <View style={[styles.heroTop, { top: insets.top + 10 }]}>
-            <SquareIconButton icon="chevronLeft" onPress={back} accessibilityLabel="Back" />
-            <SquareIconButton icon="share" onPress={onShare} accessibilityLabel="Share this pop-up" />
+            <SquareIconButton icon="chevronLeft" onPress={back} accessibilityLabel="Back" size={44} />
+            <SquareIconButton icon="share" onPress={onShare} accessibilityLabel="Share this pop-up" size={44} />
           </View>
         }
       />
 
       <View style={styles.page}>
-        <View style={styles.where}>
-          <ThemedText type="section">{event.venue}</ThemedText>
-          <ThemedText type="caption" themeColor="textSecondary">
-            {timeLabel}
-          </ThemedText>
+        {/* The facts, one per line, all the same size: when, where, and
+            (before it starts) when check-in opens. */}
+        <View style={styles.facts}>
+          <Fact icon="calendar" title={timeLabel} />
+          <Fact icon="pin" title={event.venue} subtitle={event.city} />
+          {phase === 'upcoming' ? (
+            <Fact
+              icon="clock"
+              title={`Check-in opens ${opensAt}`}
+              subtitle="Check in, order and do the challenges once it starts."
+            />
+          ) : phase === 'ended' ? (
+            <Fact icon="clock" title="This pop-up has ended" subtitle="Keep an eye on Pop-ups for the next one." />
+          ) : null}
         </View>
 
         {phase === 'live' ? (
@@ -198,22 +207,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
               style={styles.flex}
             />
           </View>
-        ) : (
-          // Plain text, not a card: nothing here to tap until it starts.
-          <View style={styles.notice} accessible>
-            <Icon name="clock" size={20} color={theme.textSecondary} />
-            <View style={styles.flex}>
-              <ThemedText type="smallBold">
-                {phase === 'upcoming' ? `Check-in opens ${opensAt}` : 'This pop-up has ended'}
-              </ThemedText>
-              <ThemedText type="caption" themeColor="textSecondary">
-                {phase === 'upcoming'
-                  ? 'Check in, order and do the challenges once it starts.'
-                  : 'Keep an eye on Pop-ups for the next one.'}
-              </ThemedText>
-            </View>
-          </View>
-        )}
+        ) : null}
 
         {phase !== 'ended' ? (
           <View style={styles.links}>
@@ -227,9 +221,12 @@ export default function EventDetail({ eventId }: EventDetailProps) {
         ) : null}
 
         {event.description ? (
-          <ThemedText type="default" themeColor="textSecondary" style={styles.description}>
-            {event.description}
-          </ThemedText>
+          <View style={styles.about}>
+            <ThemedText type="smallBold" accessibilityRole="header">
+              About
+            </ThemedText>
+            <ThemedText type="default">{event.description}</ThemedText>
+          </View>
         ) : null}
 
         <ChallengesSection event={event} checkedIn={checkedIn} phase={phase} opensAt={opensAt} />
@@ -275,8 +272,16 @@ const styles = StyleSheet.create({
     paddingTop: 18,
     gap: 16,
   },
-  where: {
-    gap: 2,
+  facts: {
+    gap: 14,
+  },
+  fact: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  about: {
+    gap: 6,
   },
   busy: {
     gap: 8,
@@ -303,15 +308,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 4,
   },
-  description: {
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  notice: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: Spacing.two,
-  },
   stateContainer: {
     flex: 1,
     alignItems: 'center',
@@ -332,3 +328,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+/** One fact about the pop-up: an icon, a line, and maybe a quieter line under it. */
+function Fact({ icon, title, subtitle }: { icon: IconName; title: string; subtitle?: string }) {
+  const theme = useTheme();
+  return (
+    <View style={styles.fact} accessible>
+      <Icon name={icon} size={20} color={theme.text} />
+      <View style={styles.flex}>
+        <ThemedText type="smallBold">{title}</ThemedText>
+        {subtitle ? (
+          <ThemedText type="small" themeColor="textSecondary">
+            {subtitle}
+          </ThemedText>
+        ) : null}
+      </View>
+    </View>
+  );
+}

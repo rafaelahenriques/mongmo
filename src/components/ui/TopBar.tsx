@@ -41,7 +41,7 @@ export function TopBar({
   const color = inverse ? theme.onSurfaceDark : theme.text;
 
   return (
-    <View style={[styles.bar, { paddingTop: (topInset ? insets.top : 0) + Spacing.one }]}>
+    <View style={[styles.bar, { paddingTop: (topInset ? insets.top : 0) + 14 }]}>
       {onBack ? (
         <Pressable
           onPress={() => {
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.two,
     paddingHorizontal: PageInset,
-    paddingBottom: 10,
+    paddingBottom: 16,
   },
   title: {
     flex: 1,
