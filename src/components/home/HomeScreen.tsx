@@ -187,7 +187,7 @@ export default function HomeScreen() {
                 accessibilityLabel="Show my membership QR code"
               />
             </View>
-            <StampRow earned={stamps.earned} total={stamps.total} style={styles.stamps} />
+            <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} style={styles.stamps} />
             <View style={styles.titleRow}>
               <ThemedText type="caption" themeColor="textSecondary" style={styles.flex}>
                 {nextReward

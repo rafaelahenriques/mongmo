@@ -19,7 +19,8 @@ import { useTheme } from '@/hooks/useTheme';
 import { confirm } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import type { Reward } from '@/types';
-import { STAMP_VALUE_LABEL, stampCard } from '@/utils/stamps';
+import { CHALLENGE_POINTS_PER_DAY, POINTS_PER_EURO } from '@/constants/points';
+import { STAMP_VALUE_LABEL, stampCard, stampsFor, stampsLabel } from '@/utils/stamps';
 
 /**
  * Wallet tab: your points big on a sage block, the QR code a tap away,
@@ -45,7 +46,7 @@ export default function WalletScreen() {
   const onRedeem = async (reward: Reward) => {
     const yes = await confirm(
       `Redeem ${reward.title}?`,
-      `It costs ${reward.costPoints} points. Use it at checkout.`,
+      `It costs ${stampsLabel(stampsFor(reward.costPoints))} (${reward.costPoints} points). ${reward.discountCents ? 'It comes off at checkout.' : 'Show it at the counter when you pick up.'}`,
       'Redeem',
     );
     if (!yes) return;
@@ -103,13 +104,16 @@ export default function WalletScreen() {
                 {STAMP_VALUE_LABEL}
               </ThemedText>
             </View>
-            <StampRow earned={stamps.earned} total={stamps.total} height={44} />
+            <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} height={44} />
             <ThemedText type="caption" themeColor="textSecondary">
               {nextReward
                 ? `${nextReward.costPoints - points} more points to: ${nextReward.title}`
                 : rewards.length
                   ? 'You can redeem a reward.'
                   : 'Earn points at every pop-up.'}
+            </ThemedText>
+            <ThemedText type="caption" themeColor="textSecondary">
+              {`Earn ${POINTS_PER_EURO} points for every €1 you spend, and up to ${CHALLENGE_POINTS_PER_DAY} a day from challenges at a pop-up.`}
             </ThemedText>
           </View>
 
@@ -123,7 +127,9 @@ export default function WalletScreen() {
                   key={userRewardId}
                   icon="gift"
                   title={reward.title}
-                  subtitle="Use it at checkout."
+                  subtitle={
+                    reward.discountCents ? 'Comes off at checkout.' : 'Show it at the counter when you pick up.'
+                  }
                   state="done"
                 />
               ))}
@@ -144,9 +150,9 @@ export default function WalletScreen() {
                     title={reward.title}
                     subtitle={ready ? 'Ready to redeem' : `${reward.costPoints - points} points to go`}
                     state={ready ? 'value' : 'plain'}
-                    value={ready ? 'Redeem' : String(reward.costPoints)}
+                    value={ready ? 'Redeem' : stampsLabel(stampsFor(reward.costPoints))}
                     onPress={ready && !redeemPending ? () => void onRedeem(reward) : undefined}
-                    accessibilityLabel={`${reward.title}, ${reward.costPoints} points${ready ? ', ready to redeem' : ''}`}
+                    accessibilityLabel={`${reward.title}, ${stampsLabel(stampsFor(reward.costPoints))}, ${reward.costPoints} points${ready ? ', ready to redeem' : ''}`}
                   />
                 );
               })}

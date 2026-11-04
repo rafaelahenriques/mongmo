@@ -48,10 +48,26 @@ export async function getMyChallengeCompletions(): Promise<ChallengeCompletion[]
 export async function completeChallenge(
   challengeId: string,
   data: Record<string, unknown> = {},
-): Promise<void> {
-  const { error } = await supabase.rpc('complete_challenge', {
+): Promise<string | null> {
+  const { data: completion, error } = await supabase.rpc('complete_challenge', {
     p_challenge_id: challengeId,
     p_data: data,
   });
   if (error) throw toApiError(error);
+  return (completion as { id?: string } | null)?.id ?? null;
+}
+
+/**
+ * The points a completion actually earned: a challenge's own points, or
+ * fewer once the day's 50 at that pop-up are in.
+ */
+export async function getCompletionPoints(completionId: string): Promise<number | null> {
+  const { data, error } = await supabase
+    .from('point_events')
+    .select('points')
+    .eq('source', 'challenge_completion')
+    .eq('source_id', completionId)
+    .maybeSingle();
+  if (error) throw toApiError(error);
+  return data?.points ?? null;
 }

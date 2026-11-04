@@ -12,6 +12,7 @@ import { BlockButton } from '@/components/ui/BlockButton';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { Toggle } from '@/components/ui/Toggle';
+import { orderPoints } from '@/constants/points';
 import { PRODUCT_PHOTO_POSITION, productPhoto } from '@/constants/productPhotos';
 import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
@@ -215,6 +216,13 @@ export default function CartScreen() {
               </View>
             ) : null}
 
+            <View style={styles.earn}>
+              <Icon name="star" size={18} color={theme.text} />
+              <ThemedText type="caption" style={styles.flex}>
+                {`Earn ${orderPoints(subtotal - off)} points when you pick this up.`}
+              </ThemedText>
+            </View>
+
             {suggestions.length ? (
               <View style={styles.more}>
                 <ThemedText type="subtitle" accessibilityRole="header">
@@ -313,6 +321,11 @@ const styles = StyleSheet.create({
     gap: 12,
     borderBottomWidth: 1,
     paddingBottom: 14,
+  },
+  earn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   more: {
     gap: 12,

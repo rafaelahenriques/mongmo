@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import ChallengeList, { challengeLockedReason } from '@/components/challenges/ChallengeList';
 import { ThemedText } from '@/components/ThemedText';
 import { TextLink } from '@/components/ui/TextLink';
+import { CHALLENGE_POINTS_PER_DAY } from '@/constants/points';
 import { useChallenges } from '@/hooks/useChallenges';
 import type { PopUpEvent } from '@/types';
 import type { EventPhase } from '@/utils/dateTime';
@@ -44,7 +45,7 @@ export default function ChallengesSection({ event, checkedIn, phase, opensAt }: 
       </View>
       {lockedReason ? (
         <ThemedText type="caption" themeColor="textSecondary">
-          {phase === 'live' ? 'Check in to start them. Each one earns points.' : lockedReason}
+          {phase === 'live' ? `Check in to start them: up to ${CHALLENGE_POINTS_PER_DAY} points a day.` : lockedReason}
         </ThemedText>
       ) : null}
       <ChallengeList event={event} lockedReason={lockedReason} limit={PREVIEW} />

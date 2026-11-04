@@ -173,7 +173,7 @@ type PointEventRow = {
   id: string;
   user_id: string;
   points: number;
-  source: 'challenge_completion' | 'badge' | 'reward_redeemed';
+  source: 'challenge_completion' | 'badge' | 'reward_redeemed' | 'order';
   source_id: string | null;
   created_at: string;
 };

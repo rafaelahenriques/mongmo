@@ -260,23 +260,23 @@ where title = 'Snap the pop-up'
 -- Badges: the fixed, developer-defined achievement ladder.
 -- ------------------------------------------------------------------
 insert into public.badges (key, title, description, points, sort_order) values
-  ('first-sip', 'First Sip', 'Check in to your first pop-up', 25, 1),
-  ('popup-scout', 'Pop-up Scout', 'Check in to 2 pop-ups', 50, 2),
-  ('street-food-fan', 'Street Food Fan', 'Check in to 4 pop-ups', 75, 3),
-  ('local-legend', 'Local Legend', 'Check in to 6 pop-ups', 100, 4),
-  ('memory-maker', 'Memory Maker', 'Complete 3 challenges', 75, 5),
+  ('first-sip', 'First Sip', 'Check in to your first pop-up', 10, 1),
+  ('popup-scout', 'Pop-up Scout', 'Check in to 2 pop-ups', 25, 2),
+  ('street-food-fan', 'Street Food Fan', 'Check in to 4 pop-ups', 40, 3),
+  ('local-legend', 'Local Legend', 'Check in to 6 pop-ups', 50, 4),
+  ('memory-maker', 'Memory Maker', 'Complete 3 challenges', 40, 5),
   ('first-order', 'First Order', 'Place your first order', 25, 6),
-  ('regular', 'Regular', 'Place 3 orders', 75, 7),
-  ('event-eater', 'Event Eater', 'Order at 2 different pop-ups', 50, 8),
-  ('city-hopper', 'City Hopper', 'Check in to pop-ups in 2 different cities', 50, 9),
-  ('event-hopper', 'Event Hopper', 'Check in at 3 different pop-ups', 75, 10),
-  ('shutterbug', 'Shutterbug', 'Complete 3 photo challenges', 50, 11),
-  ('taste-tester', 'Taste Tester', 'Complete 2 tasting challenges', 50, 12),
-  ('challenge-champion', 'Challenge Champion', 'Complete 10 challenges', 100, 13),
-  ('night-owl', 'Night Owl', 'Check in at a pop-up after 21:00', 30, 14),
-  ('dance-machine', 'Dance Machine', 'Fill a dance meter', 40, 15),
-  ('crowd-voice', 'Voice of the Crowd', 'Vote in 2 polls', 30, 16),
-  ('early-bird', 'Early Bird', 'Beat the clock on a timing challenge', 30, 17)
+  ('regular', 'Regular', 'Place 3 orders', 50, 7),
+  ('event-eater', 'Event Eater', 'Order at 2 different pop-ups', 25, 8),
+  ('city-hopper', 'City Hopper', 'Check in to pop-ups in 2 different cities', 25, 9),
+  ('event-hopper', 'Event Hopper', 'Check in at 3 different pop-ups', 40, 10),
+  ('shutterbug', 'Shutterbug', 'Complete 3 photo challenges', 25, 11),
+  ('taste-tester', 'Taste Tester', 'Complete 2 tasting challenges', 25, 12),
+  ('challenge-champion', 'Challenge Champion', 'Complete 10 challenges', 50, 13),
+  ('night-owl', 'Night Owl', 'Check in at a pop-up after 21:00', 15, 14),
+  ('dance-machine', 'Dance Machine', 'Fill a dance meter', 20, 15),
+  ('crowd-voice', 'Voice of the Crowd', 'Vote in 2 polls', 15, 16),
+  ('early-bird', 'Early Bird', 'Beat the clock on a timing challenge', 15, 17)
 on conflict (key) do nothing;
 
 -- ------------------------------------------------------------------
@@ -284,8 +284,12 @@ on conflict (key) do nothing;
 -- per AGENTS.md's guidance to avoid stacked/percentage reward rules.
 -- ------------------------------------------------------------------
 insert into public.rewards (id, title, description, cost_points, discount_cents, active) values
-  ('00000000-0000-0000-0000-0000000000a1', 'Mongmo sticker pack', 'Limited pop-up artwork, 4 pieces', 100, null, true),
-  ('00000000-0000-0000-0000-0000000000a2', '€2 off your next order', 'Pickup or delivery, one-time use', 150, 200, true),
-  ('00000000-0000-0000-0000-0000000000a3', 'Free cà phê sữa đá', 'Any size, on us', 200, null, true),
-  ('00000000-0000-0000-0000-0000000000a4', 'Free bánh mì', 'Grilled pork or tofu, your pick', 350, null, true)
-on conflict (id) do nothing;
+  ('00000000-0000-0000-0000-0000000000a1', 'Mongmo sticker pack', 'Limited pop-up artwork, 4 pieces', 200, null, true),
+  ('00000000-0000-0000-0000-0000000000a2', '€2 off your order', 'Comes off at checkout', 400, 200, true),
+  ('00000000-0000-0000-0000-0000000000a3', 'Free springrolls', 'Any filling, with your dip', 500, null, true),
+  ('00000000-0000-0000-0000-0000000000a4', 'Free bánh mì', 'Any filling, your pick', 1000, null, true)
+on conflict (id) do update set
+  title = excluded.title,
+  description = excluded.description,
+  cost_points = excluded.cost_points,
+  discount_cents = excluded.discount_cents;

@@ -63,7 +63,13 @@ export default function ChallengeList({ event, lockedReason, limit }: ChallengeL
       {
         onSuccess: (outcome) => {
           setActiveId(null);
-          setResult({ challengeId: challenge.id, title: challenge.title, points: challenge.points, ...outcome });
+          setResult({
+            ...outcome,
+            challengeId: challenge.id,
+            title: challenge.title,
+            points: outcome.points ?? challenge.points,
+            listed: challenge.points,
+          });
         },
         // The server says exactly what's missing ("Take 3 photos — 1
         // uploaded so far", "This one opens at 18:00"), so show it as is.
