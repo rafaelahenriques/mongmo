@@ -14,8 +14,10 @@ Postgres so the client can only ever *ask*, never *decide*.
 2. Apply the schema, in order:
    ```bash
    npx supabase link --project-ref <your-project-ref>   # skip for local
-   npx supabase db push                                  # applies supabase/migrations/*.sql
+   npx supabase db push --remote                         # applies supabase/migrations/*.sql
    ```
+   Since CLI 3, `db push` targets the local stack unless you pass `--remote`
+   (without it you get `connect ECONNREFUSED 127.0.0.1:54322`).
    For local development, `npx supabase db reset` applies every migration
    **and** `supabase/seed.sql` in one step.
 3. **Seed a hosted project.** `db push` only runs migrations — it never
@@ -157,9 +159,9 @@ tab's error state shows the same message. Match it here:
 
 | Message | Cause → fix |
 |---|---|
-| `permission denied for table …` | The role has no table grant → `npx supabase db push` (applies `0007_explicit_grants.sql`). |
+| `permission denied for table …` | The role has no table grant → `npx supabase db push --remote` (applies `0007_explicit_grants.sql`). |
 | `Cannot coerce the result to a single JSON object` (zero rows) on `["store"]` | No seed data → run `seed.sql` in the SQL Editor (Setup step 3). |
-| the same on `["profile"]` | Your account has no `profiles` row → `npx supabase db push` (applies `0008_backfill_profiles.sql`). |
+| the same on `["profile"]` | Your account has no `profiles` row → `npx supabase db push --remote` (applies `0008_backfill_profiles.sql`). |
 | `JWT expired` / `invalid JWT` | Stale session → Profile → Log out, then sign in again. |
 
 **"There's no login screen."** That's expected once you've signed in: the
