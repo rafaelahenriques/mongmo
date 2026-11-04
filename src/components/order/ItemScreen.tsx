@@ -11,6 +11,7 @@ import { SquareIconButton } from '@/components/ui/SquareIconButton';
 import { OptionPill } from '@/components/ui/OptionPill';
 import { Segmented } from '@/components/ui/Segmented';
 import { Stepper } from '@/components/ui/Stepper';
+import { PRODUCT_PHOTO_POSITION, productPhoto } from '@/constants/productPhotos';
 import { PageInset } from '@/constants/theme';
 import { useMenu } from '@/hooks/useMenu';
 import { useTheme } from '@/hooks/useTheme';
@@ -60,6 +61,7 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
   }
 
   const short = shortItemName(item.name, item.category);
+  const photo = productPhoto(item);
   const chosen: CartOption[] = groups
     .flatMap((group) =>
       group.choice
@@ -81,12 +83,14 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={[styles.photo, { height: 220 + insets.top, backgroundColor: theme.backgroundSelected }]}>
-          {item.imageUrl ? (
+          {photo ? (
             <Image
-              source={{ uri: item.imageUrl }}
+              source={photo}
               style={StyleSheet.absoluteFill}
               contentFit="cover"
+              contentPosition={PRODUCT_PHOTO_POSITION}
               transition={200}
+              accessibilityIgnoresInvertColors
             />
           ) : (
             <View style={[styles.plate, { backgroundColor: theme.backgroundElement }]}>

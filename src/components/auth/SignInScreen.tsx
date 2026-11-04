@@ -104,8 +104,8 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
           <Wordmark height={78} />
         </View>
 
-        {BrandPhotos.flatlay ? (
-          <Image source={BrandPhotos.flatlay} style={styles.photo} contentFit="cover" accessibilityIgnoresInvertColors />
+        {BrandPhotos.welcome ? (
+          <Image source={BrandPhotos.welcome} style={styles.photo} contentFit="cover" accessibilityIgnoresInvertColors />
         ) : null}
 
         <ThemedText type="name" accessibilityRole="header">

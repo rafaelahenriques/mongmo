@@ -45,7 +45,7 @@ export default function MembershipCardScreen() {
         <View style={styles.cardTop}>
           <Wordmark height={22} />
         </View>
-        {BrandPhotos.flatlay ? <Image source={BrandPhotos.flatlay} style={styles.photo} contentFit="cover" /> : null}
+        {BrandPhotos.card ? <Image source={BrandPhotos.card} style={styles.photo} contentFit="cover" /> : null}
         <View style={styles.cardRow}>
           <ThemedText type="section" numberOfLines={1} style={styles.flex}>
             {profile.data?.name ?? ''}

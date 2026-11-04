@@ -12,6 +12,7 @@ import { BlockButton } from '@/components/ui/BlockButton';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { Toggle } from '@/components/ui/Toggle';
+import { PRODUCT_PHOTO_POSITION, productPhoto } from '@/constants/productPhotos';
 import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useMenu } from '@/hooks/useMenu';
@@ -117,6 +118,7 @@ export default function CartScreen() {
           <ScrollView contentContainerStyle={styles.content}>
             {items.map((line) => {
               const item = byId.get(line.menuItemId);
+              const photo = item ? productPhoto(item) : undefined;
               // "Bánh mì, crispy pork belly" reads BÁNH MÌ over "Crispy pork belly".
               const short = item ? shortItemName(line.name, item.category) : line.name;
               const titled = short !== line.name && item?.category;
@@ -126,8 +128,13 @@ export default function CartScreen() {
               return (
                 <View key={line.key} style={[styles.line, { borderBottomColor: theme.border }]}>
                   <View style={[styles.round, { backgroundColor: theme.backgroundSelected }]}>
-                    {item?.imageUrl ? (
-                      <Image source={{ uri: item.imageUrl }} style={StyleSheet.absoluteFill} contentFit="cover" />
+                    {photo ? (
+                      <Image
+                        source={photo}
+                        style={StyleSheet.absoluteFill}
+                        contentFit="cover"
+                        contentPosition={PRODUCT_PHOTO_POSITION}
+                      />
                     ) : (
                       <CategoryIcon section={item?.category ?? line.name} size={30} />
                     )}

@@ -20,7 +20,7 @@ export function OpeningScreen({ onGetStarted, onSignIn }: { onGetStarted: () => 
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.screen, { backgroundColor: theme.surfaceDark }]}>
-      {BrandPhotos.dough ? <Image source={BrandPhotos.dough} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
+      {BrandPhotos.opening ? <Image source={BrandPhotos.opening} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
       <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" preserveAspectRatio="none">
         <Defs>
           <LinearGradient id="opening" x1="0" y1="0" x2="0" y2="1">
