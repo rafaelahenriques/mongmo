@@ -124,7 +124,7 @@ export default function PhotoCapture({
                 <Image source={{ uri }} style={styles.thumb} contentFit="cover" />
               </Pressable>
             ) : (
-              <View key={index} style={[styles.thumb, styles.thumbEmpty, { borderColor: theme.border }]}>
+              <View key={index} style={[styles.thumb, styles.thumbEmpty, { borderColor: theme.outline }]}>
                 <ThemedText type="captionBold" themeColor="textSecondary">
                   {index + 1}
                 </ThemedText>

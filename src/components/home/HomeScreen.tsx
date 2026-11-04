@@ -15,7 +15,7 @@ import { usePullToRefresh } from '@/components/ui/Screen';
 import { StampRow } from '@/components/ui/Stamps';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { StepBar } from '@/components/ui/StepBar';
-import { PageInset, Paper } from '@/constants/theme';
+import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveOrder } from '@/hooks/useActiveOrder';
 import { useEvents } from '@/hooks/useEvents';
@@ -186,7 +186,7 @@ export default function HomeScreen() {
                   <ThemedText type="display" style={[styles.pointsNumber, { color: theme.onBrand }]}>
                     {summary.points}
                   </ThemedText>
-                  <ThemedText type="title" style={{ color: Paper }}>
+                  <ThemedText type="title" style={{ color: theme.onBrandSoft }}>
                     POINTS
                   </ThemedText>
                 </View>
@@ -239,7 +239,7 @@ export default function HomeScreen() {
           </View>
           {upcoming.length === 0 ? (
             <Pressable onPress={orderFromStore} accessibilityRole="button" style={styles.upRow}>
-              <ThemedText type="caption" style={{ color: theme.faded }}>
+              <ThemedText type="caption" style={{ color: theme.onSurfaceDarkMuted }}>
                 Nothing else planned yet. Order ahead from the café meanwhile.
               </ThemedText>
             </Pressable>
@@ -267,7 +267,7 @@ export default function HomeScreen() {
                   <ThemedText type="smallBold" style={{ color: theme.onSurfaceDark }} numberOfLines={1}>
                     {event.title}
                   </ThemedText>
-                  <ThemedText type="caption" style={{ color: theme.border }} numberOfLines={1}>
+                  <ThemedText type="caption" style={{ color: theme.onSurfaceDarkMuted }} numberOfLines={1}>
                     {upcomingWhen(event)}
                   </ThemedText>
                 </View>

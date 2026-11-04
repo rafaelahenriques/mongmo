@@ -41,7 +41,7 @@ export function Toggle({
       accessibilityState={{ checked: value, disabled }}
       disabled={disabled}
       hitSlop={8}
-      style={[styles.track, { backgroundColor: value ? theme.brandFill : theme.border, opacity: disabled ? 0.5 : 1 }]}
+      style={[styles.track, { backgroundColor: value ? theme.brandFill : theme.outline, opacity: disabled ? 0.5 : 1 }]}
     >
       <Animated.View
         style={[styles.knob, { backgroundColor: value ? theme.onBrand : theme.backgroundElement }, knob]}

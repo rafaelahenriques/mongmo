@@ -13,7 +13,7 @@ import { SquareIconButton } from '@/components/ui/SquareIconButton';
 import { StampRow } from '@/components/ui/Stamps';
 import { TaskCard } from '@/components/ui/TaskCard';
 import { BrandPhotos } from '@/constants/brandPhotos';
-import { PageInset, Paper } from '@/constants/theme';
+import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useProfile } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
@@ -80,7 +80,7 @@ export default function WalletScreen() {
               <ThemedText type="display" style={[styles.number, { color: theme.onBrand }]}>
                 {points}
               </ThemedText>
-              <ThemedText type="display" style={[styles.word, { color: Paper }]}>
+              <ThemedText type="display" style={[styles.word, { color: theme.onBrandSoft }]}>
                 POINTS
               </ThemedText>
             </View>

@@ -38,10 +38,14 @@ export const Colors = {
     backgroundSelected: '#ECEAE3',
     /** Shadow Grey — 5.5:1 on paper, 4.8:1 on light stone. */
     textSecondary: '#65665D',
-    /** Aged Concrete White ("stone"): hairlines, outlines, faded words. */
+    /** Aged Concrete White ("stone"): hairlines and dividers only (decorative). */
     border: '#D6D1C4',
-    /** The big faded word next to a number ("25 POINTS"): decorative. */
-    faded: '#D6D1C4',
+    /** The edge of a control you must see to use (text fields, switches off,
+     *  time pills): 3.15:1 or more on every light surface (WCAG 1.4.11). */
+    outline: '#86837A',
+    /** The big quiet word next to a number ("25 POINTS"), unavailable days:
+     *  large text, 3.15:1 or more on every light surface. */
+    faded: '#86837A',
     /** Card shadow colour. */
     shadow: 'rgba(46, 46, 43, 0.10)',
     /** Dark pill buttons and round icon buttons, paper text (12.6:1). */
@@ -50,6 +54,8 @@ export const Colors = {
     /** Dark bands: the tab bar, "Next up", dark block buttons. */
     surfaceDark: '#2F2F2B',
     onSurfaceDark: Paper,
+    /** Quieter text on the dark band (dates under "Next up"): 7.8:1. */
+    onSurfaceDarkMuted: '#C9C5B9',
     /** The top bar on each tab: sage, with the wordmark and icons in ink. */
     band: Sage,
     onBand: Ink,
@@ -59,6 +65,8 @@ export const Colors = {
     /** Weathered Sage: the main call to action and "live", ink on it (6.9:1). */
     brandFill: Sage,
     onBrand: '#2F302B',
+    /** The second word on sage ("POINTS" by the number): large text, 3.5:1. */
+    onBrandSoft: '#44615A',
     /** Deep sage for the rare sage text (6.7:1 on paper). */
     primaryText: '#2B6259',
     /** Board cream, from the menu board: small highlights. */
@@ -78,12 +86,15 @@ export const Colors = {
     /** 6:1 on fills. */
     textSecondary: '#B8B4A8',
     border: '#45463F',
-    faded: '#5A5B53',
+    /** 3.3:1 or more on every dark surface. */
+    outline: '#86847B',
+    faded: '#86847B',
     shadow: inkAlpha(0),
     primary: '#ECEAE3',
     onPrimary: '#22231E',
     surfaceDark: '#2F2F2B',
     onSurfaceDark: Paper,
+    onSurfaceDarkMuted: '#C9C5B9',
     /** A deep sage, so the status bar's light text still reads on it. */
     band: '#23332F',
     onBand: '#F2F0EA',
@@ -91,6 +102,7 @@ export const Colors = {
     brand: Sage,
     brandFill: Sage,
     onBrand: '#22231E',
+    onBrandSoft: '#44615A',
     primaryText: Sage,
     accent: '#FBE3B0',
     onAccent: '#22231E',
