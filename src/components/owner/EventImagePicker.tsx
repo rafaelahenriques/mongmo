@@ -12,6 +12,7 @@ import { inkAlpha, Paper, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { hasNativeFeature, UPDATE_APP_MESSAGE } from '@/services/nativeModules';
+import { useMotion } from '@/constants/motion';
 
 const PICKER_OPTIONS: ImagePickerOptions = {
   mediaTypes: ['images'],
@@ -26,6 +27,7 @@ const PICKER_OPTIONS: ImagePickerOptions = {
  */
 export function EventImagePicker({ value, onChange }: { value: string; onChange: (url: string) => void }) {
   const theme = useTheme();
+  const motion = useMotion();
   const [uploading, setUploading] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
 
@@ -69,7 +71,7 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
             source={{ uri: value }}
             style={StyleSheet.absoluteFill}
             contentFit="cover"
-            transition={200}
+            transition={motion.imageFadeMs}
             accessibilityLabel="The pop-up's photo"
           />
         ) : (

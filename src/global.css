@@ -7,3 +7,25 @@
   --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
 }
+
+/* Reduced motion on the web (prefers-reduced-motion): no CSS animations
+   or transitions anywhere. Native motion follows src/constants/motion.ts. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Keyboard focus: whatever has focus from the keyboard gets an ink ring
+   with a paper halo, so it shows on light, sage and dark surfaces alike.
+   Mouse and touch clicks don't show it (:focus-visible). */
+:focus-visible {
+  outline: 3px solid #1c1d19 !important;
+  outline-offset: 0 !important;
+  box-shadow: 0 0 0 6px #faf9f5 !important;
+}

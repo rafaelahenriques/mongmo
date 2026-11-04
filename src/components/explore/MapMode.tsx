@@ -11,6 +11,7 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useLocationStore } from '@/state/locationStore';
 import type { Coordinates, PopUpEvent, Store } from '@/types';
+import { useMotion } from '@/constants/motion';
 
 const KORTRIJK_CENTER: Coordinates = { latitude: 50.8276, longitude: 3.2662 };
 
@@ -69,6 +70,7 @@ export default function MapMode({
   onSelectEvent,
 }: MapModeProps) {
   const theme = useTheme();
+  const motion = useMotion();
   const permission = useLocationStore((state) => state.permission);
   const userCoordinates = useLocationStore((state) => state.coordinates);
   const mapRef = useRef<MapHandle>(null);
@@ -88,9 +90,9 @@ export default function MapMode({
         latitudeDelta: 0.03,
         longitudeDelta: 0.03,
       },
-      600,
+      motion.mapMoveMs,
     );
-  }, [userCoordinates]);
+  }, [userCoordinates, motion.mapMoveMs]);
 
   return (
     <View style={styles.container}>

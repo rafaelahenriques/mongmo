@@ -1,6 +1,7 @@
 import { useEffect, type PropsWithChildren } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { ReducedMotionConfig, ReduceMotion } from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
@@ -51,6 +52,8 @@ export type ProvidersProps = PropsWithChildren<{
 export function Providers({ children, session }: ProvidersProps) {
   return (
     <GestureHandlerRootView style={styles.root}>
+      {/* Reanimated animations follow the system's reduce-motion setting (src/constants/motion.ts). */}
+      <ReducedMotionConfig mode={ReduceMotion.System} />
       <PersistQueryClientProvider
         client={queryClient}
         persistOptions={{ persister, maxAge: PERSIST_MAX_AGE_MS, buster: PERSIST_BUSTER }}

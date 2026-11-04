@@ -19,6 +19,7 @@ import { haptics } from '@/services/haptics';
 import type { OrderMenuItem } from '@/api/orders';
 import { useCartStore, type CartOption } from '@/state/cartStore';
 import { formatCents, shortItemName } from '@/utils/orderFormat';
+import { useMotion } from '@/constants/motion';
 
 /**
  * O-02 Item: the photo, the name big in uppercase with its price, what's
@@ -26,6 +27,7 @@ import { formatCents, shortItemName } from '@/utils/orderFormat';
  */
 export default function ItemScreen({ itemId }: { itemId: string }) {
   const theme = useTheme();
+  const motion = useMotion();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const location = useCartStore((state) => state.location);
@@ -89,7 +91,7 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
               style={StyleSheet.absoluteFill}
               contentFit="cover"
               contentPosition={PRODUCT_PHOTO_POSITION}
-              transition={200}
+              transition={motion.imageFadeMs}
               accessibilityIgnoresInvertColors
             />
           ) : (

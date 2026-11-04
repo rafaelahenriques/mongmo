@@ -1,6 +1,7 @@
 import { createElement, useMemo, type ReactNode } from 'react';
 
 import { TopBar } from '@/components/ui/TopBar';
+import { useMotion } from '@/constants/motion';
 import { useTheme } from '@/hooks/useTheme';
 
 type HeaderProps = {
@@ -17,9 +18,12 @@ type HeaderProps = {
  */
 export function useStackScreenOptions() {
   const theme = useTheme();
+  const motion = useMotion();
   return useMemo(
     () => ({
       headerShown: true,
+      // No push animation when the person asked for less motion.
+      animation: motion.stack,
       header: ({ navigation, route, options, back }: HeaderProps) =>
         createElement(TopBar, {
           title: typeof options.headerTitle === 'string' ? options.headerTitle : (options.title ?? route.name),
@@ -30,6 +34,6 @@ export function useStackScreenOptions() {
         }),
       contentStyle: { backgroundColor: theme.background },
     }),
-    [theme],
+    [theme, motion.stack],
   );
 }

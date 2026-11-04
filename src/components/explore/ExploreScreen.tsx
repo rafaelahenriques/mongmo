@@ -27,6 +27,7 @@ import { useLocationStore } from '@/state/locationStore';
 import { getEventPhase } from '@/utils/dateTime';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import type { PopUpEvent } from '@/types';
+import { useMotion } from '@/constants/motion';
 
 /**
  * Pop-ups tab: find one fast. The map with what's on right now underneath
@@ -68,11 +69,16 @@ export default function ExploreScreen() {
 
   // The panel under the map folds away to a one-line strip for a map-only view.
   const [panelOpen, setPanelOpen] = useState(true);
-  const showPanel = useCallback((open: boolean) => {
-    haptics.select();
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setPanelOpen(open);
-  }, []);
+  const { reduce: reduceMotion } = useMotion();
+  const showPanel = useCallback(
+    (open: boolean) => {
+      haptics.select();
+      // Folds smoothly, or snaps when the person asked for less motion.
+      if (!reduceMotion) LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setPanelOpen(open);
+    },
+    [reduceMotion],
+  );
   const swipe = useMemo(
     () =>
       PanResponder.create({
