@@ -11,7 +11,6 @@ import { IconNav, TABS } from '@/components/ui/IconNav';
 export default function AppTabs() {
   return (
     <Tabs
-      initialRouteName="(home)"
       backBehavior="history"
       tabBar={(props) => <IconNav {...props} />}
       screenOptions={{ headerShown: false }}
@@ -19,9 +18,11 @@ export default function AppTabs() {
       {TABS.map((tab) => (
         <Tabs.Screen key={tab.name} name={tab.name} options={{ title: tab.label }} />
       ))}
-      <Tabs.Screen name="(profile)" options={{ title: 'Account', href: null }} />
-      <Tabs.Screen name="(achievements)" options={{ title: 'Achievements', href: null }} />
-      <Tabs.Screen name="+not-found" options={{ href: null }} />
+      {/* Not hidden (`href: null`): a hidden tab can't be opened, it sends you
+          back to the first one. The icon bar only draws TABS anyway. */}
+      <Tabs.Screen name="(profile)" options={{ title: 'Account' }} />
+      <Tabs.Screen name="(achievements)" options={{ title: 'Achievements' }} />
+      <Tabs.Screen name="+not-found" options={{ title: 'Not found' }} />
     </Tabs>
   );
 }

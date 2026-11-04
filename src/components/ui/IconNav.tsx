@@ -31,7 +31,7 @@ const ICON = 26;
  * rest are grey. Tapping the current tab again goes back to its first
  * screen.
  */
-export function IconNav({ state, navigation }: BottomTabBarProps) {
+export function IconNav({ state, emitter, navigateToTab }: BottomTabBarProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const pathname = usePathname();
@@ -55,11 +55,12 @@ export function IconNav({ state, navigation }: BottomTabBarProps) {
           <Pressable
             key={tab.name}
             onPress={() => {
-              const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+              // On the current tab, the press event alone takes its stack
+              // back to the first screen.
+              const event = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
               if (event.defaultPrevented) return;
               haptics.select();
-              if (selected) navigation.navigate(route.name, { screen: 'index' });
-              else navigation.navigate(route.name);
+              if (!selected) navigateToTab(route.key);
             }}
             accessibilityRole="tab"
             accessibilityState={{ selected }}
