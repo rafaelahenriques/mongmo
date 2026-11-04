@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -13,12 +13,15 @@ export function ColumnRow({
   label,
   index,
   children,
+  aside,
   inverse = false,
   style,
 }: PropsWithChildren<{
   label: string;
   /** The footnote number after the label. */
   index?: number;
+  /** Under the label, in its column: a section's price on the menu. */
+  aside?: ReactNode;
   inverse?: boolean;
   style?: StyleProp<ViewStyle>;
 }>) {
@@ -26,15 +29,18 @@ export function ColumnRow({
   const color = inverse ? theme.onSurfaceDark : theme.text;
   return (
     <View style={[styles.row, style]}>
-      <View style={styles.label} accessible accessibilityRole="header" accessibilityLabel={label}>
-        <ThemedText type="captionBold" style={{ color }}>
-          {label}
-        </ThemedText>
-        {index !== undefined ? (
-          <ThemedText type="micro" style={{ color }}>
-            {index}
+      <View style={styles.side}>
+        <View style={styles.label} accessible accessibilityRole="header" accessibilityLabel={label}>
+          <ThemedText type="captionBold" style={{ color }}>
+            {label}
           </ThemedText>
-        ) : null}
+          {index !== undefined ? (
+            <ThemedText type="micro" style={{ color }}>
+              {index}
+            </ThemedText>
+          ) : null}
+        </View>
+        {aside}
       </View>
       <View style={styles.content}>{children}</View>
     </View>
@@ -49,8 +55,11 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     paddingBottom: 16,
   },
-  label: {
+  side: {
     width: 100,
+    gap: 4,
+  },
+  label: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 1,

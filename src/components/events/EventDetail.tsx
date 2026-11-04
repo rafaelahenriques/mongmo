@@ -73,7 +73,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
   const openOrder = useCallback(() => {
     if (!event) return;
     useCartStore.getState().setLocation({ type: 'event', eventId: event.id, eventTitle: event.title });
-    router.push('/(orders)/order/menu');
+    router.navigate('/(orders)');
   }, [event, router]);
 
   const onAddToCalendar = useCallback(async () => {

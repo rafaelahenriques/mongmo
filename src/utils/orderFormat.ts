@@ -10,10 +10,29 @@ export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
   cancelled: 'Cancelled',
 };
 
-/** `€6.50` from an integer cent amount. */
+/** `6,50` from an integer cent amount: euros, the way the menu board writes them. */
 export function formatCents(cents: number): string {
-  return `€${(cents / 100).toFixed(2)}`;
+  return (cents / 100).toFixed(2).replace('.', ',');
 }
+
+/** The menu's big price, "10" and a raised "50". */
+export function priceParts(cents: number): { euros: string; cents: string } {
+  return { euros: String(Math.floor(cents / 100)), cents: String(cents % 100).padStart(2, '0') };
+}
+
+/** What the order is doing, as the status screen's heading. */
+export const ORDER_STATUS_TITLE: Record<OrderStatus, string> = {
+  draft: 'Not placed',
+  paid: 'Confirmed',
+  preparing: 'Being made',
+  ready: 'Ready',
+  collected: 'Collected',
+  cancelled: 'Cancelled',
+};
+
+/** Confirmed → Being made → Ready, and the step an order has reached (for StepBar). */
+export const ORDER_STEPS = ['Confirmed', 'Being made', 'Ready'];
+export const ORDER_STEP: Partial<Record<OrderStatus, number>> = { paid: 0, preparing: 1, ready: 2, collected: 2 };
 
 /** Short human pickup code shown at the counter — the order id needs no separate token. */
 export function pickupCode(orderId: string): string {

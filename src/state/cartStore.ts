@@ -3,9 +3,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 /** Where an order is picked up — the café, or a specific pop-up event. */
-export type CartLocation =
-  | { type: 'store'; storeId: string }
-  | { type: 'event'; eventId: string; eventTitle: string };
+export type CartLocation = { type: 'store'; storeId: string } | { type: 'event'; eventId: string; eventTitle: string };
 
 export type CartItem = {
   menuItemId: string;
@@ -17,13 +15,13 @@ export type CartItem = {
 type CartState = {
   location: CartLocation | null;
   items: CartItem[];
-  /** null = ASAP */
-  pickupAt: string | null;
+  /** A redeemed discount reward to spend on this order. */
+  userRewardId: string | null;
   setLocation: (location: CartLocation) => void;
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
   removeItem: (menuItemId: string) => void;
   setQuantity: (menuItemId: string, quantity: number) => void;
-  setPickupAt: (iso: string | null) => void;
+  setUserRewardId: (id: string | null) => void;
   clear: () => void;
 };
 
@@ -36,7 +34,7 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       location: null,
       items: [],
-      pickupAt: null,
+      userRewardId: null,
 
       setLocation: (location) => {
         // Switching location (café vs. a different event) means the old
@@ -75,9 +73,9 @@ export const useCartStore = create<CartState>()(
               : state.items.map((row) => (row.menuItemId === menuItemId ? { ...row, quantity } : row)),
         })),
 
-      setPickupAt: (iso) => set({ pickupAt: iso }),
+      setUserRewardId: (id) => set({ userRewardId: id }),
 
-      clear: () => set({ location: null, items: [], pickupAt: null }),
+      clear: () => set({ location: null, items: [], userRewardId: null }),
     }),
     {
       name: 'mongmo-cart',

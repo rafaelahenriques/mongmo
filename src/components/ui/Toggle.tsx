@@ -18,10 +18,12 @@ export function Toggle({
   value,
   onValueChange,
   accessibilityLabel,
+  disabled = false,
 }: {
   value: boolean;
   onValueChange: (value: boolean) => void;
   accessibilityLabel: string;
+  disabled?: boolean;
 }) {
   const theme = useTheme();
   const knob = useAnimatedStyle(() => ({
@@ -36,9 +38,10 @@ export function Toggle({
       }}
       accessibilityRole="switch"
       accessibilityLabel={accessibilityLabel}
-      accessibilityState={{ checked: value }}
+      accessibilityState={{ checked: value, disabled }}
+      disabled={disabled}
       hitSlop={8}
-      style={[styles.track, { backgroundColor: value ? theme.brandFill : theme.border }]}
+      style={[styles.track, { backgroundColor: value ? theme.brandFill : theme.border, opacity: disabled ? 0.5 : 1 }]}
     >
       <Animated.View
         style={[styles.knob, { backgroundColor: value ? theme.onBrand : theme.backgroundElement }, knob]}

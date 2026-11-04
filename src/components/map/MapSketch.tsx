@@ -36,10 +36,13 @@ const STREETS = [
 function MapSketchComponent({
   variant = 0,
   route = false,
+  pin = true,
   style,
 }: {
   variant?: number;
   route?: boolean;
+  /** The Ộ in the middle; off for a strip behind a bar. */
+  pin?: boolean;
   style?: StyleProp<ViewStyle>;
 }) {
   const theme = useTheme();
@@ -79,9 +82,9 @@ function MapSketchComponent({
         ) : null}
         {route ? (
           <Pin x={64} y={29} scale={0.34} color={theme.brand} />
-        ) : (
+        ) : pin ? (
           <Pin x={52} y={48} scale={0.62} color={theme.text} />
-        )}
+        ) : null}
       </Svg>
     </View>
   );

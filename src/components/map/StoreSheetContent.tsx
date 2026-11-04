@@ -40,7 +40,7 @@ export default function StoreSheetContent({ store, busy, onClose }: StoreSheetCo
   const openOrder = (): void => {
     useCartStore.getState().setLocation({ type: 'store', storeId: store.id });
     onClose();
-    router.push('/(orders)/order/menu');
+    router.navigate('/(orders)');
   };
   const callStore = (): void => {
     Linking.openURL(`tel:${store.phone.replace(/\s+/g, '')}`).catch(() => undefined);
