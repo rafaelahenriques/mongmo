@@ -1,3 +1,3 @@
-import OrdersScreen from '@/components/orders/OrdersScreen';
+import MenuScreen from '@/components/order/MenuScreen';
 
-export default OrdersScreen;
+export default MenuScreen;

@@ -16,6 +16,7 @@ import { useAchievements } from '@/hooks/useAchievements';
 import { useProfile } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
+import { confirm } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import type { Reward } from '@/types';
 
@@ -43,22 +44,22 @@ export default function WalletScreen() {
   const nextReward = rewards.find((reward) => reward.costPoints > points);
   const stamps = nextReward ? Math.floor((points / nextReward.costPoints) * STAMPS) : STAMPS;
 
-  const onRedeem = (reward: Reward) =>
-    Alert.alert(`Redeem ${reward.title}?`, `It costs ${reward.costPoints} points. Use it at checkout.`, [
-      { text: 'Not now', style: 'cancel' },
-      {
-        text: 'Redeem',
-        onPress: () =>
-          redeemReward(reward.id, {
-            onSuccess: () => {
-              haptics.success();
-              AccessibilityInfo.announceForAccessibility(`${reward.title} redeemed.`);
-            },
-            onError: (error) =>
-              Alert.alert('Couldn’t redeem it', error instanceof Error ? error.message : 'Please try again.'),
-          }),
+  const onRedeem = async (reward: Reward) => {
+    const yes = await confirm(
+      `Redeem ${reward.title}?`,
+      `It costs ${reward.costPoints} points. Use it at checkout.`,
+      'Redeem',
+    );
+    if (!yes) return;
+    redeemReward(reward.id, {
+      onSuccess: () => {
+        haptics.success();
+        AccessibilityInfo.announceForAccessibility(`${reward.title} redeemed.`);
       },
-    ]);
+      onError: (error) =>
+        Alert.alert('Couldn’t redeem it', error instanceof Error ? error.message : 'Please try again.'),
+    });
+  };
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
@@ -138,7 +139,7 @@ export default function WalletScreen() {
                     subtitle={ready ? 'Ready to redeem' : `${reward.costPoints - points} points to go`}
                     state={ready ? 'value' : 'plain'}
                     value={ready ? 'Redeem' : String(reward.costPoints)}
-                    onPress={ready && !redeemPending ? () => onRedeem(reward) : undefined}
+                    onPress={ready && !redeemPending ? () => void onRedeem(reward) : undefined}
                     accessibilityLabel={`${reward.title}, ${reward.costPoints} points${ready ? ', ready to redeem' : ''}`}
                   />
                 );

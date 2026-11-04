@@ -196,7 +196,9 @@ function Scan({
           icon="pin"
           title={distance !== null ? 'Location found' : 'Finding you'}
           subtitle={
-            distance !== null ? `${formatDistance(distance)} from the venue` : 'Turn on location so we can confirm you’re there'
+            distance !== null
+              ? `${formatDistance(distance)} from the venue`
+              : 'Turn on location so we can confirm you’re there'
           }
           state={distance !== null ? 'done' : 'plain'}
         />
@@ -256,7 +258,7 @@ function CheckedIn({ event, at }: { event: PopUpEvent; at: Date }) {
           onPress={() => {
             haptics.tap();
             useCartStore.getState().setLocation({ type: 'event', eventId: event.id, eventTitle: event.title });
-            router.replace('/(orders)/order/menu');
+            router.replace('/(orders)');
           }}
           accessibilityRole="button"
           hitSlop={10}

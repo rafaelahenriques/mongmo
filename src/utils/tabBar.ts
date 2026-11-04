@@ -5,7 +5,7 @@
  * Matched on the pathname, which leaves out route groups.
  */
 const FULL_SCREEN = [
-  /^\/order\/(item|cart|checkout|location|pickup-time|confirmation)/,
+  /^\/order\/(item|cart|checkout|location)/,
   /^\/check-in/,
   /^\/owner\/(event\/new|challenge\/|order\/)/,
 ];

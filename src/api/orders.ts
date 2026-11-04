@@ -8,6 +8,9 @@ export type OrderMenuItem = {
   name: string;
   description: string | null;
   priceCents: number;
+  imageUrl: string | null;
+  /** The menu's section ("savoury", "drinks"); items without one go last. */
+  category: string | null;
 };
 
 export type OrderRow = Database['public']['Tables']['orders']['Row'];
@@ -40,7 +43,7 @@ export async function getMenuItems(location: CartLocation): Promise<OrderMenuIte
 
   const { data, error } = await supabase
     .from('menu_items')
-    .select('id, name, description, price_cents')
+    .select('id, name, description, price_cents, image_url, category')
     .in('menu_id', menuIds)
     .eq('available', true)
     .order('sort_order');
@@ -51,6 +54,8 @@ export async function getMenuItems(location: CartLocation): Promise<OrderMenuIte
     name: row.name,
     description: row.description,
     priceCents: row.price_cents,
+    imageUrl: row.image_url,
+    category: row.category,
   }));
 }
 
@@ -92,6 +97,21 @@ export async function getOrderItems(orderId: string): Promise<OrderItemRow[]> {
   const { data, error } = await supabase.from('order_items').select('*').eq('order_id', orderId);
   if (error) throw toApiError(error);
   return data;
+}
+
+/** What's in each of these orders, as "2 × Bánh mì" lines, by order id. */
+export async function getOrderLines(orderIds: string[]): Promise<Record<string, string[]>> {
+  if (orderIds.length === 0) return {};
+  const { data, error } = await supabase
+    .from('order_items')
+    .select('order_id, name_snapshot, quantity')
+    .in('order_id', orderIds);
+  if (error) throw toApiError(error);
+  const lines: Record<string, string[]> = {};
+  for (const row of data) {
+    (lines[row.order_id] ??= []).push(row.quantity > 1 ? `${row.quantity} × ${row.name_snapshot}` : row.name_snapshot);
+  }
+  return lines;
 }
 
 /** Order history, newest first — excludes abandoned drafts. */

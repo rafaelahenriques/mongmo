@@ -28,18 +28,11 @@ import { useCartStore } from '@/state/cartStore';
 import { useLocationStore } from '@/state/locationStore';
 import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
-import { pickupCode } from '@/utils/orderFormat';
+import { ORDER_STEP, ORDER_STEPS, ORDER_STATUS_TITLE, pickupCode } from '@/utils/orderFormat';
 import type { PopUpEvent } from '@/types';
 
 /** Stamps on the card: one per sixth of the way to the next reward. */
 const STAMPS = 6;
-const ORDER_STEPS = ['Confirmed', 'Being made', 'Ready'];
-const ORDER_TITLE: Record<string, string> = {
-  paid: 'Confirmed',
-  preparing: 'Being made',
-  ready: 'Ready',
-};
-const ORDER_STEP: Record<string, number> = { paid: 0, preparing: 1, ready: 2 };
 
 /**
  * H-01 Home: what is on right now, your order, your points, and what's
@@ -92,12 +85,12 @@ export default function HomeScreen() {
       eventId: event.id,
       eventTitle: event.title,
     });
-    router.push('/(orders)/order/menu');
+    router.navigate('/(orders)');
   };
   const orderFromStore = () => {
     if (!store.data) return;
     useCartStore.getState().setLocation({ type: 'store', storeId: store.data.id });
-    router.push('/(orders)/order/menu');
+    router.navigate('/(orders)');
   };
 
   // Footnote numbers for the label column, in the order the blocks show.
@@ -161,7 +154,7 @@ export default function HomeScreen() {
           <View style={[styles.block, { backgroundColor: theme.backgroundSelected }]}>
             <ColumnRow label="Your order" index={notes.order}>
               <View style={styles.titleRow}>
-                <ThemedText type="title">{ORDER_TITLE[order.status] ?? 'In progress'}</ThemedText>
+                <ThemedText type="title">{ORDER_STATUS_TITLE[order.status]}</ThemedText>
                 <RoundIconButton
                   icon="arrowRight"
                   onPress={() =>
