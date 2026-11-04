@@ -99,8 +99,8 @@ export async function sendTestNotification(): Promise<boolean> {
 /** Content for a "you're near a pop-up" alert (geofence task and foreground check). */
 export function nearbyNotification(event: { id: string; title: string; city: string }): LocalNotification {
   return {
-    title: `${event.title} is nearby`,
-    body: `You're within 500 m of the pop-up in ${event.city}. Tap to see details.`,
+    title: "You're 500 m away",
+    body: `${event.title} is live. Check in when you get there.`,
     url: `/(popups)/event/${event.id}`,
   };
 }

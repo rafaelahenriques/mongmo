@@ -1,34 +1,22 @@
-import { useCallback, useState } from 'react';
-import {
-  AccessibilityInfo,
-  ActivityIndicator,
-  Alert,
-  RefreshControl,
-  ScrollView,
-  Share,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { useCallback } from 'react';
+import { ActivityIndicator, Alert, RefreshControl, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Image } from 'expo-image';
 import { formatInTimeZone } from 'date-fns-tz';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import QrScanner from '@/components/camera/QrScanner';
 import ChallengesSection from '@/components/challenges/ChallengesSection';
-import CapacityMeter from '@/components/events/CapacityMeter';
 import { Button } from '@/components/ui/Button';
-import { ButtonRow } from '@/components/ui/ButtonRow';
 import { Card } from '@/components/ui/Card';
-import Chip from '@/components/ui/Chip';
 import { IconBadge } from '@/components/ui/IconBadge';
-import { IconButton } from '@/components/ui/IconButton';
-import { SectionHeader, usePullToRefresh } from '@/components/ui/Screen';
+import { PhotoHero } from '@/components/ui/PhotoHero';
+import { usePullToRefresh } from '@/components/ui/Screen';
+import { SquareIconButton } from '@/components/ui/SquareIconButton';
+import { TextLink } from '@/components/ui/TextLink';
 import { ThemedText } from '@/components/ThemedText';
 import { ApiError } from '@/api/errors';
-import { EVENTS_PAGE_URL, GEOFENCE_RADIUS_M } from '@/constants/config';
-import { Radius, Spacing } from '@/constants/theme';
+import { EVENTS_PAGE_URL } from '@/constants/config';
+import { PageInset, Spacing } from '@/constants/theme';
 import { useCheckIn } from '@/hooks/useCheckIn';
-import { useCheckInMutation } from '@/hooks/useCheckInMutation';
 import { useEvent } from '@/hooks/useEvent';
 import { useNow } from '@/hooks/useNow';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
@@ -54,6 +42,7 @@ export type EventDetailProps = {
 export default function EventDetail({ eventId }: EventDetailProps) {
   const theme = useTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const tabBarInset = useTabBarInset();
   const query = useEvent(eventId);
   const event = query.data;
@@ -61,36 +50,9 @@ export default function EventDetail({ eventId }: EventDetailProps) {
   const userCoordinates = useLocationStore((state) => state.coordinates);
   const checkIn = useCheckIn(eventId);
   const checkedIn = Boolean(checkIn.data);
-  const checkInMutation = useCheckInMutation(eventId);
-  const [scannerVisible, setScannerVisible] = useState(false);
   // Re-renders each minute, so "Check-in opens at…" turns into "Check in" on time.
   const now = useNow();
   const refresh = usePullToRefresh();
-
-  const onScanned = useCallback(
-    (qrToken: string) => {
-      setScannerVisible(false);
-      if (!userCoordinates) {
-        haptics.warning();
-        Alert.alert('Location needed', 'Turn on location access so we can confirm you’re at the venue.');
-        return;
-      }
-      checkInMutation.mutate(
-        { qrToken, coordinates: userCoordinates },
-        {
-          onSuccess: () => {
-            haptics.success();
-            AccessibilityInfo.announceForAccessibility('Checked in. Points and badges updated.');
-          },
-          onError: (error) => {
-            haptics.error();
-            Alert.alert('Check-in failed', error instanceof Error ? error.message : 'Please try again.');
-          },
-        },
-      );
-    },
-    [checkInMutation, userCoordinates],
-  );
 
   const onShare = useCallback(async () => {
     if (!event) return;
@@ -126,24 +88,11 @@ export default function EventDetail({ eventId }: EventDetailProps) {
     }
   }, [event]);
 
-  const onPressCheckIn = useCallback(() => {
-    if (!event || checkedIn) return;
-    // Only live pop-ups take check-ins (the server enforces the window too);
-    // the button is only shown then, this is a second line of defence.
-    if (getEventPhase(event.startsAt, event.endsAt) !== 'live') return;
-    // Friendly client-side heads-up before even opening the camera — the
-    // server (verify_check_in) is still the one that actually enforces this.
-    if (userCoordinates && distanceInMeters(userCoordinates, event.coordinates) > GEOFENCE_RADIUS_M) {
-      haptics.warning();
-      Alert.alert('Too far to check in', 'Get within 500 m of the venue, then scan the QR code.');
-      return;
-    }
-    setScannerVisible(true);
-  }, [event, checkedIn, userCoordinates]);
+  const back = () => (router.canGoBack() ? router.back() : router.replace('/(popups)'));
 
   if (!eventId) {
     return (
-      <StateCard title="Event not found" body="This link doesn't match any event. Check Explore for what's on." />
+      <StateCard title="Event not found" body="This link doesn't match any event. Check Pop-ups for what's on." />
     );
   }
 
@@ -151,8 +100,8 @@ export default function EventDetail({ eventId }: EventDetailProps) {
     return (
       <View style={[styles.stateContainer, { backgroundColor: theme.background }]}>
         <ActivityIndicator size="large" color={theme.text} />
-        <ThemedText type="small" themeColor="textSecondary">
-          Loading event…
+        <ThemedText type="caption" themeColor="textSecondary">
+          Loading the pop-up…
         </ThemedText>
       </View>
     );
@@ -176,178 +125,113 @@ export default function EventDetail({ eventId }: EventDetailProps) {
   const busy = busyFromStore ?? event.busy;
   const phase = getEventPhase(event.startsAt, event.endsAt, now);
   const opensAt = formatInTimeZone(event.startsAt, event.timeZone, "EEE d MMM 'at' HH:mm");
-  const isFull = busy.occupancy >= busy.capacity;
   const distance = userCoordinates ? distanceInMeters(userCoordinates, event.coordinates) : null;
   const timeLabel = formatEventWindow(event.startsAt, event.endsAt, event.timeZone);
+  const busyShare = busy.capacity > 0 ? Math.min(1, busy.occupancy / busy.capacity) : 0;
 
   return (
     <ScrollView
       style={[styles.scroll, { backgroundColor: theme.background }]}
-      contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + Spacing.five }]}
+      contentContainerStyle={{ paddingBottom: tabBarInset + Spacing.five }}
       refreshControl={
-        <RefreshControl refreshing={refresh.refreshing} onRefresh={refresh.onRefresh} tintColor={theme.textSecondary} />
+        <RefreshControl refreshing={refresh.refreshing} onRefresh={refresh.onRefresh} tintColor={theme.onSurfaceDark} />
       }
     >
-      <View>
-        {event.imageUrl ? (
-          <Image
-            source={{ uri: event.imageUrl }}
-            style={[styles.photo, { backgroundColor: theme.backgroundSelected }]}
-            contentFit="cover"
-            transition={200}
-            accessibilityLabel={`Photo for ${event.title}`}
-          />
-        ) : (
-          <View style={[styles.photo, styles.photoPlaceholder, { backgroundColor: theme.accent }]}>
-            <IconBadge name="takeout" tone="card" size={72} />
+      <PhotoHero
+        imageUrl={event.imageUrl}
+        title={event.title}
+        live={phase === 'live'}
+        meta={distance !== null ? formatDistance(distance) : undefined}
+        height={380}
+        top={
+          <View style={[styles.heroTop, { top: insets.top + 10 }]}>
+            <SquareIconButton icon="chevronLeft" onPress={back} accessibilityLabel="Back" />
+            <SquareIconButton icon="share" onPress={onShare} accessibilityLabel="Share this pop-up" />
           </View>
-        )}
-        <View style={styles.photoBar} pointerEvents="box-none">
-          <View style={styles.chips}>
-            <Chip
-              label={phase === 'live' ? 'Live now' : phase === 'upcoming' ? 'Upcoming' : 'Ended'}
-              tone={phase === 'live' ? 'live' : 'dark'}
-            />
-            {isFull ? <Chip label="Full" tone="danger" /> : null}
-          </View>
-          <IconButton icon="share" onPress={onShare} accessibilityLabel="Share" size={40} />
-        </View>
-      </View>
+        }
+      />
 
-      <View style={styles.heading}>
-        <ThemedText type="title" accessibilityRole="header">
-          {event.title}
-        </ThemedText>
-        {event.tags.length > 0 ? (
-          <View style={styles.chips}>
-            {event.tags.map((tag) => (
-              <Chip key={tag} label={tag} />
-            ))}
+      <View style={styles.page}>
+        <View style={styles.where}>
+          <ThemedText type="section">{event.venue}</ThemedText>
+          <ThemedText type="caption" themeColor="textSecondary">
+            {timeLabel}
+          </ThemedText>
+        </View>
+
+        {phase === 'live' ? (
+          <View
+            style={styles.busy}
+            accessible
+            accessibilityLabel={`How busy: ${busy.occupancy} of ${busy.capacity}`}
+          >
+            <View style={styles.busyRow}>
+              <ThemedText type="caption" themeColor="textSecondary">
+                How busy
+              </ThemedText>
+              <ThemedText type="captionBold">
+                {busy.occupancy} of {busy.capacity}
+              </ThemedText>
+            </View>
+            <View style={[styles.busyTrack, { backgroundColor: theme.border }]}>
+              <View style={[styles.busyFill, { width: `${busyShare * 100}%`, backgroundColor: theme.text }]} />
+            </View>
           </View>
         ) : null}
-      </View>
 
-      <Card style={styles.facts}>
-        <Fact icon="clock" title={timeLabel} />
-        <View style={[styles.divider, { backgroundColor: theme.border }]} />
-        <Fact
-          icon="pin"
-          title={`${event.venue}, ${event.city}`}
-          subtitle={distance !== null ? `${formatDistance(distance)} away` : undefined}
-        />
-      </Card>
-
-      {phase === 'live' ? (
-        <Card>
-          <CapacityMeter occupancy={busy.occupancy} capacity={busy.capacity} label="How busy right now" />
-        </Card>
-      ) : null}
-
-      {phase === 'live' ? (
-        <ButtonRow>
-          <Button
-            label={checkedIn ? 'Checked in' : 'Check in'}
-            icon={checkedIn ? 'checkCircle' : 'scan'}
-            variant={checkedIn ? 'secondary' : 'brand'}
-            onPress={onPressCheckIn}
-            disabled={checkedIn}
-            haptic="press"
-          />
-          {event.menu.length > 0 ? (
-            <Button label="Order" icon="bag" variant="primary" onPress={openOrder} />
-          ) : null}
-        </ButtonRow>
-      ) : (
-        <Card tone="muted" style={styles.notice}>
-          <IconBadge name={phase === 'upcoming' ? 'calendar' : 'clock'} tone="card" size={40} />
-          <View style={styles.noticeTexts}>
-            <ThemedText type="smallBold">
-              {phase === 'upcoming' ? `Check-in opens ${opensAt}` : 'This pop-up has ended'}
-            </ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
-              {phase === 'upcoming'
-                ? 'Check in, order and do the challenges once it starts.'
-                : 'Keep an eye on Explore for the next one.'}
-            </ThemedText>
+        {phase === 'live' ? (
+          <View style={styles.actions}>
+            <Button
+              label={checkedIn ? 'Checked in' : 'Check in'}
+              variant="brand"
+              onPress={() => router.push({ pathname: '/(popups)/check-in/[id]', params: { id: event.id } })}
+              disabled={checkedIn}
+              haptic="press"
+              style={styles.flex}
+            />
+            <Button
+              label="Order here"
+              variant="ghost"
+              onPress={openOrder}
+              disabled={event.menu.length === 0}
+              style={styles.flex}
+            />
           </View>
-        </Card>
-      )}
-
-      {phase !== 'ended' ? (
-        <ButtonRow>
-          <Button
-            label="Add to calendar"
-            icon="calendar"
-            variant={phase === 'upcoming' ? 'primary' : 'ghost'}
-            size="medium"
-            onPress={onAddToCalendar}
-          />
-          <Button
-            label="Directions"
-            icon="distance"
-            variant="ghost"
-            size="medium"
-            onPress={() => openDirections(event.coordinates, `${event.title}, ${event.venue}`)}
-          />
-        </ButtonRow>
-      ) : null}
-
-      {event.menu.length > 0 ? (
-        <>
-          <SectionHeader title="Menu" />
-          <Card style={styles.menu}>
-            {event.menu.map((item, index) => (
-              <View key={item.id}>
-                {index > 0 ? <View style={[styles.divider, { backgroundColor: theme.border }]} /> : null}
-                <View style={styles.menuRow}>
-                  <View style={styles.menuTexts}>
-                    <ThemedText type="smallBold">{item.name}</ThemedText>
-                    {item.description ? (
-                      <ThemedText type="small" themeColor="textSecondary">
-                        {item.description}
-                      </ThemedText>
-                    ) : null}
-                  </View>
-                  {item.price ? <ThemedText type="smallBold">{item.price}</ThemedText> : null}
-                </View>
-              </View>
-            ))}
+        ) : (
+          <Card tone="muted" style={styles.notice}>
+            <IconBadge name={phase === 'upcoming' ? 'calendar' : 'clock'} tone="card" size={40} />
+            <View style={styles.flex}>
+              <ThemedText type="smallBold">
+                {phase === 'upcoming' ? `Check-in opens ${opensAt}` : 'This pop-up has ended'}
+              </ThemedText>
+              <ThemedText type="caption" themeColor="textSecondary">
+                {phase === 'upcoming'
+                  ? 'Check in, order and do the challenges once it starts.'
+                  : 'Keep an eye on Pop-ups for the next one.'}
+              </ThemedText>
+            </View>
           </Card>
-        </>
-      ) : null}
+        )}
 
-      {event.description ? (
-        <>
-          <SectionHeader title="About" />
-          <ThemedText themeColor="textSecondary">{event.description}</ThemedText>
-        </>
-      ) : null}
+        {phase !== 'ended' ? (
+          <View style={styles.links}>
+            <TextLink label="Add to calendar" onPress={onAddToCalendar} />
+            <TextLink
+              label="Directions"
+              onPress={() => openDirections(event.coordinates, `${event.title}, ${event.venue}`)}
+            />
+          </View>
+        ) : null}
 
-      <ChallengesSection event={event} checkedIn={checkedIn} phase={phase} opensAt={opensAt} />
-
-      <QrScanner
-        visible={scannerVisible}
-        title="Scan the event QR code"
-        onScan={onScanned}
-        onClose={() => setScannerVisible(false)}
-      />
-    </ScrollView>
-  );
-}
-
-function Fact({ icon, title, subtitle }: { icon: 'clock' | 'pin'; title: string; subtitle?: string }) {
-  return (
-    <View style={styles.fact}>
-      <IconBadge name={icon} size={36} />
-      <View style={styles.factTexts}>
-        <ThemedText type="smallBold">{title}</ThemedText>
-        {subtitle ? (
-          <ThemedText type="small" themeColor="textSecondary">
-            {subtitle}
+        {event.description ? (
+          <ThemedText type="default" themeColor="textSecondary" style={styles.description}>
+            {event.description}
           </ThemedText>
         ) : null}
+
+        <ChallengesSection event={event} checkedIn={checkedIn} phase={phase} opensAt={opensAt} />
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -376,75 +260,54 @@ const styles = StyleSheet.create({
   scroll: {
     flex: 1,
   },
-  content: {
-    padding: Spacing.three + Spacing.one,
-    gap: Spacing.three,
-  },
-  photo: {
-    width: '100%',
-    height: 260,
-    borderRadius: Radius.large,
-  },
-  photoPlaceholder: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  photoBar: {
+  heroTop: {
     position: 'absolute',
-    top: Spacing.three,
-    left: Spacing.three,
-    right: Spacing.three,
+    left: PageInset,
+    right: PageInset,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
   },
-  heading: {
-    gap: Spacing.two,
+  page: {
+    paddingHorizontal: PageInset,
+    paddingTop: 18,
+    gap: 16,
   },
-  chips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.one + 2,
-    flexShrink: 1,
-  },
-  facts: {
-    gap: Spacing.three,
-  },
-  fact: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.three,
-  },
-  factTexts: {
-    flex: 1,
+  where: {
     gap: 2,
   },
-  divider: {
-    height: StyleSheet.hairlineWidth,
+  busy: {
+    gap: 8,
+  },
+  busyRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  busyTrack: {
+    height: 3,
+  },
+  busyFill: {
+    height: 3,
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  flex: {
+    flex: 1,
+  },
+  links: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
+  description: {
+    fontSize: 15,
+    lineHeight: 22,
   },
   notice: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.three,
-  },
-  noticeTexts: {
-    flex: 1,
-    gap: 2,
-  },
-  menu: {
-    paddingVertical: Spacing.two,
-    gap: 0,
-  },
-  menuRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: Spacing.two,
-    paddingVertical: Spacing.two + Spacing.one,
-  },
-  menuTexts: {
-    flex: 1,
-    gap: 2,
   },
   stateContainer: {
     flex: 1,

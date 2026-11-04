@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, Share, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Share, StyleSheet } from 'react-native';
 import { formatInTimeZone } from 'date-fns-tz';
 
 import { uploadChallengePhoto } from '@/api/photos';
@@ -10,11 +10,8 @@ import SimpleConfirmModal from '@/components/challenges/SimpleConfirmModal';
 import TasteRatingModal from '@/components/challenges/TasteRatingModal';
 import PhotoCapture from '@/components/camera/PhotoCapture';
 import { ThemedText } from '@/components/ThemedText';
-import { Card } from '@/components/ui/Card';
-import { Icon } from '@/components/ui/Icon';
-import { IconBadge } from '@/components/ui/IconBadge';
+import { TaskCard } from '@/components/ui/TaskCard';
 import { EVENTS_PAGE_URL } from '@/constants/config';
-import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { getCurrentUserId } from '@/lib/supabase';
 import { haptics } from '@/services/haptics';
@@ -163,41 +160,25 @@ export default function ChallengeItem({
 
   return (
     <>
-      <Card
-        onPress={onPress}
-        disabled={done || busy}
-        accessibilityLabel={`${challenge.title}, ${challenge.points} points, ${done ? 'completed' : 'not completed'}`}
-        accessibilityHint={requirement ?? undefined}
-        style={[styles.row, done && { opacity: 0.75 }]}
-      >
-        <IconBadge name={CHALLENGE_TYPES[challenge.type].icon} tone={done ? 'success' : 'muted'} size={44} />
-        <View style={styles.texts}>
-          <ThemedText type="smallBold" numberOfLines={2}>
-            {challenge.title}
-          </ThemedText>
-          {challenge.description ? (
-            <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
-              {challenge.description}
-            </ThemedText>
-          ) : null}
-          {requirement && !done ? (
-            <ThemedText type="small" themeColor="primaryText" numberOfLines={2}>
+      <TaskCard
+        icon={CHALLENGE_TYPES[challenge.type].icon}
+        title={challenge.title}
+        subtitle={challenge.description || undefined}
+        state={done ? 'done' : uploading ? 'plain' : 'value'}
+        value={uploading ? undefined : `+${challenge.points}`}
+        extra={
+          uploading ? (
+            <ActivityIndicator color={theme.text} accessibilityLabel="Uploading photos" style={styles.uploading} />
+          ) : requirement && !done ? (
+            <ThemedText type="caption" themeColor="primaryText" numberOfLines={2}>
               {requirement}
             </ThemedText>
-          ) : null}
-        </View>
-        {done ? (
-          <Icon name="checkCircle" size={24} color={theme.success} />
-        ) : uploading ? (
-          <ActivityIndicator color={theme.text} accessibilityLabel="Uploading photos" />
-        ) : (
-          <View style={[styles.points, { backgroundColor: theme.backgroundSelected }]}>
-            <ThemedText type="smallBold" themeColor="primaryText">
-              +{challenge.points}
-            </ThemedText>
-          </View>
-        )}
-      </Card>
+          ) : null
+        }
+        onPress={done || busy ? undefined : onPress}
+        accessibilityLabel={`${challenge.title}, ${challenge.points} points, ${done ? 'completed' : 'not completed'}`}
+        accessibilityHint={requirement ?? undefined}
+      />
 
       <SimpleConfirmModal
         visible={modal === 'confirm'}
@@ -262,19 +243,8 @@ export default function ChallengeItem({
 }
 
 const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.three,
-    padding: Spacing.three,
-  },
-  texts: {
-    flex: 1,
-    gap: 2,
-  },
-  points: {
-    borderRadius: Radius.pill,
-    paddingHorizontal: Spacing.two + 2,
-    paddingVertical: Spacing.one,
+  uploading: {
+    alignSelf: 'flex-start',
+    marginTop: 4,
   },
 });

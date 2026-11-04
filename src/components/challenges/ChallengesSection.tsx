@@ -58,15 +58,15 @@ export default function ChallengesSection({ event, checkedIn, phase, opensAt }: 
   return (
     <View style={styles.section}>
       <View style={styles.header}>
-        <ThemedText type="section" accessibilityRole="header">
+        <ThemedText type="subtitle" accessibilityRole="header">
           Challenges
         </ThemedText>
-        <ThemedText type="smallBold" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           {completedCount} of {challenges.length} done
         </ThemedText>
       </View>
       {lockedReason ? (
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           {phase === 'live' ? 'Check in to start them. Each one earns points.' : lockedReason}
         </ThemedText>
       ) : null}
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   list: {
-    gap: Spacing.two + Spacing.one,
+    gap: Spacing.two,
     marginTop: Spacing.one,
   },
   loader: {
