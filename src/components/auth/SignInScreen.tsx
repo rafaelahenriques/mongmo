@@ -52,27 +52,43 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
   const [password, setPassword] = useState('');
   const [pending, setPending] = useState<'account' | 'guest' | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const canSubmit = email.trim().length > 3 && password.length >= 6 && !pending;
 
   const onSubmit = useCallback(async () => {
     setError(null);
+    setNotice(null);
     setPending('account');
+    const address = email.trim();
     try {
-      const { error: authError } =
+      const { data, error: authError } =
         mode === 'sign-in'
-          ? await supabase.auth.signInWithPassword({ email: email.trim(), password })
-          : await supabase.auth.signUp({ email: email.trim(), password });
+          ? await supabase.auth.signInWithPassword({ email: address, password })
+          : await supabase.auth.signUp({ email: address, password });
       if (authError) {
         haptics.error();
-        setError(authError.message);
+        setError(
+          authError.code === 'email_not_confirmed'
+            ? `Confirm your email first: open the link we sent to ${address}.`
+            : authError.message,
+        );
+      } else if (!data.session) {
+        // The project asks new accounts to confirm their email before they
+        // can sign in: say so, and have them sign in once they have.
+        haptics.success();
+        setNotice(
+          `Check your email: we sent a link to ${address}. Open it to confirm your account, then sign in here.`,
+        );
+        setPassword('');
+        onModeChange('sign-in');
       } else {
         haptics.success();
       }
     } finally {
       setPending(null);
     }
-  }, [mode, email, password]);
+  }, [mode, email, password, onModeChange]);
 
   const onGuest = useCallback(async () => {
     setError(null);
@@ -148,6 +164,14 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
               {error}
             </ThemedText>
           ) : null}
+          {notice ? (
+            <View
+              style={[styles.notice, { backgroundColor: theme.backgroundSelected }]}
+              accessibilityLiveRegion="polite"
+            >
+              <ThemedText type="small">{notice}</ThemedText>
+            </View>
+          ) : null}
 
           <Button
             label={mode === 'sign-in' ? 'Sign in' : 'Create account'}
@@ -162,6 +186,7 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
             onPress={() => {
               haptics.select();
               setError(null);
+              setNotice(null);
               onModeChange(mode === 'sign-in' ? 'sign-up' : 'sign-in');
             }}
             accessibilityRole="button"
@@ -197,6 +222,9 @@ const styles = StyleSheet.create({
   },
   brand: {
     gap: 16,
+  },
+  notice: {
+    padding: 12,
   },
   photo: {
     width: '100%',
