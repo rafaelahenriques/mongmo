@@ -9,18 +9,18 @@ export type ModeToggleProps = {
   onChange: (mode: ExploreMode) => void;
 };
 
-/** Map | List segmented toggle — both show the same upcoming pop-ups. */
+/** Map | List dark switch — both show the same upcoming pop-ups. */
 function ModeToggleComponent({ value, onChange }: ModeToggleProps) {
   return (
     <Segmented
       options={[
-        { value: 'map', label: 'Map', icon: 'map', accessibilityLabel: 'Map view' },
-        { value: 'list', label: 'List', icon: 'list', accessibilityLabel: 'List view' },
+        { value: 'map', label: 'Map', accessibilityLabel: 'Map view' },
+        { value: 'list', label: 'List', accessibilityLabel: 'List view' },
       ]}
       value={value}
       onChange={onChange}
       accessibilityLabel="Explore view"
-      surface="floating"
+      look="switch"
     />
   );
 }

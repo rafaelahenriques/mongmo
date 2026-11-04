@@ -17,8 +17,8 @@ export type ButtonProps = {
   label: string;
   onPress: () => void;
   /**
-   * primary: Shadow Grey pill · brand: Weathered Sage (the one main action on a
-   * screen) · secondary: Paper · ghost: rose fill · danger: rose, red label.
+   * brand: sage (the one main action on a screen) · primary: dark ·
+   * ghost: light stone · secondary: outlined · danger: light stone, red label.
    */
   variant?: 'primary' | 'brand' | 'secondary' | 'ghost' | 'danger';
   size?: 'large' | 'medium' | 'small';
@@ -26,7 +26,7 @@ export type ButtonProps = {
   /** A trailing arrow in a circle, for "go somewhere" actions. */
   arrow?: boolean;
   loading?: boolean;
-  /** Muted rose with a grey label, still readable (AA) rather than faded out. */
+  /** Light stone with a grey label, still readable (AA) rather than faded out. */
   disabled?: boolean;
   /** Feedback on press; `press` for weightier actions. */
   haptic?: 'tap' | 'press' | 'none';
@@ -36,8 +36,8 @@ export type ButtonProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-const HEIGHT = { large: 56, medium: 46, small: 36 } as const;
-const PADDING = { large: Spacing.four, medium: Spacing.three, small: Spacing.three } as const;
+const HEIGHT = { large: 52, medium: 44, small: 32 } as const;
+const PADDING = { large: 20, medium: Spacing.three, small: 14 } as const;
 
 /**
  * Pill button. Shrinks a touch when pressed; labels stay at AA contrast.
@@ -64,7 +64,7 @@ export function Button({
     : {
         primary: { background: theme.primary, foreground: theme.onPrimary },
         brand: { background: theme.brandFill, foreground: theme.onBrand },
-        secondary: { background: theme.backgroundElement, foreground: theme.text },
+        secondary: { background: 'transparent', foreground: theme.text },
         ghost: { background: theme.backgroundSelected, foreground: theme.text },
         danger: { background: theme.backgroundSelected, foreground: theme.danger },
       }[variant];
@@ -89,7 +89,8 @@ export function Button({
           paddingHorizontal: PADDING[size],
           paddingRight: arrow ? Spacing.one + 2 : undefined,
           backgroundColor: colors.background,
-          boxShadow: variant === 'secondary' && !disabled ? `0px 4px 14px ${theme.shadow}` : undefined,
+          borderWidth: variant === 'secondary' && !disabled ? 1 : 0,
+          borderColor: theme.text,
           transform: [{ scale: pressed && !inactive ? 0.97 : 1 }],
         },
         style,
@@ -147,12 +148,12 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   smallLabel: {
-    fontSize: 14,
-    lineHeight: 18,
+    fontSize: 12,
+    lineHeight: 16,
   },
   arrow: {
-    width: 36,
-    height: 36,
+    width: 32,
+    height: 32,
     borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',

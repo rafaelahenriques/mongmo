@@ -69,7 +69,6 @@ export default function OwnerOrdersScreen() {
         value={column}
         onChange={setColumn}
         accessibilityLabel="Order status"
-        fill
       />
 
       {columnOrders.length === 0 ? (

@@ -1,14 +1,15 @@
+import { usePathname } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { BottomTabInset } from '@/constants/theme';
+import { isTabBarHidden } from '@/utils/tabBar';
 
 /**
- * Space the native tab bar (plus the home indicator) takes at the bottom,
- * for anything that must stay above the tabs. This is the SDK 57 template's
- * own pattern: inside a stack nested in native tabs, the safe-area bottom
- * only covers the home indicator, not the tab bar, so BottomTabInset is
- * added explicitly. 0 on web, where the tabs sit at the top.
+ * Space to leave at the bottom of a screen. The word tab bar takes its own
+ * space below the screens and covers the home indicator, so screens with
+ * the bar need none; full-screen steps without it must clear the home
+ * indicator themselves.
  */
 export function useTabBarInset(): number {
-  return useSafeAreaInsets().bottom + BottomTabInset;
+  const insets = useSafeAreaInsets();
+  return isTabBarHidden(usePathname()) ? insets.bottom : 0;
 }

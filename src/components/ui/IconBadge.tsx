@@ -1,18 +1,17 @@
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { Icon, type IconName } from '@/components/ui/Icon';
-import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
 export type IconBadgeProps = {
   name: IconName;
   size?: number;
-  /** muted: rose fill · card: white · brand: sage · accent: cream · primary: Shadow Grey · success. */
+  /** muted: light stone · card: near-white · brand: sage · accent: cream · primary: dark · success. */
   tone?: 'muted' | 'card' | 'brand' | 'accent' | 'primary' | 'success';
   style?: StyleProp<ViewStyle>;
 };
 
-/** A symbol in a circle — list rows, badges, challenge types. Decorative. */
+/** A symbol in a square block — list rows, badges, challenge types. Decorative. */
 export function IconBadge({ name, size = 40, tone = 'muted', style }: IconBadgeProps) {
   const theme = useTheme();
   const { background, foreground } = {
@@ -20,7 +19,7 @@ export function IconBadge({ name, size = 40, tone = 'muted', style }: IconBadgeP
     card: { background: theme.backgroundElement, foreground: theme.text },
     brand: { background: theme.brandFill, foreground: theme.onBrand },
     accent: { background: theme.accent, foreground: theme.onAccent },
-    primary: { background: theme.primary, foreground: theme.onPrimary },
+    primary: { background: theme.surfaceDark, foreground: theme.onSurfaceDark },
     success: { background: theme.backgroundSelected, foreground: theme.success },
   }[tone];
 
@@ -37,7 +36,6 @@ export function IconBadge({ name, size = 40, tone = 'muted', style }: IconBadgeP
 
 const styles = StyleSheet.create({
   badge: {
-    borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
   },

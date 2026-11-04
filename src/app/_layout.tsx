@@ -12,6 +12,9 @@ import { useNavigationTheme } from '@/hooks/useNavigationTheme';
 import { useSession } from '@/hooks/useSession';
 import { useResolvedScheme } from '@/hooks/useTheme';
 
+/** Open on Home: "/" also matches the other tabs' first screens. */
+export const unstable_settings = { initialRouteName: '(home)' };
+
 export default function RootLayout() {
   const navTheme = useNavigationTheme();
   const scheme = useResolvedScheme();
