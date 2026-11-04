@@ -76,6 +76,8 @@ export type PopUpEvent = {
   menu: MenuItem[];
   orderUrl: string;
   busy: BusyState;
+  /** When the owner added it (for "New pop-up" in Notifications). */
+  createdAt?: string;
 };
 
 /** Anything that can be pinned: either the store or an event, never blended. */

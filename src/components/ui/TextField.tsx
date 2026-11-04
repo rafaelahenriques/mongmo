@@ -12,14 +12,24 @@ export type TextFieldProps = Omit<TextInputProps, 'style'> & {
   surface?: 'muted' | 'card';
   /** Share a row with another half-width field. */
   half?: boolean;
+  /** The placeholder says what it is (Email, Password): keep the label for screen readers only. */
+  hideLabel?: boolean;
 };
 
 /** Labelled, outlined text input with an optional hint underneath. */
-export function TextField({ label, hint, surface = 'card', half = false, multiline, ...input }: TextFieldProps) {
+export function TextField({
+  label,
+  hint,
+  surface = 'card',
+  half = false,
+  hideLabel = false,
+  multiline,
+  ...input
+}: TextFieldProps) {
   const theme = useTheme();
   return (
     <View style={[styles.field, half && styles.half]}>
-      <ThemedText type="captionBold">{label}</ThemedText>
+      {hideLabel ? null : <ThemedText type="captionBold">{label}</ThemedText>}
       <TextInput
         placeholderTextColor={theme.textSecondary}
         accessibilityLabel={label}

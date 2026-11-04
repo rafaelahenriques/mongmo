@@ -48,7 +48,7 @@ export default function ExploreScreen() {
   const onCloseSheet = useCallback(() => setSheetVisible(false), []);
   const onSelectEvent = useCallback(
     (eventId: string) => {
-      router.push({ pathname: '/(explore)/event/[id]', params: { id: eventId } });
+      router.push({ pathname: '/(popups)/event/[id]', params: { id: eventId } });
     },
     [router],
   );

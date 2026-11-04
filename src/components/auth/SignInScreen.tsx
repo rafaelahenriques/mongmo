@@ -1,44 +1,63 @@
 import { useCallback, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { OpeningScreen } from '@/components/auth/OpeningScreen';
+import { Wordmark } from '@/components/brand/Wordmark';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
-import Chip from '@/components/ui/Chip';
-import { FontFamily, Radius, Spacing } from '@/constants/theme';
+import { TextField } from '@/components/ui/TextField';
+import { BrandPhotos } from '@/constants/brandPhotos';
+import { PageInset, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/lib/supabase';
 import { haptics } from '@/services/haptics';
+import { useSettingsStore } from '@/state/settingsStore';
 
 type Mode = 'sign-in' | 'sign-up';
 
 /**
- * The only screen a signed-out user can reach — email/password sign in or
- * account creation. Rendered in place of the tabs by Providers, not a
- * router route, so there is nowhere to navigate "back" from.
+ * Everything a signed-out user can reach, rendered in place of the tabs:
+ * the Opening screen on the very first launch (W-02), then Welcome (W-04)
+ * to sign in, create an account or continue as a guest.
  */
 export default function SignInScreen() {
+  const openingSeen = useSettingsStore((state) => state.openingSeen);
+  const markOpeningSeen = useSettingsStore((state) => state.markOpeningSeen);
+  const [mode, setMode] = useState<Mode>('sign-in');
+
+  if (!openingSeen) {
+    return (
+      <OpeningScreen
+        onGetStarted={() => {
+          setMode('sign-up');
+          markOpeningSeen();
+        }}
+        onSignIn={() => {
+          setMode('sign-in');
+          markOpeningSeen();
+        }}
+      />
+    );
+  }
+  return <WelcomeScreen mode={mode} onModeChange={setMode} />;
+}
+
+/** W-04 Welcome: wordmark, photo, email and password, or continue as a guest. */
+function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode: Mode) => void }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const [mode, setMode] = useState<Mode>('sign-in');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [pending, setPending] = useState(false);
+  const [pending, setPending] = useState<'account' | 'guest' | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const canSubmit = email.trim().length > 3 && password.length >= 6 && !pending;
 
   const onSubmit = useCallback(async () => {
     setError(null);
-    setPending(true);
+    setPending('account');
     try {
       const { error: authError } =
         mode === 'sign-in'
@@ -51,11 +70,25 @@ export default function SignInScreen() {
         haptics.success();
       }
     } finally {
-      setPending(false);
+      setPending(null);
     }
   }, [mode, email, password]);
 
-  const inputStyle = [styles.input, { color: theme.text, backgroundColor: theme.backgroundElement }];
+  const onGuest = useCallback(async () => {
+    setError(null);
+    setPending('guest');
+    try {
+      const { error: authError } = await supabase.auth.signInAnonymously();
+      if (authError) {
+        haptics.error();
+        setError(authError.message);
+      } else {
+        haptics.success();
+      }
+    } finally {
+      setPending(null);
+    }
+  }, []);
 
   return (
     <KeyboardAvoidingView
@@ -63,51 +96,49 @@ export default function SignInScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
-        contentContainerStyle={[
-          styles.content,
-          { paddingTop: insets.top + Spacing.five, paddingBottom: insets.bottom + Spacing.four },
-        ]}
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + 54, paddingBottom: insets.bottom + 24 }]}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.hero}>
-          <Chip label="Pop-ups · Points · Pickup" tone="info" />
-          <ThemedText type="display" style={[styles.brand, { color: theme.brand }]} accessibilityRole="header">
-            Mongmo
-          </ThemedText>
-          <ThemedText type="default" themeColor="textSecondary" style={styles.tagline}>
-            Cà phê, bánh mì and street food. Find the next pop-up, collect points, skip the queue.
-          </ThemedText>
+        <View style={styles.brand}>
+          <ThemedText type="captionBold">Pick-Up · Pop Ups · Discounts</ThemedText>
+          <Wordmark height={78} />
         </View>
 
-        <View style={styles.form}>
-          <ThemedText type="subtitle">{mode === 'sign-in' ? 'Welcome back' : 'Join the crew'}</ThemedText>
+        {BrandPhotos.flatlay ? (
+          <Image source={BrandPhotos.flatlay} style={styles.photo} contentFit="cover" accessibilityIgnoresInvertColors />
+        ) : null}
 
-          <TextInput
+        <ThemedText type="name" accessibilityRole="header">
+          {mode === 'sign-in' ? 'Welcome' : 'Join us'}
+        </ThemedText>
+
+        <View style={styles.form}>
+          <TextField
+            label="Email"
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
+            autoCorrect={false}
+            spellCheck={false}
             autoComplete="email"
             keyboardType="email-address"
             textContentType="emailAddress"
-            placeholder="you@example.com"
-            placeholderTextColor={theme.textSecondary}
-            accessibilityLabel="Email"
-            style={inputStyle}
+            placeholder="Email"
+            hideLabel
           />
-          <TextInput
+          <TextField
+            label="Password"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
             autoComplete={mode === 'sign-in' ? 'password' : 'password-new'}
             textContentType={mode === 'sign-in' ? 'password' : 'newPassword'}
-            placeholder="At least 6 characters"
-            placeholderTextColor={theme.textSecondary}
-            accessibilityLabel="Password"
-            style={inputStyle}
+            placeholder={mode === 'sign-in' ? 'Password' : 'Password (6 characters or more)'}
+            hideLabel
           />
 
           {error ? (
-            <ThemedText type="small" themeColor="danger" style={styles.error} accessibilityRole="alert">
+            <ThemedText type="caption" themeColor="danger" accessibilityRole="alert">
               {error}
             </ThemedText>
           ) : null}
@@ -115,31 +146,35 @@ export default function SignInScreen() {
           <Button
             label={mode === 'sign-in' ? 'Sign in' : 'Create account'}
             variant="brand"
-            arrow
             onPress={onSubmit}
             disabled={!canSubmit}
-            loading={pending}
+            loading={pending === 'account'}
             haptic="press"
-            style={styles.submit}
           />
 
           <Pressable
             onPress={() => {
               haptics.select();
               setError(null);
-              setMode((current) => (current === 'sign-in' ? 'sign-up' : 'sign-in'));
+              onModeChange(mode === 'sign-in' ? 'sign-up' : 'sign-in');
             }}
             accessibilityRole="button"
-            accessibilityLabel={mode === 'sign-in' ? 'Switch to create an account' : 'Switch to sign in'}
-            style={styles.switchMode}
+            hitSlop={10}
+            style={styles.switch}
           >
-            <ThemedText type="small" themeColor="textSecondary">
-              {mode === 'sign-in' ? 'New to Mongmo? ' : 'Already have an account? '}
-              <ThemedText type="smallBold" themeColor="primaryText">
-                {mode === 'sign-in' ? 'Create an account' : 'Sign in'}
-              </ThemedText>
+            <ThemedText type="captionBold">
+              {mode === 'sign-in' ? 'New to Mongmo? Create an account' : 'Already have an account? Sign in'}
             </ThemedText>
           </Pressable>
+
+          <Button
+            label="Continue as guest"
+            variant="ghost"
+            onPress={onGuest}
+            loading={pending === 'guest'}
+            disabled={pending === 'account'}
+            accessibilityHint="Look around without an account. You can create one later to keep your points."
+          />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -151,44 +186,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.three + Spacing.one,
-    gap: Spacing.five,
-    width: '100%',
-    maxWidth: 480,
-    alignSelf: 'center',
-  },
-  hero: {
-    gap: Spacing.three,
+    paddingHorizontal: PageInset + 32,
+    gap: 28,
   },
   brand: {
-    fontSize: 96,
-    lineHeight: 92,
-    letterSpacing: -1,
+    gap: 16,
   },
-  tagline: {
-    maxWidth: 340,
+  photo: {
+    width: '100%',
+    aspectRatio: 300 / 170,
+    borderRadius: Radius.medium,
   },
   form: {
-    gap: Spacing.two + Spacing.one,
+    gap: 12,
   },
-  input: {
-    minHeight: 56,
-    borderRadius: Radius.pill,
-    paddingHorizontal: Spacing.four,
-    fontFamily: FontFamily.body,
-    fontSize: 16,
-  },
-  error: {
-    paddingHorizontal: Spacing.two,
-  },
-  submit: {
-    marginTop: Spacing.two,
-  },
-  switchMode: {
-    minHeight: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
+  switch: {
+    alignSelf: 'center',
+    paddingVertical: 14,
   },
 });

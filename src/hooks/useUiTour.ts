@@ -107,7 +107,7 @@ export function useUiTour(controls: UiTourControls): void {
               const first = controlsRef.current.events[0];
               if (first) {
                 routerRef.current.push({
-                  pathname: '/(explore)/event/[id]',
+                  pathname: '/(popups)/event/[id]',
                   params: { id: first.id },
                 });
               }

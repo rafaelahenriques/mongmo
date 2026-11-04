@@ -1,244 +1,395 @@
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Image } from 'expo-image';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { formatInTimeZone } from 'date-fns-tz';
 
-import EventCard from '@/components/events/EventCard';
-import { ProgressSection } from '@/components/home/ProgressSection';
+import { Wordmark } from '@/components/brand/Wordmark';
 import { ThemedText } from '@/components/ThemedText';
-import { Card } from '@/components/ui/Card';
-import Chip from '@/components/ui/Chip';
+import { BigNumber } from '@/components/ui/BigNumber';
+import { Button } from '@/components/ui/Button';
+import { ColumnRow } from '@/components/ui/ColumnRow';
 import { Icon } from '@/components/ui/Icon';
-import { IconBadge } from '@/components/ui/IconBadge';
-import { LargeHeader, ScreenScroll, SectionHeader } from '@/components/ui/Screen';
-import { Radius, Spacing } from '@/constants/theme';
+import { PhotoHero } from '@/components/ui/PhotoHero';
+import { RoundIconButton } from '@/components/ui/RoundIconButton';
+import { usePullToRefresh } from '@/components/ui/Screen';
+import { StampRow } from '@/components/ui/Stamps';
+import { StepBar } from '@/components/ui/StepBar';
+import { PageInset } from '@/constants/theme';
+import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveOrder } from '@/hooks/useActiveOrder';
 import { useEvents } from '@/hooks/useEvents';
+import { useNotificationsFeed } from '@/hooks/useNotificationsFeed';
 import { useProfile } from '@/hooks/useProfile';
 import { useStore } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
+import { useBusyStore } from '@/state/busyStore';
 import { useCartStore } from '@/state/cartStore';
 import { useLocationStore } from '@/state/locationStore';
-import { distanceInMeters } from '@/utils/distance';
-import { getEventPhase } from '@/utils/dateTime';
+import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
+import { distanceInMeters, formatDistance } from '@/utils/distance';
+import { pickupCode } from '@/utils/orderFormat';
 import type { PopUpEvent } from '@/types';
 
-const ORDER_STATUS_LABEL: Record<string, string> = {
-  draft: 'Draft',
+/** Stamps on the card: one per sixth of the way to the next reward. */
+const STAMPS = 6;
+const ORDER_STEPS = ['Confirmed', 'Being made', 'Ready'];
+const ORDER_TITLE: Record<string, string> = {
   paid: 'Confirmed',
-  preparing: 'Preparing',
-  ready: 'Ready for pickup',
-  collected: 'Collected',
-  cancelled: 'Cancelled',
+  preparing: 'Being made',
+  ready: 'Ready',
 };
+const ORDER_STEP: Record<string, number> = { paid: 0, preparing: 1, ready: 2 };
 
 /**
- * Home tab: whatever's in progress (an active order or the live pop-up),
- * quick actions, and the nearest pop-ups.
+ * H-01 Home: what is on right now, your order, your points, and what's
+ * next — in the design's label column, photo first.
  */
 export default function HomeScreen() {
   const theme = useTheme();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const refresh = usePullToRefresh();
   const profile = useProfile();
-  const storeQuery = useStore();
+  const store = useStore();
   const eventsQuery = useEvents('all');
   const activeOrder = useActiveOrder();
-  const userCoordinates = useLocationStore((state) => state.coordinates);
+  const { query: achievements, summary } = useAchievements();
+  const feed = useNotificationsFeed();
+  const coordinates = useLocationStore((state) => state.coordinates);
 
-  const nearbyEvents = useMemo(() => {
-    const events = eventsQuery.data ?? [];
-    if (!userCoordinates) return events.slice(0, 3);
-    return [...events]
-      .sort(
-        (a, b) =>
-          distanceInMeters(userCoordinates, a.coordinates) -
-          distanceInMeters(userCoordinates, b.coordinates),
-      )
-      .slice(0, 3);
-  }, [eventsQuery.data, userCoordinates]);
+  const { featured, upcoming } = useMemo(() => {
+    const events = (eventsQuery.data ?? []).filter((event) => getEventPhase(event.startsAt, event.endsAt) !== 'ended');
+    const byStart = [...events].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+    const live = byStart.filter((event) => getEventPhase(event.startsAt, event.endsAt) === 'live');
+    // The nearest live pop-up, else the next one to start.
+    const nearestLive = coordinates
+      ? [...live].sort(
+          (a, b) => distanceInMeters(coordinates, a.coordinates) - distanceInMeters(coordinates, b.coordinates),
+        )[0]
+      : live[0];
+    const lead = nearestLive ?? byStart[0];
+    return {
+      featured: lead,
+      upcoming: byStart.filter((event) => event.id !== lead?.id).slice(0, 3),
+    };
+  }, [eventsQuery.data, coordinates]);
 
-  const liveEvent = useMemo<PopUpEvent | undefined>(
-    () => (eventsQuery.data ?? []).find((event) => getEventPhase(event.startsAt, event.endsAt) === 'live'),
-    [eventsQuery.data],
+  const nextReward = useMemo(
+    () =>
+      [...(achievements.data?.rewards ?? [])]
+        .sort((a, b) => a.costPoints - b.costPoints)
+        .find((reward) => reward.costPoints > summary.points),
+    [achievements.data?.rewards, summary.points],
   );
-
-  const onSelectEvent = useCallback(
-    (id: string) => router.push({ pathname: '/(explore)/event/[id]', params: { id } }),
-    [router],
-  );
-
-  const onOrderUsual = useCallback(() => {
-    if (!storeQuery.data) return;
-    useCartStore.getState().setLocation({ type: 'store', storeId: storeQuery.data.id });
-    router.push('/(orders)/order/menu');
-  }, [router, storeQuery.data]);
+  const stamps = nextReward ? Math.floor((summary.points / nextReward.costPoints) * STAMPS) : STAMPS;
 
   const firstName = profile.data?.name.split(' ')[0] ?? '';
-  const orderStatus = activeOrder.data
-    ? (ORDER_STATUS_LABEL[activeOrder.data.status] ?? activeOrder.data.status)
-    : null;
+  const order = activeOrder.data;
+  const openEvent = (id: string) => router.push({ pathname: '/(popups)/event/[id]', params: { id } });
+  const orderAt = (event: PopUpEvent) => {
+    useCartStore.getState().setLocation({
+      type: 'event',
+      eventId: event.id,
+      eventTitle: event.title,
+    });
+    router.push('/(orders)/order/menu');
+  };
+  const orderFromStore = () => {
+    if (!store.data) return;
+    useCartStore.getState().setLocation({ type: 'store', storeId: store.data.id });
+    router.push('/(orders)/order/menu');
+  };
 
+  // Footnote numbers for the label column, in the order the blocks show.
+  const notes = { featured: featured ? 1 : 0, order: 0, points: 0 };
+  notes.order = order ? notes.featured + 1 : notes.featured;
+  notes.points = notes.order + 1;
   return (
-    <ScreenScroll topInset>
-      <LargeHeader eyebrow="Discover the next flavour" title={firstName ? `Hi, ${firstName}` : 'Hi there'} />
-
-      {/* Continue: whichever matters more right now — an order in flight,
-          or a pop-up that's actually live. */}
-      {activeOrder.data ? (
-        <Card
-          tone="primary"
-          onPress={() => router.push('/(orders)')}
-          accessibilityLabel={`Your order is ${orderStatus}. View order.`}
-          style={styles.hero}
-        >
-          <View style={styles.heroTop}>
-            <Chip label="Your order" tone="info" icon="takeout" />
-            <DetailsPill label="View" dark />
-          </View>
-          <ThemedText type="subtitle" style={{ color: theme.onPrimary }}>
-            {orderStatus}
-          </ThemedText>
-          <ThemedText type="small" style={{ color: theme.onPrimary, opacity: 0.8 }}>
-            We&apos;ll let you know the moment it&apos;s ready.
-          </ThemedText>
-        </Card>
-      ) : liveEvent ? (
-        <Card
-          tone="brand"
-          onPress={() => onSelectEvent(liveEvent.id)}
-          accessibilityLabel={`${liveEvent.title} is live now in ${liveEvent.city}. Open event.`}
-          style={styles.hero}
-        >
-          <View style={styles.heroTop}>
-            <View style={[styles.livePill, { backgroundColor: theme.onBrand }]}>
-              <View style={[styles.liveDot, { backgroundColor: theme.brandFill }]} />
-              <ThemedText type="smallBold" style={{ color: theme.brandFill }}>
-                Live now
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.background }}
+      refreshControl={
+        <RefreshControl refreshing={refresh.refreshing} onRefresh={refresh.onRefresh} tintColor={theme.onSurfaceDark} />
+      }
+    >
+      <PhotoHero
+        imageUrl={featured?.imageUrl}
+        title={featured?.title ?? 'Mongmo'}
+        live={featured ? getEventPhase(featured.startsAt, featured.endsAt) === 'live' : false}
+        meta={featured && coordinates ? formatDistance(distanceInMeters(coordinates, featured.coordinates)) : undefined}
+        onPress={featured ? () => openEvent(featured.id) : undefined}
+        accessibilityLabel={featured ? `${featured.title}. Open the pop-up.` : undefined}
+        top={
+          <View style={[styles.heroTop, { top: insets.top + 2 }]}>
+            <Wordmark height={28.5} />
+            <Pressable
+              onPress={() => router.push('/(home)/notifications')}
+              accessibilityRole="button"
+              accessibilityLabel={`Notifications${feed.unseen ? `, ${feed.unseen} new` : ''}`}
+              hitSlop={12}
+            >
+              <ThemedText type="captionBold" style={{ color: theme.onSurfaceDark }}>
+                {[firstName ? `Hi, ${firstName}` : 'Hi', feed.unseen ? `${feed.unseen} new` : null]
+                  .filter(Boolean)
+                  .join(' · ')}
               </ThemedText>
-            </View>
-            <DetailsPill label="Details" />
+            </Pressable>
           </View>
-          <ThemedText type="title" style={{ color: theme.onBrand }} numberOfLines={2}>
-            {liveEvent.title}
-          </ThemedText>
-          <View style={styles.heroMeta}>
-            <Icon name="pin" size={14} color={theme.onBrand} />
-            <ThemedText type="small" style={{ color: theme.onBrand }}>
-              {liveEvent.city} · check in for points
-            </ThemedText>
-          </View>
-        </Card>
+        }
+      />
+
+      {featured ? (
+        <View style={styles.page}>
+          <View style={[styles.rule, { backgroundColor: theme.text }]} />
+          <FeaturedRow
+            event={featured}
+            index={notes.featured}
+            onCheckIn={() =>
+              router.push({
+                pathname: '/(popups)/event/[id]',
+                params: { id: featured.id, checkIn: '1' },
+              })
+            }
+            onOrder={() => orderAt(featured)}
+            onOpen={() => openEvent(featured.id)}
+          />
+        </View>
       ) : null}
 
-      <View style={styles.quickRow}>
-        <Card
-          tone="accent"
-          onPress={onOrderUsual}
-          accessibilityLabel="Order your usual from the café menu"
-          style={styles.quick}
-        >
-          <IconBadge name="coffee" tone="card" size={44} />
-          <ThemedText type="smallBold" style={{ color: theme.onAccent }}>
-            Order your usual
-          </ThemedText>
-        </Card>
-        <Card
-          onPress={() => router.push('/(explore)')}
-          accessibilityLabel="Explore pop-ups on the map"
-          style={styles.quick}
-        >
-          <IconBadge name="map" tone="muted" size={44} />
-          <ThemedText type="smallBold">Explore the map</ThemedText>
-        </Card>
+      {order ? (
+        <View style={[styles.block, { backgroundColor: theme.backgroundSelected }]}>
+          <ColumnRow label="Your order" index={notes.order}>
+            <View style={styles.titleRow}>
+              <ThemedText type="title">{ORDER_TITLE[order.status] ?? 'In progress'}</ThemedText>
+              <RoundIconButton
+                icon="arrowRight"
+                onPress={() =>
+                  router.push({
+                    pathname: '/(orders)/order/status/[id]',
+                    params: { id: order.id },
+                  })
+                }
+                accessibilityLabel="Open your order"
+              />
+            </View>
+            <ThemedText type="caption" themeColor="textSecondary">
+              {pickupCode(order.id)}
+              {order.pickup_at ? ` · Pick up at ${new Date(order.pickup_at).toTimeString().slice(0, 5)}` : ''}
+            </ThemedText>
+            <View style={styles.steps}>
+              <StepBar steps={ORDER_STEPS} reached={ORDER_STEP[order.status] ?? 0} />
+            </View>
+          </ColumnRow>
+        </View>
+      ) : null}
+
+      <View style={styles.page}>
+        <ColumnRow label="My points" index={notes.points} style={styles.points}>
+          <View style={styles.titleRow}>
+            <BigNumber value={summary.points} word="Points" />
+            <RoundIconButton
+              icon="qrcode"
+              onPress={() => router.push('/(profile)/achievements')}
+              accessibilityLabel="Show my membership QR code"
+            />
+          </View>
+          <StampRow earned={stamps} total={STAMPS} style={styles.stamps} />
+          <View style={styles.titleRow}>
+            <ThemedText type="caption" themeColor="textSecondary" style={styles.flex}>
+              {nextReward
+                ? `${nextReward.costPoints - summary.points} more to your next reward`
+                : 'You can redeem a reward'}
+            </ThemedText>
+            <Pressable
+              onPress={() => router.push('/(profile)/achievements')}
+              accessibilityRole="link"
+              hitSlop={10}
+              style={styles.link}
+            >
+              <ThemedText type="captionBold">Rewards</ThemedText>
+              <Icon name="arrowRight" size={14} color={theme.text} weight="bold" />
+            </Pressable>
+          </View>
+        </ColumnRow>
       </View>
 
-      <SectionHeader title="Nearby pop-ups" actionLabel="See all" onAction={() => router.push('/(explore)')} />
-
-      {eventsQuery.isPending ? (
-        <ActivityIndicator size="small" color={theme.text} style={styles.loader} />
-      ) : nearbyEvents.length === 0 ? (
-        <ThemedText type="small" themeColor="textSecondary">
-          Nothing on right now — check Explore for what&apos;s next.
-        </ThemedText>
-      ) : (
-        <View style={styles.eventsList}>
-          {nearbyEvents.map((event) => (
-            <EventCard key={event.id} event={event} onPress={() => onSelectEvent(event.id)} />
-          ))}
+      <View style={[styles.nextUp, { backgroundColor: theme.surfaceDark }]}>
+        <View style={styles.nextHead}>
+          <ThemedText type="title" style={{ color: theme.onSurfaceDark }} accessibilityRole="header">
+            Next up
+          </ThemedText>
+          <Pressable onPress={() => router.push('/(popups)')} accessibilityRole="link" hitSlop={10}>
+            <ThemedText type="captionBold" style={{ color: theme.onSurfaceDark }}>
+              View all
+            </ThemedText>
+          </Pressable>
         </View>
-      )}
-
-      <ProgressSection />
-    </ScreenScroll>
+        {upcoming.length === 0 ? (
+          <Pressable onPress={orderFromStore} accessibilityRole="button" style={styles.upRow}>
+            <ThemedText type="caption" style={{ color: theme.faded }}>
+              Nothing else planned yet. Order ahead from the café meanwhile.
+            </ThemedText>
+          </Pressable>
+        ) : (
+          upcoming.map((event, index) => (
+            <Pressable
+              key={event.id}
+              onPress={() => openEvent(event.id)}
+              accessibilityRole="button"
+              accessibilityLabel={`${event.title}, ${upcomingWhen(event)}`}
+              style={[
+                styles.upRow,
+                index < upcoming.length - 1 && {
+                  borderBottomWidth: 1,
+                  borderBottomColor: theme.onSurfaceDark,
+                },
+              ]}
+            >
+              <View style={[styles.thumb, { backgroundColor: theme.textSecondary }]}>
+                {event.imageUrl ? (
+                  <Image source={{ uri: event.imageUrl }} style={StyleSheet.absoluteFill} contentFit="cover" />
+                ) : null}
+              </View>
+              <View style={styles.flex}>
+                <ThemedText type="smallBold" style={{ color: theme.onSurfaceDark }} numberOfLines={1}>
+                  {event.title}
+                </ThemedText>
+                <ThemedText type="caption" style={{ color: theme.border }} numberOfLines={1}>
+                  {upcomingWhen(event)}
+                </ThemedText>
+              </View>
+            </Pressable>
+          ))
+        )}
+      </View>
+    </ScrollView>
   );
 }
 
-/** The "Details →" pill in hero cards (decorative; the card is the button). */
-function DetailsPill({ label, dark = false }: { label: string; dark?: boolean }) {
-  const theme = useTheme();
-  // Sage on ink (6.9:1) on the sage card; inverted ink on the primary card.
-  const background = dark ? theme.onPrimary : theme.onBrand;
-  const foreground = dark ? theme.primary : theme.brandFill;
+/** "Today, 13:10. Stationsstraat 9." */
+function upcomingWhen(event: PopUpEvent): string {
+  const start = new Date(event.startsAt);
+  const today =
+    formatInTimeZone(new Date(), event.timeZone, 'yyyy-MM-dd') ===
+    formatInTimeZone(start, event.timeZone, 'yyyy-MM-dd');
+  const day = today ? 'Today' : formatInTimeZone(start, event.timeZone, 'EEE d MMM');
+  return `${day}, ${formatInTimeZone(start, event.timeZone, 'HH:mm')}. ${event.city}.`;
+}
+
+/** "Right now¹": the live (or next) pop-up, with check in and order buttons. */
+function FeaturedRow({
+  event,
+  index,
+  onCheckIn,
+  onOrder,
+  onOpen,
+}: {
+  event: PopUpEvent;
+  index: number;
+  onCheckIn: () => void;
+  onOrder: () => void;
+  onOpen: () => void;
+}) {
+  const busy = useBusyStore((state) => state.busy[event.id] ?? event.busy);
+  const live = getEventPhase(event.startsAt, event.endsAt) === 'live';
   return (
-    <View style={[styles.detailsPill, { backgroundColor: background }]}>
-      <ThemedText type="smallBold" style={{ color: foreground }}>
-        {label}
+    <ColumnRow label={live ? 'Right now' : 'Coming up'} index={index}>
+      <ThemedText type="smallBold">{event.venue}</ThemedText>
+      <ThemedText type="caption" themeColor="textSecondary">
+        {formatEventWindow(event.startsAt, event.endsAt, event.timeZone)}
+        {'\n'}How busy: {busy.occupancy} of {busy.capacity}
       </ThemedText>
-      <Icon name="arrowRight" size={14} color={foreground} weight="bold" />
-    </View>
+      <View style={styles.actions}>
+        {live ? (
+          <>
+            <Button label="Check in" variant="brand" onPress={onCheckIn} style={styles.flex} />
+            <Button label="Order here" variant="ghost" onPress={onOrder} style={styles.flex} />
+          </>
+        ) : (
+          <>
+            <Button label="See details" variant="brand" onPress={onOpen} style={styles.flex} />
+            <Button label="Order ahead" variant="ghost" onPress={onOrder} style={styles.flex} />
+          </>
+        )}
+      </View>
+    </ColumnRow>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: {
-    gap: Spacing.two,
-    paddingVertical: Spacing.four,
-  },
   heroTop: {
+    position: 'absolute',
+    left: PageInset,
+    right: PageInset,
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.two,
   },
-  heroMeta: {
+  page: {
+    paddingHorizontal: PageInset,
+    paddingTop: 14,
+    paddingBottom: 4,
+  },
+  rule: {
+    height: 3,
+  },
+  block: {
+    paddingHorizontal: PageInset,
+    paddingTop: 4,
+    paddingBottom: 8,
+  },
+  titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.one,
+    justifyContent: 'space-between',
+    gap: 12,
   },
-  livePill: {
+  steps: {
+    paddingTop: 8,
+  },
+  points: {
+    paddingTop: 2,
+    paddingBottom: 18,
+  },
+  stamps: {
+    marginVertical: 4,
+  },
+  link: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.one + 2,
-    borderRadius: Radius.pill,
-    paddingHorizontal: Spacing.two + 2,
-    paddingVertical: Spacing.one,
+    gap: 4,
   },
-  liveDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-  },
-  detailsPill: {
+  actions: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.one,
-    borderRadius: Radius.pill,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.one + 2,
+    gap: 6,
+    paddingTop: 8,
   },
-  quickRow: {
-    flexDirection: 'row',
-    gap: Spacing.two + Spacing.one,
-  },
-  quick: {
+  flex: {
     flex: 1,
-    gap: Spacing.three,
-    minHeight: 120,
+  },
+  nextUp: {
+    paddingHorizontal: PageInset,
+    paddingTop: 22,
+    paddingBottom: 6,
+    gap: 4,
+  },
+  nextHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
+    paddingBottom: 8,
   },
-  eventsList: {
-    gap: Spacing.two + Spacing.one,
+  upRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 10,
   },
-  loader: {
-    marginVertical: Spacing.four,
+  thumb: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    overflow: 'hidden',
   },
 });

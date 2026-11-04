@@ -11,7 +11,7 @@ import { isTabBarHidden } from '@/utils/tabBar';
 /** The five tabs, in order, with the words the bar shows. */
 export const TABS = [
   { name: '(home)', label: 'Home' },
-  { name: '(explore)', label: 'Pop-ups' },
+  { name: '(popups)', label: 'Pop-ups' },
   { name: '(orders)', label: 'Order' },
   { name: '(story)', label: 'Story' },
   { name: '(profile)', label: 'Me' },
