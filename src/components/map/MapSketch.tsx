@@ -2,11 +2,13 @@ import { memo } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Circle, G, Line, Path, Rect } from 'react-native-svg';
 
-import { useTheme } from '@/hooks/useTheme';
+import { useResolvedScheme, useTheme } from '@/hooks/useTheme';
 
-const CANVAS = '#F1EFE9';
-const BLOCK = '#E4E0D6';
-const ROAD = '#FAF9F5';
+/** Canvas, blocks and roads, light and dark. */
+const PALETTE = {
+  light: { canvas: '#F1EFE9', block: '#E4E0D6', road: '#FAF9F5' },
+  dark: { canvas: '#2C2D27', block: '#373831', road: '#45463F' },
+} as const;
 
 /** Two streets crossing at an angle, a different pair per variant. */
 const STREETS = [
@@ -46,24 +48,42 @@ function MapSketchComponent({
   style?: StyleProp<ViewStyle>;
 }) {
   const theme = useTheme();
+  const colors = PALETTE[useResolvedScheme()];
   const streets = STREETS[Math.abs(variant) % STREETS.length];
   const blocks: { x: number; y: number }[] = [];
   for (let x = -4; x < 104; x += 22) for (let y = -6; y < 100; y += 20) blocks.push({ x: x + (y % 40 ? 6 : 0), y });
 
   return (
     <View
-      style={[styles.box, { backgroundColor: CANVAS }, style]}
+      style={[styles.box, { backgroundColor: colors.canvas }, style]}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
-      <Svg width="100%" height="100%" viewBox="0 0 104 100" preserveAspectRatio="xMidYMid slice">
+      {/* Laid over the box, never sizing it: on iOS and Android an SVG
+          sized in % inside a box without a set height grows to its own
+          aspect ratio and stretches the row it sits in. */}
+      <Svg
+        style={StyleSheet.absoluteFill}
+        width="100%"
+        height="100%"
+        viewBox="0 0 104 100"
+        preserveAspectRatio="xMidYMid slice"
+      >
         <G transform={`rotate(${variant % 2 ? -14 : 12} 52 50)`}>
           {blocks.map((block) => (
-            <Rect key={`${block.x}-${block.y}`} x={block.x} y={block.y} width={16} height={14} rx={1.5} fill={BLOCK} />
+            <Rect
+              key={`${block.x}-${block.y}`}
+              x={block.x}
+              y={block.y}
+              width={16}
+              height={14}
+              rx={1.5}
+              fill={colors.block}
+            />
           ))}
         </G>
         {streets.map(([x1, y1, x2, y2]) => (
-          <Line key={`${x1}-${y1}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={ROAD} strokeWidth={7} />
+          <Line key={`${x1}-${y1}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={colors.road} strokeWidth={7} />
         ))}
         {route ? (
           <>
