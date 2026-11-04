@@ -215,8 +215,9 @@ export default function EventDetail({ eventId }: EventDetailProps) {
 
         {phase !== 'ended' ? (
           <View style={styles.links}>
-            <TextLink label="Add to calendar" onPress={onAddToCalendar} />
+            <TextLink label="Add to calendar" icon="calendarAdd" onPress={onAddToCalendar} />
             <TextLink
+              icon="directions"
               label="Directions"
               onPress={() => openDirections(event.coordinates, `${event.title}, ${event.venue}`)}
             />
