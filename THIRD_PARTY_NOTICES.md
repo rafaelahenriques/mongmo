@@ -27,7 +27,7 @@ Both are used under the SIL Open Font License 1.1 (full text below).
 This project started from Expo's `create-expo-app` template.
 Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full text below).
 
-## npm packages (660)
+## npm packages (630)
 
 | Package | Version | Licence | Copyright |
 | --- | --- | --- | --- |
@@ -103,45 +103,44 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @babel/template | 7.29.7 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/traverse | 7.29.8 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/types | 7.29.8 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
-| @egjs/hammerjs | 2.0.17 | MIT | Copyright (c) 2018-present NAVER Corp.; Copyright (C) 2011-2017 by Jorik Tangelder (Eight Media) |
 | @expo-google-fonts/be-vietnam-pro | 0.4.1 | MIT AND OFL-1.1 | Copyright (c) 2020 Expo |
-| @expo-google-fonts/material-symbols | 0.4.48 | MIT AND Apache-2.0 | Copyright (c) 2020 Expo |
+| @expo-google-fonts/material-symbols | 0.4.52 | MIT AND Apache-2.0 | Copyright (c) 2020 Expo |
 | @expo-google-fonts/outfit | 0.4.3 | MIT AND OFL-1.1 | Copyright (c) 2020 Expo |
-| @expo/cli | 57.0.27 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/code-signing-certificates | 0.0.6 | MIT | Copyright (c) 2020-present 650 Industries, Inc. (aka Expo) |
-| @expo/config | 57.0.9 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/config-plugins | 57.0.9 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/config-types | 57.0.2 | MIT | Copyright (c) 2020-present 650 Industries, Inc. (aka Expo) |
-| @expo/devcert | 1.2.1 | MIT | Dave Wasmer |
-| @expo/devtools | 57.0.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/dom-webview | 57.0.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/env | 2.4.3 | MIT | Copyright (c) 2023-present 650 Industries, Inc. (aka Expo) |
-| @expo/expo-modules-macros-plugin | 0.6.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/fingerprint | 0.20.13 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/image-utils | 0.11.5 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/inline-modules | 0.1.7 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/json-file | 11.0.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/local-build-cache-provider | 57.0.8 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/log-box | 57.0.4 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/metro | 56.0.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/metro-config | 57.0.12 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/metro-file-map | 57.0.3 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/metro-runtime | 57.0.16 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/osascript | 2.7.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/package-manager | 1.13.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/plist | 0.8.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/prebuild-config | 57.0.16 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/require-utils | 57.0.5 | MIT | Copyright (c) 2025-present 650 Industries, Inc. (aka Expo) |
-| @expo/router-server | 57.0.11 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| @expo/schema-utils | 57.0.2 | MIT | Copyright (c) 2025-present 650 Industries, Inc. (aka Expo) |
-| @expo/sdk-runtime-versions | 1.0.0 | MIT | Expo <support@expo.io> |
+| @expo/cli | 58.1.19 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/code-signing-certificates | 0.0.7 | MIT | Copyright (c) 2020-present 650 Industries, Inc. (aka Expo) |
+| @expo/config | 58.0.11 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/config-plugins | 58.0.12 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/config-types | 58.0.3 | MIT | Copyright (c) 2020-present 650 Industries, Inc. (aka Expo) |
+| @expo/devcert | 1.2.2 | MIT | Copyright (c) 2017 Dave Wasmer; Copyright (c) 2021-present 650 Industries, Inc. (aka Expo) |
+| @expo/devtools | 58.0.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/dom-webview | 58.0.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/env | 2.5.4 | MIT | Copyright (c) 2023-present 650 Industries, Inc. (aka Expo) |
+| @expo/fingerprint | 0.21.9 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/image-utils | 0.12.6 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/inline-modules | 0.2.9 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/json-file | 11.2.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/local-build-cache-provider | 58.0.11 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/log-box | 58.0.15 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/log-box-utils | 58.0.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/metro | 58.0.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/metro-config | 58.0.21 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/metro-file-map | 58.0.5 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/metro-runtime | 58.0.17 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/modules-macros-linux-x64 | 0.29.0 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/osascript | 2.8.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/package-manager | 1.14.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/platforms | 58.0.1 | MIT | Copyright (c) 2023-present 650 Industries, Inc. (aka Expo) |
+| @expo/plist | 0.10.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/prebuild-config | 58.0.19 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/require-utils | 58.0.5 | MIT | Copyright (c) 2025-present 650 Industries, Inc. (aka Expo) |
+| @expo/router-server | 58.0.21 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/schema-utils | 58.0.3 | MIT | Copyright (c) 2025-present 650 Industries, Inc. (aka Expo) |
+| @expo/sdk-runtime-versions | 1.0.1 | MIT | Copyright (c) 2025-present 650 Industries, Inc. (aka Expo) |
 | @expo/spawn-async | 1.8.0 | MIT | Copyright (c) 2015 650 Industries |
 | @expo/sudo-prompt | 9.3.2 | MIT | Copyright (c) 2015 Joran Dirk Greef |
-| @expo/ui | 57.0.20 | MIT | 650 Industries, Inc. |
-| @expo/ws-tunnel | 2.0.0 | MIT | — |
-| @expo/xcpretty | 4.4.5 | BSD-3-Clause | Evan Bacon <bacon@expo.io> (https://github.com/evanbacon) |
-| @gorhom/bottom-sheet | 5.2.14 | MIT | Copyright (c) 2020 Mo Gorhom |
-| @gorhom/portal | 1.0.14 | MIT | Copyright (c) 2020 Mo Gorhom |
+| @expo/ui | 58.0.27 | MIT | 650 Industries, Inc. |
+| @expo/ws-tunnel | 2.0.1 | MIT | Copyright (c) 2025-present 650 Industries, Inc. (aka Expo) |
+| @expo/xcpretty | 4.4.7 | MIT | Copyright (c) 2013-2016 Marin Usalj; Copyright (c) 2021-present 650 Industries, Inc. (aka Expo) |
 | @isaacs/ttlcache | 1.4.1 | ISC | Copyright (c) 2022-2023 - Isaac Z. Schlueter and Contributors; copyright notice and this permission notice appear in all copies. |
 | @jest/schemas | 29.6.3 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
 | @jest/types | 29.6.3 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
@@ -151,48 +150,43 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @jridgewell/source-map | 0.3.11 | MIT | Copyright 2024 Justin Ridgewell <justin@ridgewell.name> |
 | @jridgewell/sourcemap-codec | 1.6.0 | MIT | Copyright 2024 Justin Ridgewell <justin@ridgewell.name> |
 | @jridgewell/trace-mapping | 0.3.31 | MIT | Copyright 2024 Justin Ridgewell <justin@ridgewell.name> |
-| @radix-ui/primitive | 1.1.7 | MIT | Copyright (c) 2022 WorkOS |
-| @radix-ui/react-collection | 1.1.15 | MIT | Copyright (c) 2022 WorkOS |
+| @noxcturnal/noxcturnal-linux-x64-gnu | 0.1.11 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright (c) 2026-present VoidZero Inc. & Contributors |
+| @noxcturnal/noxcturnal-linux-x64-musl | 0.1.11 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright (c) 2026-present VoidZero Inc. & Contributors |
+| @oxc-project/types | 0.154.0 | MIT | Copyright (c) 2024-present VoidZero Inc. & Contributors; Copyright (c) 2023 Boshen |
+| @radix-ui/primitive | 1.2.0 | MIT | Copyright (c) 2022 WorkOS |
+| @radix-ui/react-collection | 1.2.0 | MIT | Copyright (c) 2022 WorkOS |
 | @radix-ui/react-compose-refs | 1.1.5 | MIT | Copyright (c) 2022 WorkOS |
-| @radix-ui/react-context | 1.2.2 | MIT | Copyright (c) 2022 WorkOS |
-| @radix-ui/react-dialog | 1.1.23 | MIT | Copyright (c) 2022 WorkOS |
-| @radix-ui/react-direction | 1.1.4 | MIT | Copyright (c) 2022 WorkOS |
-| @radix-ui/react-dismissable-layer | 1.1.19 | MIT | Copyright (c) 2022 WorkOS |
-| @radix-ui/react-focus-guards | 1.1.6 | MIT | Copyright (c) 2022 WorkOS |
-| @radix-ui/react-focus-scope | 1.1.16 | MIT | Copyright (c) 2022 WorkOS |
+| @radix-ui/react-context | 1.3.0 | MIT | Copyright (c) 2022 WorkOS |
+| @radix-ui/react-direction | 1.2.0 | MIT | Copyright (c) 2022 WorkOS |
 | @radix-ui/react-id | 1.1.4 | MIT | Copyright (c) 2022 WorkOS |
-| @radix-ui/react-portal | 1.1.17 | MIT | Copyright (c) 2022 WorkOS |
-| @radix-ui/react-presence | 1.1.10 | MIT | Copyright (c) 2022 WorkOS |
-| @radix-ui/react-primitive | 2.1.10 | MIT | Copyright (c) 2022 WorkOS |
-| @radix-ui/react-roving-focus | 1.1.19 | MIT | Copyright (c) 2022 WorkOS |
-| @radix-ui/react-slot | 1.3.3 | MIT | Copyright (c) 2022 WorkOS |
-| @radix-ui/react-tabs | 1.1.21 | MIT | Copyright (c) 2022 WorkOS |
-| @radix-ui/react-use-callback-ref | 1.1.4 | MIT | Copyright (c) 2022 WorkOS |
-| @radix-ui/react-use-controllable-state | 1.2.6 | MIT | Copyright (c) 2022 WorkOS |
+| @radix-ui/react-presence | 1.1.11 | MIT | Copyright (c) 2022 WorkOS |
+| @radix-ui/react-primitive | 2.2.0 | MIT | Copyright (c) 2022 WorkOS |
+| @radix-ui/react-roving-focus | 1.2.1 | MIT | Copyright (c) 2022 WorkOS |
+| @radix-ui/react-slot | 1.5.0 | MIT | Copyright (c) 2022 WorkOS |
+| @radix-ui/react-tabs | 1.2.1 | MIT | Copyright (c) 2022 WorkOS |
+| @radix-ui/react-use-callback-ref | 1.1.5 | MIT | Copyright (c) 2022 WorkOS |
+| @radix-ui/react-use-controllable-state | 1.3.0 | MIT | Copyright (c) 2022 WorkOS |
 | @radix-ui/react-use-effect-event | 0.0.5 | MIT | Copyright (c) 2022 WorkOS |
 | @radix-ui/react-use-is-hydrated | 0.1.3 | MIT | Copyright (c) 2022 WorkOS |
 | @radix-ui/react-use-layout-effect | 1.1.4 | MIT | Copyright (c) 2022 WorkOS |
 | @react-native-async-storage/async-storage | 2.2.0 | MIT | Copyright (c) 2015-present, Facebook, Inc. |
 | @react-native-community/netinfo | 12.0.1 | MIT | Copyright (c) 2015-present, Facebook, Inc. |
 | @react-native-masked-view/masked-view | 0.3.2 | MIT | Copyright (c) 2015-present, Facebook, Inc. |
-| @react-native/assets-registry | 0.86.3 | MIT | See https://github.com/react/react-native |
-| @react-native/babel-plugin-codegen | 0.86.3 | MIT | See https://github.com/react/react-native |
-| @react-native/babel-preset | 0.86.3 | MIT | See ssh://git@github.com/react/react-native |
-| @react-native/codegen | 0.86.3 | MIT | See https://github.com/react/react-native |
-| @react-native/community-cli-plugin | 0.86.3 | MIT | See https://github.com/react/react-native |
-| @react-native/debugger-frontend | 0.86.3 | BSD-3-Clause | See https://github.com/react/react-native |
-| @react-native/debugger-shell | 0.86.3 | MIT | See https://github.com/react/react-native |
-| @react-native/dev-middleware | 0.86.3 | MIT | See https://github.com/react/react-native |
-| @react-native/gradle-plugin | 0.86.3 | MIT | See https://github.com/react/react-native |
-| @react-native/js-polyfills | 0.86.3 | MIT | See https://github.com/react/react-native |
-| @react-native/metro-babel-transformer | 0.86.3 | MIT | See ssh://git@github.com/react/react-native |
-| @react-native/metro-config | 0.86.3 | MIT | See https://github.com/react/react-native |
+| @react-native/asset-utils | 0.88.1 | MIT | See https://github.com/react/react-native |
+| @react-native/babel-plugin-codegen | 0.88.1 | MIT | See https://github.com/react/react-native |
+| @react-native/babel-preset | 0.88.1 | MIT | See https://github.com/react/react-native |
+| @react-native/codegen | 0.88.1 | MIT | See https://github.com/react/react-native |
+| @react-native/community-cli-plugin | 0.88.1 | MIT | See https://github.com/react/react-native |
+| @react-native/debugger-frontend | 0.88.1 | BSD-3-Clause | See https://github.com/react/react-native |
+| @react-native/debugger-shell | 0.88.1 | MIT | See https://github.com/react/react-native |
+| @react-native/dev-middleware | 0.88.1 | MIT | See https://github.com/react/react-native |
+| @react-native/gradle-plugin | 0.88.1 | MIT | See https://github.com/react/react-native |
+| @react-native/js-polyfills | 0.88.1 | MIT | See https://github.com/react/react-native |
+| @react-native/metro-babel-transformer | 0.88.1 | MIT | See ssh://git@github.com/react/react-native |
+| @react-native/metro-config | 0.88.1 | MIT | See https://github.com/react/react-native |
 | @react-native/normalize-colors | 0.74.89 | MIT | See https://github.com/facebook/react-native |
-| @react-native/normalize-colors | 0.86.3 | MIT | See https://github.com/react/react-native |
-| @react-native/virtualized-lists | 0.86.3 | MIT | See https://github.com/react/react-native |
-| @react-navigation/core | 7.22.1 | MIT | Copyright (c) 2017 React Navigation Contributors |
-| @react-navigation/native | 7.4.1 | MIT | Copyright (c) 2017 React Navigation Contributors |
-| @react-navigation/routers | 7.6.4 | MIT | Copyright (c) 2017 React Navigation Contributors |
+| @react-native/normalize-colors | 0.88.1 | MIT | See https://github.com/react/react-native |
+| @react-native/virtualized-lists | 0.88.1 | MIT | See https://github.com/react/react-native |
 | @sinclair/typebox | 0.27.12 | MIT | Copyright (c) 2017-2023 Haydn Paterson (sinclair) <haydn.developer@gmail.com> |
 | @supabase/auth-js | 2.117.2 | MIT | Copyright (c) 2020 Supabase |
 | @supabase/functions-js | 2.117.2 | MIT | Copyright (c) 2020 Supabase |
@@ -208,18 +202,18 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @tanstack/react-query-persist-client | 5.103.2 | MIT | Copyright (c) 2021-present Tanner Linsley |
 | @types/emscripten | 1.41.6 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/geojson | 7946.0.16 | MIT | Copyright (c) Microsoft Corporation. |
-| @types/hammerjs | 2.0.46 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/istanbul-lib-coverage | 2.0.6 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/istanbul-lib-report | 3.0.3 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/istanbul-reports | 3.0.4 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/node | 26.6.2 | MIT | Copyright (c) Microsoft Corporation. |
-| @types/react | 19.2.18 | MIT | Copyright (c) Microsoft Corporation. |
+| @types/react | 19.3.0 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/react-test-renderer | 19.3.0 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/yargs | 17.0.35 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/yargs-parser | 21.0.3 | MIT | Copyright (c) Microsoft Corporation. |
 | @ungap/structured-clone | 1.4.0 | ISC | Copyright (c) 2021, Andrea Giammarchi, @WebReflection; copyright notice and this permission notice appear in all copies. |
 | @xmldom/xmldom | 0.8.15 | MIT | Copyright 2019 - present Christopher J. Brody and other contributors, as listed in: https://github.com/xmldom/xmldom/graphs/contributors; Copyright 2012 - 2017 @jindw <jindw@xidea.org> and other contributors, as listed in: https://github.com/jindw/xmldom/graphs/contributors |
 | @xmldom/xmldom | 0.9.12 | MIT | Copyright 2019 - present Christopher J. Brody and other contributors, as listed in: https://github.com/xmldom/xmldom/graphs/contributors; Copyright 2012 - 2017 @jindw <jindw@xidea.org> and other contributors, as listed in: https://github.com/jindw/xmldom/graphs/contributors |
+| 2g | 1.0.1 | MIT | Copyright (c) Phil Pluckthun,; Copyright (c) 650 Industries, Inc. (aka Expo), |
 | abort-controller | 3.0.0 | MIT | Copyright (c) 2017 Toru Nagashima |
 | accepts | 1.3.8 | MIT | Copyright (c) 2014 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2015 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | accepts | 2.0.0 | MIT | Copyright (c) 2014 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2015 Douglas Christopher Wilson <doug@somethingdoug.com> |
@@ -235,17 +229,15 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | ansi-styles | 5.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | arg | 5.0.2 | MIT | Copyright (c) 2021 Vercel, Inc. |
 | argparse | 2.0.1 | Python-2.0 | Copyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam, |
-| aria-hidden | 1.2.6 | MIT | Copyright (c) 2017 Anton Korzunov |
 | asap | 2.0.6 | MIT | Copyright 2009–2014 Contributors. All rights reserved. |
 | babel-plugin-polyfill-corejs2 | 0.4.17 | MIT | Copyright (c) 2014-present Nicolò Ribaudo and other contributors |
 | babel-plugin-polyfill-corejs3 | 0.13.0 | MIT | Copyright (c) 2014-present Nicolò Ribaudo and other contributors |
 | babel-plugin-polyfill-regenerator | 0.6.8 | MIT | Copyright (c) 2014-present Nicolò Ribaudo and other contributors |
 | babel-plugin-react-compiler | 1.0.0 | MIT | See https://github.com/facebook/react |
-| babel-plugin-react-native-web | 0.21.3 | MIT | Copyright (c) Nicolas Gallagher. |
-| babel-plugin-syntax-hermes-parser | 0.36.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
+| babel-plugin-react-native-web | 0.21.4 | MIT | Copyright (c) Nicolas Gallagher. |
 | babel-plugin-syntax-hermes-parser | 0.36.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
 | babel-plugin-transform-flow-enums | 0.0.2 | MIT | Copyright (c) Facebook, Inc. and its affiliates. |
-| babel-preset-expo | 57.0.13 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| babel-preset-expo | 58.0.24 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | badgin | 1.2.3 | MIT | Julian Hundeloh |
 | balanced-match | 4.0.4 | MIT | See https://github.com/juliangruber/balanced-match |
 | barcode-detector | 3.2.2 | MIT | Copyright (c) 2023 Ze-Zheng Wu |
@@ -267,9 +259,6 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | caniuse-lite | 1.0.30001810 | CC-BY-4.0 | copyright and certain other rights. Our licenses are; copyright--then that use is not regulated by the license. Our |
 | chalk | 2.4.2 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | chalk | 4.1.2 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
-| chrome-launcher | 0.15.2 | Apache-2.0 | copyright notice that is included in or attached to the work; copyright license to reproduce, prepare Derivative Works of, |
-| chromium-edge-launcher | 0.3.0 | Apache-2.0 | copyright notice that is included in or attached to the work; copyright license to reproduce, prepare Derivative Works of, |
-| ci-info | 2.0.0 | MIT | Copyright (c) 2016-2018 Thomas Watson Steen |
 | ci-info | 3.9.0 | MIT | Copyright (c) 2016 Thomas Watson Steen |
 | cli-cursor | 2.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | cli-spinners | 2.9.2 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
@@ -305,13 +294,11 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | debug | 3.2.7 | MIT | Copyright (c) 2014 TJ Holowaychuk <tj@vision-media.ca> |
 | debug | 4.4.3 | MIT | Copyright (c) 2014-2017 TJ Holowaychuk <tj@vision-media.ca>; Copyright (c) 2018-2021 Josh Junon |
 | decamelize | 1.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
-| decode-uri-component | 0.2.2 | MIT | Copyright (c) 2017, Sam Verschueren <sam.verschueren@gmail.com> (github.com/SamVerschueren) |
-| deepmerge | 4.3.1 | MIT | Copyright (c) 2012 James Halliday, Josh Duff, and other contributors |
 | defaults | 1.0.4 | MIT | Copyright (c) 2022 Sindre Sorhus; Copyright (c) 2015 Elijah Insua |
+| define-lazy-prop | 2.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | depd | 2.0.0 | MIT | Copyright (c) 2014-2018 Douglas Christopher Wilson |
 | destroy | 1.2.0 | MIT | Copyright (c) 2014 Jonathan Ong me@jongleberry.com; Copyright (c) 2015-2022 Douglas Christopher Wilson doug@somethingdoug.com |
 | detect-libc | 2.1.2 | Apache-2.0 | copyright notice that is included in or attached to the work; copyright license to reproduce, prepare Derivative Works of, |
-| detect-node-es | 1.1.0 | MIT | Copyright (c) 2017 Ilya Kantor |
 | dijkstrajs | 1.0.3 | MIT | Copyright (C) 2008 |
 | dnssd-advertise | 1.1.6 | MIT | Copyright (c) Phil Pluckthun,; Copyright (c) 650 Industries, Inc. (aka Expo), |
 | dom-serializer | 2.0.0 | MIT | Copyright (c) 2014 The cheeriojs contributors |
@@ -322,55 +309,55 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | electron-to-chromium | 1.5.434 | ISC | Copyright 2018 Kilian Valkhof |
 | emoji-regex | 8.0.0 | MIT | Mathias Bynens |
 | encodeurl | 1.0.2 | MIT | Copyright (c) 2016 Douglas Christopher Wilson |
-| encodeurl | 2.0.0 | MIT | Copyright (c) 2016 Douglas Christopher Wilson |
+| encodeurl | 2.0.1 | MIT | Copyright (c) 2016 Douglas Christopher Wilson |
 | entities | 4.5.0 | BSD-2-Clause | Copyright (c) Felix Böhm |
 | error-stack-parser | 2.1.4 | MIT | Copyright (c) 2017 Eric Wendelin and other contributors |
 | es-errors | 1.3.0 | MIT | Copyright (c) 2024 Jordan Harband |
 | escalade | 3.2.0 | MIT | Copyright (c) Luke Edwards <luke.edwards05@gmail.com> (lukeed.com) |
 | escape-html | 1.0.3 | MIT | Copyright (c) 2012-2013 TJ Holowaychuk; Copyright (c) 2015 Andreas Lubbe |
 | escape-string-regexp | 1.0.5 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
-| escape-string-regexp | 4.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | etag | 1.8.1 | MIT | Copyright (c) 2014-2016 Douglas Christopher Wilson |
 | event-target-shim | 5.0.1 | MIT | Copyright (c) 2015 Toru Nagashima |
-| expo | 57.0.25 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-application | 57.0.3 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-asset | 57.0.18 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-calendar | 57.0.5 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-camera | 57.0.5 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-constants | 57.0.19 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-dev-client | 57.0.19 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-dev-launcher | 57.0.20 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-dev-menu | 57.0.18 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-dev-menu-interface | 57.0.0 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-device | 57.0.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-file-system | 57.0.7 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-font | 57.0.4 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-glass-effect | 57.0.4 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-haptics | 57.0.3 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-image | 57.0.5 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-image-loader | 57.0.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-image-picker | 57.0.20 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-json-utils | 57.0.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-keep-awake | 57.0.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-linking | 57.0.11 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-location | 57.0.20 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-manifests | 57.0.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-modules-autolinking | 57.0.13 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-modules-core | 57.0.19 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-modules-jsi | 57.1.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-notifications | 57.0.21 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-router | 57.0.23 | MIT | 650 Industries, Inc. |
-| expo-sensors | 57.0.3 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-server | 57.0.3 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-splash-screen | 57.0.9 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-status-bar | 57.0.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-symbols | 57.0.3 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-system-ui | 57.0.4 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-task-manager | 57.0.20 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-updates-interface | 57.0.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-web-browser | 57.0.3 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo | 58.0.23 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-application | 58.1.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-asset | 58.0.20 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-calendar | 58.0.6 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-camera | 58.0.14 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-constants | 58.0.15 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-dev-client | 58.0.18 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-dev-launcher | 58.0.18 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-dev-menu | 58.0.12 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-dev-menu-interface | 58.0.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-device | 58.0.5 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-file-system | 58.0.13 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-font | 58.0.11 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-glass-effect | 58.0.5 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-haptics | 58.0.7 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-image | 58.0.18 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-image-loader | 58.0.3 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-image-picker | 58.0.10 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-json-utils | 58.0.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-keep-awake | 58.0.3 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-linking | 58.0.16 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-location | 58.0.20 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-manifests | 58.0.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-modules-autolinking | 58.0.17 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-modules-cli | 0.4.0 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-modules-core | 58.0.30 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-modules-jsi | 58.0.22 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-modules-macros | 0.29.0 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-notifications | 58.1.8 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-router | 58.0.30 | MIT | 650 Industries, Inc. |
+| expo-sensors | 58.0.4 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-server | 58.0.6 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-splash-screen | 58.0.13 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-status-bar | 58.0.4 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-symbols | 58.0.4 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-system-ui | 58.0.7 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-task-manager | 58.0.13 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-updates-interface | 58.0.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-web-browser | 58.0.7 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | exponential-backoff | 3.1.3 | Apache-2.0 | copyright notice that is included in or attached to the work; copyright license to reproduce, prepare Derivative Works of, |
-| fast-deep-equal | 3.1.3 | MIT | Copyright (c) 2017 Evgeny Poberezkin |
 | fb-dotslash | 0.5.8 | (MIT OR Apache-2.0) | See https://github.com/facebook/dotslash |
 | fb-watchman | 2.0.2 | Apache-2.0 | Wez Furlong <wez@fb.com> (http://wezfurlong.org) |
 | fbjs | 3.0.5 | MIT | Copyright (c) 2013-present, Facebook, Inc. |
@@ -378,30 +365,28 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | fdir | 6.5.0 | MIT | Copyright 2023 Abdullah Atta |
 | fetch-nodeshim | 0.4.10 | MIT | Copyright (c) Phil Pluckthun,; Copyright (c) 650 Industries, Inc. (aka Expo), |
 | fill-range | 7.1.1 | MIT | Copyright (c) 2014-present, Jon Schlinkert. |
-| filter-obj | 1.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | finalhandler | 1.1.2 | MIT | Copyright (c) 2014-2017 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | find-up | 4.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | flow-enums-runtime | 0.0.6 | MIT | Copyright (c) Facebook, Inc. and its affiliates. |
-| fontfaceobserver | 2.3.0 | BSD-2-Clause | Copyright (c) 2014 - Bram Stein |
+| flow-estree | 0.327.0 | MIT | Flow Team |
+| flow-estree | 0.331.0 | MIT | Flow Team |
+| flow-estree | 0.336.0 | MIT | Flow Team |
+| flow-parser | 0.327.0 | MIT | Flow Team |
+| flow-parser | 0.331.0 | MIT | Flow Team |
+| flow-parser | 0.336.0 | MIT | Flow Team |
 | fresh | 0.5.2 | MIT | Copyright (c) 2012 TJ Holowaychuk <tj@vision-media.ca>; Copyright (c) 2016-2017 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | function-bind | 1.1.2 | MIT | Copyright (c) 2013 Raynos. |
 | gensync | 1.0.0-beta.2 | MIT | Copyright 2018 Logan Smyth <loganfsmyth@gmail.com> |
 | get-caller-file | 2.0.5 | ISC | Copyright 2018 Stefan Penner |
-| get-nonce | 1.0.1 | MIT | Copyright (c) 2020 Anton Korzunov |
 | getenv | 2.0.0 | MIT | Copyright (c) 2012-2019 Christoph Tavan <dev@tavan.de> |
 | glob | 13.0.6 | BlueOak-1.0.0 | copyright in it. |
 | graceful-fs | 4.2.11 | ISC | Copyright (c) 2011-2022 Isaac Z. Schlueter, Ben Noordhuis, and Contributors; copyright notice and this permission notice appear in all copies. |
 | has-flag | 3.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | has-flag | 4.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | hasown | 2.0.4 | MIT | Copyright (c) Jordan Harband and contributors |
-| hermes-compiler | 250829098.0.17 | MIT | See ssh://git@github.com/facebook/hermes |
-| hermes-estree | 0.35.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
-| hermes-estree | 0.36.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
+| hermes-compiler | 260318099.0.5 | MIT | See ssh://git@github.com/facebook/hermes |
 | hermes-estree | 0.36.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
-| hermes-parser | 0.35.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
-| hermes-parser | 0.36.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
 | hermes-parser | 0.36.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
-| hoist-non-react-statics | 3.3.2 | BSD-3-Clause | Copyright (c) 2015, Yahoo! Inc. All rights reserved. |
 | hosted-git-info | 7.0.2 | ISC | Copyright (c) 2015, Rebecca Turner; copyright notice and this permission notice appear in all copies. |
 | http-errors | 2.0.1 | MIT | Copyright (c) 2014 Jonathan Ong me@jongleberry.com; Copyright (c) 2016 Douglas Christopher Wilson doug@somethingdoug.com |
 | https-proxy-agent | 7.0.6 | MIT | Copyright (c) 2013 Nathan Rajlich <nathan@tootallnate.net> |
@@ -433,7 +418,6 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | kleur | 3.0.3 | MIT | Copyright (c) Luke Edwards <luke.edwards05@gmail.com> (lukeed.com) |
 | lan-network | 0.2.1 | MIT | Copyright (c) Phil Pluckthun, |
 | leven | 3.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
-| lighthouse-logger | 1.4.2 | Apache-2.0 | copyright notice that is included in or attached to the work; copyright license to reproduce, prepare Derivative Works of, |
 | lightningcss | 1.33.0 | MPL-2.0 | (c) under Patent Claims infringed by Covered Software in the absence of |
 | lightningcss-linux-x64-gnu | 1.33.0 | MPL-2.0 | (c) under Patent Claims infringed by Covered Software in the absence of |
 | lightningcss-linux-x64-musl | 1.33.0 | MPL-2.0 | (c) under Patent Claims infringed by Covered Software in the absence of |
@@ -447,40 +431,39 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | lru-cache | 5.1.1 | ISC | Copyright (c) Isaac Z. Schlueter and Contributors; copyright notice and this permission notice appear in all copies. |
 | lucide-react-native | 1.47.0 | ISC | Copyright (c) 2026 Lucide Icons and Contributors; copyright notice and this permission notice appear in all copies. |
 | makeerror | 1.0.12 | BSD-3-Clause | Copyright (c) 2014, Naitik Shah. All rights reserved. |
-| marky | 1.3.0 | Apache-2.0 | copyright owner that is granting the License.; Copyright 2016 Nolan Lawson |
 | mdn-data | 2.0.14 | CC0-1.0 | Copyright and Related Rights in the Work and the meaning and intended legal; Copyright and Related Rights in the Work or (ii) assert any associated claims |
 | memoize-one | 5.2.1 | MIT | Copyright (c) 2019 Alexander Reardon |
 | memoize-one | 6.0.0 | MIT | Copyright (c) 2019 Alexander Reardon |
 | merge-options | 3.0.4 | MIT | Copyright (c) Michael Mayer <michael@schnittstabil.de> |
 | merge-stream | 2.0.0 | MIT | Copyright (c) Stephen Sugden <me@stephensugden.com> (stephensugden.com) |
-| metro | 0.84.5 | MIT | See https://github.com/react/metro |
-| metro | 0.84.6 | MIT | See https://github.com/react/metro |
-| metro-babel-transformer | 0.84.5 | MIT | See https://github.com/react/metro |
-| metro-babel-transformer | 0.84.6 | MIT | See https://github.com/react/metro |
-| metro-cache | 0.84.5 | MIT | See https://github.com/react/metro |
-| metro-cache | 0.84.6 | MIT | See https://github.com/react/metro |
-| metro-cache-key | 0.84.5 | MIT | See https://github.com/react/metro |
-| metro-cache-key | 0.84.6 | MIT | See https://github.com/react/metro |
-| metro-config | 0.84.5 | MIT | See https://github.com/react/metro |
-| metro-config | 0.84.6 | MIT | See https://github.com/react/metro |
-| metro-core | 0.84.5 | MIT | See https://github.com/react/metro |
-| metro-core | 0.84.6 | MIT | See https://github.com/react/metro |
-| metro-file-map | 0.84.5 | MIT | See https://github.com/react/metro |
-| metro-file-map | 0.84.6 | MIT | See https://github.com/react/metro |
-| metro-minify-terser | 0.84.5 | MIT | See https://github.com/react/metro |
-| metro-minify-terser | 0.84.6 | MIT | See https://github.com/react/metro |
-| metro-resolver | 0.84.5 | MIT | See https://github.com/react/metro |
-| metro-resolver | 0.84.6 | MIT | See https://github.com/react/metro |
-| metro-runtime | 0.84.5 | MIT | See https://github.com/react/metro |
-| metro-runtime | 0.84.6 | MIT | See https://github.com/react/metro |
-| metro-source-map | 0.84.5 | MIT | See https://github.com/react/metro |
-| metro-source-map | 0.84.6 | MIT | See https://github.com/react/metro |
-| metro-symbolicate | 0.84.5 | MIT | See https://github.com/react/metro |
-| metro-symbolicate | 0.84.6 | MIT | See https://github.com/react/metro |
-| metro-transform-plugins | 0.84.5 | MIT | See https://github.com/react/metro |
-| metro-transform-plugins | 0.84.6 | MIT | See https://github.com/react/metro |
-| metro-transform-worker | 0.84.5 | MIT | See https://github.com/react/metro |
-| metro-transform-worker | 0.84.6 | MIT | See https://github.com/react/metro |
+| metro | 0.87.1 | MIT | See https://github.com/react/metro |
+| metro | 0.87.2 | MIT | See https://github.com/react/metro |
+| metro-babel-transformer | 0.87.1 | MIT | See https://github.com/react/metro |
+| metro-babel-transformer | 0.87.2 | MIT | See https://github.com/react/metro |
+| metro-cache | 0.87.1 | MIT | See https://github.com/react/metro |
+| metro-cache | 0.87.2 | MIT | See https://github.com/react/metro |
+| metro-cache-key | 0.87.1 | MIT | See https://github.com/react/metro |
+| metro-cache-key | 0.87.2 | MIT | See https://github.com/react/metro |
+| metro-config | 0.87.1 | MIT | See https://github.com/react/metro |
+| metro-config | 0.87.2 | MIT | See https://github.com/react/metro |
+| metro-core | 0.87.1 | MIT | See https://github.com/react/metro |
+| metro-core | 0.87.2 | MIT | See https://github.com/react/metro |
+| metro-file-map | 0.87.1 | MIT | See https://github.com/react/metro |
+| metro-file-map | 0.87.2 | MIT | See https://github.com/react/metro |
+| metro-minify-terser | 0.87.1 | MIT | See https://github.com/react/metro |
+| metro-minify-terser | 0.87.2 | MIT | See https://github.com/react/metro |
+| metro-resolver | 0.87.1 | MIT | See https://github.com/react/metro |
+| metro-resolver | 0.87.2 | MIT | See https://github.com/react/metro |
+| metro-runtime | 0.87.1 | MIT | See https://github.com/react/metro |
+| metro-runtime | 0.87.2 | MIT | See https://github.com/react/metro |
+| metro-source-map | 0.87.1 | MIT | See https://github.com/react/metro |
+| metro-source-map | 0.87.2 | MIT | See https://github.com/react/metro |
+| metro-symbolicate | 0.87.1 | MIT | See https://github.com/react/metro |
+| metro-symbolicate | 0.87.2 | MIT | See https://github.com/react/metro |
+| metro-transform-plugins | 0.87.1 | MIT | See https://github.com/react/metro |
+| metro-transform-plugins | 0.87.2 | MIT | See https://github.com/react/metro |
+| metro-transform-worker | 0.87.1 | MIT | See https://github.com/react/metro |
+| metro-transform-worker | 0.87.2 | MIT | See https://github.com/react/metro |
 | micromatch | 4.0.8 | MIT | Copyright (c) 2014-present, Jon Schlinkert. |
 | mime | 1.6.0 | MIT | Copyright (c) 2010 Benjamin Thomas, Robert Kieffer |
 | mime-db | 1.52.0 | MIT | Copyright (c) 2014 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2015-2022 Douglas Christopher Wilson <doug@somethingdoug.com> |
@@ -490,29 +473,29 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | mimic-fn | 1.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | minimatch | 10.2.6 | BlueOak-1.0.0 | copyright in it. |
 | minipass | 7.1.3 | BlueOak-1.0.0 | copyright in it. |
-| mkdirp | 1.0.4 | MIT | Copyright James Halliday (mail@substack.net) and Isaac Z. Schlueter (i@izs.me) |
 | ms | 2.0.0 | MIT | Copyright (c) 2016 Zeit, Inc. |
 | ms | 2.1.3 | MIT | Copyright (c) 2020 Vercel, Inc. |
 | multitars | 1.0.2 | MIT | Copyright (c) Phil Pluckthun,; Copyright (c) 650 Industries, Inc. (aka Expo), |
-| nanoid | 3.3.19 | MIT | Copyright 2017 Andrey Sitnik <andrey@sitnik.ru>; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
+| nanoid | 3.3.20 | MIT | Copyright 2017 Andrey Sitnik <andrey@sitnik.ru>; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
 | negotiator | 0.6.3 | MIT | Copyright (c) 2012-2014 Federico Romero; Copyright (c) 2012-2014 Isaac Z. Schlueter |
 | negotiator | 0.6.4 | MIT | Copyright (c) 2012-2014 Federico Romero; Copyright (c) 2012-2014 Isaac Z. Schlueter |
 | negotiator | 1.1.0 | MIT | Copyright (c) 2012-2014 Federico Romero; Copyright (c) 2012-2014 Isaac Z. Schlueter |
 | node-fetch | 2.7.0 | MIT | Copyright (c) 2016 David Frank |
-| node-forge | 1.4.0 | (BSD-3-Clause OR GPL-2.0) | Copyright (c) 2010, Digital Bazaar, Inc.; Copyright (C) 1989, 1991 Free Software Foundation, Inc. |
+| node-forge | 1.4.3 | (BSD-3-Clause OR GPL-2.0) | Copyright (c) 2010, Digital Bazaar, Inc.; Copyright (C) 1989, 1991 Free Software Foundation, Inc. |
 | node-int64 | 0.4.0 | MIT | Copyright (c) 2014 Robert Kieffer |
 | node-releases | 2.0.56 | MIT | Copyright (c) 2017 Sergey Rubanov (https://github.com/chicoxyzzy) |
+| noxcturnal | 0.1.11 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright (c) 2026-present VoidZero Inc. & Contributors |
 | npm-package-arg | 11.0.3 | ISC | Copyright (c) npm, Inc.; copyright notice and this permission notice appear in all copies. |
 | nth-check | 2.1.1 | BSD-2-Clause | Copyright (c) Felix Böhm |
 | nullthrows | 1.1.1 | MIT | Copyright (c) 2016 Andres Suarez |
-| ob1 | 0.84.5 | MIT | See https://github.com/react/metro |
-| ob1 | 0.84.6 | MIT | See https://github.com/react/metro |
+| ob1 | 0.87.1 | MIT | See https://github.com/react/metro |
+| ob1 | 0.87.2 | MIT | See https://github.com/react/metro |
 | object-assign | 4.1.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | on-finished | 2.3.0 | MIT | Copyright (c) 2013 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2014 Douglas Christopher Wilson <doug@somethingdoug.com> |
-| on-finished | 2.4.1 | MIT | Copyright (c) 2013 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2014 Douglas Christopher Wilson <doug@somethingdoug.com> |
+| on-finished | 2.4.2 | MIT | Copyright (c) 2013 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2014 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | on-headers | 1.1.0 | MIT | Copyright (c) 2014 Douglas Christopher Wilson |
 | onetime | 2.0.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
-| open | 7.4.2 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
+| open | 8.4.2 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | ora | 3.4.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | p-limit | 2.3.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | p-locate | 4.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
@@ -529,7 +512,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | plist | 3.1.1 | MIT | Copyright (c) 2010-2017 Nathan Rajlich <nathan@tootallnate.net> |
 | pngjs | 3.4.0 | MIT | See https://github.com/lukeapage/pngjs2 |
 | pngjs | 5.0.0 | MIT | See https://github.com/lukeapage/pngjs |
-| postcss | 8.5.28 | MIT | Copyright 2013 Andrey Sitnik <andrey@sitnik.es>; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
+| postcss | 8.5.32 | MIT | Copyright 2013 Andrey Sitnik <andrey@sitnik.es>; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
 | postcss-value-parser | 4.2.0 | MIT | Copyright (c) Bogdan Chadkin <trysound@yandex.ru> |
 | pretty-format | 29.7.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
 | proc-log | 4.2.0 | ISC | Copyright (c) GitHub, Inc.; copyright notice and this permission notice appear in all copies. |
@@ -540,33 +523,29 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | prop-types | 15.8.1 | MIT | Copyright (c) 2013-present, Facebook, Inc. |
 | punycode | 2.3.1 | MIT | Mathias Bynens |
 | qrcode | 1.5.4 | MIT | Copyright (c) 2012 Ryan Day |
-| query-string | 7.1.3 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (http://sindresorhus.com) |
 | range-parser | 1.2.1 | MIT | Copyright (c) 2012-2014 TJ Holowaychuk <tj@vision-media.ca>; Copyright (c) 2015-2016 Douglas Christopher Wilson <doug@somethingdoug.com |
-| react | 19.2.3 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
+| react | 19.3.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
 | react-devtools-core | 6.1.5 | MIT | See https://github.com/facebook/react |
-| react-dom | 19.2.3 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
+| react-dom | 19.3.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
 | react-fast-compare | 3.2.2 | MIT | Copyright (c) 2018 Formidable Labs; Copyright (c) 2017 Evgeny Poberezkin |
 | react-freeze | 1.0.4 | MIT | Copyright (c) 2021 Software Mansion |
 | react-is | 16.13.1 | MIT | Copyright (c) Facebook, Inc. and its affiliates. |
 | react-is | 18.3.1 | MIT | Copyright (c) Facebook, Inc. and its affiliates. |
 | react-is | 19.3.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
-| react-native | 0.86.3 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
-| react-native-drawer-layout | 4.2.10 | MIT | Copyright (c) 2017 React Native Community |
-| react-native-gesture-handler | 2.32.0 | MIT | Copyright (c) 2016 Software Mansion <swmansion.com> |
+| react-native | 0.88.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
+| react-native-drawer-layout | 4.2.12 | MIT | Copyright (c) 2017 React Native Community |
+| react-native-gesture-handler | 3.3.0 | MIT | Copyright (c) 2016 Software Mansion <swmansion.com> |
 | react-native-is-edge-to-edge | 1.3.1 | MIT | Copyright (c) 2024 Mathieu Acthernoene |
-| react-native-maps | 1.27.2 | MIT | Copyright (c) 2015 Airbnb |
+| react-native-maps | 1.29.11 | MIT | Copyright (c) 2015 Airbnb |
 | react-native-qrcode-svg | 6.3.26 | MIT | Copyright (c) 2016 JerryShen |
-| react-native-reanimated | 4.5.1 | MIT | Copyright (c) 2016 Software Mansion <swmansion.com> |
-| react-native-safe-area-context | 5.7.0 | MIT | Copyright (c) 2019 Th3rd Wave |
-| react-native-screens | 4.26.2 | MIT | Copyright (c) 2018 Software Mansion <swmansion.com> |
-| react-native-svg | 15.15.4 | MIT | Copyright (c) [2015-2016] [Horcrux] |
+| react-native-reanimated | 4.7.1 | MIT | Copyright (c) 2016 Software Mansion <swmansion.com> |
+| react-native-safe-area-context | 5.11.1 | MIT | Copyright (c) 2019 Th3rd Wave |
+| react-native-screens | 4.30.1 | MIT | Copyright (c) 2018 Software Mansion <swmansion.com> |
+| react-native-svg | 15.16.0 | MIT | Copyright (c) [2015-2016] [Horcrux] |
 | react-native-url-polyfill | 2.0.0 | MIT | Copyright (c) 2019 Nicolas Charpentier |
-| react-native-web | 0.21.2 | MIT | Copyright (c) Nicolas Gallagher.; Copyright (c) Meta Platforms, Inc. and affiliates. |
-| react-native-worklets | 0.10.1 | MIT | Copyright (c) 2024 nobody |
+| react-native-web | 0.21.4 | MIT | Copyright (c) Nicolas Gallagher.; Copyright (c) Meta Platforms, Inc. and affiliates. |
+| react-native-worklets | 0.13.0 | MIT | Copyright (c) 2024 nobody |
 | react-refresh | 0.14.2 | MIT | Copyright (c) Facebook, Inc. and its affiliates. |
-| react-remove-scroll | 2.7.2 | MIT | Copyright (c) 2017 Anton Korzunov |
-| react-remove-scroll-bar | 2.3.8 | MIT | Anton Korzunov <thekashey@gmail.com> |
-| react-style-singleton | 2.2.3 | MIT | Copyright (c) 2017 Anton Korzunov |
 | regenerate | 1.4.2 | MIT | Mathias Bynens |
 | regenerate-unicode-properties | 10.2.2 | MIT | Mathias Bynens |
 | regenerator-runtime | 0.13.11 | MIT | Copyright (c) 2014-present, Facebook, Inc. |
@@ -582,9 +561,10 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | safe-buffer | 5.2.1 | MIT | Copyright (c) Feross Aboukhadijeh |
 | sandbox-cli-detector | 0.2.0 | MIT | Copyright (c) 2026 David Mokos |
 | sax | 1.6.1 | BlueOak-1.0.0 | copyright in it. |
-| scheduler | 0.27.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
+| scheduler | 0.28.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
 | semver | 6.3.1 | ISC | Copyright (c) Isaac Z. Schlueter and Contributors; copyright notice and this permission notice appear in all copies. |
 | semver | 7.8.5 | ISC | Copyright (c) Isaac Z. Schlueter and Contributors; copyright notice and this permission notice appear in all copies. |
+| semver | 7.8.6 | ISC | Copyright (c) Isaac Z. Schlueter and Contributors; copyright notice and this permission notice appear in all copies. |
 | send | 0.19.2 | MIT | Copyright (c) 2012 TJ Holowaychuk; Copyright (c) 2014-2022 Douglas Christopher Wilson |
 | serialize-error | 2.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | serve-static | 1.16.3 | MIT | Copyright (c) 2010 Sencha Inc.; Copyright (c) 2011 LearnBoost |
@@ -593,10 +573,9 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | setimmediate | 1.0.5 | MIT | Copyright (c) 2012 Barnesandnoble.com, llc, Donavon West, and Domenic Denicola |
 | setprototypeof | 1.2.0 | ISC | Copyright (c) 2015, Wes Todd; copyright notice and this permission notice appear in all copies. |
 | sf-symbols-typescript | 2.2.0 | MIT | Copyright (c) 2023 Fernando Rojo |
-| shallowequal | 1.1.0 | MIT | Copyright (c) 2017 Alberto Leal <mailforalberto@gmail.com> (github.com/dashed) |
 | shebang-command | 2.0.0 | MIT | Copyright (c) Kevin Mårtensson <kevinmartensson@gmail.com> (github.com/kevva) |
 | shebang-regex | 3.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
-| shell-quote | 1.10.0 | MIT | Copyright (c) 2013 James Halliday (mail@substack.net) |
+| shell-quote | 1.12.0 | MIT | Copyright (c) 2013 James Halliday (mail@substack.net) |
 | signal-exit | 3.0.7 | ISC | Copyright (c) 2015, Contributors |
 | simple-plist | 1.3.1 | MIT | Copyright (c) 2013 Joe Wollard; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
 | simple-swizzle | 0.2.4 | MIT | Copyright (c) 2015 Josh Junon |
@@ -604,17 +583,14 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | slugify | 1.6.9 | MIT | Copyright (c) Simeon Velichkov <simeonvelichkov@gmail.com> |
 | source-map | 0.5.7 | BSD-3-Clause | Copyright (c) 2009-2011, Mozilla Foundation and contributors |
 | source-map | 0.6.1 | BSD-3-Clause | Copyright (c) 2009-2011, Mozilla Foundation and contributors |
-| source-map-js | 1.2.1 | BSD-3-Clause | Copyright (c) 2009-2011, Mozilla Foundation and contributors |
+| source-map-js | 1.2.2 | BSD-3-Clause | Copyright (c) 2009-2011, Mozilla Foundation and contributors |
 | source-map-support | 0.5.21 | MIT | Copyright (c) 2014 Evan Wallace |
-| split-on-first | 1.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | stackframe | 1.3.4 | MIT | Copyright (c) 2017 Eric Wendelin and other contributors |
 | stacktrace-parser | 0.1.11 | MIT | Copyright (c) 2014-2019 Georg Tavonius |
 | standard-navigation | 0.0.5 | MIT | Satyajit Sahoo <satyajit.happy@gmail.com> |
-| standard-navigation | 0.0.8 | MIT | Satyajit Sahoo <satyajit.happy@gmail.com> |
 | statuses | 1.5.0 | MIT | Copyright (c) 2014 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2016 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | statuses | 2.0.2 | MIT | Copyright (c) 2014 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2016 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | stream-buffers | 2.2.0 | Unlicense | Sam Day <me@samcday.com.au> |
-| strict-uri-encode | 2.0.0 | MIT | Copyright (c) Kevin Martensson <kevinmartensson@gmail.com> (github.com/kevva) |
 | string-width | 4.2.3 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | strip-ansi | 5.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | strip-ansi | 6.0.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
@@ -648,18 +624,14 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | unicode-match-property-ecmascript | 2.0.0 | MIT | Mathias Bynens |
 | unicode-match-property-value-ecmascript | 2.2.1 | MIT | Mathias Bynens |
 | unicode-property-aliases-ecmascript | 2.2.0 | MIT | Mathias Bynens |
-| unimodules-app-loader | 57.0.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| unimodules-app-loader | 58.0.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | unpipe | 1.0.0 | MIT | Copyright (c) 2015 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | update-browserslist-db | 1.3.3 | MIT | Copyright 2022 Andrey Sitnik <andrey@sitnik.es> and other contributors; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
-| use-callback-ref | 1.3.3 | MIT | Copyright (c) 2017 Anton Korzunov |
 | use-latest-callback | 0.2.6 | MIT | Copyright (c) 2023 Satyajit Sahoo |
-| use-sidecar | 1.1.3 | MIT | Copyright (c) 2017 Anton Korzunov |
 | use-sync-external-store | 1.7.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
 | utils-merge | 1.0.1 | MIT | Copyright (c) 2013-2017 Jared Hanson; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
-| uuid | 7.0.3 | MIT | Copyright (c) 2010-2016 Robert Kieffer and other contributors |
 | validate-npm-package-name | 5.0.1 | ISC | Copyright (c) 2015, npm, Inc |
 | vary | 1.1.2 | MIT | Copyright (c) 2014-2017 Douglas Christopher Wilson |
-| vaul | 1.1.2 | MIT | Copyright (c) 2023 Emil Kowalski |
 | vlq | 1.0.1 | MIT | Copyright (c) 2017 [these people](https://github.com/Rich-Harris/vlq/graphs/contributors) |
 | walker | 1.0.8 | Apache-2.0 | Copyright 2013 Naitik Shah |
 | warn-once | 0.1.1 | MIT | Copyright (c) 2022 Satyajit Sahoo |
@@ -668,27 +640,25 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | webidl-conversions | 5.0.0 | BSD-2-Clause | Copyright (c) 2014, Domenic Denicola |
 | whatwg-fetch | 3.6.20 | MIT | Copyright (c) 2014-2023 GitHub, Inc. |
 | whatwg-url | 5.0.0 | MIT | Copyright (c) 2015–2016 Sebastian Mayr |
-| whatwg-url-minimum | 0.1.2 | MIT | Copyright (c) Phil Pluckthun,; Copyright (c) 650 Industries, Inc. (aka Expo), |
+| whatwg-url-minimum | 0.2.0 | MIT | Copyright (c) Phil Pluckthun,; Copyright (c) 650 Industries, Inc. (aka Expo), |
 | whatwg-url-without-unicode | 8.0.0-3 | MIT | Copyright (c) 2015–2016 Sebastian Mayr |
 | which | 2.0.2 | ISC | Copyright (c) Isaac Z. Schlueter and Contributors; copyright notice and this permission notice appear in all copies. |
 | which-module | 2.0.1 | ISC | Copyright (c) 2016, Contributors |
 | wrap-ansi | 6.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | wrap-ansi | 7.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | ws | 7.5.13 | MIT | Copyright (c) 2011 Einar Otto Stangvik <einaros@gmail.com> |
-| ws | 8.22.0 | MIT | Copyright (c) 2011 Einar Otto Stangvik <einaros@gmail.com>; Copyright (c) 2013 Arnout Kazemier and contributors |
-| xcode | 3.0.1 | Apache-2.0 | copyright notice that is included in or attached to the work; copyright license to reproduce, prepare Derivative Works of, |
+| ws | 8.22.1 | MIT | Copyright (c) 2011 Einar Otto Stangvik <einaros@gmail.com>; Copyright (c) 2013 Arnout Kazemier and contributors |
+| xcode | 4.0.0 | Apache-2.0 | copyright notice that is included in or attached to the work; copyright license to reproduce, prepare Derivative Works of, |
 | xml2js | 0.6.0 | MIT | Copyright 2010, 2011, 2012, 2013. All rights reserved. |
 | xmlbuilder | 11.0.1 | MIT | Copyright (c) 2013 Ozgur Ozcitak |
 | xmlbuilder | 15.1.1 | MIT | Copyright (c) 2013 Ozgur Ozcitak |
 | y18n | 4.0.3 | ISC | Copyright (c) 2015, Contributors |
 | y18n | 5.0.8 | ISC | Copyright (c) 2015, Contributors |
 | yallist | 3.1.1 | ISC | Copyright (c) Isaac Z. Schlueter and Contributors; copyright notice and this permission notice appear in all copies. |
-| yaml | 2.9.1 | ISC | Copyright Eemeli Aro <eemeli@gmail.com> |
 | yargs | 15.4.1 | MIT | Copyright 2010 James Halliday (mail@substack.net); Modified work Copyright 2014 Contributors (ben@npmjs.com) |
 | yargs | 17.7.3 | MIT | Copyright 2010 James Halliday (mail@substack.net); Modified work Copyright 2014 Contributors (ben@npmjs.com) |
 | yargs-parser | 18.1.3 | ISC | Copyright (c) 2016, Contributors |
 | yargs-parser | 21.1.1 | ISC | Copyright (c) 2016, Contributors |
-| zod | 3.25.76 | MIT | Copyright (c) 2025 Colin McDonnell |
 | zustand | 5.0.15 | MIT | Copyright (c) 2019 Paul Henschel |
 | zxing-wasm | 3.1.3 | MIT | Copyright (c) 2023 Ze-Zheng Wu |
 
@@ -930,40 +900,6 @@ Apache License
    limitations under the License.
 ```
 
-### BSD-3-Clause
-
-```text
-Software License Agreement (BSD License)
-========================================
-
-Copyright (c) 2015, Yahoo! Inc. All rights reserved.
-----------------------------------------------------
-
-Redistribution and use of this software in source and binary forms, with or
-without modification, are permitted provided that the following conditions are
-met:
-
-  * Redistributions of source code must retain the above copyright notice, this
-    list of conditions and the following disclaimer.
-  * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
-  * Neither the name of Yahoo! Inc. nor the names of YUI's contributors may be
-    used to endorse or promote products derived from this software without
-    specific prior written permission of Yahoo! Inc.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-```
-
 ### ISC
 
 ```text
@@ -982,6 +918,40 @@ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
 WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
 IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+```
+
+### BSD-3-Clause
+
+```text
+BSD 3-Clause License
+
+Copyright (c) 2015, Espen Hovlandsdal
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of the copyright holder nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
 
 ### Python-2.0

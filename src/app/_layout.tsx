@@ -15,7 +15,7 @@ import { useResolvedScheme } from '@/hooks/useTheme';
 import { useSettingsStore } from '@/state/settingsStore';
 
 /** Open on Home: "/" also matches the other tabs' first screens. */
-export const unstable_settings = { initialRouteName: '(home)' };
+export const unstable_settings = { anchor: '(home)' };
 
 export default function RootLayout() {
   const navTheme = useNavigationTheme();

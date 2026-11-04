@@ -1,8 +1,9 @@
 import * as Notifications from 'expo-notifications';
+import { AndroidImportance } from 'expo-notifications';
 import { Platform } from 'react-native';
 
 /**
- * SDK 57 notification behavior: show a banner + list entry with sound while
+ * Show a banner + list entry with sound while
  * the app is in the foreground.
  */
 export function configureNotifications(): void {
@@ -27,7 +28,7 @@ export async function ensureNotificationPermission(): Promise<boolean> {
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('default', {
         name: 'Pop-up alerts',
-        importance: Notifications.AndroidImportance.DEFAULT,
+        importance: AndroidImportance.DEFAULT,
         vibrationPattern: [0, 200],
         lightColor: '#388075',
       });
