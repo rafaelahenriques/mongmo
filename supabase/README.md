@@ -59,6 +59,8 @@ left, per "no hardcoded/mock data."
 | `0014_more_badges.sql` | Five more badges — city-hopper, event-hopper, shutterbug, taste-tester, challenge-champion — and the extended `evaluate_badges()` that awards them (distinct check-in cities/events, photo/taste challenge completions, 10 challenges total). |
 | `0015_live_orders_motion_badges.sql` | **Security fix:** `award_badge`/`evaluate_badges` are no longer callable through the API (anyone signed in could award themselves badges). Pop-up orders only while the pop-up runs; the `motion` (dance meter) challenge type; a starter photo challenge on every new pop-up; four more badges — night-owl, dance-machine, crowd-voice, early-bird — with `badge_progress()` as the single definition of every badge's rule (`evaluate_badges` awards from it, `my_badge_progress()` shows progress in the app). |
 | `0016_delete_account.sql` | `delete_my_account()`: Settings → Delete account. Removes the signed-in user, their orders and everything that hangs off their profile; pop-ups an owner created stay, without a creator. |
+| `0017_item_options.sql` | Item options: `menu_items.add_on_for` marks a dip or extra protein as an option for a section; order lines carry their options (`order_items.options_snapshot`) and `create_order` prices them. |
+| `0018_points_rules.sql` | Points that pay for themselves: orders earn 10 points per euro once collected; challenges earn at most 50 points a day per pop-up; smaller badge bonuses; rewards cost whole stamps (1 stamp = 100 points). |
 
 ### Points ledger, not a running total
 

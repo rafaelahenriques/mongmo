@@ -221,7 +221,7 @@ export async function getPointsBalance(): Promise<number> {
 export type PointsHistoryEntry = {
   id: string;
   points: number;
-  source: 'challenge_completion' | 'badge' | 'reward_redeemed';
+  source: 'challenge_completion' | 'badge' | 'reward_redeemed' | 'order';
   /** The challenge, badge or reward. */
   title: string;
   /** The pop-up a challenge belonged to. */
@@ -249,18 +249,28 @@ export async function getPointsHistory(limit = 50): Promise<PointsHistoryEntry[]
   const idsFor = (source: string) =>
     rows.filter((row) => row.source === source && row.source_id).map((row) => row.source_id as string);
 
-  const [completions, badges, rewards] = await Promise.all([
+  const [completions, badges, rewards, orders] = await Promise.all([
     supabase.from('challenge_completions').select('id, challenges(title, type, events(title))').in('id', idsFor('challenge_completion')),
     supabase.from('user_badges').select('id, badges(title)').in('id', idsFor('badge')),
     supabase.from('user_rewards').select('id, rewards(title)').in('id', idsFor('reward_redeemed')),
+    supabase.from('orders').select('id, events(title), stores(name)').in('id', idsFor('order')),
   ]);
-  for (const result of [completions, badges, rewards]) if (result.error) throw toApiError(result.error);
+  for (const result of [completions, badges, rewards, orders]) if (result.error) throw toApiError(result.error);
 
   const completionById = new Map(
     ((completions.data ?? []) as unknown as CompletionTitleRow[]).map((row) => [row.id, row.challenges]),
   );
   const badgeById = new Map(
     ((badges.data ?? []) as unknown as { id: string; badges: { title: string } | null }[]).map((row) => [row.id, row.badges]),
+  );
+  const orderPlaceById = new Map(
+    (
+      (orders.data ?? []) as unknown as {
+        id: string;
+        events: { title: string } | null;
+        stores: { name: string } | null;
+      }[]
+    ).map((row) => [row.id, row.events?.title ?? row.stores?.name ?? null]),
   );
   const rewardById = new Map(
     ((rewards.data ?? []) as unknown as { id: string; rewards: { title: string } | null }[]).map((row) => [row.id, row.rewards]),
@@ -273,7 +283,9 @@ export async function getPointsHistory(limit = 50): Promise<PointsHistoryEntry[]
         ? (challenge?.title ?? 'Challenge')
         : row.source === 'badge'
           ? `Badge: ${badgeById.get(row.source_id ?? '')?.title ?? 'unlocked'}`
-          : `Reward redeemed`;
+          : row.source === 'order'
+            ? 'Order picked up'
+            : `Reward redeemed`;
     return {
       id: row.id,
       points: row.points,
@@ -284,7 +296,9 @@ export async function getPointsHistory(limit = 50): Promise<PointsHistoryEntry[]
           ? (challenge?.events?.title ?? null)
           : row.source === 'reward_redeemed'
             ? (rewardById.get(row.source_id ?? '')?.title ?? null)
-            : null,
+            : row.source === 'order'
+              ? (orderPlaceById.get(row.source_id ?? '') ?? null)
+              : null,
       challengeType: challenge?.type ?? null,
       createdAt: row.created_at,
     };

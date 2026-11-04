@@ -17,6 +17,7 @@ import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 
 function iconFor(entry: PointsHistoryEntry): IconName {
   if (entry.source === 'reward_redeemed') return 'gift';
+  if (entry.source === 'order') return 'bag';
   if (entry.source === 'badge') return 'award';
   return CHALLENGE_TYPES[entry.challengeType as ChallengeType]?.icon ?? 'star';
 }
@@ -45,7 +46,7 @@ export default function PointsHistoryScreen() {
         </ThemedText>
       ) : history.data.length === 0 ? (
         <ThemedText type="caption" themeColor="textSecondary">
-          Nothing yet. Check in at a pop-up and do its challenges to earn points.
+          Nothing yet. Orders earn points when you pick them up, and so do a pop-up’s challenges.
         </ThemedText>
       ) : (
         <View style={styles.list}>

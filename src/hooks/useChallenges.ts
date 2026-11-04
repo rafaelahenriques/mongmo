@@ -1,13 +1,15 @@
 import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { completeChallenge, getChallenges, getMyChallengeCompletions } from '@/api/challenges';
+import { completeChallenge, getChallenges, getCompletionPoints, getMyChallengeCompletions } from '@/api/challenges';
 import { getAchievements, getEarnedBadges, getPointsBalance } from '@/api/endpoints';
 import { haptics } from '@/services/haptics';
 import type { BadgeDefinition } from '@/types';
 
-/** What a completion brought: the new balance and any badge it unlocked. */
+/** What a completion brought: its points, the new balance and any badge it unlocked. */
 export type CompletionOutcome = {
+  /** What it earned (less than the challenge's own once the day's cap is hit); null if unknown. */
+  points: number | null;
   balance: number | null;
   badge: BadgeDefinition | null;
 };
@@ -44,11 +46,12 @@ export function useChallenges(eventId: string) {
       const earnedQuery = { queryKey: ['badges', 'earned'], queryFn: () => getEarnedBadges() };
       const before = await queryClient.ensureQueryData(earnedQuery).catch(() => null);
 
-      await completeChallenge(challengeId, data);
+      const completionId = await completeChallenge(challengeId, data);
 
       // The points and badges screen after it: best effort, the completion
       // itself already counted.
-      const [balance, earned, catalog] = await Promise.all([
+      const [points, balance, earned, catalog] = await Promise.all([
+        completionId ? getCompletionPoints(completionId).catch(() => null) : null,
         queryClient.fetchQuery({ queryKey: ['points'], queryFn: () => getPointsBalance() }).catch(() => null),
         queryClient.fetchQuery(earnedQuery).catch(() => null),
         queryClient.ensureQueryData({ queryKey: ['achievements'], queryFn: () => getAchievements() }).catch(() => null),
@@ -58,7 +61,7 @@ export function useChallenges(eventId: string) {
       const badge = unlocked
         ? (catalog?.badges.find((definition) => definition.id === unlocked.badgeId) ?? null)
         : null;
-      return { balance, badge };
+      return { points, balance, badge };
     },
     // Returning the completions refetch keeps the mutation pending until the
     // challenge actually shows as done, so there's no gap where it can be

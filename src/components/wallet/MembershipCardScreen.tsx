@@ -82,7 +82,7 @@ export default function MembershipCardScreen() {
           </ThemedText>
           <ThemedText type="captionBold">{STAMP_VALUE_LABEL}</ThemedText>
         </View>
-        <StampRow earned={stamps.earned} total={stamps.total} height={44} />
+        <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} height={44} />
         <ThemedText type="caption" themeColor="textSecondary">
           {nextReward
             ? `${stamps.earned} of ${stamps.total} stamps. ${nextReward.costPoints - points} more points to: ${nextReward.title}.`

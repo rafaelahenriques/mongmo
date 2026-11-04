@@ -9,6 +9,7 @@ import { StepBar } from '@/components/ui/StepBar';
 import { TaskCard } from '@/components/ui/TaskCard';
 import { TopBar } from '@/components/ui/TopBar';
 import { PageInset } from '@/constants/theme';
+import { orderPoints } from '@/constants/points';
 import { useOrder } from '@/hooks/useOrder';
 import { usePlace } from '@/hooks/usePickupPlace';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
@@ -125,7 +126,15 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
               />
             ))}
             {data.discount_cents ? <ListRow title="Reward" value={`−${formatCents(data.discount_cents)}`} /> : null}
-            <ListRow title="Total" value={formatCents(data.total_cents)} last />
+            <ListRow title="Total" value={formatCents(data.total_cents)} last={data.status === 'cancelled'} />
+            {data.status !== 'cancelled' && orderPoints(data.total_cents) > 0 ? (
+              <ListRow
+                title="Points"
+                subtitle={data.status === 'collected' ? 'Added to your Wallet' : 'Added when you pick it up'}
+                value={`+${orderPoints(data.total_cents)}`}
+                last
+              />
+            ) : null}
           </View>
         </View>
       </ScrollView>

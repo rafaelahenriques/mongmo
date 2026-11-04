@@ -6,13 +6,17 @@ import { BlockButton } from '@/components/ui/BlockButton';
 import { Coin } from '@/components/ui/Coin';
 import { TaskCard } from '@/components/ui/TaskCard';
 import { TopBar } from '@/components/ui/TopBar';
+import { CHALLENGE_POINTS_PER_DAY } from '@/constants/points';
 import { PageInset } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import type { BadgeDefinition } from '@/types';
 
 export type ChallengeResult = {
   title: string;
+  /** What it earned. */
   points: number;
+  /** The challenge's own points: more than `points` once the day's cap is hit. */
+  listed?: number;
   /** The balance after this challenge; null when it couldn't be read. */
   balance: number | null;
   /** A badge this challenge unlocked, if any. */
@@ -35,18 +39,25 @@ export default function PointsEarned({
   onClose: () => void;
 }) {
   const theme = useTheme();
+  const capped = result.listed !== undefined && result.points < result.listed;
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <TopBar title="" onBack={onClose} backIcon="close" />
       <ScrollView contentContainerStyle={styles.body}>
-        <View accessible accessibilityRole="header" accessibilityLabel={`Plus ${result.points} points`}>
-          <ThemedText type="display" style={styles.big}>
-            +{result.points}
+        {result.points > 0 ? (
+          <View accessible accessibilityRole="header" accessibilityLabel={`Plus ${result.points} points`}>
+            <ThemedText type="display" style={styles.big}>
+              +{result.points}
+            </ThemedText>
+            <ThemedText type="display" style={[styles.big, { color: theme.faded }]}>
+              POINTS
+            </ThemedText>
+          </View>
+        ) : (
+          <ThemedText type="display" style={styles.big} accessibilityRole="header">
+            DONE
           </ThemedText>
-          <ThemedText type="display" style={[styles.big, { color: theme.faded }]}>
-            POINTS
-          </ThemedText>
-        </View>
+        )}
         <Coin icon="checkSquare" size={150} />
         <ThemedText type="default" style={styles.text}>
           {result.title}, done.
@@ -54,6 +65,11 @@ export default function PointsEarned({
             ? ` New balance: ${result.balance} ${result.balance === 1 ? 'point' : 'points'}.`
             : ''}
         </ThemedText>
+        {capped ? (
+          <ThemedText type="caption" themeColor="textSecondary" style={styles.text}>
+            {`That’s today’s ${CHALLENGE_POINTS_PER_DAY} challenge points at this pop-up. Challenges still count for badges, and orders still earn points.`}
+          </ThemedText>
+        ) : null}
       </ScrollView>
       {result.badge ? (
         <TaskCard
