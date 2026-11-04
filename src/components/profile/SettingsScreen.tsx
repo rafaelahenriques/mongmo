@@ -34,6 +34,7 @@ const NOTIFICATION_OPTIONS: { key: keyof NotificationPrefs; label: string; hint:
   { key: 'orderUpdates', label: 'Order updates', hint: 'When your order is ready' },
   { key: 'achievements', label: 'Badges', hint: 'The moment you unlock one' },
   { key: 'rewardExpiring', label: 'Rewards', hint: 'Before a reward you redeemed runs out' },
+  { key: 'cartReminder', label: 'Cart reminders', hint: 'If you leave something in your cart' },
 ];
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
