@@ -48,3 +48,26 @@ export async function confirmDeleteAccount(): Promise<void> {
   }
   await supabase.auth.signOut();
 }
+
+/**
+ * Changes the password after checking the current one (signing in with it
+ * again), so a phone left unlocked can't be used to take over the account.
+ * Resolves to a message to show, or null when it worked.
+ */
+export async function changePassword(current: string, next: string): Promise<string | null> {
+  const { data } = await supabase.auth.getUser();
+  const email = data.user?.email;
+  if (!email) return 'A guest account has no password. Create an account to set one.';
+
+  const check = await supabase.auth.signInWithPassword({ email, password: current });
+  if (check.error) {
+    // 400 is a wrong password; anything else (too many tries, offline) says what it is.
+    const wrong = check.error.code === 'invalid_credentials' || check.error.status === 400;
+    return wrong ? 'That isn’t your current password.' : check.error.message;
+  }
+
+  const { error } = await supabase.auth.updateUser({ password: next });
+  if (!error) return null;
+  if (error.code === 'same_password') return 'Your new password is the same as the old one.';
+  return error.message;
+}

@@ -8,6 +8,7 @@ import { ListRow } from '@/components/ui/ListRow';
 import { Segmented } from '@/components/ui/Segmented';
 import { Toggle } from '@/components/ui/Toggle';
 import { PageInset } from '@/constants/theme';
+import { useAuthUser } from '@/hooks/useAuthUser';
 import { useProfile, useSetLeaderboardVisible } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
@@ -48,7 +49,8 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
 
 /**
  * M-04 Settings: the alerts you get, the app (appearance, the leaderboard,
- * location), and your account — edit, help, log out, delete.
+ * location), and your account — your email, change password, edit, help,
+ * log out, delete.
  */
 export default function SettingsScreen() {
   const theme = useTheme();
@@ -60,6 +62,8 @@ export default function SettingsScreen() {
   const setThemeMode = useSettingsStore((state) => state.setThemeMode);
   const profile = useProfile();
   const setLeaderboardVisible = useSetLeaderboardVisible();
+  const account = useAuthUser();
+  const email = account.data?.email;
 
   // Re-read on every visit: they may have just flipped it in the phone's settings.
   const [permission, setPermission] = useState<NotificationPermission | null>(null);
@@ -158,6 +162,12 @@ export default function SettingsScreen() {
       </Group>
 
       <Group title="Account">
+        <ListRow
+          title="Email"
+          subtitle={email ?? (account.data?.isGuest ? 'None yet: you’re a guest' : ' ')}
+          chevron={false}
+        />
+        {email ? <ListRow title="Change password" onPress={() => router.push('/(profile)/password')} /> : null}
         <ListRow title="Edit profile" onPress={() => router.push('/(profile)/edit')} />
         <ListRow title="Help" value={HELP_EMAIL} onPress={() => void Linking.openURL(`mailto:${HELP_EMAIL}`)} />
         <ListRow title="Log out" onPress={confirmLogOut} chevron={false} />

@@ -13,6 +13,7 @@ import { ScreenScroll, SectionHeader } from '@/components/ui/Screen';
 import { TopBar } from '@/components/ui/TopBar';
 import { Spacing } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
+import { useAuthUser } from '@/hooks/useAuthUser';
 import { useMyOrders } from '@/hooks/useMyOrders';
 import { useMyPhotos } from '@/hooks/usePhotos';
 import { useProfile } from '@/hooks/useProfile';
@@ -29,6 +30,7 @@ export default function ProfileScreen() {
   const theme = useTheme();
   const router = useRouter();
   const profile = useProfile();
+  const email = useAuthUser().data?.email;
   const achievements = useAchievements();
   const { summary } = achievements;
   const orders = useMyOrders();
@@ -83,6 +85,11 @@ export default function ProfileScreen() {
             <ThemedText type="title" numberOfLines={2} accessibilityRole="header">
               {user.name}
             </ThemedText>
+            {email ? (
+              <ThemedText type="captionBold" numberOfLines={1} selectable>
+                {email}
+              </ThemedText>
+            ) : null}
             <ThemedText type="caption" themeColor="textSecondary">
               {[user.homeCity, `Since ${memberSince}`, user.role === 'owner' ? 'Owner' : null]
                 .filter(Boolean)
