@@ -1,20 +1,15 @@
-import { useCallback } from 'react';
-import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View, type ListRenderItem } from 'react-native';
+import type { ReactNode } from 'react';
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
-import CapacityMeter from '@/components/events/CapacityMeter';
-import EventCard from '@/components/events/EventCard';
+import { LiveCard, PopupRow } from '@/components/explore/PopupRow';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import Chip from '@/components/ui/Chip';
-import { IconBadge } from '@/components/ui/IconBadge';
 import { usePullToRefresh } from '@/components/ui/Screen';
-import { Spacing } from '@/constants/theme';
+import { TaskCard } from '@/components/ui/TaskCard';
+import { PageInset } from '@/constants/theme';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
-import { useLocationStore } from '@/state/locationStore';
-import { distanceInMeters, formatDistance } from '@/utils/distance';
-import { getStoreStatus } from '@/utils/dateTime';
+import { getEventPhase, getStoreStatus, isToday } from '@/utils/dateTime';
 import type { EventFilter, PopUpEvent, Store } from '@/types';
 
 const EMPTY_FILTER_COPY: Record<EventFilter, string> = {
@@ -24,6 +19,8 @@ const EMPTY_FILTER_COPY: Record<EventFilter, string> = {
 };
 
 export type ListModeProps = {
+  /** The title, filter words and view switch, scrolled with the list. */
+  header: ReactNode;
   store: Store | null;
   events: PopUpEvent[];
   filter: EventFilter;
@@ -32,40 +29,15 @@ export type ListModeProps = {
   onRetry: () => void;
   onSelectStore: () => void;
   onSelectEvent: (eventId: string) => void;
+  onCheckIn: (eventId: string) => void;
 };
 
-/** The store's row atop the list — always visible, never date-filtered. */
-function StoreRow({ store, onPress }: { store: Store; onPress: () => void }) {
-  const status = getStoreStatus(store.hours, store.timeZone);
-  const userCoordinates = useLocationStore((state) => state.coordinates);
-  const distance = userCoordinates ? distanceInMeters(userCoordinates, store.coordinates) : null;
-
-  return (
-    <Card
-      onPress={onPress}
-      accessibilityLabel={`${store.name}, the permanent Mongmo café. ${status.label}. Open details.`}
-      style={styles.storeCard}
-    >
-      <View style={styles.storeHeader}>
-        <IconBadge name="store" tone="primary" size={44} />
-        <View style={styles.storeTexts}>
-          <ThemedText type="section" numberOfLines={1}>
-            {store.name}
-          </ThemedText>
-          <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
-            {store.address}
-            {distance !== null ? ` · ${formatDistance(distance)}` : ''}
-          </ThemedText>
-        </View>
-        <Chip label={status.isOpen ? 'Open' : 'Closed'} tone={status.isOpen ? 'success' : 'neutral'} />
-      </View>
-      <CapacityMeter occupancy={store.busy.occupancy} capacity={store.busy.capacity} label="Inside now" />
-    </Card>
-  );
-}
-
-/** Accessible, non-map alternative: the same pop-ups as cards, nearest/soonest first. */
+/**
+ * P-02 Map List: the live pop-up as a photo card with CHECK IN, the rest of
+ * today as street-map rows, then "Later", and the café at the end.
+ */
 export default function ListMode({
+  header,
   store,
   events,
   filter,
@@ -74,104 +46,94 @@ export default function ListMode({
   onRetry,
   onSelectStore,
   onSelectEvent,
+  onCheckIn,
 }: ListModeProps) {
   const theme = useTheme();
   const tabBarInset = useTabBarInset();
   const refresh = usePullToRefresh();
 
-  const renderItem = useCallback<ListRenderItem<PopUpEvent>>(
-    ({ item }) => <EventCard event={item} onPress={() => onSelectEvent(item.id)} />,
-    [onSelectEvent],
+  const live = events.filter((event) => getEventPhase(event.startsAt, event.endsAt) === 'live');
+  const soon = events.filter(
+    (event) => !live.includes(event) && isToday(new Date(event.startsAt), event.timeZone),
   );
-
-  const header = store ? <StoreRow store={store} onPress={onSelectStore} /> : null;
-
-  if (isLoading && events.length === 0) {
-    return (
-      <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.text} />
-        <ThemedText type="small" themeColor="textSecondary">
-          Loading pop-ups…
-        </ThemedText>
-      </View>
-    );
-  }
-
-  if (isError && events.length === 0) {
-    return (
-      <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <IconBadge name="alert" size={56} />
-        <ThemedText type="section">Couldn&apos;t load events</ThemedText>
-        <ThemedText type="small" themeColor="textSecondary" style={styles.stateBody}>
-          Something went wrong on our side. Try again in a moment.
-        </ThemedText>
-        <Button label="Retry" accessibilityLabel="Retry loading events" size="medium" onPress={onRetry} />
-      </View>
-    );
-  }
+  const later = events.filter((event) => !live.includes(event) && !soon.includes(event));
+  const storeStatus = store ? getStoreStatus(store.hours, store.timeZone) : null;
 
   return (
-    <FlatList
-      data={events}
-      keyExtractor={(item) => item.id}
-      renderItem={renderItem}
-      ListHeaderComponent={header}
-      ItemSeparatorComponent={() => <View style={styles.separator} />}
-      ListEmptyComponent={
-        <View style={styles.emptyState}>
-          <IconBadge name="calendar" size={56} />
-          <ThemedText type="small" themeColor="textSecondary" style={styles.stateBody}>
-            {EMPTY_FILTER_COPY[filter]}
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.background }}
+      contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + 32 }]}
+      refreshControl={<RefreshControl refreshing={refresh.refreshing} onRefresh={refresh.onRefresh} />}
+    >
+      {header}
+
+      {isLoading ? <ActivityIndicator color={theme.text} style={styles.loader} /> : null}
+      {isError ? (
+        <View style={styles.group} accessibilityRole="alert">
+          <ThemedText type="caption" themeColor="textSecondary">
+            Couldn’t load the pop-ups.
           </ThemedText>
+          <Button label="Try again" variant="ghost" size="medium" onPress={onRetry} />
         </View>
-      }
-      contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + Spacing.five }]}
-      style={[styles.list, { backgroundColor: theme.background }]}
-      refreshControl={
-        <RefreshControl refreshing={refresh.refreshing} onRefresh={refresh.onRefresh} tintColor={theme.textSecondary} />
-      }
-    />
+      ) : null}
+      {!isLoading && !isError && events.length === 0 ? (
+        <ThemedText type="caption" themeColor="textSecondary">
+          {EMPTY_FILTER_COPY[filter]} The café is open as usual.
+        </ThemedText>
+      ) : null}
+
+      <View style={styles.group}>
+        {live.map((event) => (
+          <LiveCard
+            key={event.id}
+            event={event}
+            onOpen={() => onSelectEvent(event.id)}
+            onCheckIn={() => onCheckIn(event.id)}
+          />
+        ))}
+        {soon.map((event, index) => (
+          <PopupRow key={event.id} event={event} index={index} onPress={() => onSelectEvent(event.id)} />
+        ))}
+      </View>
+
+      {later.length ? (
+        <View style={styles.group}>
+          <ThemedText type="subtitle" accessibilityRole="header">
+            {filter === 'week' ? 'Later this week' : 'Later'}
+          </ThemedText>
+          {later.map((event, index) => (
+            <PopupRow key={event.id} event={event} index={index + 1} onPress={() => onSelectEvent(event.id)} />
+          ))}
+        </View>
+      ) : null}
+
+      {store && storeStatus ? (
+        <View style={styles.group}>
+          <ThemedText type="subtitle" accessibilityRole="header">
+            The café
+          </ThemedText>
+          <TaskCard
+            icon="store"
+            title={store.name}
+            subtitle={`${storeStatus.label} · ${store.address}`}
+            state="arrow"
+            onPress={onSelectStore}
+          />
+        </View>
+      ) : null}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  list: {
-    flex: 1,
-  },
   content: {
-    paddingHorizontal: Spacing.three + Spacing.one,
-    paddingTop: Spacing.two,
+    paddingHorizontal: PageInset,
+    gap: 16,
   },
-  separator: {
-    height: Spacing.two + Spacing.one,
+  group: {
+    gap: 8,
   },
-  storeCard: {
-    gap: Spacing.three,
-    marginBottom: Spacing.two + Spacing.one,
-  },
-  storeHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.three,
-  },
-  storeTexts: {
-    flex: 1,
-    gap: 2,
-  },
-  state: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: Spacing.four,
-    gap: Spacing.three,
-  },
-  stateBody: {
-    textAlign: 'center',
-    maxWidth: 320,
-  },
-  emptyState: {
-    paddingVertical: Spacing.six,
-    alignItems: 'center',
-    gap: Spacing.three,
+  loader: {
+    marginVertical: 24,
   },
 });

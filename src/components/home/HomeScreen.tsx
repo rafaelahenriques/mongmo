@@ -146,10 +146,7 @@ export default function HomeScreen() {
             event={featured}
             index={notes.featured}
             onCheckIn={() =>
-              router.push({
-                pathname: '/(popups)/event/[id]',
-                params: { id: featured.id, checkIn: '1' },
-              })
+              router.push({ pathname: '/(popups)/check-in/[id]', params: { id: featured.id } })
             }
             onOrder={() => orderAt(featured)}
             onOpen={() => openEvent(featured.id)}
