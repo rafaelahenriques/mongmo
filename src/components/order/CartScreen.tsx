@@ -1,15 +1,16 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 
 import type { OrderMenuItem } from '@/api/orders';
+import { CategoryIcon } from '@/components/order/CategoryIcon';
 import { PickupHeader } from '@/components/order/PickupHeader';
+import { ProductCard } from '@/components/order/ProductCard';
 import { ThemedText } from '@/components/ThemedText';
 import { BlockButton } from '@/components/ui/BlockButton';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
-import { Stepper } from '@/components/ui/Stepper';
 import { Toggle } from '@/components/ui/Toggle';
 import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
@@ -17,13 +18,16 @@ import { useMenu } from '@/hooks/useMenu';
 import { usePickupPlace } from '@/hooks/usePickupPlace';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
-import { cartSubtotalCents, cartUnitCents, useCartStore } from '@/state/cartStore';
+import { cartSubtotalCents, cartUnitCents, useCartStore, type CartItem } from '@/state/cartStore';
 import { formatCents, shortItemName } from '@/utils/orderFormat';
 
+/** How long "Product removed · UNDO" stays up. */
+const UNDO_MS = 4000;
+
 /**
- * O-03 Cart: where you pick up on a strip of map, each item with its photo
- * and a sage stepper, a reward to use, two things you may also like, and
- * CHECKOUT with the total.
+ * The cart: where you pick up on a strip of map, each line with its photo,
+ * options and price, a bin (or −1) and +1; "Product removed · UNDO" after
+ * a bin; a reward to use; things you may also like; CHECKOUT with the total.
  */
 export default function CartScreen() {
   const theme = useTheme();
@@ -34,21 +38,24 @@ export default function CartScreen() {
   const place = usePickupPlace();
   const menu = useMenu(location);
   const { query, summary, usableRewards } = useAchievements();
+  const [removed, setRemoved] = useState<{ line: CartItem; index: number } | null>(null);
+  const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (undoTimer.current) clearTimeout(undoTimer.current);
+    },
+    [],
+  );
 
   const back = () => (router.canGoBack() ? router.back() : router.replace('/(orders)'));
   const byId = useMemo(() => new Map((menu.data ?? []).map((item) => [item.id, item])), [menu.data]);
-  const optionSections = useMemo(() => new Set((menu.data ?? []).flatMap((item) => item.addOnFor ?? [])), [menu.data]);
-  // One thing from each section that's not in the cart yet.
+  // Something from the sections that aren't in the cart yet.
   const suggestions = useMemo(() => {
     const inCart = new Set(items.map((line) => byId.get(line.menuItemId)?.category));
-    const picked = new Map<string, OrderMenuItem>();
-    for (const item of menu.data ?? []) {
-      const section = item.category ?? item.name;
-      if (item.priceCents > 0 && !item.addOnFor && !inCart.has(item.category) && !picked.has(section)) {
-        picked.set(section, item);
-      }
-    }
-    return [...picked.values()].slice(0, 2);
+    return (menu.data ?? [])
+      .filter((item) => item.priceCents > 0 && !item.addOnFor && !inCart.has(item.category))
+      .slice(0, 6);
   }, [menu.data, items, byId]);
 
   // Only discount rewards come off an order; free items are handed over at pickup.
@@ -60,9 +67,46 @@ export default function CartScreen() {
     .filter((reward) => reward.discountCents && reward.costPoints > summary.points)
     .sort((a, b) => a.costPoints - b.costPoints)[0];
 
+  const remove = (line: CartItem) => {
+    haptics.press();
+    const index = items.findIndex((row) => row.key === line.key);
+    useCartStore.getState().removeItem(line.key);
+    setRemoved({ line, index });
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+    undoTimer.current = setTimeout(() => setRemoved(null), UNDO_MS);
+  };
+
+  const undo = () => {
+    if (!removed) return;
+    haptics.tap();
+    useCartStore.getState().restoreItem(removed.line, removed.index);
+    setRemoved(null);
+  };
+
+  const step = (line: CartItem, by: number) => {
+    haptics.select();
+    useCartStore.getState().setQuantity(line.key, line.quantity + by);
+  };
+
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <PickupHeader place={place?.name ?? ''} onBack={back} />
+      {removed ? (
+        <View
+          style={[styles.undo, { backgroundColor: theme.surfaceDark }]}
+          accessibilityLiveRegion="polite"
+          accessibilityRole="alert"
+        >
+          <ThemedText type="small" style={[styles.flex, { color: theme.onSurfaceDark }]}>
+            Product removed
+          </ThemedText>
+          <Pressable onPress={undo} accessibilityRole="button" accessibilityLabel="Undo" hitSlop={10}>
+            <ThemedText type="label" style={{ color: theme.brand }}>
+              Undo
+            </ThemedText>
+          </Pressable>
+        </View>
+      ) : null}
       {items.length === 0 ? (
         <View style={styles.empty}>
           <ThemedText type="section">Your cart is empty</ThemedText>
@@ -76,21 +120,26 @@ export default function CartScreen() {
               // "Bánh mì, crispy pork belly" reads BÁNH MÌ over "Crispy pork belly".
               const short = item ? shortItemName(line.name, item.category) : line.name;
               const titled = short !== line.name && item?.category;
-              // "Fried tofu, peanut dip, additional protein"
               const detail = [titled ? short : null, ...line.options.map((option) => option.name.toLowerCase())].filter(
                 Boolean,
               );
               return (
-                <View key={line.key} style={styles.line}>
+                <View key={line.key} style={[styles.line, { borderBottomColor: theme.border }]}>
                   <View style={[styles.round, { backgroundColor: theme.backgroundSelected }]}>
                     {item?.imageUrl ? (
                       <Image source={{ uri: item.imageUrl }} style={StyleSheet.absoluteFill} contentFit="cover" />
                     ) : (
-                      <Icon name="food" size={22} color={theme.textSecondary} />
+                      <CategoryIcon section={item?.category ?? line.name} size={30} />
                     )}
                   </View>
                   <View style={styles.flex}>
-                    <ThemedText type="card">{titled ? item.category : line.name}</ThemedText>
+                    <View style={styles.lineTop}>
+                      <ThemedText type="card" style={styles.flex}>
+                        {line.quantity > 1 ? `${line.quantity} × ` : ''}
+                        {titled ? item.category : line.name}
+                      </ThemedText>
+                      <ThemedText type="captionBold">{formatCents(cartUnitCents(line) * line.quantity)}</ThemedText>
+                    </View>
                     {detail.length || item?.description ? (
                       <ThemedText type="caption" themeColor="textSecondary" numberOfLines={2}>
                         {detail.length
@@ -98,15 +147,39 @@ export default function CartScreen() {
                           : item?.description}
                       </ThemedText>
                     ) : null}
-                  </View>
-                  <View style={styles.lineEnd}>
-                    <ThemedText type="captionBold">{formatCents(cartUnitCents(line) * line.quantity)}</ThemedText>
-                    <Stepper
-                      value={line.quantity}
-                      min={0}
-                      label={line.name}
-                      onChange={(next) => useCartStore.getState().setQuantity(line.key, next)}
-                    />
+                    <View style={styles.lineActions}>
+                      {line.quantity > 1 ? (
+                        <Pressable
+                          onPress={() => step(line, -1)}
+                          accessibilityRole="button"
+                          accessibilityLabel={`One less ${line.name}`}
+                          hitSlop={10}
+                        >
+                          <ThemedText type="captionBold" themeColor="primaryText">
+                            −1
+                          </ThemedText>
+                        </Pressable>
+                      ) : (
+                        <Pressable
+                          onPress={() => remove(line)}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Remove ${line.name}`}
+                          hitSlop={10}
+                        >
+                          <Icon name="trash" size={18} color={theme.textSecondary} />
+                        </Pressable>
+                      )}
+                      <Pressable
+                        onPress={() => step(line, 1)}
+                        accessibilityRole="button"
+                        accessibilityLabel={`One more ${line.name}`}
+                        hitSlop={10}
+                      >
+                        <ThemedText type="captionBold" themeColor="primaryText">
+                          +1
+                        </ThemedText>
+                      </Pressable>
+                    </View>
                   </View>
                 </View>
               );
@@ -140,42 +213,22 @@ export default function CartScreen() {
                 <ThemedText type="subtitle" accessibilityRole="header">
                   You may also like
                 </ThemedText>
-                <View style={styles.tiles}>
-                  {suggestions.map((item) => (
-                    <Pressable
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.moreRow}
+                  contentContainerStyle={styles.moreCards}
+                >
+                  {suggestions.map((item: OrderMenuItem) => (
+                    <ProductCard
                       key={item.id}
-                      onPress={() => {
-                        haptics.press();
-                        // One with options (a dip) opens its page to pick them.
-                        if (optionSections.has(item.category ?? '')) {
-                          router.push({ pathname: '/(orders)/order/item/[id]', params: { id: item.id } });
-                          return;
-                        }
-                        useCartStore
-                          .getState()
-                          .addItem({ menuItemId: item.id, name: item.name, priceCents: item.priceCents });
-                      }}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Add ${shortItemName(item.name, item.category) !== item.name && item.category ? item.category : item.name}, ${formatCents(item.priceCents)} euro`}
-                      style={({ pressed }) => [
-                        styles.tile,
-                        { backgroundColor: theme.backgroundSelected, opacity: pressed ? 0.85 : 1 },
-                      ]}
-                    >
-                      {item.imageUrl ? (
-                        <Image source={{ uri: item.imageUrl }} style={StyleSheet.absoluteFill} contentFit="cover" />
-                      ) : null}
-                      <View style={[styles.tileLabel, { backgroundColor: theme.backgroundElement }]}>
-                        <ThemedText type="label" numberOfLines={2} style={styles.flexShrink}>
-                          {item.name}
-                        </ThemedText>
-                        <ThemedText type="caption" themeColor="textSecondary">
-                          {formatCents(item.priceCents)}
-                        </ThemedText>
-                      </View>
-                    </Pressable>
+                      item={item}
+                      withSection
+                      style={styles.moreCard}
+                      onPress={() => router.push({ pathname: '/(orders)/order/item/[id]', params: { id: item.id } })}
+                    />
                   ))}
-                </View>
+                </ScrollView>
               </View>
             ) : null}
           </ScrollView>
@@ -199,8 +252,14 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
-  flexShrink: {
-    flexShrink: 1,
+  undo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginHorizontal: 12,
+    marginTop: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
   },
   empty: {
     flex: 1,
@@ -210,55 +269,57 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: PageInset,
-    paddingTop: 16,
+    paddingTop: 12,
     paddingBottom: 24,
-    gap: 16,
+    gap: 14,
   },
   line: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+    alignItems: 'flex-start',
+    gap: 14,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
   },
   round: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  lineEnd: {
-    alignItems: 'flex-end',
-    gap: 6,
+  lineTop: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  lineActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 22,
+    marginTop: 6,
   },
   reward: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    borderTopWidth: 1,
     borderBottomWidth: 1,
-    paddingVertical: 12,
+    paddingBottom: 14,
   },
   more: {
-    gap: 10,
+    gap: 12,
   },
-  tiles: {
-    flexDirection: 'row',
-    gap: 8,
+  moreRow: {
+    marginHorizontal: -PageInset,
+    flexGrow: 0,
   },
-  tile: {
-    flex: 1,
-    height: 150,
-    justifyContent: 'flex-end',
-    alignItems: 'flex-start',
-    overflow: 'hidden',
+  moreCards: {
+    gap: 12,
+    paddingHorizontal: PageInset,
+    paddingBottom: 8,
   },
-  tileLabel: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    maxWidth: '100%',
-    paddingHorizontal: 8,
-    paddingVertical: 6,
+  moreCard: {
+    width: 168,
   },
 });

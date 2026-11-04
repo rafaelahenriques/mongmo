@@ -44,6 +44,8 @@ type CartState = {
     quantity?: number,
   ) => void;
   removeItem: (key: string) => void;
+  /** Puts a removed line back where it was (undo). */
+  restoreItem: (line: CartItem, index: number) => void;
   setQuantity: (key: string, quantity: number) => void;
   setUserRewardId: (id: string | null) => void;
   clear: () => void;
@@ -86,6 +88,14 @@ export const useCartStore = create<CartState>()(
         }),
 
       removeItem: (key) => set((state) => ({ items: state.items.filter((row) => row.key !== key) })),
+
+      restoreItem: (line, index) =>
+        set((state) => {
+          if (state.items.some((row) => row.key === line.key)) return state;
+          const items = [...state.items];
+          items.splice(Math.max(0, Math.min(index, items.length)), 0, line);
+          return { items };
+        }),
 
       setQuantity: (key, quantity) =>
         set((state) => ({
