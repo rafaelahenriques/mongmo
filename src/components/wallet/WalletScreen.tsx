@@ -178,7 +178,8 @@ const styles = StyleSheet.create({
   },
   number: {
     fontSize: 88,
-    lineHeight: 84,
+    // Never below the font size: iOS cuts the top off the glyphs.
+    lineHeight: 92,
   },
   word: {
     fontSize: 40,

@@ -26,7 +26,8 @@ export function BigNumber({
   style?: StyleProp<ViewStyle>;
 }) {
   const theme = useTheme();
-  const text = { fontSize: size, lineHeight: size * (size > 40 ? 0.92 : 1.13), letterSpacing: (-2 * size) / 100 };
+  // Line height never below the size: iOS cuts the top off the glyphs.
+  const text = { fontSize: size, lineHeight: size * (size > 40 ? 1.02 : 1.13), letterSpacing: (-2 * size) / 100 };
   return (
     <View
       style={[stacked ? styles.stacked : styles.inline, style]}
