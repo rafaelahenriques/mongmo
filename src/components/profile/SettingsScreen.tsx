@@ -49,8 +49,8 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
 
 /**
  * M-04 Settings: the alerts you get, the app (appearance, the leaderboard,
- * location), and your account — your email, change password, edit, help,
- * log out, delete.
+ * location), and your account — your email, change password, help, log
+ * out, delete. Edit profile is on Account.
  */
 export default function SettingsScreen() {
   const theme = useTheme();
@@ -168,7 +168,6 @@ export default function SettingsScreen() {
           chevron={false}
         />
         {email ? <ListRow title="Change password" onPress={() => router.push('/(profile)/password')} /> : null}
-        <ListRow title="Edit profile" onPress={() => router.push('/(profile)/edit')} />
         <ListRow title="Help" value={HELP_EMAIL} onPress={() => void Linking.openURL(`mailto:${HELP_EMAIL}`)} />
         <ListRow title="Log out" onPress={confirmLogOut} chevron={false} />
         <ListRow title="Delete account" onPress={() => void confirmDeleteAccount()} chevron={false} danger last />

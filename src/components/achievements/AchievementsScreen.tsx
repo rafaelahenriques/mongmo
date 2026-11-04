@@ -1,21 +1,27 @@
+import { useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatInTimeZone } from 'date-fns-tz';
 
 import { badgeIcon } from '@/components/achievements/badgeIcons';
+import LeaderboardList from '@/components/achievements/LeaderboardList';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { Coin } from '@/components/ui/Coin';
+import { Segmented } from '@/components/ui/Segmented';
 import { TopBar } from '@/components/ui/TopBar';
 import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
+import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
+import type { LeaderboardPeriod } from '@/types';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 
 /**
  * M-06 Achievements (the trophy in the top bar): every badge as a coin,
- * sage once earned and stone until then, with how far along you are.
+ * sage once earned and stone until then, with how far along you are; or
+ * the leaderboard, this week's or all-time.
  */
 export default function AchievementsScreen() {
   const theme = useTheme();
@@ -24,6 +30,9 @@ export default function AchievementsScreen() {
   const { query, summary, progress } = useAchievements();
   const badges = query.data?.badges ?? [];
   const earned = new Map(summary.earned.map((badge) => [badge.badgeId, badge]));
+  const [view, setView] = useState<'badges' | 'leaderboard'>('badges');
+  const [period, setPeriod] = useState<LeaderboardPeriod>('weekly');
+  const leaderboard = useLeaderboard(period);
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
@@ -32,7 +41,27 @@ export default function AchievementsScreen() {
         value={badges.length ? `${earned.size}/${badges.length}` : undefined}
         onBack={() => (router.canGoBack() ? router.back() : router.replace('/(home)'))}
       />
-      {query.isPending ? (
+      <View style={styles.switch}>
+        <Segmented
+          options={[
+            { value: 'badges', label: 'Badges' },
+            { value: 'leaderboard', label: 'Leaderboard' },
+          ]}
+          value={view}
+          onChange={setView}
+          accessibilityLabel="Show"
+        />
+      </View>
+      {view === 'leaderboard' ? (
+        <ScrollView contentContainerStyle={[styles.list, { paddingBottom: tabBarInset + 32 }]}>
+          <LeaderboardList
+            rows={leaderboard.rows}
+            hidden={leaderboard.hidden}
+            period={period}
+            onChangePeriod={setPeriod}
+          />
+        </ScrollView>
+      ) : query.isPending ? (
         <ActivityIndicator color={theme.text} style={styles.loader} />
       ) : query.isError ? (
         <View style={styles.message}>
@@ -80,6 +109,10 @@ export default function AchievementsScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+  },
+  switch: {
+    paddingHorizontal: PageInset,
+    paddingBottom: 12,
   },
   loader: {
     marginVertical: 32,

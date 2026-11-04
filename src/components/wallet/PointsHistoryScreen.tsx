@@ -1,26 +1,19 @@
-import { useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { formatInTimeZone } from 'date-fns-tz';
 
-import LeaderboardList from '@/components/achievements/LeaderboardList';
 import { CHALLENGE_TYPES } from '@/components/challenges/challengeTypes';
 import { ThemedText } from '@/components/ThemedText';
 import { BigNumber } from '@/components/ui/BigNumber';
 import type { IconName } from '@/components/ui/Icon';
-import { Segmented } from '@/components/ui/Segmented';
 import { TaskCard } from '@/components/ui/TaskCard';
 import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
-import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { usePointsHistory } from '@/hooks/usePointsHistory';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import type { PointsHistoryEntry } from '@/api/endpoints';
 import type { ChallengeType } from '@/types/database';
-import type { LeaderboardPeriod } from '@/types';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
-
-type View_ = 'history' | 'leaderboard';
 
 function iconFor(entry: PointsHistoryEntry): IconName {
   if (entry.source === 'reward_redeemed') return 'gift';
@@ -29,17 +22,14 @@ function iconFor(entry: PointsHistoryEntry): IconName {
 }
 
 /**
- * M-03 Points: the balance big, then the ledger (what each +20 or −30 was
- * for) or the leaderboard, picked with underlined words.
+ * M-03 Points: the balance big, then the ledger: what each +20 or −300
+ * was for. The leaderboard is on Achievements.
  */
 export default function PointsHistoryScreen() {
   const theme = useTheme();
   const tabBarInset = useTabBarInset();
   const { summary } = useAchievements();
   const history = usePointsHistory();
-  const [view, setView] = useState<View_>('history');
-  const [period, setPeriod] = useState<LeaderboardPeriod>('weekly');
-  const leaderboard = useLeaderboard(period);
 
   return (
     <ScrollView
@@ -47,24 +37,7 @@ export default function PointsHistoryScreen() {
       contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + 32 }]}
     >
       <BigNumber value={summary.points} word="Points" size={46} />
-      <Segmented
-        options={[
-          { value: 'history', label: 'History' },
-          { value: 'leaderboard', label: 'Leaderboard' },
-        ]}
-        value={view}
-        onChange={setView}
-        accessibilityLabel="Show"
-      />
-
-      {view === 'leaderboard' ? (
-        <LeaderboardList
-          rows={leaderboard.rows}
-          hidden={leaderboard.hidden}
-          period={period}
-          onChangePeriod={setPeriod}
-        />
-      ) : history.isPending ? (
+      {history.isPending ? (
         <ActivityIndicator color={theme.text} style={styles.loader} />
       ) : history.isError ? (
         <ThemedText type="caption" themeColor="textSecondary">
