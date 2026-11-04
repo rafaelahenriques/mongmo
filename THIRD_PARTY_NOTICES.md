@@ -11,7 +11,7 @@ end up inside the app; they are listed anyway. Don't edit this file by hand.
 
 Both are used under the SIL Open Font License 1.1 (full text below).
 
-- **Barlow Condensed:** Copyright 2017 The Barlow Project Authors (https://github.com/jpt/barlow)
+- **Outfit:** Copyright 2021 The Outfit Project Authors (https://github.com/Outfitio/Outfit-Fonts)
 - **Be Vietnam Pro:** Copyright 2021 The Be Vietnam Pro Project Authors (https://github.com/bettergui/BeVietnamPro)
 
 ## Icons, maps and data
@@ -27,7 +27,7 @@ Both are used under the SIL Open Font License 1.1 (full text below).
 This project started from Expo's `create-expo-app` template.
 Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full text below).
 
-## npm packages (662)
+## npm packages (660)
 
 | Package | Version | Licence | Copyright |
 | --- | --- | --- | --- |
@@ -104,11 +104,9 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @babel/traverse | 7.29.8 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/types | 7.29.8 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @egjs/hammerjs | 2.0.17 | MIT | Copyright (c) 2018-present NAVER Corp.; Copyright (C) 2011-2017 by Jorik Tangelder (Eight Media) |
-| @expo-google-fonts/barlow-condensed | 0.4.1 | MIT AND OFL-1.1 | Copyright (c) 2020 Expo |
 | @expo-google-fonts/be-vietnam-pro | 0.4.1 | MIT AND OFL-1.1 | Copyright (c) 2020 Expo |
-| @expo-google-fonts/inter | 0.4.2 | MIT AND OFL-1.1 | Copyright (c) 2020 Expo |
 | @expo-google-fonts/material-symbols | 0.4.48 | MIT AND Apache-2.0 | Copyright (c) 2020 Expo |
-| @expo-google-fonts/space-grotesk | 0.4.1 | MIT AND OFL-1.1 | Copyright (c) 2020 Expo |
+| @expo-google-fonts/outfit | 0.4.3 | MIT AND OFL-1.1 | Copyright (c) 2020 Expo |
 | @expo/cli | 57.0.27 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | @expo/code-signing-certificates | 0.0.6 | MIT | Copyright (c) 2020-present 650 Industries, Inc. (aka Expo) |
 | @expo/config | 57.0.9 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
@@ -2278,11 +2276,11 @@ For more information, please see
 ### OFL-1.1 (SIL Open Font License 1.1)
 
 ```text
-Copyright 2017 The Barlow Project Authors (https://github.com/jpt/barlow)
+Copyright 2021 The Outfit Project Authors (https://github.com/Outfitio/Outfit-Fonts)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:
-http://scripts.sil.org/OFL
+https://scripts.sil.org/OFL
 
 
 -----------------------------------------------------------
