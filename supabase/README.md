@@ -61,6 +61,8 @@ left, per "no hardcoded/mock data."
 | `0016_delete_account.sql` | `delete_my_account()`: Settings → Delete account. Removes the signed-in user, their orders and everything that hangs off their profile; pop-ups an owner created stay, without a creator. |
 | `0017_item_options.sql` | Item options: `menu_items.add_on_for` marks a dip or extra protein as an option for a section; order lines carry their options (`order_items.options_snapshot`) and `create_order` prices them. |
 | `0018_points_rules.sql` | Points that pay for themselves: orders earn 10 points per euro once collected; challenges earn at most 50 points a day per pop-up; smaller badge bonuses; rewards cost whole stamps (1 stamp = 100 points). |
+| `0019_ensure_profile.sql` | `ensure_profile()`: makes a missing profile for the signed-in account (orders, check-ins and points all need one). |
+| `0020_delete_account_photos.sql` | Deleting an account deletes the photo files too: people may delete their own `challenge-photos/<id>/` files (the app removes them first), and `delete_my_account()` refuses while any remain. Everything else cascades from the login (see the function's comment). |
 
 ### Points ledger, not a running total
 

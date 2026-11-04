@@ -30,7 +30,8 @@ export function confirmLogOut() {
  */
 export async function confirmDeleteAccount(): Promise<void> {
   const title = 'Delete your account?';
-  const message = 'Your points, badges, rewards and order history go for good. This can’t be undone.';
+  const message =
+    'Your points, badges, rewards, photos and order history go for good. This can’t be undone.';
   const yes =
     Platform.OS === 'web'
       ? window.confirm(`${title}\n\n${message}`)
@@ -41,12 +42,37 @@ export async function confirmDeleteAccount(): Promise<void> {
           ]),
         );
   if (!yes) return;
+  try {
+    await deleteMyPhotos();
+  } catch (error) {
+    Alert.alert('Couldn’t delete your photos', error instanceof Error ? error.message : 'Please try again.');
+    return;
+  }
   const { error } = await supabase.rpc('delete_my_account');
   if (error) {
     Alert.alert('Couldn’t delete your account', error.message);
     return;
   }
   await supabase.auth.signOut();
+}
+
+/**
+ * Removes every photo file the user uploaded (challenge-photos/<their id>/),
+ * a page at a time, through the Storage API so the files themselves go.
+ * delete_my_account() won't run while any are left (0020).
+ */
+async function deleteMyPhotos(): Promise<void> {
+  const { data } = await supabase.auth.getUser();
+  const userId = data.user?.id;
+  if (!userId) return;
+  const bucket = supabase.storage.from('challenge-photos');
+  for (;;) {
+    const { data: files, error } = await bucket.list(userId, { limit: 100 });
+    if (error) throw error;
+    if (!files?.length) return;
+    const { error: removeError } = await bucket.remove(files.map((file) => `${userId}/${file.name}`));
+    if (removeError) throw removeError;
+  }
 }
 
 /**
