@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, type ReactNode } from 'react';
 import { ActivityIndicator, Alert, RefreshControl, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatInTimeZone } from 'date-fns-tz';
@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/Card';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { IconBadge } from '@/components/ui/IconBadge';
 import { PhotoHero } from '@/components/ui/PhotoHero';
+import { ScreenReaderTitle } from '@/components/ui/ScreenReaderTitle';
 import { usePullToRefresh } from '@/components/ui/Screen';
 import { SquareIconButton } from '@/components/ui/SquareIconButton';
 import { TextLink } from '@/components/ui/TextLink';
@@ -26,8 +27,8 @@ import { addToCalendar } from '@/services/calendar';
 import { openDirections } from '@/services/directions';
 import { haptics } from '@/services/haptics';
 import { UPDATE_APP_MESSAGE } from '@/services/nativeModules';
+import { switchPickup } from '@/services/switchPickup';
 import { useBusyStore } from '@/state/busyStore';
-import { useCartStore } from '@/state/cartStore';
 import { useLocationStore } from '@/state/locationStore';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
@@ -71,10 +72,9 @@ export default function EventDetail({ eventId }: EventDetailProps) {
     }
   }, [event]);
 
-  const openOrder = useCallback(() => {
+  const openOrder = useCallback(async () => {
     if (!event) return;
-    useCartStore.getState().setLocation({ type: 'event', eventId: event.id, eventTitle: event.title });
-    router.navigate('/(orders)');
+    if (await switchPickup({ type: 'event', eventId: event.id, eventTitle: event.title })) router.navigate('/(orders)');
   }, [event, router]);
 
   const onAddToCalendar = useCallback(async () => {
@@ -90,20 +90,32 @@ export default function EventDetail({ eventId }: EventDetailProps) {
   }, [event]);
 
   const back = () => (router.canGoBack() ? router.back() : router.replace('/(popups)'));
+  // A way back from the loading and error states too, not only from the page.
+  const backButton = (
+    <View style={[styles.stateBack, { top: insets.top + 10 }]}>
+      <SquareIconButton icon="chevronLeft" onPress={back} accessibilityLabel="Back" size={44} />
+    </View>
+  );
 
   if (!eventId) {
     return (
-      <StateCard title="Event not found" body="This link doesn't match any event. Check Pop-ups for what's on." />
+      <StateCard
+        title="Event not found"
+        body="This link doesn't match any event. Check Pop-ups for what's on."
+        back={backButton}
+      />
     );
   }
 
   if (query.isPending) {
     return (
-      <View style={[styles.stateContainer, { backgroundColor: theme.background }]}>
+      <View style={[styles.stateContainer, { backgroundColor: theme.background }]} accessibilityLabel="Loading">
+        <ScreenReaderTitle>Pop-up</ScreenReaderTitle>
         <ActivityIndicator size="large" color={theme.text} />
         <ThemedText type="caption" themeColor="textSecondary">
           Loading the pop-up…
         </ThemedText>
+        {backButton}
       </View>
     );
   }
@@ -119,6 +131,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
             : 'Check your connection — if you were offline, this event may not be saved for offline viewing yet.'
         }
         onRetry={notFound ? undefined : () => query.refetch()}
+        back={backButton}
       />
     );
   }
@@ -144,6 +157,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
         live={phase === 'live'}
         meta={distance !== null ? formatDistance(distance) : undefined}
         height={380}
+        headingLevel={1}
         top={
           <View style={[styles.heroTop, { top: insets.top + 10 }]}>
             <SquareIconButton icon="chevronLeft" onPress={back} accessibilityLabel="Back" size={44} />
@@ -236,14 +250,24 @@ export default function EventDetail({ eventId }: EventDetailProps) {
 }
 
 /** Centered not-found / error state, with a retry when it's worth one. */
-function StateCard({ title, body, onRetry }: { title: string; body: string; onRetry?: () => void }) {
+function StateCard({
+  title,
+  body,
+  onRetry,
+  back,
+}: {
+  title: string;
+  body: string;
+  onRetry?: () => void;
+  back: ReactNode;
+}) {
   const theme = useTheme();
   return (
     <View style={[styles.stateContainer, { backgroundColor: theme.background }]}>
       <Card style={styles.stateCard}>
         <View accessibilityRole={onRetry ? 'alert' : 'text'} style={styles.stateTexts}>
           <IconBadge name="alert" size={48} />
-          <ThemedText type="section" style={styles.center}>
+          <ThemedText type="section" accessibilityRole="header" headingLevel={1} style={styles.center}>
             {title}
           </ThemedText>
           <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
@@ -252,6 +276,7 @@ function StateCard({ title, body, onRetry }: { title: string; body: string; onRe
         </View>
         {onRetry ? <Button label="Try again" variant="ghost" size="medium" onPress={onRetry} /> : null}
       </Card>
+      {back}
     </View>
   );
 }
@@ -305,7 +330,9 @@ const styles = StyleSheet.create({
   },
   links: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
+    columnGap: 16,
     paddingVertical: 4,
   },
   stateContainer: {
@@ -314,6 +341,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: Spacing.two,
     padding: Spacing.four,
+  },
+  stateBack: {
+    position: 'absolute',
+    left: PageInset,
   },
   stateCard: {
     maxWidth: 360,

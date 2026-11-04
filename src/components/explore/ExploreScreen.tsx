@@ -114,7 +114,7 @@ export default function ExploreScreen() {
   if (mode === 'list') {
     return (
       <View style={[styles.container, { backgroundColor: theme.background }]}>
-        <AppHeader />
+        <AppHeader title="Pop-ups" />
         <ListMode
           header={
             <View style={styles.listHeader}>
@@ -143,7 +143,7 @@ export default function ExploreScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <AppHeader />
+      <AppHeader title="Pop-ups" />
       <View style={styles.flex}>
         <MapMode
           store={store}
@@ -330,9 +330,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   handle: {
+    minHeight: 24,
     alignItems: 'center',
-    paddingTop: 8,
-    paddingBottom: 2,
+    justifyContent: 'center',
   },
   grabber: {
     width: 40,

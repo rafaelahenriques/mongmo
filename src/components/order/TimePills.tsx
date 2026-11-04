@@ -50,13 +50,14 @@ export function TimePills({
               onChange(i);
             }}
             accessibilityRole="radio"
-            accessibilityState={{ selected: on }}
+            accessibilityState={{ checked: on }}
             accessibilityLabel={`Pick up at ${time}`}
             style={({ pressed }) => [
               styles.pill,
               {
                 backgroundColor: on ? theme.brandFill : theme.backgroundElement,
-                borderColor: on ? theme.brandFill : theme.outline,
+                // Ink ring on the chosen one: sage alone is too faint on paper.
+                borderColor: on ? theme.text : theme.outline,
                 opacity: pressed ? 0.8 : 1,
               },
             ]}
@@ -82,8 +83,9 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   pill: {
-    width: 84,
-    height: 48,
+    minWidth: 84,
+    minHeight: 48,
+    paddingHorizontal: 12,
     borderRadius: 24,
     borderWidth: 1.5,
     alignItems: 'center',

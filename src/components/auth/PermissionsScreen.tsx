@@ -54,10 +54,17 @@ export function PermissionsScreen() {
       contentContainerStyle={[styles.content, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }]}
     >
       {BrandPhotos.permissions ? (
-        <Image source={BrandPhotos.permissions} style={styles.photo} contentFit="cover" accessibilityIgnoresInvertColors />
+        <Image
+          accessible={false}
+          accessibilityLabel=""
+          source={BrandPhotos.permissions}
+          style={styles.photo}
+          contentFit="cover"
+          accessibilityIgnoresInvertColors
+        />
       ) : null}
       <View style={styles.texts}>
-        <ThemedText type="title" accessibilityRole="header">
+        <ThemedText type="title" accessibilityRole="header" headingLevel={1}>
           Know when we pop up nearby
         </ThemedText>
         <ThemedText type="default" themeColor="textSecondary">

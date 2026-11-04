@@ -6,6 +6,7 @@ import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
+import { ScreenReaderTitle } from '@/components/ui/ScreenReaderTitle';
 import { BrandPhotos } from '@/constants/brandPhotos';
 import { Colors, Fonts, PageInset } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
@@ -20,7 +21,15 @@ export function OpeningScreen({ onGetStarted, onSignIn }: { onGetStarted: () => 
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.screen, { backgroundColor: theme.surfaceDark }]}>
-      {BrandPhotos.opening ? <Image source={BrandPhotos.opening} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
+      {BrandPhotos.opening ? (
+        <Image
+          accessible={false}
+          accessibilityLabel=""
+          source={BrandPhotos.opening}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+        />
+      ) : null}
       <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" preserveAspectRatio="none">
         <Defs>
           <LinearGradient id="opening" x1="0" y1="0" x2="0" y2="1">
@@ -41,6 +50,7 @@ export function OpeningScreen({ onGetStarted, onSignIn }: { onGetStarted: () => 
           ))}
         </View>
         <Wordmark height={64} />
+        <ScreenReaderTitle>Mongmo</ScreenReaderTitle>
       </View>
 
       <View style={[styles.bottom, { paddingBottom: insets.bottom + 18 }]}>

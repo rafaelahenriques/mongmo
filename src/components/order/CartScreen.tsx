@@ -136,7 +136,13 @@ export default function CartScreen() {
           <ThemedText type="small" style={[styles.flex, { color: theme.onSurfaceDark }]}>
             Product removed
           </ThemedText>
-          <Pressable onPress={undo} accessibilityRole="button" accessibilityLabel="Undo" hitSlop={10}>
+          <Pressable
+            onPress={undo}
+            accessibilityRole="button"
+            accessibilityLabel="Undo"
+            hitSlop={10}
+            style={styles.lineButton}
+          >
             <ThemedText type="label" style={{ color: theme.brand }}>
               Undo
             </ThemedText>
@@ -165,6 +171,8 @@ export default function CartScreen() {
                   <View style={[styles.round, { backgroundColor: theme.backgroundSelected }]}>
                     {photo ? (
                       <Image
+                        accessible={false}
+                        accessibilityLabel=""
                         source={photo}
                         style={StyleSheet.absoluteFill}
                         contentFit="cover"
@@ -196,6 +204,7 @@ export default function CartScreen() {
                           accessibilityRole="button"
                           accessibilityLabel={`One less ${line.name}`}
                           hitSlop={10}
+                          style={styles.lineButton}
                         >
                           <ThemedText type="captionBold" themeColor="primaryText">
                             −1
@@ -207,6 +216,7 @@ export default function CartScreen() {
                           accessibilityRole="button"
                           accessibilityLabel={`Remove ${line.name}`}
                           hitSlop={10}
+                          style={styles.lineButton}
                         >
                           <Icon name="trash" size={18} color={theme.textSecondary} />
                         </Pressable>
@@ -216,6 +226,7 @@ export default function CartScreen() {
                         accessibilityRole="button"
                         accessibilityLabel={`One more ${line.name}`}
                         hitSlop={10}
+                        style={styles.lineButton}
                       >
                         <ThemedText type="captionBold" themeColor="primaryText">
                           +1
@@ -349,12 +360,19 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     gap: 10,
   },
+  // Each a 44 × 44 target, not just the size of "+1".
+  lineButton: {
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   lineActions: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    gap: 22,
-    marginTop: 6,
+    gap: 4,
+    marginRight: -12,
   },
   reward: {
     flexDirection: 'row',

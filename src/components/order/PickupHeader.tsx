@@ -29,6 +29,8 @@ export function PickupHeader({
     <View style={[styles.strip, { paddingTop: insets.top + 28, backgroundColor: theme.band }]}>
       {image ? (
         <Image
+          accessible={false}
+          accessibilityLabel=""
           source={{ uri: image }}
           style={StyleSheet.absoluteFill}
           contentFit="cover"

@@ -48,6 +48,8 @@ export function ProductCard({
       <View style={[styles.photoBox, { backgroundColor: theme.backgroundSelected }]}>
         {photo ? (
           <Image
+            accessible={false}
+            accessibilityLabel=""
             source={photo}
             style={StyleSheet.absoluteFill}
             contentFit="cover"

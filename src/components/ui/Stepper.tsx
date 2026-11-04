@@ -124,13 +124,14 @@ const styles = StyleSheet.create({
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 28,
+    minHeight: 40,
     borderRadius: Radius.pill,
     paddingHorizontal: Spacing.one,
   },
+  // 40 × 40 at least: big enough to hit, and they grow with the text.
   pillButton: {
-    width: 22,
-    height: 28,
+    minWidth: 40,
+    minHeight: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -82,7 +82,7 @@ export default function MenuScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
-      <AppHeader />
+      <AppHeader title="Order" />
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: (count ? 88 : 24) + tabBarInset }]}>
         <Pressable
           onPress={() => {
@@ -149,7 +149,7 @@ export default function MenuScreen() {
                   <View style={styles.icon}>
                     <CategoryIcon section={section.name} size={30} />
                   </View>
-                  <ThemedText type="subtitle" style={styles.flex}>
+                  <ThemedText type="subtitle" style={styles.name}>
                     {section.name}
                   </ThemedText>
                   <ThemedText type="captionBold" themeColor="textSecondary">
@@ -238,6 +238,10 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
+  },
+  name: {
+    flex: 1,
+    minWidth: 0,
   },
   content: {
     paddingHorizontal: PageInset,

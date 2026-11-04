@@ -55,6 +55,8 @@ export default function PhotoGallery({ photos, emptyText }: PhotoGalleryProps) {
             style={({ pressed }) => [styles.cell, { opacity: pressed ? 0.8 : 1 }]}
           >
             <Image
+              accessible={false}
+              accessibilityLabel=""
               source={{ uri: photo.url }}
               style={[styles.photo, { backgroundColor: theme.backgroundSelected }]}
               contentFit="cover"

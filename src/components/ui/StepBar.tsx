@@ -6,7 +6,8 @@ import { useTheme } from '@/hooks/useTheme';
 
 /**
  * Progress through a few named steps (Confirmed · Being made · Ready): an
- * ink rule over each step reached, a stone rule over the rest.
+ * thick ink rule and bold name for each step reached, a thin stone rule
+ * over the rest.
  */
 export function StepBar({ steps, reached }: { steps: string[]; reached: number }) {
   const theme = useTheme();
@@ -20,7 +21,9 @@ export function StepBar({ steps, reached }: { steps: string[]; reached: number }
         const done = index <= reached;
         return (
           <View key={step} style={styles.step}>
-            <View style={[styles.rule, { backgroundColor: done ? theme.text : theme.border }]} />
+            <View
+              style={[styles.rule, done && styles.ruleDone, { backgroundColor: done ? theme.text : theme.border }]}
+            />
             <ThemedText
               type="micro"
               numberOfLines={1}
@@ -45,7 +48,12 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   rule: {
-    height: 3,
+    height: 2,
+    marginTop: 2,
+  },
+  ruleDone: {
+    height: 4,
+    marginTop: 0,
   },
   done: {
     fontFamily: FontFamily.bodySemiBold,

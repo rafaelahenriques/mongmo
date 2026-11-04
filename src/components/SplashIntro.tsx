@@ -146,6 +146,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1000,
+    // The comp is wider than a phone (its sides crop); keep it from widening the page.
+    overflow: 'hidden',
   },
   comp: {
     width: intro.width,

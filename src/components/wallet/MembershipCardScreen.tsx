@@ -57,6 +57,8 @@ export default function MembershipCardScreen() {
           <Wordmark height={26} color={Ink} />
           {BrandPhotos.card ? (
             <Image
+              accessible={false}
+              accessibilityLabel=""
               source={BrandPhotos.card}
               style={styles.photo}
               contentFit="cover"

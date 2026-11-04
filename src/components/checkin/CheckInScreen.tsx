@@ -23,7 +23,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { openDirections } from '@/services/directions';
 import { haptics } from '@/services/haptics';
 import { getCurrentPlace } from '@/services/location';
-import { useCartStore } from '@/state/cartStore';
+import { switchPickup } from '@/services/switchPickup';
 import { useLocationStore } from '@/state/locationStore';
 import { getEventPhase } from '@/utils/dateTime';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
@@ -241,7 +241,13 @@ function CheckedIn({ event, at }: { event: PopUpEvent; at: Date }) {
         You&apos;re in.
       </ThemedText>
       {event.imageUrl ? (
-        <Image source={{ uri: event.imageUrl }} style={styles.donePhoto} contentFit="cover" />
+        <Image
+          accessible={false}
+          accessibilityLabel=""
+          source={{ uri: event.imageUrl }}
+          style={styles.donePhoto}
+          contentFit="cover"
+        />
       ) : (
         <View style={[styles.donePhoto, { backgroundColor: theme.onBrand, opacity: 0.12 }]} />
       )}
@@ -255,10 +261,11 @@ function CheckedIn({ event, at }: { event: PopUpEvent; at: Date }) {
           onPress={() => router.replace({ pathname: '/(popups)/challenges/[id]', params: { id: event.id } })}
         />
         <Pressable
-          onPress={() => {
+          onPress={async () => {
             haptics.tap();
-            useCartStore.getState().setLocation({ type: 'event', eventId: event.id, eventTitle: event.title });
-            router.replace('/(orders)');
+            if (await switchPickup({ type: 'event', eventId: event.id, eventTitle: event.title })) {
+              router.replace('/(orders)');
+            }
           }}
           accessibilityRole="button"
           hitSlop={10}

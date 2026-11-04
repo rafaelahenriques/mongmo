@@ -5,6 +5,13 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 /** Where an order is picked up — the café, or a specific pop-up event. */
 export type CartLocation = { type: 'store'; storeId: string } | { type: 'event'; eventId: string; eventTitle: string };
 
+/** Whether two pickup places are the same place (the same café or pop-up). */
+export function isSameLocation(a: CartLocation | null, b: CartLocation): boolean {
+  if (a?.type === 'store' && b.type === 'store') return a.storeId === b.storeId;
+  if (a?.type === 'event' && b.type === 'event') return a.eventId === b.eventId;
+  return false;
+}
+
 /** An option chosen on an item's page: a dip, extra protein. */
 export type CartOption = {
   id: string;
@@ -65,14 +72,7 @@ export const useCartStore = create<CartState>()(
       setLocation: (location) => {
         // Switching location (café vs. a different event) means the old
         // cart no longer refers to an available menu.
-        const current = get().location;
-        const sameLocation =
-          current?.type === 'store' && location.type === 'store'
-            ? current.storeId === location.storeId
-            : current?.type === 'event' && location.type === 'event'
-              ? current.eventId === location.eventId
-              : false;
-        set(sameLocation ? { location } : { location, items: [] });
+        set(isSameLocation(get().location, location) ? { location } : { location, items: [] });
       },
 
       addItem: ({ options = [], ...item }, quantity = 1) =>
