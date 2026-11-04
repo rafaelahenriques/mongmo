@@ -8,85 +8,83 @@ import '@/global.css';
 import { Platform } from 'react-native';
 
 /**
- * Mongmo brand palette:
- *   Weathered Sage #80C7BC · Faded Warm Cream #F1E4B2 · Dusty Interior Rose
- *   #E5D4D3 · Aged Concrete White #D6D1C4 · Shadow Grey #65665D.
- * They are soft tones, so they're surfaces and fills; the text colours are
- * deeper shades of them, chosen to pass WCAG AA (4.5:1) on every surface
- * they sit on: the page (a light tint of concrete), white cards, rose fills
- * and cream highlights. Ratios are noted against the weakest of those.
- */
-/**
+ * Mongmo palette, from the brand style guide and the app design in Figma:
+ * one accent colour, Weathered Sage, for what is live and for the main
+ * action; everything else is near-black ink, off-white paper and greys
+ * (Aged Concrete White as "stone", Shadow Grey for quiet text).
+ *
  * The brand never uses pure white or pure black. Paper is the near-white
- * (Aged Concrete White lifted almost to white) for cards and for text on
- * dark fills; Ink is the near-black (Shadow Grey deepened almost to black)
- * for the dark-mode page, camera screens and the QR code.
+ * page and Ink the near-black of the dark mode, camera screens and QR code.
+ * Text colours pass WCAG AA (4.5:1) on every surface they sit on.
  */
-export const Paper = '#FCFBF8';
+export const Paper = '#FAF9F5';
 export const Ink = '#1C1D19';
+/** Weathered Sage. */
+export const Sage = '#80C7BC';
 
 /** Paper or Ink at `opacity`, for scrims, glass buttons and bar tracks. */
-export const paperAlpha = (opacity: number) => `rgba(252, 251, 248, ${opacity})`;
+export const paperAlpha = (opacity: number) => `rgba(250, 249, 245, ${opacity})`;
 export const inkAlpha = (opacity: number) => `rgba(28, 29, 25, ${opacity})`;
 
 export const Colors = {
   light: {
-    /** Ink, from Shadow Grey — 9.4:1 on rose, 13:1 on cards. */
-    text: '#2E2F2A',
-    /** Aged Concrete White lightened to a warm off-white page. */
-    background: '#F1EFEA',
-    /** Cards and sheets. */
-    backgroundElement: Paper,
-    /** Dusty Interior Rose: fields, chips, icon circles, pressed rows. */
-    backgroundSelected: '#E5D4D3',
-    /** Muted ink — 4.8:1 on rose, 6:1 on the page. */
-    textSecondary: '#5A5B53',
-    /** Aged Concrete White: hairline dividers and outlines. */
+    /** Ink — 12.6:1 on paper, 11:1 on light stone. */
+    text: '#2F302B',
+    /** Paper page. */
+    background: Paper,
+    /** Cards, fields and sheets: a hair lighter than the page. */
+    backgroundElement: '#FEFEFC',
+    /** Light stone: soft buttons, icon squares, highlighted blocks. */
+    backgroundSelected: '#ECEAE3',
+    /** Shadow Grey — 5.5:1 on paper, 4.8:1 on light stone. */
+    textSecondary: '#65665D',
+    /** Aged Concrete White ("stone"): hairlines, outlines, faded words. */
     border: '#D6D1C4',
-    /** Soft card shadow colour. */
-    shadow: 'rgba(46, 47, 42, 0.10)',
-    /** Shadow Grey pill buttons and dark cards, Paper text (5.6:1). */
-    primary: '#65665D',
+    /** The big faded word next to a number ("25 POINTS"): decorative. */
+    faded: '#D6D1C4',
+    /** Card shadow colour. */
+    shadow: 'rgba(46, 46, 43, 0.10)',
+    /** Dark pill buttons and round icon buttons, paper text (12.6:1). */
+    primary: '#2F302B',
     onPrimary: Paper,
-    /**
-     * Deep sage: big numerals, stars, progress fills and switches — 3.3:1 on
-     * rose, 4.5:1 on cards (large text and graphics need 3:1).
-     */
-    brand: '#388075',
-    /** Weathered Sage: the main call to action, with ink on it (6.9:1). */
-    brandFill: '#80C7BC',
-    onBrand: '#2E2F2A',
-    /** Deep sage for small text: links, "Live" (4.9:1). */
+    /** Dark bands: the tab bar, "Next up", dark block buttons. */
+    surfaceDark: '#2F2F2B',
+    onSurfaceDark: Paper,
+    /** Sage graphics: stamps, rings, progress, the live pin. */
+    brand: Sage,
+    /** Weathered Sage: the main call to action and "live", ink on it (6.9:1). */
+    brandFill: Sage,
+    onBrand: '#2F302B',
+    /** Deep sage for the rare sage text (6.7:1 on paper). */
     primaryText: '#2B6259',
-    /** Faded Warm Cream highlight: rewards, pickup code, avatar. */
-    accent: '#F1E4B2',
-    onAccent: '#2E2F2A',
-    /** AA (4.5:1) on every light surface. */
+    /** Board cream, from the menu board: small highlights. */
+    accent: '#FBE3B0',
+    onAccent: '#2F302B',
+    /** AA (4.5:1) on paper and light stone. */
     success: '#21653F',
     danger: '#A33024',
     warning: '#7A5115',
   },
   dark: {
-    /** Warm white ink — 10.9:1 even on fills. */
+    /** Warm off-white — 13.9:1 on the page. */
     text: '#F2F0EA',
-    /** Shadow Grey, deepened. */
     background: Ink,
     backgroundElement: '#272822',
     backgroundSelected: '#34352E',
     /** 6:1 on fills. */
     textSecondary: '#B8B4A8',
-    border: '#3B3C35',
+    border: '#45463F',
+    faded: '#5A5B53',
     shadow: inkAlpha(0),
-    /** Aged Concrete pill with ink (10.4:1). */
-    primary: '#D6D1C4',
+    primary: '#ECEAE3',
     onPrimary: '#22231E',
-    brand: '#80C7BC',
-    /** Weathered Sage with ink (8.1:1). */
-    brandFill: '#80C7BC',
+    surfaceDark: '#2F2F2B',
+    onSurfaceDark: Paper,
+    brand: Sage,
+    brandFill: Sage,
     onBrand: '#22231E',
-    /** 6.4:1 on fills. */
-    primaryText: '#80C7BC',
-    accent: '#F1E4B2',
+    primaryText: Sage,
+    accent: '#FBE3B0',
     onAccent: '#22231E',
     success: '#3BB16F',
     danger: '#E18278',
@@ -122,8 +120,8 @@ export const Fonts = Platform.select({
 });
 
 /**
- * Brand typefaces, loaded at startup (see FONT_ASSETS). Be Vietnam Pro for
- * text and Barlow Condensed for the bold street-sign headings — both cover
+ * Brand typefaces, loaded at startup (see FONT_ASSETS). Outfit for headings,
+ * card titles and the word tab bar; Be Vietnam Pro for text. Both cover
  * every Vietnamese diacritic (Cà phê sữa đá, Bánh mì…).
  *
  * Each weight is its own family: pick the family, don't set `fontWeight`.
@@ -133,17 +131,28 @@ export const FontFamily = {
   bodyMedium: 'BeVietnamPro_500Medium',
   bodySemiBold: 'BeVietnamPro_600SemiBold',
   bodyBold: 'BeVietnamPro_700Bold',
-  displayBold: 'BarlowCondensed_700Bold',
-  display: 'BarlowCondensed_800ExtraBold',
+  /** Outfit SemiBold: titles, names and big numbers. */
+  display: 'Outfit_600SemiBold',
+  /** Outfit Black: uppercase card titles, labels and the tab bar. */
+  heavy: 'Outfit_900Black',
 } as const;
 
-/** Corner radii: pills everywhere interactive, soft large cards. */
+/**
+ * Corner radii. Round things sit on the page (pill buttons, chips, fields);
+ * blocks that attach to a card or the screen edge are square.
+ */
 export const Radius = {
-  small: 12,
-  medium: 16,
-  large: 24,
+  small: 8,
+  medium: 12,
+  large: 20,
   pill: 999,
 } as const;
+
+/** Shadow under the white cards (task cards, pop-up rows, ticket). */
+export const CardShadow = '0px 6px 9px rgba(46, 46, 43, 0.10)';
+
+/** Page side margin. */
+export const PageInset = 20;
 
 export const Spacing = {
   half: 2,
@@ -155,7 +164,10 @@ export const Spacing = {
   six: 64,
 } as const;
 
-export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
-/** On web the tabs float over the top of the page instead. */
-export const TopTabInset = Platform.select({ web: 64 }) ?? 0;
+/**
+ * The word tab bar sits below the screens (it takes its own space), so
+ * screens need no extra inset for it.
+ */
+export const BottomTabInset = 0;
+export const TopTabInset = 0;
 export const MaxContentWidth = 800;

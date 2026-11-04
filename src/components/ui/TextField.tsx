@@ -8,20 +8,18 @@ export type TextFieldProps = Omit<TextInputProps, 'style'> & {
   /** Visible above the field, and its accessibility label. */
   label: string;
   hint?: string;
-  /** Fill for a field on a card (`muted`) or on the page (`card`). */
+  /** Fill for a field on a stone block (`muted`) or on the page (`card`). */
   surface?: 'muted' | 'card';
   /** Share a row with another half-width field. */
   half?: boolean;
 };
 
-/** Labelled, filled text input with an optional hint underneath. */
-export function TextField({ label, hint, surface = 'muted', half = false, multiline, ...input }: TextFieldProps) {
+/** Labelled, outlined text input with an optional hint underneath. */
+export function TextField({ label, hint, surface = 'card', half = false, multiline, ...input }: TextFieldProps) {
   const theme = useTheme();
   return (
     <View style={[styles.field, half && styles.half]}>
-      <ThemedText type="smallBold" themeColor="textSecondary">
-        {label}
-      </ThemedText>
+      <ThemedText type="captionBold">{label}</ThemedText>
       <TextInput
         placeholderTextColor={theme.textSecondary}
         accessibilityLabel={label}
@@ -32,7 +30,8 @@ export function TextField({ label, hint, surface = 'muted', half = false, multil
           styles.input,
           {
             color: theme.text,
-            backgroundColor: surface === 'muted' ? theme.backgroundSelected : theme.backgroundElement,
+            backgroundColor: theme.backgroundElement,
+            borderColor: surface === 'muted' ? theme.backgroundElement : theme.border,
           },
           multiline && styles.multiline,
         ]}
@@ -48,17 +47,18 @@ export function TextField({ label, hint, surface = 'muted', half = false, multil
 
 const styles = StyleSheet.create({
   field: {
-    gap: Spacing.one + 2,
+    gap: Spacing.two,
   },
   half: {
     flex: 1,
   },
   input: {
-    minHeight: 50,
-    borderRadius: Radius.medium,
-    paddingHorizontal: Spacing.three,
+    minHeight: 46,
+    borderRadius: Radius.small,
+    borderWidth: 1,
+    paddingHorizontal: 14,
     fontFamily: FontFamily.body,
-    fontSize: 16,
+    fontSize: 14,
   },
   multiline: {
     minHeight: 96,

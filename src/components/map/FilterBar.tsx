@@ -31,7 +31,7 @@ function FilterBarComponent({ value, onChange, live = false }: FilterBarProps) {
         value={value}
         onChange={onChange}
         accessibilityLabel="Filter pop-up events by date"
-        surface="floating"
+        look="words"
         style={styles.segment}
       />
       {live ? <Chip label="Live" tone="success" /> : null}
