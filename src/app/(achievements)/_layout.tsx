@@ -10,7 +10,7 @@ export default function AchievementsLayout() {
   const screenOptions = useStackScreenOptions();
   return (
     <Stack screenOptions={screenOptions}>
-      <Stack.Screen name="achievements" options={{ headerTitle: 'Achievements' }} />
+      <Stack.Screen name="achievements" options={{ headerShown: false, headerTitle: 'Achievements' }} />
     </Stack>
   );
 }

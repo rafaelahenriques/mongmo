@@ -8,18 +8,37 @@
 -- there's always one live, one upcoming and one past event to try.
 
 -- ------------------------------------------------------------------
--- Menu: Mongmo's core Vietnamese menu, shared by the store and every event.
+-- Menu: the board at the café, shared by the store and every event.
+-- Item names say what the kitchen makes ("Bánh mì, crispy pork belly");
+-- the app shows them under their section without the repeat. A section
+-- where everything is free is a choice (the dip).
 -- ------------------------------------------------------------------
 insert into public.menus (id, name, description, active) values
-  ('00000000-0000-0000-0000-0000000000d1', 'Mongmo pop-up menu', 'Vietnamese coffee and pastries, available until sold out.', true)
-on conflict (id) do nothing;
+  ('00000000-0000-0000-0000-0000000000d1', 'Mongmo pop-up menu', 'Bánh mì, springrolls and Vietnamese stews, available until sold out.', true)
+on conflict (id) do update set description = excluded.description;
 
 insert into public.menu_items (id, menu_id, name, description, price_cents, category, sort_order, available) values
-  ('00000000-0000-0000-0000-0000000000d2', '00000000-0000-0000-0000-0000000000d1', 'Bánh mì', 'Grilled pork, pickled vegetables & coriander', 650, 'savoury', 1, true),
-  ('00000000-0000-0000-0000-0000000000d3', '00000000-0000-0000-0000-0000000000d1', 'Chả giò', 'Crispy spring rolls, 4 pieces', 500, 'savoury', 2, true),
-  ('00000000-0000-0000-0000-0000000000d4', '00000000-0000-0000-0000-0000000000d1', 'Cà phê sữa đá', 'Iced coffee with condensed milk', 350, 'drinks', 3, true),
-  ('00000000-0000-0000-0000-0000000000d5', '00000000-0000-0000-0000-0000000000d1', 'Bánh flan', 'Coconut crème caramel', 400, 'sweets', 4, true)
-on conflict (id) do nothing;
+  ('00000000-0000-0000-0000-0000000000d2', '00000000-0000-0000-0000-0000000000d1', 'Bánh mì, chicken lemongrass', 'Lemongrass chicken, pickles, herbs', 1050, 'Bánh mì', 1, true),
+  ('00000000-0000-0000-0000-0000000000d3', '00000000-0000-0000-0000-0000000000d1', 'Bánh mì, crispy pork belly', 'Crispy pork belly, pickles, herbs', 1050, 'Bánh mì', 2, true),
+  ('00000000-0000-0000-0000-0000000000d4', '00000000-0000-0000-0000-0000000000d1', 'Bánh mì, grilled meatballs', 'Grilled meatballs, pickles, herbs', 1050, 'Bánh mì', 3, true),
+  ('00000000-0000-0000-0000-0000000000d5', '00000000-0000-0000-0000-0000000000d1', 'Bánh mì, fried tofu', 'Fried tofu, pickles, herbs', 1050, 'Bánh mì', 4, true),
+  ('00000000-0000-0000-0000-0000000000d6', '00000000-0000-0000-0000-0000000000d1', 'Springrolls, chicken lemongrass', null, 500, 'Springrolls', 5, true),
+  ('00000000-0000-0000-0000-0000000000d7', '00000000-0000-0000-0000-0000000000d1', 'Springrolls, grilled meatballs', null, 500, 'Springrolls', 6, true),
+  ('00000000-0000-0000-0000-0000000000d8', '00000000-0000-0000-0000-0000000000d1', 'Springrolls, fried tofu', null, 500, 'Springrolls', 7, true),
+  ('00000000-0000-0000-0000-0000000000d9', '00000000-0000-0000-0000-0000000000d1', 'Springrolls, eggs', null, 500, 'Springrolls', 8, true),
+  ('00000000-0000-0000-0000-0000000000da', '00000000-0000-0000-0000-0000000000d1', 'Additional protein', 'In your bánh mì or springrolls', 100, 'Extras', 9, true),
+  ('00000000-0000-0000-0000-0000000000db', '00000000-0000-0000-0000-0000000000d1', 'Mango dip', null, 0, 'Choose your dip', 10, true),
+  ('00000000-0000-0000-0000-0000000000dc', '00000000-0000-0000-0000-0000000000d1', 'Peanut dip', null, 0, 'Choose your dip', 11, true),
+  ('00000000-0000-0000-0000-0000000000dd', '00000000-0000-0000-0000-0000000000d1', 'Bò kho (beef stew)', null, 1650, 'Vietnamese stews', 12, true),
+  ('00000000-0000-0000-0000-0000000000de', '00000000-0000-0000-0000-0000000000d1', 'Gà cà ri (chicken stew)', null, 1650, 'Vietnamese stews', 13, true),
+  ('00000000-0000-0000-0000-0000000000df', '00000000-0000-0000-0000-0000000000d1', 'Bánh mì without filling', null, 150, 'Bánh mì without filling', 14, true)
+on conflict (id) do update set
+  name = excluded.name,
+  description = excluded.description,
+  price_cents = excluded.price_cents,
+  category = excluded.category,
+  sort_order = excluded.sort_order,
+  available = excluded.available;
 
 -- ------------------------------------------------------------------
 -- Store: the one permanent Mongmo café, Kortrijk.

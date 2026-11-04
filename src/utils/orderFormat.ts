@@ -38,3 +38,16 @@ export const ORDER_STEP: Partial<Record<OrderStatus, number>> = { paid: 0, prepa
 export function pickupCode(orderId: string): string {
   return orderId.slice(0, 6).toUpperCase();
 }
+
+/**
+ * An item's name under its section: "Bánh mì, crispy pork belly" in
+ * "Bánh mì" reads "Crispy pork belly". The full name is what the kitchen
+ * sees on the order.
+ */
+export function shortItemName(name: string, category: string | null): string {
+  if (!category) return name;
+  const prefix = category.trim().toLowerCase();
+  if (!name.toLowerCase().startsWith(prefix)) return name;
+  const rest = name.slice(prefix.length).replace(/^[\s,:·-]+/, '');
+  return rest ? rest.charAt(0).toUpperCase() + rest.slice(1) : name;
+}

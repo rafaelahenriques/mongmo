@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 
+import type { OrderMenuItem } from '@/api/orders';
 import { PickupHeader } from '@/components/order/PickupHeader';
 import { ThemedText } from '@/components/ThemedText';
 import { BlockButton } from '@/components/ui/BlockButton';
@@ -17,7 +18,7 @@ import { usePickupPlace } from '@/hooks/usePickupPlace';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { cartSubtotalCents, useCartStore } from '@/state/cartStore';
-import { formatCents } from '@/utils/orderFormat';
+import { formatCents, shortItemName } from '@/utils/orderFormat';
 
 /**
  * O-03 Cart: where you pick up on a strip of map, each item with its photo
@@ -36,9 +37,16 @@ export default function CartScreen() {
 
   const back = () => (router.canGoBack() ? router.back() : router.replace('/(orders)'));
   const byId = useMemo(() => new Map((menu.data ?? []).map((item) => [item.id, item])), [menu.data]);
-  const suggestions = (menu.data ?? [])
-    .filter((item) => !items.some((line) => line.menuItemId === item.id))
-    .slice(0, 2);
+  // One thing from each section that's not in the cart yet.
+  const suggestions = useMemo(() => {
+    const inCart = new Set(items.map((line) => byId.get(line.menuItemId)?.category));
+    const picked = new Map<string, OrderMenuItem>();
+    for (const item of menu.data ?? []) {
+      const section = item.category ?? item.name;
+      if (item.priceCents > 0 && !inCart.has(item.category) && !picked.has(section)) picked.set(section, item);
+    }
+    return [...picked.values()].slice(0, 2);
+  }, [menu.data, items, byId]);
 
   // Only discount rewards come off an order; free items are handed over at pickup.
   const discount = usableRewards.find(({ reward }) => reward.discountCents);
@@ -62,6 +70,9 @@ export default function CartScreen() {
           <ScrollView contentContainerStyle={styles.content}>
             {items.map((line) => {
               const item = byId.get(line.menuItemId);
+              // "Bánh mì, crispy pork belly" reads BÁNH MÌ over "Crispy pork belly".
+              const short = item ? shortItemName(line.name, item.category) : line.name;
+              const titled = short !== line.name && item?.category;
               return (
                 <View key={line.menuItemId} style={styles.line}>
                   <View style={[styles.round, { backgroundColor: theme.backgroundSelected }]}>
@@ -72,21 +83,39 @@ export default function CartScreen() {
                     )}
                   </View>
                   <View style={styles.flex}>
-                    <ThemedText type="card">{line.name}</ThemedText>
-                    {item?.description ? (
+                    <ThemedText type="card">{titled ? item.category : line.name}</ThemedText>
+                    {titled || item?.description ? (
                       <ThemedText type="caption" themeColor="textSecondary" numberOfLines={1}>
-                        {item.description}
+                        {titled ? short : item?.description}
                       </ThemedText>
                     ) : null}
                   </View>
                   <View style={styles.lineEnd}>
-                    <ThemedText type="captionBold">{formatCents(line.priceCents * line.quantity)}</ThemedText>
-                    <Stepper
-                      value={line.quantity}
-                      min={0}
-                      label={line.name}
-                      onChange={(next) => useCartStore.getState().setQuantity(line.menuItemId, next)}
-                    />
+                    {line.priceCents === 0 ? (
+                      <>
+                        <ThemedText type="caption" themeColor="textSecondary">
+                          Free
+                        </ThemedText>
+                        <Pressable
+                          onPress={() => useCartStore.getState().removeItem(line.menuItemId)}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Remove ${line.name}`}
+                          hitSlop={10}
+                        >
+                          <ThemedText type="link">Remove</ThemedText>
+                        </Pressable>
+                      </>
+                    ) : (
+                      <>
+                        <ThemedText type="captionBold">{formatCents(line.priceCents * line.quantity)}</ThemedText>
+                        <Stepper
+                          value={line.quantity}
+                          min={0}
+                          label={line.name}
+                          onChange={(next) => useCartStore.getState().setQuantity(line.menuItemId, next)}
+                        />
+                      </>
+                    )}
                   </View>
                 </View>
               );
@@ -131,7 +160,7 @@ export default function CartScreen() {
                           .addItem({ menuItemId: item.id, name: item.name, priceCents: item.priceCents });
                       }}
                       accessibilityRole="button"
-                      accessibilityLabel={`Add ${item.name}, ${formatCents(item.priceCents)} euro`}
+                      accessibilityLabel={`Add ${shortItemName(item.name, item.category) !== item.name && item.category ? item.category : item.name}, ${formatCents(item.priceCents)} euro`}
                       style={({ pressed }) => [
                         styles.tile,
                         { backgroundColor: theme.backgroundSelected, opacity: pressed ? 0.85 : 1 },
@@ -141,7 +170,7 @@ export default function CartScreen() {
                         <Image source={{ uri: item.imageUrl }} style={StyleSheet.absoluteFill} contentFit="cover" />
                       ) : null}
                       <View style={[styles.tileLabel, { backgroundColor: theme.backgroundElement }]}>
-                        <ThemedText type="label" numberOfLines={1} style={styles.flexShrink}>
+                        <ThemedText type="label" numberOfLines={2} style={styles.flexShrink}>
                           {item.name}
                         </ThemedText>
                         <ThemedText type="caption" themeColor="textSecondary">
