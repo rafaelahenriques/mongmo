@@ -6,7 +6,8 @@ import { IconNav, TABS } from '@/components/ui/IconNav';
  * The customer's four tabs, with the design's icon bar instead of the
  * system one. Account (and owners' tools through it) and Achievements
  * open from the top bar: they're tabs without a button, and back returns
- * to the tab they were opened from.
+ * to the tab they were opened from. Home opens first because it's the
+ * first tab declared (no anchor: tabs with "history" ignore it for back).
  */
 export default function AppTabs() {
   return (
