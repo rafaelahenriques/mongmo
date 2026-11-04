@@ -19,9 +19,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { confirm } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import type { Reward } from '@/types';
-
-/** Stamps on the card: one per sixth of the way to the next reward. */
-export const STAMPS = 6;
+import { STAMP_VALUE_LABEL, stampCard } from '@/utils/stamps';
 
 /**
  * Wallet tab: your points big on a sage block, the QR code a tap away,
@@ -42,7 +40,7 @@ export default function WalletScreen() {
     [query.data?.rewards],
   );
   const nextReward = rewards.find((reward) => reward.costPoints > points);
-  const stamps = nextReward ? Math.floor((points / nextReward.costPoints) * STAMPS) : STAMPS;
+  const stamps = stampCard(points, nextReward);
 
   const onRedeem = async (reward: Reward) => {
     const yes = await confirm(
@@ -97,7 +95,15 @@ export default function WalletScreen() {
 
         <View style={styles.page}>
           <View style={styles.stamps}>
-            <StampRow earned={stamps} total={STAMPS} height={44} />
+            <View style={styles.stampsHead}>
+              <ThemedText type="captionBold" style={styles.flex}>
+                {nextReward ? `${stamps.earned} of ${stamps.total} stamps` : 'Stamp card full'}
+              </ThemedText>
+              <ThemedText type="caption" themeColor="textSecondary">
+                {STAMP_VALUE_LABEL}
+              </ThemedText>
+            </View>
+            <StampRow earned={stamps.earned} total={stamps.total} height={44} />
             <ThemedText type="caption" themeColor="textSecondary">
               {nextReward
                 ? `${nextReward.costPoints - points} more points to: ${nextReward.title}`
@@ -204,6 +210,14 @@ const styles = StyleSheet.create({
   },
   stamps: {
     gap: 8,
+  },
+  stampsHead: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 12,
+  },
+  flex: {
+    flex: 1,
   },
   group: {
     gap: 8,
