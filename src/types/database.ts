@@ -110,6 +110,8 @@ type MenuItemRow = {
   category: string | null;
   sort_order: number;
   available: boolean;
+  /** Sections this item is an option for (0017); null for a normal item. */
+  add_on_for: string[] | null;
 };
 
 type ChallengeRow = {
@@ -213,6 +215,8 @@ type OrderItemRow = {
   order_id: string;
   menu_item_id: string | null;
   name_snapshot: string;
+  /** The options chosen for the line, by name (0017). */
+  options_snapshot: string | null;
   unit_price_cents_snapshot: number;
   quantity: number;
   line_total_cents: number;

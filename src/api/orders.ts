@@ -11,6 +11,8 @@ export type OrderMenuItem = {
   imageUrl: string | null;
   /** The menu's section ("savoury", "drinks"); items without one go last. */
   category: string | null;
+  /** The sections this is an option for (a dip, extra protein); null for a normal item. */
+  addOnFor: string[] | null;
 };
 
 export type OrderRow = Database['public']['Tables']['orders']['Row'];
@@ -43,7 +45,7 @@ export async function getMenuItems(location: CartLocation): Promise<OrderMenuIte
 
   const { data, error } = await supabase
     .from('menu_items')
-    .select('id, name, description, price_cents, image_url, category')
+    .select('id, name, description, price_cents, image_url, category, add_on_for')
     .in('menu_id', menuIds)
     .eq('available', true)
     .order('sort_order');
@@ -56,6 +58,7 @@ export async function getMenuItems(location: CartLocation): Promise<OrderMenuIte
     priceCents: row.price_cents,
     imageUrl: row.image_url,
     category: row.category,
+    addOnFor: row.add_on_for,
   }));
 }
 
@@ -66,7 +69,7 @@ export async function getMenuItems(location: CartLocation): Promise<OrderMenuIte
  */
 export async function placeOrder(
   location: CartLocation,
-  items: { menuItemId: string; quantity: number }[],
+  items: { menuItemId: string; quantity: number; options?: string[] }[],
   pickupAt: string | null,
   /** A redeemed discount reward to apply; the server checks it's yours and unused. */
   userRewardId: string | null = null,
@@ -74,7 +77,11 @@ export async function placeOrder(
   const { data: order, error } = await supabase.rpc('create_order', {
     p_store_id: location.type === 'store' ? location.storeId : null,
     p_event_id: location.type === 'event' ? location.eventId : null,
-    p_items: items.map((item) => ({ menu_item_id: item.menuItemId, quantity: item.quantity })),
+    p_items: items.map((item) => ({
+      menu_item_id: item.menuItemId,
+      quantity: item.quantity,
+      ...(item.options?.length ? { options: item.options } : {}),
+    })),
     p_pickup_at: pickupAt,
     p_user_reward_id: userRewardId,
   });

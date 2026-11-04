@@ -21,10 +21,10 @@ export function AppHeader({ left }: { left?: ReactNode }) {
 
   return (
     <View
-      style={[styles.bar, { backgroundColor: theme.background, boxShadow: CardShadow, paddingTop: insets.top + 10 }]}
+      style={[styles.bar, { backgroundColor: theme.band, boxShadow: CardShadow, paddingTop: insets.top + 10 }]}
     >
       <View style={styles.left}>
-        <Wordmark height={20} />
+        <Wordmark height={20} color={theme.bandMark} />
         {left}
       </View>
       <HeaderIcon icon="trophy" label="Achievements" onPress={() => router.push('/(achievements)/achievements')} />
@@ -46,7 +46,7 @@ function HeaderIcon({ icon, label, onPress }: { icon: IconName; label: string; o
       hitSlop={8}
       style={({ pressed }) => [styles.icon, { opacity: pressed ? 0.6 : 1 }]}
     >
-      <Icon name={icon} size={24} color={theme.text} />
+      <Icon name={icon} size={24} color={theme.onBand} />
     </Pressable>
   );
 }

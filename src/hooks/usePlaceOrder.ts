@@ -16,7 +16,7 @@ export function usePlaceOrder() {
       userRewardId = null,
     }: {
       location: CartLocation;
-      items: { menuItemId: string; quantity: number }[];
+      items: { menuItemId: string; quantity: number; options?: string[] }[];
       pickupAt: string | null;
       userRewardId?: string | null;
     }) => placeOrder(location, items, pickupAt, userRewardId),

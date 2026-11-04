@@ -7,7 +7,6 @@ import { ThemedText } from '@/components/ThemedText';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { Button } from '@/components/ui/Button';
 import { ColumnRow } from '@/components/ui/ColumnRow';
-import { OptionPill } from '@/components/ui/OptionPill';
 import { PhotoHero } from '@/components/ui/PhotoHero';
 import { Stepper } from '@/components/ui/Stepper';
 import { PageInset } from '@/constants/theme';
@@ -57,7 +56,9 @@ export default function MenuScreen() {
     if (!location && store.data) useCartStore.getState().setLocation({ type: 'store', storeId: store.data.id });
   }, [location, store.data]);
 
-  const sections = useMemo(() => sectionsOf(menu.data ?? []), [menu.data]);
+  // Extras and dips aren't on the board: they're picked on an item's page.
+  const sections = useMemo(() => sectionsOf((menu.data ?? []).filter((item) => !item.addOnFor)), [menu.data]);
+  const optionSections = useMemo(() => new Set((menu.data ?? []).flatMap((item) => item.addOnFor ?? [])), [menu.data]);
   const heroImage = menu.data?.find((item) => item.imageUrl)?.imageUrl ?? undefined;
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
   const total = cartSubtotalCents(items);
@@ -168,20 +169,22 @@ export default function MenuScreen() {
                     ) : null
                   }
                 >
-                  {section.items.every((item) => item.priceCents === 0) ? (
-                    <ChoiceRow items={section.items} />
-                  ) : (
-                    section.items.map((item, at) => (
+                  {section.items.map((item, at) => {
+                    const open = () => router.push({ pathname: '/(orders)/order/item/[id]', params: { id: item.id } });
+                    // With options (a dip, extra protein), Add opens the item's page to pick them.
+                    const hasOptions = optionSections.has(item.category ?? '');
+                    return (
                       <MenuRow
                         key={item.id}
                         item={item}
                         showPrice={!shared}
+                        hasOptions={hasOptions}
                         last={at === section.items.length - 1}
-                        onOpen={() => router.push({ pathname: '/(orders)/order/item/[id]', params: { id: item.id } })}
-                        onAdd={() => add(item)}
+                        onOpen={open}
+                        onAdd={hasOptions ? open : () => add(item)}
                       />
-                    ))
-                  )}
+                    );
+                  })}
                 </ColumnRow>
               </View>
             );
@@ -202,49 +205,27 @@ export default function MenuScreen() {
   );
 }
 
-/**
- * A section where everything is free is a choice, one of them (the dip):
- * pills, the chosen one sage. It goes on the order as its own line.
- */
-function ChoiceRow({ items }: { items: OrderMenuItem[] }) {
-  const lines = useCartStore((state) => state.items);
-  const chosen = items.find((item) => lines.some((line) => line.menuItemId === item.id))?.id;
-  const choose = (item: OrderMenuItem) => {
-    const cart = useCartStore.getState();
-    for (const other of items) if (other.id !== item.id) cart.removeItem(other.id);
-    if (chosen === item.id) cart.removeItem(item.id);
-    else cart.addItem({ menuItemId: item.id, name: item.name, priceCents: 0 });
-  };
-  return (
-    <View style={styles.choices} accessibilityRole="radiogroup">
-      {items.map((item) => (
-        <OptionPill
-          key={item.id}
-          label={shortItemName(item.name, item.category)}
-          checked={chosen === item.id}
-          onPress={() => choose(item)}
-        />
-      ))}
-    </View>
-  );
-}
-
 /** One item: its name (opens it), then Add, or − n + once it's in the cart. */
 function MenuRow({
   item,
   showPrice,
+  hasOptions,
   last,
   onOpen,
   onAdd,
 }: {
   item: OrderMenuItem;
   showPrice: boolean;
+  /** Picked on its own page: Add opens it, and the count shows what's in the cart. */
+  hasOptions: boolean;
   last: boolean;
   onOpen: () => void;
   onAdd: () => void;
 }) {
   const theme = useTheme();
-  const quantity = useCartStore((state) => state.items.find((line) => line.menuItemId === item.id)?.quantity ?? 0);
+  const quantity = useCartStore((state) =>
+    state.items.filter((line) => line.menuItemId === item.id).reduce((sum, line) => sum + line.quantity, 0),
+  );
   return (
     <View style={[styles.item, !last && { borderBottomWidth: 1, borderBottomColor: theme.border }]}>
       <Pressable
@@ -266,7 +247,12 @@ function MenuRow({
           </ThemedText>
         ) : null}
       </Pressable>
-      {quantity ? (
+      {quantity && hasOptions ? (
+        <ThemedText type="captionBold" themeColor="textSecondary">
+          {quantity} in cart
+        </ThemedText>
+      ) : null}
+      {quantity && !hasOptions ? (
         <Stepper
           value={quantity}
           min={0}
@@ -344,12 +330,6 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 14,
     paddingVertical: 5,
-  },
-  choices: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    paddingVertical: 4,
   },
   footer: {
     position: 'absolute',

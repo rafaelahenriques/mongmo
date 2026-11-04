@@ -216,7 +216,7 @@ export async function getOwnerOrders(): Promise<OwnerOrderRow[]> {
 /** Who ordered and what's in it, for the owner's board and order detail. */
 export type OwnerOrderInfo = {
   name: string | null;
-  lines: { id: string; name: string; quantity: number; totalCents: number }[];
+  lines: { id: string; name: string; options: string | null; quantity: number; totalCents: number }[];
 };
 
 export async function getOwnerOrderInfo(orders: OwnerOrderRow[]): Promise<Record<string, OwnerOrderInfo>> {
@@ -228,7 +228,7 @@ export async function getOwnerOrderInfo(orders: OwnerOrderRow[]): Promise<Record
       .in('id', [...new Set(orders.map((order) => order.user_id))]),
     supabase
       .from('order_items')
-      .select('id, order_id, name_snapshot, quantity, line_total_cents')
+      .select('id, order_id, name_snapshot, options_snapshot, quantity, line_total_cents')
       .in('order_id', orders.map((order) => order.id)),
   ]);
   if (people.error) throw toApiError(people.error);
@@ -240,6 +240,7 @@ export async function getOwnerOrderInfo(orders: OwnerOrderRow[]): Promise<Record
     info[row.order_id]?.lines.push({
       id: row.id,
       name: row.name_snapshot,
+      options: row.options_snapshot,
       quantity: row.quantity,
       totalCents: row.line_total_cents,
     });

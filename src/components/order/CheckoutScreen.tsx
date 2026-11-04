@@ -104,7 +104,11 @@ export default function CheckoutScreen() {
     placeOrder.mutate(
       {
         location,
-        items: items.map((item) => ({ menuItemId: item.menuItemId, quantity: item.quantity })),
+        items: items.map((item) => ({
+          menuItemId: item.menuItemId,
+          quantity: item.quantity,
+          options: item.options.map((option) => option.id),
+        })),
         pickupAt: pickupAt.toISOString(),
         userRewardId: discount?.userRewardId ?? null,
       },

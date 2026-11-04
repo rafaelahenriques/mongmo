@@ -10,8 +10,8 @@
 -- ------------------------------------------------------------------
 -- Menu: the board at the café, shared by the store and every event.
 -- Item names say what the kitchen makes ("Bánh mì, crispy pork belly");
--- the app shows them under their section without the repeat. A section
--- where everything is free is a choice (the dip).
+-- the app shows them under their section without the repeat. Extras and
+-- dips are options, chosen on an item's page (see below).
 -- ------------------------------------------------------------------
 insert into public.menus (id, name, description, active) values
   ('00000000-0000-0000-0000-0000000000d1', 'Mongmo pop-up menu', 'Bánh mì, springrolls and Vietnamese stews, available until sold out.', true)
@@ -39,6 +39,14 @@ on conflict (id) do update set
   category = excluded.category,
   sort_order = excluded.sort_order,
   available = excluded.available;
+
+-- Options (0017_item_options.sql): picked on the item's own page, not
+-- the menu. Extra protein for bánh mì and springrolls, a dip with
+-- springrolls.
+update public.menu_items set add_on_for = '{Bánh mì,Springrolls}'
+  where id = '00000000-0000-0000-0000-0000000000da';
+update public.menu_items set add_on_for = '{Springrolls}'
+  where id in ('00000000-0000-0000-0000-0000000000db', '00000000-0000-0000-0000-0000000000dc');
 
 -- ------------------------------------------------------------------
 -- Store: the one permanent Mongmo café, Kortrijk.

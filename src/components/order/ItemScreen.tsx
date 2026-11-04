@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
@@ -8,12 +8,15 @@ import { ThemedText } from '@/components/ThemedText';
 import { BlockButton } from '@/components/ui/BlockButton';
 import { Icon } from '@/components/ui/Icon';
 import { SquareIconButton } from '@/components/ui/SquareIconButton';
+import { OptionPill } from '@/components/ui/OptionPill';
+import { Segmented } from '@/components/ui/Segmented';
 import { Stepper } from '@/components/ui/Stepper';
 import { PageInset } from '@/constants/theme';
 import { useMenu } from '@/hooks/useMenu';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
-import { useCartStore } from '@/state/cartStore';
+import type { OrderMenuItem } from '@/api/orders';
+import { useCartStore, type CartOption } from '@/state/cartStore';
 import { formatCents, shortItemName } from '@/utils/orderFormat';
 
 /**
@@ -27,7 +30,12 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
   const location = useCartStore((state) => state.location);
   const menu = useMenu(location);
   const [quantity, setQuantity] = useState(1);
+  /** Chosen option per choice group (the dip), by group; none means its first one. */
+  const [choices, setChoices] = useState<Record<string, string>>({});
+  /** Extras switched on (extra protein). */
+  const [extras, setExtras] = useState<string[]>([]);
   const item = menu.data?.find((row) => row.id === itemId);
+  const groups = useMemo(() => optionGroupsFor(item, menu.data ?? []), [item, menu.data]);
 
   const back = () => (router.canGoBack() ? router.back() : router.replace('/(orders)'));
 
@@ -52,15 +60,19 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
   }
 
   const short = shortItemName(item.name, item.category);
+  const chosen: CartOption[] = groups
+    .flatMap((group) =>
+      group.choice
+        ? group.items.filter((option) => option.id === (choices[group.name] ?? group.items[0]?.id))
+        : group.items.filter((option) => extras.includes(option.id)),
+    )
+    .map((option) => ({ id: option.id, name: option.name, priceCents: option.priceCents }));
+  const unit = item.priceCents + chosen.reduce((sum, option) => sum + option.priceCents, 0);
 
   const onAdd = () => {
-    const cart = useCartStore.getState();
-    const inCart = cart.items.find((line) => line.menuItemId === item.id)?.quantity ?? 0;
-    if (inCart) cart.setQuantity(item.id, inCart + quantity);
-    else {
-      cart.addItem({ menuItemId: item.id, name: item.name, priceCents: item.priceCents });
-      if (quantity > 1) cart.setQuantity(item.id, quantity);
-    }
+    useCartStore
+      .getState()
+      .addItem({ menuItemId: item.id, name: item.name, priceCents: item.priceCents, options: chosen }, quantity);
     haptics.success();
     back();
   };
@@ -97,6 +109,50 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
               {item.description}
             </ThemedText>
           ) : null}
+          {groups.map((group) =>
+            group.choice ? (
+              <View key={group.name} style={styles.group}>
+                <ThemedText type="section" accessibilityRole="header">
+                  {group.name}
+                </ThemedText>
+                <Segmented
+                  look="blocks"
+                  accessibilityLabel={group.name}
+                  value={choices[group.name] ?? group.items[0]!.id}
+                  onChange={(id) => setChoices((current) => ({ ...current, [group.name]: id }))}
+                  options={group.items.map((option) => ({
+                    value: option.id,
+                    label: shortItemName(option.name, group.name).replace(/ dip$/i, ''),
+                  }))}
+                />
+              </View>
+            ) : (
+              group.items.map((option) => {
+                const on = extras.includes(option.id);
+                return (
+                  <View key={option.id} style={[styles.row, { borderColor: theme.border }]}>
+                    <View style={styles.flex}>
+                      <ThemedText type="smallBold">{option.name}</ThemedText>
+                      <ThemedText type="caption" themeColor="textSecondary">
+                        {formatCents(option.priceCents)} extra
+                      </ThemedText>
+                    </View>
+                    <OptionPill
+                      label={on ? 'Added' : 'Add'}
+                      checked={on}
+                      toggle
+                      accessibilityLabel={`${option.name}, ${formatCents(option.priceCents)} extra`}
+                      onPress={() =>
+                        setExtras((current) =>
+                          on ? current.filter((id) => id !== option.id) : [...current, option.id],
+                        )
+                      }
+                    />
+                  </View>
+                );
+              })
+            ),
+          )}
           <View style={[styles.row, { borderColor: theme.border }]}>
             <ThemedText type="smallBold" style={styles.flex}>
               Quantity
@@ -105,9 +161,32 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
           </View>
         </View>
       </ScrollView>
-      <BlockButton label="Add to order" value={formatCents(item.priceCents * quantity)} onPress={onAdd} bottomInset />
+      <BlockButton label="Add to order" value={formatCents(unit * quantity)} onPress={onAdd} bottomInset />
     </View>
   );
+}
+
+type OptionGroup = {
+  name: string;
+  /** Pick one (all free: the dip), or switch each on (extras). */
+  choice: boolean;
+  items: OrderMenuItem[];
+};
+
+/** The options that go with an item, grouped by their section ("Choose your dip", "Extras"). */
+function optionGroupsFor(item: OrderMenuItem | undefined, menu: OrderMenuItem[]): OptionGroup[] {
+  if (!item?.category) return [];
+  const groups: OptionGroup[] = [];
+  for (const option of menu) {
+    if (!option.addOnFor?.includes(item.category)) continue;
+    const name = option.category?.trim() || 'Extras';
+    const group = groups.find((candidate) => candidate.name === name);
+    if (group) group.items.push(option);
+    else groups.push({ name, choice: false, items: [option] });
+  }
+  for (const group of groups) group.choice = group.items.every((option) => option.priceCents === 0);
+  // The choice (the dip) first, then extras.
+  return groups.sort((a, b) => Number(b.choice) - Number(a.choice));
 }
 
 const styles = StyleSheet.create({
@@ -144,6 +223,10 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
+  },
+  group: {
+    gap: 8,
+    marginTop: 10,
   },
   row: {
     flexDirection: 'row',
