@@ -70,7 +70,12 @@ export default function RateAndVote(props: RateAndVoteProps) {
                 accessibilityLabel={option}
                 style={({ pressed }) => [
                   styles.tile,
-                  { backgroundColor: theme.backgroundSelected, opacity: pressed ? 0.85 : 1 },
+                  {
+                    backgroundColor: theme.backgroundSelected,
+                    // An ink ring marks the choice, not the tag's colour alone.
+                    borderColor: selected ? theme.text : 'transparent',
+                    opacity: pressed ? 0.85 : 1,
+                  },
                 ]}
               >
                 <View style={[styles.tag, { backgroundColor: selected ? theme.brandFill : theme.backgroundElement }]}>
@@ -129,9 +134,10 @@ const styles = StyleSheet.create({
   tile: {
     flexBasis: '48%',
     flexGrow: 1,
-    height: 112,
+    minHeight: 112,
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
+    borderWidth: 2,
   },
   tag: {
     flexDirection: 'row',

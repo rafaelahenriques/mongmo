@@ -24,19 +24,46 @@ export type ThemedTextProps = TextProps & {
     | 'linkPrimary'
     | 'code';
   themeColor?: ThemeColor;
+  /** A header's level (1–3). Without it, it follows the text style. */
+  headingLevel?: 1 | 2 | 3;
 };
 
-export function ThemedText({ style, type = 'default', themeColor, ...rest }: ThemedTextProps) {
+/**
+ * Heading levels by text style, for headers that don't say: a screen's
+ * title is 1, every other header a section (2) right under it, so no level
+ * is ever skipped. On the web they become h1 and h2. Pass `headingLevel`
+ * for a group nested inside a section (3).
+ */
+const HEADING_LEVEL: Partial<Record<NonNullable<ThemedTextProps['type']>, 1 | 2 | 3>> = {
+  display: 1,
+  name: 1,
+  card: 1,
+  title: 2,
+  subtitle: 2,
+  section: 2,
+  item: 2,
+};
+
+export function ThemedText({ style, type = 'default', themeColor, headingLevel, ...rest }: ThemedTextProps) {
   const theme = useTheme();
+  const level =
+    rest.accessibilityRole === 'header' || rest.role === 'heading' ? (headingLevel ?? HEADING_LEVEL[type] ?? 2) : null;
+  const capped = type === 'display' || type === 'name';
 
   return (
     <Text
+      // Display sizes are already large text: past 1.3× they'd break the
+      // layout. Everything else follows the system text size in full.
+      maxFontSizeMultiplier={capped ? 1.3 : undefined}
       style={[
         { color: theme[themeColor ?? 'text'] },
         styles[type],
         type === 'linkPrimary' && { color: theme.primaryText },
         style,
       ]}
+      {...(level ? ({ 'aria-level': level } as object) : null)}
+      // On the web, marks the cap (data-text-cap) for the large-text test.
+      {...(capped && Platform.OS === 'web' ? ({ dataSet: { textCap: '1.3' } } as object) : null)}
       {...rest}
     />
   );

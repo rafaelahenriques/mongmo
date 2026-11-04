@@ -84,15 +84,20 @@ export function ListRow({
 }
 
 const styles = StyleSheet.create({
+  // With large text, a wide control (a switch of options) wraps under the
+  // title instead of running off screen.
   row: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     gap: 10,
     minHeight: 45,
     paddingVertical: 12,
   },
   texts: {
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 120,
     gap: 2,
   },
 });

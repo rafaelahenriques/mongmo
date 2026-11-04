@@ -122,6 +122,8 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
 
         {BrandPhotos.welcome ? (
           <Image
+            accessible={false}
+            accessibilityLabel=""
             source={BrandPhotos.welcome}
             style={styles.photo}
             contentFit="cover"

@@ -88,7 +88,14 @@ export function Segmented<T extends string>({
             <Pressable
               key={option.value}
               {...common}
-              style={[styles.block, { backgroundColor: selected ? theme.brandFill : theme.backgroundSelected }]}
+              style={[
+                styles.block,
+                {
+                  backgroundColor: selected ? theme.brandFill : theme.backgroundSelected,
+                  // An ink ring, so the choice doesn't rest on sage vs stone alone.
+                  borderColor: selected ? theme.text : 'transparent',
+                },
+              ]}
             >
               <ThemedText
                 type="label"
@@ -131,14 +138,17 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   pill: {
-    height: 40,
+    minHeight: 40,
     paddingHorizontal: 18,
+    paddingVertical: 8,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   switch: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    maxWidth: '100%',
     alignSelf: 'flex-start',
     borderRadius: 18,
     padding: 3,
@@ -162,6 +172,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 10,
-    paddingVertical: 13,
+    paddingVertical: 11,
+    borderWidth: 2,
   },
 });

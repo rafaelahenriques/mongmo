@@ -64,7 +64,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "licenses": "node ./scripts/third-party-notices.mjs"
+    "licenses": "node ./scripts/third-party-notices.mjs",
+    "test:a11y": "node ./tests/a11y/run.mjs"
   },
   "private": true,
   "license": "UNLICENSED",

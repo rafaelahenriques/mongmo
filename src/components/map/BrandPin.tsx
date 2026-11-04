@@ -15,7 +15,7 @@ const TONES: Record<BrandPinTone, { fill: string; mark: string }> = {
 /**
  * A map pin: the logo's Ộ on a round colour, ringed in paper so it reads
  * on any map. Sage for a pop-up that's live (bigger, with a point under
- * it), paper for one still to come, ink for the café.
+ * it), paper for one still to come, ink and square-ish for the café.
  */
 export function BrandPin({ tone, size = 40, point = false }: { tone: BrandPinTone; size?: number; point?: boolean }) {
   const { fill, mark } = TONES[tone];
@@ -24,7 +24,7 @@ export function BrandPin({ tone, size = 40, point = false }: { tone: BrandPinTon
       <View
         style={[
           styles.disc,
-          { width: size, height: size, borderRadius: size / 2, backgroundColor: fill },
+          { width: size, height: size, borderRadius: tone === 'cafe' ? size * 0.28 : size / 2, backgroundColor: fill },
           tone === 'upcoming' && { borderColor: Colors.light.brandFill },
         ]}
       >

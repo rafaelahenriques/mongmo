@@ -23,8 +23,8 @@ import { useNotificationsFeed } from '@/hooks/useNotificationsFeed';
 import { useProfile } from '@/hooks/useProfile';
 import { useStore } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
+import { switchPickup } from '@/services/switchPickup';
 import { useBusyStore } from '@/state/busyStore';
-import { useCartStore } from '@/state/cartStore';
 import { useLocationStore } from '@/state/locationStore';
 import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
@@ -80,23 +80,17 @@ export default function HomeScreen() {
   const firstName = profile.data?.name ? shortName(profile.data.name).split(' ')[0] : '';
   const order = activeOrder.data;
   const openEvent = (id: string) => router.push({ pathname: '/(popups)/event/[id]', params: { id } });
-  const orderAt = (event: PopUpEvent) => {
-    useCartStore.getState().setLocation({
-      type: 'event',
-      eventId: event.id,
-      eventTitle: event.title,
-    });
-    router.navigate('/(orders)');
+  const orderAt = async (event: PopUpEvent) => {
+    if (await switchPickup({ type: 'event', eventId: event.id, eventTitle: event.title })) router.navigate('/(orders)');
   };
-  const orderFromStore = () => {
+  const orderFromStore = async () => {
     if (!store.data) return;
-    useCartStore.getState().setLocation({ type: 'store', storeId: store.data.id });
-    router.navigate('/(orders)');
+    if (await switchPickup({ type: 'store', storeId: store.data.id })) router.navigate('/(orders)');
   };
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
-      <AppHeader />
+      <AppHeader title="Home" />
       <ScrollView
         style={{ flex: 1, backgroundColor: theme.background }}
         refreshControl={
@@ -115,6 +109,7 @@ export default function HomeScreen() {
             featured && coordinates ? formatDistance(distanceInMeters(coordinates, featured.coordinates)) : undefined
           }
           onPress={featured ? () => openEvent(featured.id) : undefined}
+          headingLevel={2}
           accessibilityLabel={featured ? `${featured.title}. Open the pop-up.` : undefined}
           top={
             <View style={styles.heroTop}>
@@ -123,6 +118,7 @@ export default function HomeScreen() {
                 accessibilityRole="button"
                 accessibilityLabel={`Notifications${feed.unseen ? `, ${feed.unseen} new` : ''}`}
                 hitSlop={12}
+                style={styles.target}
               >
                 <ThemedText type="captionBold" style={{ color: theme.onSurfaceDark }}>
                   {[firstName ? `Hi, ${firstName}` : 'Hi', feed.unseen ? `${feed.unseen} new` : null]
@@ -231,7 +227,12 @@ export default function HomeScreen() {
             <ThemedText type="title" style={{ color: theme.onSurfaceDark }} accessibilityRole="header">
               Next up
             </ThemedText>
-            <Pressable onPress={() => router.push('/(popups)')} accessibilityRole="link" hitSlop={10}>
+            <Pressable
+              onPress={() => router.push('/(popups)')}
+              accessibilityRole="link"
+              hitSlop={10}
+              style={styles.target}
+            >
               <ThemedText type="captionBold" style={{ color: theme.onSurfaceDark }}>
                 View all
               </ThemedText>
@@ -260,7 +261,13 @@ export default function HomeScreen() {
               >
                 <View style={[styles.thumb, { backgroundColor: theme.textSecondary }]}>
                   {event.imageUrl ? (
-                    <Image source={{ uri: event.imageUrl }} style={StyleSheet.absoluteFill} contentFit="cover" />
+                    <Image
+                      accessible={false}
+                      accessibilityLabel=""
+                      source={{ uri: event.imageUrl }}
+                      style={StyleSheet.absoluteFill}
+                      contentFit="cover"
+                    />
                   ) : null}
                 </View>
                 <View style={styles.flex}>
@@ -341,7 +348,8 @@ const styles = StyleSheet.create({
   },
   heroTop: {
     position: 'absolute',
-    top: 14,
+    // The 44pt-tall greeting centres its text, so it starts 12pt higher.
+    top: 2,
     left: PageInset,
     right: PageInset,
     flexDirection: 'row',
@@ -406,6 +414,11 @@ const styles = StyleSheet.create({
     paddingTop: 22,
     paddingBottom: 6,
     gap: 4,
+  },
+  /** A text-only control, 44pt tall so it's easy to hit. */
+  target: {
+    minHeight: 44,
+    justifyContent: 'center',
   },
   nextHead: {
     flexDirection: 'row',

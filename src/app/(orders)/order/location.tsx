@@ -9,7 +9,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useEventsWithMenu } from '@/hooks/useEventsWithMenu';
 import { useStore } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
-import { useCartStore } from '@/state/cartStore';
+import { switchPickup } from '@/services/switchPickup';
 import { getEventPhase, getStoreStatus } from '@/utils/dateTime';
 
 /**
@@ -32,16 +32,14 @@ export default function OrderLocationScreen() {
     [eventsQuery.data, eventsWithMenu.data],
   );
 
-  const chooseStore = useCallback(() => {
+  const chooseStore = useCallback(async () => {
     if (!storeQuery.data) return;
-    useCartStore.getState().setLocation({ type: 'store', storeId: storeQuery.data.id });
-    router.dismissTo('/(orders)');
+    if (await switchPickup({ type: 'store', storeId: storeQuery.data.id })) router.dismissTo('/(orders)');
   }, [router, storeQuery.data]);
 
   const chooseEvent = useCallback(
-    (eventId: string, eventTitle: string) => {
-      useCartStore.getState().setLocation({ type: 'event', eventId, eventTitle });
-      router.dismissTo('/(orders)');
+    async (eventId: string, eventTitle: string) => {
+      if (await switchPickup({ type: 'event', eventId, eventTitle })) router.dismissTo('/(orders)');
     },
     [router],
   );

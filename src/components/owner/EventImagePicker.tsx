@@ -30,11 +30,14 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
   const motion = useMotion();
   const [uploading, setUploading] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
+  /** The photo just removed, so it can be put back (nothing's saved until the form is). */
+  const [removed, setRemoved] = useState<string | null>(null);
 
   const available = hasNativeFeature('imagePicker');
 
   const choose = async (source: 'library' | 'camera') => {
     setProblem(null);
+    setRemoved(null);
     try {
       // Loaded on demand: see services/nativeModules.ts.
       const ImagePicker = await import('expo-image-picker');
@@ -116,7 +119,31 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
         ) : null}
       </ButtonRow>
       {value ? (
-        <Button label="Remove photo" variant="danger" size="small" icon="trash" onPress={() => onChange('')} />
+        <Button
+          label="Remove photo"
+          variant="danger"
+          size="small"
+          icon="trash"
+          onPress={() => {
+            setRemoved(value);
+            onChange('');
+          }}
+        />
+      ) : removed ? (
+        <View style={styles.undo} accessibilityLiveRegion="polite">
+          <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
+            Photo removed.
+          </ThemedText>
+          <Button
+            label="Undo"
+            variant="ghost"
+            size="small"
+            onPress={() => {
+              onChange(removed);
+              setRemoved(null);
+            }}
+          />
+        </View>
       ) : null}
 
       {problem ? (
@@ -131,6 +158,14 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
 const styles = StyleSheet.create({
   container: {
     gap: Spacing.three,
+  },
+  undo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  flex: {
+    flex: 1,
   },
   preview: {
     aspectRatio: 16 / 9,

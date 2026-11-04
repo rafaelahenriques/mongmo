@@ -23,6 +23,7 @@ export function PhotoHero({
   height = 420,
   onPress,
   accessibilityLabel,
+  headingLevel,
 }: {
   imageUrl?: string;
   title: string;
@@ -36,13 +37,17 @@ export function PhotoHero({
   /** Makes the photo a button (the controls on top stay separate buttons). */
   onPress?: () => void;
   accessibilityLabel?: string;
+  /** Makes the name a heading at this level (the pop-up page's h1). */
+  headingLevel?: 1 | 2;
 }) {
   const theme = useTheme();
   const motion = useMotion();
   return (
-    <View style={[styles.hero, { height, backgroundColor: theme.surfaceDark }]}>
+    <View style={[styles.hero, { minHeight: height, backgroundColor: theme.surfaceDark }]}>
       {imageUrl ? (
         <Image
+          accessible={false}
+          accessibilityLabel=""
           source={{ uri: imageUrl }}
           style={StyleSheet.absoluteFill}
           contentFit="cover"
@@ -76,6 +81,8 @@ export function PhotoHero({
           {/* A long name gets a smaller size and a third line, and shrinks
               further (iOS, Android) rather than ending in "…". */}
           <ThemedText
+            accessibilityRole={headingLevel ? 'header' : undefined}
+            headingLevel={headingLevel}
             type="name"
             style={[styles.name, title.length > 18 && styles.nameLong, { color: theme.onSurfaceDark }]}
             numberOfLines={3}
@@ -96,14 +103,16 @@ export function PhotoHero({
 }
 
 const styles = StyleSheet.create({
+  // At least `height` tall, and taller when large text needs it: the name
+  // sits at the bottom, below room for the controls along the top.
   hero: {
     overflow: 'hidden',
+    justifyContent: 'flex-end',
+    paddingTop: 120,
   },
   bottom: {
-    position: 'absolute',
-    left: PageInset,
-    right: PageInset,
-    bottom: 18,
+    paddingHorizontal: PageInset,
+    paddingBottom: 18,
     gap: 10,
   },
   nameRow: {
@@ -113,6 +122,7 @@ const styles = StyleSheet.create({
   },
   name: {
     flex: 1,
+    minWidth: 0,
   },
   nameLong: {
     fontSize: 34,
@@ -120,5 +130,6 @@ const styles = StyleSheet.create({
   },
   meta: {
     marginTop: 3,
+    flexShrink: 0,
   },
 });

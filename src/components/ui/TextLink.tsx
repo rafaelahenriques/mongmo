@@ -44,9 +44,11 @@ export function TextLink({
 }
 
 const styles = StyleSheet.create({
+  // At least 44 tall to tap, whatever the text size.
   link: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    minHeight: 44,
   },
 });

@@ -26,7 +26,13 @@ export function ColumnRow({
   return (
     <View style={[styles.row, style]}>
       <View style={styles.side}>
-        <View style={styles.label} accessible accessibilityRole="header" accessibilityLabel={label}>
+        <View
+          style={styles.label}
+          accessible
+          accessibilityRole="header"
+          accessibilityLabel={label}
+          {...({ 'aria-level': 2 } as object)}
+        >
           <ThemedText type="captionBold" style={{ color }}>
             {label}
           </ThemedText>

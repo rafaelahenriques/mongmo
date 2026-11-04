@@ -87,6 +87,8 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
         <View style={[styles.photo, { height: 220 + insets.top, backgroundColor: theme.backgroundSelected }]}>
           {photo ? (
             <Image
+              accessible={false}
+              accessibilityLabel=""
               source={photo}
               style={StyleSheet.absoluteFill}
               contentFit="cover"
@@ -106,7 +108,13 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
 
         <View style={styles.page}>
           <View style={styles.title}>
-            <ThemedText type="item" accessibilityRole="header" accessibilityLabel={item.name} style={styles.flex}>
+            <ThemedText
+              type="item"
+              accessibilityRole="header"
+              headingLevel={1}
+              accessibilityLabel={item.name}
+              style={styles.flex}
+            >
               {(short !== item.name && item.category ? item.category : item.name).toUpperCase()}
             </ThemedText>
             <ThemedText type="item">{formatCents(item.priceCents)}</ThemedText>

@@ -64,7 +64,7 @@ export default function WalletScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
-      <AppHeader />
+      <AppHeader title="Wallet" />
       <ScrollView
         contentContainerStyle={{ paddingBottom: tabBarInset + 32 }}
         refreshControl={<RefreshControl refreshing={refresh.refreshing} onRefresh={refresh.onRefresh} />}
@@ -77,7 +77,12 @@ export default function WalletScreen() {
               </ThemedText>
             ) : null}
             <View accessible accessibilityLabel={`${points} points`}>
-              <ThemedText type="display" style={[styles.number, { color: theme.onBrand }]}>
+              <ThemedText
+                type="display"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                style={[styles.number, numberSize(points), { color: theme.onBrand }]}
+              >
                 {points}
               </ThemedText>
               <ThemedText type="display" style={[styles.word, { color: theme.onBrandSoft }]}>
@@ -85,7 +90,15 @@ export default function WalletScreen() {
               </ThemedText>
             </View>
           </View>
-          {BrandPhotos.wallet ? <Image source={BrandPhotos.wallet} style={styles.photo} contentFit="cover" /> : null}
+          {BrandPhotos.wallet ? (
+            <Image
+              accessible={false}
+              accessibilityLabel=""
+              source={BrandPhotos.wallet}
+              style={styles.photo}
+              contentFit="cover"
+            />
+          ) : null}
           <SquareIconButton
             icon="qrcode"
             tone="dark"
@@ -182,19 +195,26 @@ export default function WalletScreen() {
   );
 }
 
+/** The points number shrinks as it gets longer, so 4 or 5 digits still fit the block. */
+function numberSize(points: number) {
+  const digits = String(points).length;
+  if (digits <= 3) return null;
+  return digits === 4 ? { fontSize: 72, lineHeight: 76 } : { fontSize: 58, lineHeight: 62 };
+}
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
+  // Grows with the text (large font sizes) instead of clipping it; the QR
+  // button sits in the 26pt under the block.
   hero: {
-    height: 252,
+    minHeight: 252,
+    paddingBottom: 26,
     marginBottom: 18,
   },
   block: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 26,
+    minHeight: 226,
     width: '68%',
     paddingHorizontal: PageInset,
     paddingTop: 26,

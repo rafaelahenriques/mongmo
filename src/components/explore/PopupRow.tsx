@@ -87,7 +87,13 @@ export function LiveCard({
       >
         <View style={[styles.photo, { backgroundColor: theme.surfaceDark }]}>
           {event.imageUrl ? (
-            <Image source={{ uri: event.imageUrl }} style={StyleSheet.absoluteFill} contentFit="cover" />
+            <Image
+              accessible={false}
+              accessibilityLabel=""
+              source={{ uri: event.imageUrl }}
+              style={StyleSheet.absoluteFill}
+              contentFit="cover"
+            />
           ) : null}
           <View style={[styles.liveTag, { backgroundColor: theme.brandFill }]}>
             <ThemedText type="label" style={{ color: theme.onBrand }}>

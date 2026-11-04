@@ -51,6 +51,7 @@ export function TopBar({
           accessibilityRole="button"
           accessibilityLabel={backIcon === 'close' ? 'Close' : 'Back'}
           hitSlop={12}
+          style={styles.back}
         >
           <Icon name={backIcon} size={22} color={color} weight="semibold" />
         </Pressable>
@@ -75,6 +76,14 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     paddingHorizontal: PageInset,
     paddingBottom: 16,
+  },
+  // 44 × 44 to tap; pulled left so the chevron stays on the margin.
+  back: {
+    minWidth: 44,
+    minHeight: 44,
+    marginLeft: -11,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   title: {
     flex: 1,

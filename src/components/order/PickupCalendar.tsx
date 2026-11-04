@@ -16,7 +16,8 @@ const monthOf = (ymd: string) => ymd.slice(0, 7);
 /**
  * A month calendar for the pickup day, weeks starting on Monday: the days
  * you can pick up on are dark and tappable, the rest faded (closed, past,
- * or too far ahead); the chosen day has a sage circle and today a dot.
+ * or too far ahead); the chosen day has a sage circle ringed in ink (so it
+ * doesn't rely on colour alone) and today a dot.
  * Arrows move between months when the days run into the next one.
  */
 export function PickupCalendar({
@@ -58,7 +59,7 @@ export function PickupCalendar({
   return (
     <View style={styles.calendar}>
       <View style={styles.head}>
-        <ThemedText type="smallBold" accessibilityRole="header" style={styles.flex}>
+        <ThemedText type="smallBold" accessibilityRole="header" headingLevel={2} style={styles.flex}>
           {format(first, 'MMMM yyyy')}
         </ThemedText>
         {months.length > 1 ? (
@@ -104,7 +105,7 @@ export function PickupCalendar({
                 accessibilityState={{ selected: chosen, disabled: !available }}
                 style={styles.cell}
               >
-                <View style={[styles.day, chosen && { backgroundColor: theme.brandFill }]}>
+                <View style={[styles.day, chosen && { backgroundColor: theme.brandFill, borderColor: theme.text }]}>
                   <ThemedText
                     type={available ? 'smallBold' : 'small'}
                     style={{ color: chosen ? theme.onBrand : available ? theme.text : theme.faded }}
@@ -163,8 +164,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   arrow: {
-    width: 36,
-    height: 36,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -177,14 +178,17 @@ const styles = StyleSheet.create({
   },
   cell: {
     flex: 1,
-    height: 48,
+    minHeight: 48,
     alignItems: 'center',
     justifyContent: 'center',
   },
   day: {
-    width: 40,
-    height: 40,
+    minWidth: 40,
+    minHeight: 40,
+    paddingHorizontal: 4,
     borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },

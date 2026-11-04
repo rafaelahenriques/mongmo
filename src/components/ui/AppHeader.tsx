@@ -6,18 +6,20 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { ThemedText } from '@/components/ThemedText';
 import { Icon, type IconName } from '@/components/ui/Icon';
+import { ScreenReaderTitle } from '@/components/ui/ScreenReaderTitle';
 import { CardShadow, PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 
 /**
- * The top bar on each tab's first screen: the wordmark, then your points
+ * The top bar on each tab's first screen: the wordmark (with the screen's
+ * name for screen readers), then your points
  * in a pill (to Wallet), achievements (the trophy) and your account (the
  * person) on the right. Something of the screen's own can sit next to the
  * wordmark (`left`).
  */
-export function AppHeader({ left }: { left?: ReactNode }) {
+export function AppHeader({ title, left }: { title: string; left?: ReactNode }) {
   const theme = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -27,6 +29,8 @@ export function AppHeader({ left }: { left?: ReactNode }) {
     <View style={[styles.bar, { backgroundColor: theme.band, boxShadow: CardShadow, paddingTop: insets.top + 10 }]}>
       <View style={styles.left}>
         <Wordmark height={28} color={theme.bandMark} />
+        {/* The screen's name for screen readers (its h1): the bar shows the logo. */}
+        <ScreenReaderTitle>{title}</ScreenReaderTitle>
         {left}
       </View>
       <Pressable
@@ -87,8 +91,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    height: 32,
+    minHeight: 32,
     paddingHorizontal: 12,
+    paddingVertical: 4,
     borderRadius: 16,
     marginRight: 4,
   },

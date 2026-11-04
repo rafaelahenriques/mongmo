@@ -87,7 +87,12 @@ export default function PhotoCapture({
     <ChallengeFrame title={title} points={points} heading={heading} intro={prompt} action={action} onClose={onClose}>
       <View style={[styles.viewfinder, { backgroundColor: VIEWFINDER }]}>
         {complete && last ? (
-          <Image source={{ uri: last }} style={StyleSheet.absoluteFill} contentFit="cover" />
+          <Image
+            accessibilityLabel="The photo you just took"
+            source={{ uri: last }}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+          />
         ) : permission?.granted ? (
           <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" />
         ) : null}
@@ -121,7 +126,13 @@ export default function PhotoCapture({
                 accessibilityRole="button"
                 accessibilityLabel={`Take photo ${index + 1} again`}
               >
-                <Image source={{ uri }} style={styles.thumb} contentFit="cover" />
+                <Image
+                  accessible={false}
+                  accessibilityLabel=""
+                  source={{ uri }}
+                  style={styles.thumb}
+                  contentFit="cover"
+                />
               </Pressable>
             ) : (
               <View key={index} style={[styles.thumb, styles.thumbEmpty, { borderColor: theme.outline }]}>
