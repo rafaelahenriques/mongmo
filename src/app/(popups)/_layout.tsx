@@ -9,6 +9,7 @@ export default function PopupsLayout() {
       <Stack.Screen name="index" options={{ headerShown: false, headerTitle: 'Pop-ups' }} />
       <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="check-in/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="challenges/[id]" options={{ headerShown: false }} />
     </Stack>
   );
 }

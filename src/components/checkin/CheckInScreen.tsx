@@ -250,7 +250,7 @@ function CheckedIn({ event, at }: { event: PopUpEvent; at: Date }) {
         <Button
           label="See challenges"
           variant="primary"
-          onPress={() => router.replace({ pathname: '/(popups)/event/[id]', params: { id: event.id } })}
+          onPress={() => router.replace({ pathname: '/(popups)/challenges/[id]', params: { id: event.id } })}
         />
         <Pressable
           onPress={() => {
