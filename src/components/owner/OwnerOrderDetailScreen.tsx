@@ -90,7 +90,12 @@ export default function OwnerOrderDetailScreen({ orderId }: { orderId: string })
           </ThemedText>
           <View>
             {(about?.lines ?? []).map((line) => (
-              <ListRow key={line.id} title={`${line.quantity} × ${line.name}`} value={formatCents(line.totalCents)} />
+              <ListRow
+                key={line.id}
+                title={`${line.quantity} × ${line.name}`}
+                subtitle={line.options ?? undefined}
+                value={formatCents(line.totalCents)}
+              />
             ))}
             <ListRow
               title="Reward used"

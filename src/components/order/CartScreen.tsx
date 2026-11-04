@@ -17,7 +17,7 @@ import { useMenu } from '@/hooks/useMenu';
 import { usePickupPlace } from '@/hooks/usePickupPlace';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
-import { cartSubtotalCents, useCartStore } from '@/state/cartStore';
+import { cartSubtotalCents, cartUnitCents, useCartStore } from '@/state/cartStore';
 import { formatCents, shortItemName } from '@/utils/orderFormat';
 
 /**
@@ -37,13 +37,16 @@ export default function CartScreen() {
 
   const back = () => (router.canGoBack() ? router.back() : router.replace('/(orders)'));
   const byId = useMemo(() => new Map((menu.data ?? []).map((item) => [item.id, item])), [menu.data]);
+  const optionSections = useMemo(() => new Set((menu.data ?? []).flatMap((item) => item.addOnFor ?? [])), [menu.data]);
   // One thing from each section that's not in the cart yet.
   const suggestions = useMemo(() => {
     const inCart = new Set(items.map((line) => byId.get(line.menuItemId)?.category));
     const picked = new Map<string, OrderMenuItem>();
     for (const item of menu.data ?? []) {
       const section = item.category ?? item.name;
-      if (item.priceCents > 0 && !inCart.has(item.category) && !picked.has(section)) picked.set(section, item);
+      if (item.priceCents > 0 && !item.addOnFor && !inCart.has(item.category) && !picked.has(section)) {
+        picked.set(section, item);
+      }
     }
     return [...picked.values()].slice(0, 2);
   }, [menu.data, items, byId]);
@@ -73,8 +76,12 @@ export default function CartScreen() {
               // "Bánh mì, crispy pork belly" reads BÁNH MÌ over "Crispy pork belly".
               const short = item ? shortItemName(line.name, item.category) : line.name;
               const titled = short !== line.name && item?.category;
+              // "Fried tofu, peanut dip, additional protein"
+              const detail = [titled ? short : null, ...line.options.map((option) => option.name.toLowerCase())].filter(
+                Boolean,
+              );
               return (
-                <View key={line.menuItemId} style={styles.line}>
+                <View key={line.key} style={styles.line}>
                   <View style={[styles.round, { backgroundColor: theme.backgroundSelected }]}>
                     {item?.imageUrl ? (
                       <Image source={{ uri: item.imageUrl }} style={StyleSheet.absoluteFill} contentFit="cover" />
@@ -84,38 +91,22 @@ export default function CartScreen() {
                   </View>
                   <View style={styles.flex}>
                     <ThemedText type="card">{titled ? item.category : line.name}</ThemedText>
-                    {titled || item?.description ? (
-                      <ThemedText type="caption" themeColor="textSecondary" numberOfLines={1}>
-                        {titled ? short : item?.description}
+                    {detail.length || item?.description ? (
+                      <ThemedText type="caption" themeColor="textSecondary" numberOfLines={2}>
+                        {detail.length
+                          ? detail.join(', ').replace(/^./, (first) => first.toUpperCase())
+                          : item?.description}
                       </ThemedText>
                     ) : null}
                   </View>
                   <View style={styles.lineEnd}>
-                    {line.priceCents === 0 ? (
-                      <>
-                        <ThemedText type="caption" themeColor="textSecondary">
-                          Free
-                        </ThemedText>
-                        <Pressable
-                          onPress={() => useCartStore.getState().removeItem(line.menuItemId)}
-                          accessibilityRole="button"
-                          accessibilityLabel={`Remove ${line.name}`}
-                          hitSlop={10}
-                        >
-                          <ThemedText type="link">Remove</ThemedText>
-                        </Pressable>
-                      </>
-                    ) : (
-                      <>
-                        <ThemedText type="captionBold">{formatCents(line.priceCents * line.quantity)}</ThemedText>
-                        <Stepper
-                          value={line.quantity}
-                          min={0}
-                          label={line.name}
-                          onChange={(next) => useCartStore.getState().setQuantity(line.menuItemId, next)}
-                        />
-                      </>
-                    )}
+                    <ThemedText type="captionBold">{formatCents(cartUnitCents(line) * line.quantity)}</ThemedText>
+                    <Stepper
+                      value={line.quantity}
+                      min={0}
+                      label={line.name}
+                      onChange={(next) => useCartStore.getState().setQuantity(line.key, next)}
+                    />
                   </View>
                 </View>
               );
@@ -155,6 +146,11 @@ export default function CartScreen() {
                       key={item.id}
                       onPress={() => {
                         haptics.press();
+                        // One with options (a dip) opens its page to pick them.
+                        if (optionSections.has(item.category ?? '')) {
+                          router.push({ pathname: '/(orders)/order/item/[id]', params: { id: item.id } });
+                          return;
+                        }
                         useCartStore
                           .getState()
                           .addItem({ menuItemId: item.id, name: item.name, priceCents: item.priceCents });

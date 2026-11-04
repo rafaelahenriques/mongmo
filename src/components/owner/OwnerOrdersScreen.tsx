@@ -90,7 +90,11 @@ export default function OwnerOrdersScreen() {
                 {about?.lines.length ? (
                   <ThemedText type="caption" themeColor="textSecondary">
                     {about.lines
-                      .map((line) => `${line.quantity > 1 ? `${line.quantity} × ` : ''}${line.name}`)
+                      .map(
+                        (line) =>
+                          `${line.quantity > 1 ? `${line.quantity} × ` : ''}${line.name}` +
+                          (line.options ? ` (${line.options.toLowerCase()})` : ''),
+                      )
                       .join('. ')}
                   </ThemedText>
                 ) : null}

@@ -50,6 +50,10 @@ export const Colors = {
     /** Dark bands: the tab bar, "Next up", dark block buttons. */
     surfaceDark: '#2F2F2B',
     onSurfaceDark: Paper,
+    /** The top bar on each tab: sage, with the wordmark and icons in ink. */
+    band: Sage,
+    onBand: Ink,
+    bandMark: Ink,
     /** Sage graphics: stamps, rings, progress, the live pin. */
     brand: Sage,
     /** Weathered Sage: the main call to action and "live", ink on it (6.9:1). */
@@ -80,6 +84,10 @@ export const Colors = {
     onPrimary: '#22231E',
     surfaceDark: '#2F2F2B',
     onSurfaceDark: Paper,
+    /** A deep sage, so the status bar's light text still reads on it. */
+    band: '#23332F',
+    onBand: '#F2F0EA',
+    bandMark: Sage,
     brand: Sage,
     brandFill: Sage,
     onBrand: '#22231E',

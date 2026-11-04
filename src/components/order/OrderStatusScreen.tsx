@@ -15,7 +15,8 @@ import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { openDirections } from '@/services/directions';
 import { haptics } from '@/services/haptics';
-import { useCartStore } from '@/state/cartStore';
+import { getMenuItems } from '@/api/orders';
+import { useCartStore, type CartLocation } from '@/state/cartStore';
 import { formatCents, ORDER_STATUS_TITLE, ORDER_STEP, ORDER_STEPS, pickupCode } from '@/utils/orderFormat';
 
 /**
@@ -65,22 +66,26 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
     ? `Pick up at ${formatInTimeZone(data.pickup_at, zone, 'HH:mm')}`
     : 'Pick up as soon as it’s ready';
 
-  const orderAgain = () => {
+  // Today's menu and prices, with the same options picked again by name.
+  const orderAgain = async () => {
     if (!data.event_id && !data.store_id) return;
+    const location: CartLocation = data.event_id
+      ? { type: 'event', eventId: data.event_id, eventTitle: place?.name ?? '' }
+      : { type: 'store', storeId: data.store_id as string };
+    const menu = await getMenuItems(location).catch(() => []);
     const cart = useCartStore.getState();
-    cart.setLocation(
-      data.event_id
-        ? { type: 'event', eventId: data.event_id, eventTitle: place?.name ?? '' }
-        : { type: 'store', storeId: data.store_id as string },
-    );
+    cart.setLocation(location);
     for (const line of items.data ?? []) {
-      if (!line.menu_item_id) continue;
-      cart.addItem({
-        menuItemId: line.menu_item_id,
-        name: line.name_snapshot,
-        priceCents: line.unit_price_cents_snapshot,
+      const item = menu.find((candidate) => candidate.id === line.menu_item_id);
+      if (!item) continue;
+      const names = line.options_snapshot ? line.options_snapshot.split(', ') : [];
+      const options = names.flatMap((name) => {
+        const option = menu.find(
+          (candidate) => candidate.name === name && candidate.addOnFor?.includes(item.category ?? ''),
+        );
+        return option ? [{ id: option.id, name: option.name, priceCents: option.priceCents }] : [];
       });
-      cart.setQuantity(line.menu_item_id, line.quantity);
+      cart.addItem({ menuItemId: item.id, name: item.name, priceCents: item.priceCents, options }, line.quantity);
     }
     haptics.press();
     router.dismissTo('/(orders)');
@@ -135,6 +140,7 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
               <ListRow
                 key={line.id}
                 title={`${line.quantity > 1 ? `${line.quantity} × ` : ''}${line.name_snapshot}`}
+                subtitle={line.options_snapshot ?? undefined}
                 value={formatCents(line.line_total_cents)}
               />
             ))}
@@ -143,7 +149,7 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
           </View>
         </View>
       </ScrollView>
-      {done ? <BlockButton label="Order again" onPress={orderAgain} /> : null}
+      {done ? <BlockButton label="Order again" onPress={() => void orderAgain()} /> : null}
     </View>
   );
 }

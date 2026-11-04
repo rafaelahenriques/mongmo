@@ -8,17 +8,24 @@ import { haptics } from '@/services/haptics';
 
 /**
  * Outlined option chip, sage when picked. With `checked` it's a radio in a
- * group (kind, duration, challenge type); without, a one-tap preset button.
+ * group (kind, duration, challenge type), or a checkbox on its own
+ * (`toggle`: extra protein); without, a one-tap preset button.
  */
 export function OptionPill({
   label,
   checked,
   icon,
+  toggle = false,
+  accessibilityLabel,
   onPress,
 }: {
   label: string;
   checked?: boolean;
   icon?: IconName;
+  /** On or off by itself, rather than one of a group. */
+  toggle?: boolean;
+  /** What a screen reader says, when the visible word isn't enough ("Add"). */
+  accessibilityLabel?: string;
   onPress: () => void;
 }) {
   const theme = useTheme();
@@ -30,9 +37,9 @@ export function OptionPill({
         haptics.select();
         onPress();
       }}
-      accessibilityRole={checked === undefined ? 'button' : 'radio'}
+      accessibilityRole={checked === undefined ? 'button' : toggle ? 'checkbox' : 'radio'}
       accessibilityState={checked === undefined ? undefined : { checked }}
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel ?? label}
       style={({ pressed }) => [
         styles.pill,
         {
