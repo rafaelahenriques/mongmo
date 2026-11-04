@@ -21,6 +21,7 @@ import type { Challenge, PopUpEvent } from '@/types';
 import { challengeRequirement } from '@/utils/challengeConfig';
 import type { EventPhase } from '@/utils/dateTime';
 import { distanceInMeters } from '@/utils/distance';
+import { useMotion } from '@/constants/motion';
 
 /** Why the challenges can't be started yet, if so (the server says the same). */
 export function challengeLockedReason(phase: EventPhase, checkedIn: boolean, opensAt: string): string | undefined {
@@ -46,6 +47,7 @@ export type ChallengeListProps = {
  */
 export default function ChallengeList({ event, lockedReason, limit }: ChallengeListProps) {
   const theme = useTheme();
+  const motion = useMotion();
   const { challenges, isLoading, completedByChallenge, complete, completePending } = useChallenges(event.id);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -157,7 +159,7 @@ export default function ChallengeList({ event, lockedReason, limit }: ChallengeL
         );
       })}
 
-      <Modal visible={Boolean(activeChallenge || result)} animationType="slide" onRequestClose={close}>
+      <Modal visible={Boolean(activeChallenge || result)} animationType={motion.challenge} onRequestClose={close}>
         <View style={[styles.flex, { backgroundColor: theme.background }]}>
           {result ? (
             <PointsEarned result={result} onNext={next ? () => start(next) : undefined} onClose={close} />

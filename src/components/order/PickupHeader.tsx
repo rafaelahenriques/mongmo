@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TopBar } from '@/components/ui/TopBar';
 import { CardShadow } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { useMotion } from '@/constants/motion';
 
 /**
  * The cart and checkout header: the pop-up's own photo behind a white bar
@@ -22,11 +23,17 @@ export function PickupHeader({
   onBack: () => void;
 }) {
   const theme = useTheme();
+  const motion = useMotion();
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.strip, { paddingTop: insets.top + 28, backgroundColor: theme.band }]}>
       {image ? (
-        <Image source={{ uri: image }} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} />
+        <Image
+          source={{ uri: image }}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          transition={motion.imageFadeMs}
+        />
       ) : null}
       <View style={[styles.bar, { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }]}>
         <TopBar title="Pick up at" value={place} onBack={onBack} topInset={false} />

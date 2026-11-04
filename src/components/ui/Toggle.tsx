@@ -1,8 +1,9 @@
 import { Pressable, StyleSheet } from 'react-native';
-import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import Animated, { ReduceMotion, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
+import { MOTION } from '@/constants/motion';
 
 const WIDTH = 46;
 const HEIGHT = 26;
@@ -27,7 +28,9 @@ export function Toggle({
 }) {
   const theme = useTheme();
   const knob = useAnimatedStyle(() => ({
-    transform: [{ translateX: withTiming(value ? TRAVEL : 0, { duration: 160 }) }],
+    transform: [
+      { translateX: withTiming(value ? TRAVEL : 0, { duration: MOTION.toggleMs, reduceMotion: ReduceMotion.System }) },
+    ],
   }));
 
   return (

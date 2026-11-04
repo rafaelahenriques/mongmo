@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/ThemedText';
 import Chip from '@/components/ui/Chip';
 import { PageInset } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { useMotion } from '@/constants/motion';
 
 /**
  * Photo first, name over it: Home's live pop-up and a pop-up's own page.
@@ -37,10 +38,16 @@ export function PhotoHero({
   accessibilityLabel?: string;
 }) {
   const theme = useTheme();
+  const motion = useMotion();
   return (
     <View style={[styles.hero, { height, backgroundColor: theme.surfaceDark }]}>
       {imageUrl ? (
-        <Image source={{ uri: imageUrl }} style={StyleSheet.absoluteFill} contentFit="cover" transition={200} />
+        <Image
+          source={{ uri: imageUrl }}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          transition={motion.imageFadeMs}
+        />
       ) : null}
       <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" preserveAspectRatio="none">
         <Defs>

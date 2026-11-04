@@ -4,10 +4,12 @@ import { Image } from 'expo-image';
 import { ThemedText } from '@/components/ThemedText';
 import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { useMotion } from '@/constants/motion';
 
 /** Profile photo, or the name's initials on cream when there isn't one. */
 export function Avatar({ name, url, size = 84 }: { name: string; url: string; size?: number }) {
   const theme = useTheme();
+  const motion = useMotion();
   const initials = name
     .split(/\s+/)
     .filter(Boolean)
@@ -21,7 +23,7 @@ export function Avatar({ name, url, size = 84 }: { name: string; url: string; si
         source={{ uri: url }}
         style={[styles.circle, { width: size, height: size, backgroundColor: theme.backgroundSelected }]}
         contentFit="cover"
-        transition={200}
+        transition={motion.imageFadeMs}
         accessibilityRole="image"
         accessibilityLabel={`Profile photo of ${name}`}
       />

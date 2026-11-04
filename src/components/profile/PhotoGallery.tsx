@@ -11,6 +11,7 @@ import { IconButton } from '@/components/ui/IconButton';
 import { Ink, inkAlpha, Paper, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
+import { useMotion } from '@/constants/motion';
 
 export type PhotoGalleryProps = {
   photos: Photo[];
@@ -21,6 +22,7 @@ export type PhotoGalleryProps = {
 /** A grid of challenge photos, newest first. Tap one to see it full screen. */
 export default function PhotoGallery({ photos, emptyText }: PhotoGalleryProps) {
   const theme = useTheme();
+  const motion = useMotion();
   const [open, setOpen] = useState<Photo | null>(null);
 
   if (photos.length === 0) {
@@ -56,7 +58,7 @@ export default function PhotoGallery({ photos, emptyText }: PhotoGalleryProps) {
               source={{ uri: photo.url }}
               style={[styles.photo, { backgroundColor: theme.backgroundSelected }]}
               contentFit="cover"
-              transition={200}
+              transition={motion.imageFadeMs}
             />
           </Pressable>
         ))}
@@ -68,8 +70,9 @@ export default function PhotoGallery({ photos, emptyText }: PhotoGalleryProps) {
 
 function PhotoViewer({ photo, onClose }: { photo: Photo | null; onClose: () => void }) {
   const insets = useSafeAreaInsets();
+  const motion = useMotion();
   return (
-    <Modal visible={photo !== null} animationType="fade" onRequestClose={onClose} statusBarTranslucent>
+    <Modal visible={photo !== null} animationType={motion.sheet} onRequestClose={onClose} statusBarTranslucent>
       <View style={styles.viewer}>
         {photo ? (
           <Image
