@@ -8,7 +8,7 @@ import { Wordmark } from '@/components/brand/Wordmark';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
-import { BrandPhotos } from '@/constants/brandPhotos';
+import { BrandPhotoFocus, BrandPhotos } from '@/constants/brandPhotos';
 import { PageInset, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/lib/supabase';
@@ -105,7 +105,13 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
         </View>
 
         {BrandPhotos.welcome ? (
-          <Image source={BrandPhotos.welcome} style={styles.photo} contentFit="cover" accessibilityIgnoresInvertColors />
+          <Image
+            source={BrandPhotos.welcome}
+            style={styles.photo}
+            contentFit="cover"
+            contentPosition={BrandPhotoFocus.welcome}
+            accessibilityIgnoresInvertColors
+          />
         ) : null}
 
         <ThemedText type="name" accessibilityRole="header">

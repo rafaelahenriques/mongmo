@@ -6,13 +6,13 @@ import QRCode from 'react-native-qrcode-svg';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { ThemedText } from '@/components/ThemedText';
 import { StampRow } from '@/components/ui/Stamps';
-import { STAMPS } from '@/components/wallet/WalletScreen';
-import { BrandPhotos } from '@/constants/brandPhotos';
+import { BrandPhotoFocus, BrandPhotos } from '@/constants/brandPhotos';
 import { Ink, PageInset, Paper } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useProfile } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
+import { STAMP_VALUE_LABEL, stampCard } from '@/utils/stamps';
 
 /**
  * M-05 Membership card: the wordmark, your name and points, and your QR
@@ -33,7 +33,7 @@ export default function MembershipCardScreen() {
         .find((reward) => reward.costPoints > points),
     [query.data?.rewards, points],
   );
-  const stamps = nextReward ? Math.floor((points / nextReward.costPoints) * STAMPS) : STAMPS;
+  const stamps = stampCard(points, nextReward);
   const userId = profile.data?.id;
 
   return (
@@ -45,7 +45,15 @@ export default function MembershipCardScreen() {
         <View style={styles.cardTop}>
           <Wordmark height={22} />
         </View>
-        {BrandPhotos.card ? <Image source={BrandPhotos.card} style={styles.photo} contentFit="cover" /> : null}
+        {BrandPhotos.card ? (
+          <Image
+            source={BrandPhotos.card}
+            style={styles.photo}
+            contentFit="cover"
+            contentPosition={BrandPhotoFocus.card}
+            accessibilityIgnoresInvertColors
+          />
+        ) : null}
         <View style={styles.cardRow}>
           <ThemedText type="section" numberOfLines={1} style={styles.flex}>
             {profile.data?.name ?? ''}
@@ -68,13 +76,16 @@ export default function MembershipCardScreen() {
       </ThemedText>
 
       <View style={styles.stamps}>
-        <ThemedText type="subtitle" accessibilityRole="header">
-          Your stamp card
-        </ThemedText>
-        <StampRow earned={stamps} total={STAMPS} height={44} />
+        <View style={styles.stampsHead}>
+          <ThemedText type="subtitle" accessibilityRole="header" style={styles.flex}>
+            Your stamp card
+          </ThemedText>
+          <ThemedText type="captionBold">{STAMP_VALUE_LABEL}</ThemedText>
+        </View>
+        <StampRow earned={stamps.earned} total={stamps.total} height={44} />
         <ThemedText type="caption" themeColor="textSecondary">
           {nextReward
-            ? `${nextReward.costPoints - points} more points to: ${nextReward.title}`
+            ? `${stamps.earned} of ${stamps.total} stamps. ${nextReward.costPoints - points} more points to: ${nextReward.title}.`
             : 'Card full: redeem a reward in Wallet.'}
         </ThemedText>
       </View>
@@ -117,5 +128,10 @@ const styles = StyleSheet.create({
   stamps: {
     gap: 10,
     marginTop: 12,
+  },
+  stampsHead: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 12,
   },
 });

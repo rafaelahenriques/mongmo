@@ -29,10 +29,10 @@ import { useLocationStore } from '@/state/locationStore';
 import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import { ORDER_STEP, ORDER_STEPS, ORDER_STATUS_TITLE, pickupCode } from '@/utils/orderFormat';
+import { STAMP_VALUE_LABEL, stampCard } from '@/utils/stamps';
 import type { PopUpEvent } from '@/types';
 
 /** Stamps on the card: one per sixth of the way to the next reward. */
-const STAMPS = 6;
 
 /**
  * H-01 Home: what is on right now, your order, your points, and what's
@@ -74,7 +74,7 @@ export default function HomeScreen() {
         .find((reward) => reward.costPoints > summary.points),
     [achievements.data?.rewards, summary.points],
   );
-  const stamps = nextReward ? Math.floor((summary.points / nextReward.costPoints) * STAMPS) : STAMPS;
+  const stamps = stampCard(summary.points, nextReward);
 
   const firstName = profile.data?.name.split(' ')[0] ?? '';
   const order = activeOrder.data;
@@ -187,11 +187,11 @@ export default function HomeScreen() {
                 accessibilityLabel="Show my membership QR code"
               />
             </View>
-            <StampRow earned={stamps} total={STAMPS} style={styles.stamps} />
+            <StampRow earned={stamps.earned} total={stamps.total} style={styles.stamps} />
             <View style={styles.titleRow}>
               <ThemedText type="caption" themeColor="textSecondary" style={styles.flex}>
                 {nextReward
-                  ? `${nextReward.costPoints - summary.points} more to your next reward`
+                  ? `${STAMP_VALUE_LABEL} · ${nextReward.costPoints - summary.points} more to your next reward`
                   : 'You can redeem a reward'}
               </ThemedText>
               <Pressable
