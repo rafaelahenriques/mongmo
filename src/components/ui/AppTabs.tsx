@@ -10,11 +10,7 @@ import { IconNav, TABS } from '@/components/ui/IconNav';
  */
 export default function AppTabs() {
   return (
-    <Tabs
-      backBehavior="history"
-      tabBar={(props) => <IconNav {...props} />}
-      screenOptions={{ headerShown: false }}
-    >
+    <Tabs backBehavior="history" tabBar={(props) => <IconNav {...props} />} screenOptions={{ headerShown: false }}>
       {TABS.map((tab) => (
         <Tabs.Screen key={tab.name} name={tab.name} options={{ title: tab.label }} />
       ))}

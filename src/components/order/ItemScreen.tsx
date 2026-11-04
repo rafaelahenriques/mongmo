@@ -4,9 +4,9 @@ import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { CategoryIcon } from '@/components/order/CategoryIcon';
 import { ThemedText } from '@/components/ThemedText';
 import { BlockButton } from '@/components/ui/BlockButton';
-import { Icon } from '@/components/ui/Icon';
 import { SquareIconButton } from '@/components/ui/SquareIconButton';
 import { OptionPill } from '@/components/ui/OptionPill';
 import { Segmented } from '@/components/ui/Segmented';
@@ -89,7 +89,9 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
               transition={200}
             />
           ) : (
-            <Icon name="food" size={48} color={theme.border} />
+            <View style={[styles.plate, { backgroundColor: theme.backgroundElement }]}>
+              <CategoryIcon section={item.category ?? item.name} size={72} />
+            </View>
           )}
           <View style={[styles.back, { top: insets.top + 10 }]}>
             <SquareIconButton icon="chevronLeft" onPress={back} accessibilityLabel="Back" />
@@ -206,6 +208,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+  },
+  plate: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 30,
   },
   back: {
     position: 'absolute',
