@@ -149,6 +149,10 @@ type PhotoRow = {
   challenge_id: string | null;
   storage_path: string;
   created_at: string;
+  /** Shared in Photos of the week since (0029); null while private. */
+  shared_at: string | null;
+  /** Taken down after a report; it can't be shared again. */
+  removed_at: string | null;
 };
 
 type BadgeRow = {
@@ -260,6 +264,19 @@ export type Database = {
         Returns: { lifetime_points: number; first_order_bonus: boolean }[];
       };
       export_my_data: { Args: Record<string, never>; Returns: Record<string, unknown> };
+      set_photo_shared: { Args: { p_photo_id: string; p_shared: boolean }; Returns: undefined };
+      report_photo: { Args: { p_photo_id: string }; Returns: undefined };
+      photos_of_the_week: {
+        Args: Record<string, never>;
+        Returns: {
+          id: string;
+          storage_path: string;
+          event_id: string;
+          event_title: string;
+          shared_at: string;
+          mine: boolean;
+        }[];
+      };
       delete_my_account: { Args: Record<string, never>; Returns: undefined };
       ensure_profile: { Args: Record<string, never>; Returns: undefined };
       my_badge_progress: {

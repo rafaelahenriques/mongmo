@@ -13,10 +13,12 @@ import { TaskCard } from '@/components/ui/TaskCard';
 import { EVENTS_PAGE_URL } from '@/constants/config';
 import { useChallenges } from '@/hooks/useChallenges';
 import { useNow } from '@/hooks/useNow';
+import { useSetPhotoShared } from '@/hooks/usePhotos';
 import { useTheme } from '@/hooks/useTheme';
 import { getCurrentUserId } from '@/lib/supabase';
 import { showError, showMessage } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
+import { askToSharePhotos } from '@/services/photoSharing';
 import { useLocationStore } from '@/state/locationStore';
 import type { Challenge, PopUpEvent } from '@/types';
 import { nameFromContent } from '@/utils/a11y';
@@ -53,6 +55,7 @@ export default function ChallengeList({ event, lockedReason, limit }: ChallengeL
   const { challenges, isLoading, completedByChallenge, complete, completePending } = useChallenges(event.id);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const sharePhotos = useSetPhotoShared();
   const [result, setResult] = useState<(ChallengeResult & { challengeId: string }) | null>(null);
 
   const busy = completePending || uploading;
@@ -115,9 +118,10 @@ export default function ChallengeList({ event, lockedReason, limit }: ChallengeL
 
   const sendPhotos = async (challenge: Challenge, uris: string[]) => {
     setUploading(true);
+    const photoIds: string[] = [];
     try {
       for (const uri of uris) {
-        await uploadChallengePhoto({ uri, eventId: event.id, challengeId: challenge.id });
+        photoIds.push(await uploadChallengePhoto({ uri, eventId: event.id, challengeId: challenge.id }));
       }
     } catch (error) {
       haptics.error();
@@ -127,6 +131,13 @@ export default function ChallengeList({ event, lockedReason, limit }: ChallengeL
       setUploading(false);
     }
     finish(challenge, {});
+    // Private unless they say so, asked now while the photo is fresh.
+    if (await askToSharePhotos(photoIds.length)) {
+      sharePhotos.mutate(
+        { photoIds, shared: true },
+        { onError: (error) => showError('Couldn’t share it', error, 'You can share it later from Account.') },
+      );
+    }
   };
 
   const close = () => {

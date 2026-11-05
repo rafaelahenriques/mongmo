@@ -118,6 +118,7 @@ export default function ProfileScreen() {
 
         <SectionHeader title="Your photos" />
         <PhotoGallery
+          own
           photos={photos.data ?? []}
           emptyText="Photos you take for challenges show up here. Check in at a pop-up and try a photo challenge."
         />

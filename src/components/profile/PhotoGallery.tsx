@@ -1,15 +1,19 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Photo } from '@/api/photos';
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import Chip from '@/components/ui/Chip';
 import { IconBadge } from '@/components/ui/IconBadge';
 import { IconButton } from '@/components/ui/IconButton';
 import { Ink, inkAlpha, Paper, Radius, Spacing } from '@/constants/theme';
+import { useSetPhotoShared } from '@/hooks/usePhotos';
 import { useTheme } from '@/hooks/useTheme';
+import { showError } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import { useMotion } from '@/constants/motion';
 
@@ -17,10 +21,12 @@ export type PhotoGalleryProps = {
   photos: Photo[];
   /** What to say when there are none yet. */
   emptyText: string;
+  /** The person's own photos: shows which are shared, and lets them share or stop. */
+  own?: boolean;
 };
 
 /** A grid of challenge photos, newest first. Tap one to see it full screen. */
-export default function PhotoGallery({ photos, emptyText }: PhotoGalleryProps) {
+export default function PhotoGallery({ photos, emptyText, own = false }: PhotoGalleryProps) {
   const theme = useTheme();
   const motion = useMotion();
   const [open, setOpen] = useState<Photo | null>(null);
@@ -50,7 +56,7 @@ export default function PhotoGallery({ photos, emptyText }: PhotoGalleryProps) {
             }}
             // 'button', not 'imagebutton': the web build has no mapping for the latter.
             accessibilityRole="button"
-            accessibilityLabel={`Photo from ${photo.eventTitle}`}
+            accessibilityLabel={`Photo from ${photo.eventTitle}${own && photo.shared ? ', in Photos of the week' : ''}`}
             accessibilityHint="Opens it full screen"
             style={({ pressed }) => [styles.cell, { opacity: pressed ? 0.8 : 1 }]}
           >
@@ -62,15 +68,61 @@ export default function PhotoGallery({ photos, emptyText }: PhotoGalleryProps) {
               contentFit="cover"
               transition={motion.imageFadeMs}
             />
+            {own && photo.shared ? <Chip label="Shared" tone="dark" style={styles.sharedTag} /> : null}
           </Pressable>
         ))}
       </View>
-      <PhotoViewer photo={open} onClose={() => setOpen(null)} />
+      <PhotoViewer
+        photo={open}
+        onClose={() => setOpen(null)}
+        actions={own && open ? <ShareToggle photo={open} onDone={() => setOpen(null)} /> : null}
+      />
     </>
   );
 }
 
-function PhotoViewer({ photo, onClose }: { photo: Photo | null; onClose: () => void }) {
+/** Share one of your photos in Photos of the week, or stop sharing it. */
+function ShareToggle({ photo, onDone }: { photo: Photo; onDone: () => void }) {
+  const setShared = useSetPhotoShared();
+  if (!photo.shared && !photo.canShare) {
+    return (
+      <ThemedText type="small" style={styles.light}>
+        Only photos from the last week can go in Photos of the week.
+      </ThemedText>
+    );
+  }
+  return (
+    <>
+      <ThemedText type="small" style={styles.light}>
+        {photo.shared
+          ? 'In Photos of the week: other members see it on Home, without your name.'
+          : 'Private: only you and Mongmo staff see it.'}
+      </ThemedText>
+      <Button
+        label={photo.shared ? 'Stop sharing' : 'Share in Photos of the week'}
+        variant="secondary"
+        loading={setShared.isPending}
+        onPress={() =>
+          setShared.mutate(
+            { photoIds: [photo.id], shared: !photo.shared },
+            { onSuccess: onDone, onError: (error) => showError('That didn’t work', error) },
+          )
+        }
+      />
+    </>
+  );
+}
+
+/** A photo full screen, with its pop-up's name, and optional actions under it. */
+export function PhotoViewer({
+  photo,
+  onClose,
+  actions,
+}: {
+  photo: { url: string; eventTitle: string } | null;
+  onClose: () => void;
+  actions?: ReactNode;
+}) {
   const insets = useSafeAreaInsets();
   const motion = useMotion();
   return (
@@ -92,6 +144,9 @@ function PhotoViewer({ photo, onClose }: { photo: Photo | null; onClose: () => v
           </View>
           <IconButton icon="close" tone="primary" size={40} onPress={onClose} accessibilityLabel="Close photo" />
         </View>
+        {actions ? (
+          <View style={[styles.viewerActions, { bottom: insets.bottom + Spacing.three }]}>{actions}</View>
+        ) : null}
       </View>
     </Modal>
   );
@@ -111,6 +166,20 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 1,
     borderRadius: Radius.medium,
+  },
+  sharedTag: {
+    position: 'absolute',
+    left: Spacing.one,
+    bottom: Spacing.one,
+  },
+  viewerActions: {
+    position: 'absolute',
+    left: Spacing.three,
+    right: Spacing.three,
+    gap: Spacing.two,
+    padding: Spacing.three,
+    borderRadius: Radius.medium,
+    backgroundColor: inkAlpha(0.7),
   },
   empty: {
     padding: Spacing.four,
