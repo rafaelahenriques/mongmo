@@ -13,7 +13,7 @@ import { SquareIconButton } from '@/components/ui/SquareIconButton';
 import { StampRow } from '@/components/ui/Stamps';
 import { TaskCard } from '@/components/ui/TaskCard';
 import { BrandPhotos } from '@/constants/brandPhotos';
-import { PageInset } from '@/constants/theme';
+import { CardShadow, PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useProfile } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
@@ -21,8 +21,8 @@ import { useTheme } from '@/hooks/useTheme';
 import { confirm } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import type { Reward } from '@/types';
-import { CHALLENGE_POINTS_PER_DAY, POINTS_PER_EURO } from '@/constants/points';
-import { STAMP_VALUE_LABEL, stampCard, stampsFor, stampsLabel } from '@/utils/stamps';
+import { CHALLENGE_POINTS_PER_DAY, POINTS_PER_EURO, POINTS_PER_STAMP } from '@/constants/points';
+import { stampCard, stampsFor, stampsLabel } from '@/utils/stamps';
 
 /**
  * Wallet tab: your points big on a sage block, the QR code a tap away,
@@ -130,17 +130,16 @@ export default function WalletScreen() {
             ) : null}
           </View>
 
-          {/* How points come in, kept apart from the progress above. */}
-          <View style={styles.earn}>
-            <ThemedText type="smallBold" accessibilityRole="header">
+          {/* How points come in: three tiles, the number first, what it's for under it. */}
+          <View style={styles.group}>
+            <ThemedText type="subtitle" accessibilityRole="header">
               How to earn
             </ThemedText>
-            <EarnLine icon="bag" text={`${POINTS_PER_EURO} points for every €1 you spend`} />
-            <EarnLine
-              icon="trophy"
-              text={`Up to ${CHALLENGE_POINTS_PER_DAY} points a day from challenges at a pop-up`}
-            />
-            <EarnLine icon="star" text={STAMP_VALUE_LABEL} />
+            <View style={styles.earnTiles}>
+              <EarnTile icon="bag" points={POINTS_PER_EURO} text="for every €1 you spend" />
+              <EarnTile icon="trophy" points={CHALLENGE_POINTS_PER_DAY} text="max per day, from challenges" />
+              <EarnTile icon="star" points={POINTS_PER_STAMP} text="fill one stamp" />
+            </View>
           </View>
 
           {usableRewards.length ? (
@@ -250,13 +249,17 @@ const styles = StyleSheet.create({
   stamps: {
     gap: 8,
   },
-  earn: {
+  // Three across on a phone; they wrap onto more rows with large text.
+  earnTiles: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
   },
-  earnLine: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
+  earnTile: {
+    flexGrow: 1,
+    flexBasis: 96,
+    padding: 12,
+    gap: 4,
   },
   flex: {
     flex: 1,
@@ -266,12 +269,21 @@ const styles = StyleSheet.create({
   },
 });
 
-function EarnLine({ icon, text }: { icon: IconName; text: string }) {
+/** One way to earn: the points big, "pts" small beside them, what for underneath. */
+function EarnTile({ icon, points, text }: { icon: IconName; points: number; text: string }) {
   const theme = useTheme();
   return (
-    <View style={styles.earnLine}>
-      <Icon name={icon} size={18} color={theme.text} />
-      <ThemedText type="small" style={styles.flex}>
+    <View
+      style={[styles.earnTile, { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }]}
+      accessible
+      accessibilityLabel={`${points} points ${text}`}
+    >
+      <Icon name={icon} size={18} color={theme.textSecondary} />
+      <ThemedText type="title">
+        {points}
+        <ThemedText type="smallBold"> pts</ThemedText>
+      </ThemedText>
+      <ThemedText type="caption" themeColor="textSecondary">
         {text}
       </ThemedText>
     </View>

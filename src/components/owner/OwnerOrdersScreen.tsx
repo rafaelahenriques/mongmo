@@ -50,6 +50,7 @@ export default function OwnerOrdersScreen() {
         value={column}
         onChange={setColumn}
         accessibilityLabel="Orders"
+        look="tabs"
       />
 
       {isLoading ? (

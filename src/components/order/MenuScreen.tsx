@@ -114,6 +114,7 @@ export default function MenuScreen() {
           value={view}
           onChange={setView}
           accessibilityLabel="Order from"
+          look="tabs"
         />
 
         {view === 'reorder' ? (

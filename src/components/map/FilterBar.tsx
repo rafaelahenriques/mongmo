@@ -15,7 +15,7 @@ export type FilterBarProps = {
 };
 
 /**
- * The date filter for pop-ups, as underlined words. Only pop-ups respond to
+ * The date filter for pop-ups, as chips. Only pop-ups respond to
  * it; the permanent café is always there.
  */
 function FilterBarComponent({ value, onChange }: FilterBarProps) {
@@ -25,7 +25,7 @@ function FilterBarComponent({ value, onChange }: FilterBarProps) {
       value={value}
       onChange={onChange}
       accessibilityLabel="Filter pop-ups by date"
-      look="words"
+      look="chips"
     />
   );
 }

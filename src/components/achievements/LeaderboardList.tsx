@@ -32,6 +32,7 @@ export default function LeaderboardList({ rows, hidden, period, onChangePeriod }
         value={period}
         onChange={onChangePeriod}
         accessibilityLabel="Leaderboard period"
+        look="chips"
       />
 
       {hidden ? (

@@ -143,6 +143,7 @@ export default function SettingsScreen() {
               value={themeMode}
               onChange={setThemeMode}
               accessibilityLabel="Appearance"
+              look="switch"
             />
           }
         />

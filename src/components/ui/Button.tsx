@@ -10,8 +10,10 @@ export type ButtonProps = {
   label: string;
   onPress: () => void;
   /**
-   * brand: sage (the one main action on a screen) · primary: dark ·
-   * ghost: light stone · secondary: outlined · danger: light stone, red label.
+   * The hierarchy: one filled button per group, the rest outlined.
+   * brand: sage, the main action · primary: ink, a main action on sage or
+   * where sage is already taken · secondary (and ghost): outlined in ink,
+   * a second action · danger: outlined in red, for removing things.
    */
   variant?: 'primary' | 'brand' | 'secondary' | 'ghost' | 'danger';
   size?: 'large' | 'medium' | 'small';
@@ -30,6 +32,7 @@ export type ButtonProps = {
 };
 
 const HEIGHT = { large: 52, medium: 44, small: 32 } as const;
+const OUTLINED = new Set<ButtonProps['variant']>(['secondary', 'ghost', 'danger']);
 const PADDING = { large: 20, medium: Spacing.three, small: 14 } as const;
 
 /**
@@ -58,8 +61,8 @@ export function Button({
         primary: { background: theme.primary, foreground: theme.onPrimary },
         brand: { background: theme.brandFill, foreground: theme.onBrand },
         secondary: { background: 'transparent', foreground: theme.text },
-        ghost: { background: theme.backgroundSelected, foreground: theme.text },
-        danger: { background: theme.backgroundSelected, foreground: theme.danger },
+        ghost: { background: 'transparent', foreground: theme.text },
+        danger: { background: 'transparent', foreground: theme.danger },
       }[variant];
   const inactive = disabled || loading;
   const iconSize = size === 'small' ? 15 : 18;
@@ -82,8 +85,9 @@ export function Button({
           paddingHorizontal: PADDING[size],
           paddingRight: arrow ? Spacing.one + 2 : undefined,
           backgroundColor: colors.background,
-          borderWidth: variant === 'secondary' && !disabled ? 1 : 0,
-          borderColor: theme.text,
+          // Outlined variants keep a 1.5pt ring in their label's colour.
+          borderWidth: OUTLINED.has(variant) && !disabled ? 1.5 : 0,
+          borderColor: colors.foreground,
           transform: [{ scale: pressed && !inactive ? 0.97 : 1 }],
         },
         style,

@@ -136,8 +136,8 @@ const styles = StyleSheet.create({
   },
   default: {
     fontFamily: FontFamily.body,
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 16,
+    lineHeight: 24,
   },
   /** Secondary lines: times, places, hints (same as caption). */
   small: {
@@ -148,8 +148,8 @@ const styles = StyleSheet.create({
   /** Row titles, names, values. */
   smallBold: {
     fontFamily: FontFamily.bodySemiBold,
-    fontSize: 15,
-    lineHeight: 21,
+    fontSize: 16,
+    lineHeight: 22,
   },
   caption: {
     fontFamily: FontFamily.body,
