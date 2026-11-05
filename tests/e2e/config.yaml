@@ -1,0 +1,10 @@
+# Maestro workspace: `maestro test tests/e2e` runs every flow below, in order.
+flows:
+  - flows/*.yaml
+executionOrder:
+  continueOnFailure: false
+  flowsOrder:
+    - sign-up
+    - order
+    - your-data
+    - delete-account
