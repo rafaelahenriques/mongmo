@@ -45,3 +45,7 @@ supabase/.temp
 # generated native folders
 /ios
 /android
+
+# Local Supabase files made by `supabase init` / `supabase start`
+supabase/config.toml
+supabase/.branches

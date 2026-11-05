@@ -1,5 +1,7 @@
 # Mongmo
 
+[![CI](https://github.com/rafaelahenriques/mongmo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/rafaelahenriques/mongmo/actions/workflows/ci.yml)
+
 A cross-platform app for Mongmo, a Vietnamese café brand that runs pop-up events across Belgium: brunches, DJ nights and market stalls. Customers discover pop-ups near them, check in on site, complete challenges, earn rewards and order ahead for pickup. Owners get their own interface for creating events, managing challenges and handling incoming orders.
 
 Built for the React challenge in Creative Development at Devine (Howest). I did the design and the development.
@@ -88,16 +90,37 @@ After the first native build, `npx expo start` is enough for day-to-day work. Op
 
 ## Tests and checks
 
-`npm run verify` runs lint, the type check and the unit tests; run it before
-pushing. CI runs those, a dependency audit, the web build and the
-integration tests on every push, and fails on any error. See
+`npm run verify` runs lint, formatting, the type check and the unit tests;
+run it before pushing. CI runs those, a dependency audit, the web build,
+the integration tests against a fresh database and an accessibility pass
+over every screen, on every push, and fails on any error. See
 [tests/README.md](tests/README.md).
 
 ## Environments and releases
 
 Development, staging and production each have their own app and their own
-Supabase project. How to set them up, deploy, and roll back:
-[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+Supabase project. Merges to `main` go to staging; a version tag releases to
+TestFlight and Google Play. See [docs/release-process.md](docs/release-process.md)
+and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+## Documentation
+
+| | |
+|---|---|
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Branches, Conventional Commits, pull requests, the rules the code keeps |
+| [docs/setup.md](docs/setup.md) | Setting up a machine, everyday commands |
+| [docs/architecture.md](docs/architecture.md) | How the app and backend fit together |
+| [docs/database.md](docs/database.md) | Tables, the security model, changing the schema |
+| [docs/release-process.md](docs/release-process.md) | Versions, the pipeline, cutting a release, checklists |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Environments, deploying, rolling back, logs |
+| [docs/store-release.md](docs/store-release.md) | App Store and Google Play requirements and privacy answers |
+| [docs/monitoring.md](docs/monitoring.md) | Sentry, Supabase and store alerts |
+| [docs/github-setup.md](docs/github-setup.md) | Repository settings, branch protection, environments |
+| [SECURITY.md](SECURITY.md) | Reporting a security problem |
+| [docs/security-audit.md](docs/security-audit.md), [docs/security.md](docs/security.md) | What's protected; settings to apply per environment |
+| [docs/incident-response.md](docs/incident-response.md) | What to do after a data breach (72-hour rule) |
+| [docs/privacy/](docs/privacy/) | Personal data inventory and retention schedule |
+| [CHANGELOG.md](CHANGELOG.md) | What changed in each release |
 
 ## License
 

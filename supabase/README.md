@@ -46,7 +46,7 @@ left, per "no hardcoded/mock data."
 | `0001_schema.sql` | Every table in AGENTS.md: profiles, stores, events, menus/menu_items/event_menus, challenges, check_ins, challenge_completions, photos, badges/user_badges, point_events, rewards/user_rewards, orders/order_items. |
 | `0002_functions.sql` | The server-authoritative logic: the profile-creation trigger, the points ledger triggers, badge evaluation (`evaluate_badges`), and the RPCs below. |
 | `0003_rls.sql` | Row Level Security for every table. Per-user tables (`check_ins`, `challenge_completions`, `user_badges`, `point_events`, `user_rewards`, `orders`) have **no client-facing write policy at all** — they're only ever written by the SECURITY DEFINER functions in 0002, which run as the table owner and bypass RLS. |
-| `0004_storage.sql` | The `challenge-photos` storage bucket (public read, write restricted to the uploader's own folder). |
+| `0004_storage.sql` | The `challenge-photos` storage bucket (write restricted to the uploader's own folder; private since 0023). |
 | `0005_realtime.sql` | Adds `stores`/`events` to the `supabase_realtime` publication so the app's live "how busy" numbers work via `postgres_changes`, not a bespoke socket server. |
 | `0006_qr_token_hardening.sql` | Revokes `events.qr_token` from ordinary reads (column-level, not row-level) so "scan the QR" actually verifies something — see below. |
 | `0007_explicit_grants.sql` | Grants `authenticated`/`service_role` table access explicitly instead of relying on the project's default privileges (a project setting, not part of the schema), then re-applies 0006's column list for `events`. |
@@ -65,6 +65,10 @@ left, per "no hardcoded/mock data."
 | `0020_delete_account_photos.sql` | Deleting an account deletes the photo files too: people may delete their own `challenge-photos/<id>/` files (the app removes them first), and `delete_my_account()` refuses while any remain. Everything else cascades from the login (see the function's comment). |
 | `0021_levels.sql` | Levels from lifetime points (everything ever earned, so redeeming never lowers it): Dough 0, Rising 500 (+10% points on orders), Golden 1,500 (+25%), Crisp 4,000 (+50%), named after the bánh mì's bake. A first collected order earns double. Three rewards only a level can redeem (tote bag, stew, 2 bánh mì); `redeem_reward` checks the level. The app reads `levels` and `my_loyalty()`. |
 | `0022_level_names.sql` | Renames the levels from 0021's first names (Rice, Bamboo, Lotus, Jade) to Dough, Rising, Golden, Crisp on a database that already has them; nothing on a fresh one. |
+| `0023_security_hardening.sql` | **Security:** signed-out visitors can call no function (they could read the leaderboard); trigger functions can't be called at all; new functions start with no access. The `challenge-photos` bucket is private (the app uses one-hour signed links) and `photos.url` is gone. Length and format limits on profile links and staff-entered texts. |
+| `0024_challenge_photo_count.sql` | Photo challenges record how many photos there were, not their links (0023 removed `photos.url`). |
+| `0025_retention.sql` | Automatic deletion after each retention period (`docs/privacy/retention.md`): `apply_retention()` and the photo list it needs, run nightly by `.github/workflows/retention.yml`. Service role only. |
+| `0026_export_my_data.sql` | `export_my_data()`: everything held about the signed-in person, as JSON, for Settings → Your data → Download a copy. |
 
 ### Points ledger, not a running total
 
