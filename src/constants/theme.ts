@@ -140,21 +140,23 @@ export const Fonts = Platform.select({
 });
 
 /**
- * Brand typefaces, loaded at startup (see FONT_ASSETS). Outfit for headings,
- * card titles and labels; Be Vietnam Pro for text. Both cover
- * every Vietnamese diacritic (Cà phê sữa đá, Bánh mì…).
+ * Brand typefaces, loaded at startup (see FONT_ASSETS): League Spartan
+ * Black, in capitals, for every title, label and big number; Lato for text.
+ * League Spartan has every Vietnamese letter; Lato (Google's version) lacks
+ * ư, ơ, đ and the stacked accents (sữa, đá), which the phone draws in its
+ * own font.
  *
  * Each weight is its own family: pick the family, don't set `fontWeight`.
  */
 export const FontFamily = {
-  body: 'BeVietnamPro_400Regular',
-  bodyMedium: 'BeVietnamPro_500Medium',
-  bodySemiBold: 'BeVietnamPro_600SemiBold',
-  bodyBold: 'BeVietnamPro_700Bold',
-  /** Outfit SemiBold: titles, names and big numbers. */
-  display: 'Outfit_600SemiBold',
-  /** Outfit Black: uppercase card titles, labels and the tab bar. */
-  heavy: 'Outfit_900Black',
+  body: 'Lato_400Regular',
+  bodyMedium: 'Lato_400Regular',
+  bodySemiBold: 'Lato_700Bold',
+  bodyBold: 'Lato_700Bold',
+  /** League Spartan Black: titles, names and big numbers, in capitals. */
+  display: 'LeagueSpartan_900Black',
+  /** The same face for card titles, labels and buttons. */
+  heavy: 'LeagueSpartan_900Black',
 } as const;
 
 /**

@@ -77,41 +77,46 @@ const styles = StyleSheet.create({
   display: {
     fontFamily: FontFamily.display,
     fontSize: 72,
-    lineHeight: 72,
-    letterSpacing: tracking(72, -2),
+    lineHeight: 80,
+    letterSpacing: tracking(72, -1),
+    textTransform: 'uppercase',
   },
   /** A pop-up's name over its photo. */
   name: {
     fontFamily: FontFamily.display,
     fontSize: 46,
-    lineHeight: 46,
-    letterSpacing: tracking(46, -2),
+    lineHeight: 52,
+    letterSpacing: tracking(46, -1),
+    textTransform: 'uppercase',
   },
   /** Screen headings ("Being made", "Next up"). */
   title: {
     fontFamily: FontFamily.display,
     fontSize: 30,
-    lineHeight: 34,
-    letterSpacing: tracking(30, -2),
+    lineHeight: 36,
+    letterSpacing: tracking(30, -1),
+    textTransform: 'uppercase',
   },
   subtitle: {
     fontFamily: FontFamily.display,
     fontSize: 24,
-    lineHeight: 28,
-    letterSpacing: tracking(24, -1),
+    lineHeight: 30,
+    letterSpacing: 0,
+    textTransform: 'uppercase',
   },
   /** Section headings ("Challenges", "Today", "Keep earning"). */
   section: {
     fontFamily: FontFamily.display,
     fontSize: 20,
-    lineHeight: 24,
-    letterSpacing: tracking(20, -1),
+    lineHeight: 26,
+    letterSpacing: 0,
+    textTransform: 'uppercase',
   },
   /** Uppercase titles on cards and rows ("RATE THE BEST DISH"). */
   card: {
     fontFamily: FontFamily.heavy,
     fontSize: 15,
-    lineHeight: 19,
+    lineHeight: 20,
     textTransform: 'uppercase',
   },
   /** Uppercase labels: the tab bar, top bars, block buttons, segments. */
@@ -126,8 +131,9 @@ const styles = StyleSheet.create({
   item: {
     fontFamily: FontFamily.heavy,
     fontSize: 24,
-    lineHeight: 28,
-    letterSpacing: tracking(24, -1),
+    lineHeight: 30,
+    letterSpacing: 0,
+    textTransform: 'uppercase',
   },
   /** Button labels: heavy and uppercase, like the block buttons they sit on. */
   button: {

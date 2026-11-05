@@ -84,7 +84,12 @@ export function PhotoHero({
             accessibilityRole={headingLevel ? 'header' : undefined}
             headingLevel={headingLevel}
             type="name"
-            style={[styles.name, title.length > 18 && styles.nameLong, { color: theme.onSurfaceDark }]}
+            style={[
+              styles.name,
+              title.length > 12 && styles.nameLong,
+              title.length > 24 && styles.nameLonger,
+              { color: theme.onSurfaceDark },
+            ]}
             numberOfLines={3}
             adjustsFontSizeToFit
             minimumFontScale={0.7}
@@ -124,9 +129,15 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
+  // Names are in capitals, which run wide: a long one steps down a size.
   nameLong: {
-    fontSize: 34,
-    lineHeight: 38,
+    fontSize: 36,
+    // Room above the caps for stacked accents (TẾT).
+    lineHeight: 42,
+  },
+  nameLonger: {
+    fontSize: 30,
+    lineHeight: 36,
   },
   meta: {
     marginTop: 3,

@@ -33,7 +33,7 @@ export function ColumnRow({
           accessibilityLabel={label}
           {...({ 'aria-level': 2 } as object)}
         >
-          <ThemedText type="captionBold" style={{ color }}>
+          <ThemedText type="label" style={{ color }}>
             {label}
           </ThemedText>
         </View>

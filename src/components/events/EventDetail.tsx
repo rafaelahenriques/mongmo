@@ -236,7 +236,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
 
         {event.description ? (
           <View style={styles.about}>
-            <ThemedText type="smallBold" accessibilityRole="header">
+            <ThemedText type="section" accessibilityRole="header">
               About
             </ThemedText>
             <ThemedText type="default">{event.description}</ThemedText>
