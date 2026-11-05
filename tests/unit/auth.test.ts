@@ -81,7 +81,10 @@ describe('deleting the account', () => {
   it("stays signed in and says so when the server can't delete the account", async () => {
     answerDialog('Delete');
     mockBucket.list.mockResolvedValueOnce({ data: [], error: null });
-    rpc.mockResolvedValue({ data: null, error: { message: 'Your photos are still being deleted. Try again.' } });
+    rpc.mockResolvedValue({
+      data: null,
+      error: { message: 'Your photos are still being deleted. Try again.', code: 'P0001' },
+    });
     const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
 
     await confirmDeleteAccount();
@@ -108,9 +111,22 @@ describe('changing the password', () => {
     expect(auth.updateUser).not.toHaveBeenCalled();
   });
 
-  it('passes on other sign-in problems as they are', async () => {
+  it('says plainly when there were too many tries', async () => {
     auth.signInWithPassword.mockResolvedValue({ error: { status: 429, message: 'Too many requests' } } as never);
-    await expect(changePassword('old', 'new-password')).resolves.toBe('Too many requests');
+    await expect(changePassword('old', 'new-password')).resolves.toBe(
+      'Too many tries. Wait a few minutes, then try again.',
+    );
+  });
+
+  it('never shows the server’s own wording for an unknown problem', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    auth.signInWithPassword.mockResolvedValue({ error: null } as never);
+    auth.updateUser.mockResolvedValue({
+      error: { code: 'unexpected_failure', message: 'Database error updating user' },
+    } as never);
+    await expect(changePassword('old', 'new-password')).resolves.toBe(
+      'That didn’t work. Check your connection and try again.',
+    );
   });
 
   it('says when the new password is the old one', async () => {

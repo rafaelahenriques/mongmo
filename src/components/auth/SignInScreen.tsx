@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { OpeningScreen } from '@/components/auth/OpeningScreen';
+import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
@@ -12,6 +13,7 @@ import { BrandPhotoFocus, BrandPhotos } from '@/constants/brandPhotos';
 import { PageInset, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/lib/supabase';
+import { authErrorMessage, MIN_PASSWORD_LENGTH } from '@/services/authMessages';
 import { haptics } from '@/services/haptics';
 import { useSettingsStore } from '@/state/settingsStore';
 
@@ -53,8 +55,11 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
   const [pending, setPending] = useState<'account' | 'guest' | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [resetting, setResetting] = useState(false);
 
-  const canSubmit = email.trim().length > 3 && password.length >= 6 && !pending;
+  // Older accounts may have 6-character passwords; new ones need more.
+  const minLength = mode === 'sign-in' ? 6 : MIN_PASSWORD_LENGTH;
+  const canSubmit = email.trim().length > 3 && password.length >= minLength && !pending;
 
   const onSubmit = useCallback(async () => {
     setError(null);
@@ -71,7 +76,7 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
         setError(
           authError.code === 'email_not_confirmed'
             ? `Confirm your email first: open the link we sent to ${address}.`
-            : authError.message,
+            : authErrorMessage(authError),
         );
       } else if (!data.session) {
         // The project asks new accounts to confirm their email before they
@@ -97,7 +102,7 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
       const { error: authError } = await supabase.auth.signInAnonymously();
       if (authError) {
         haptics.error();
-        setError(authError.message);
+        setError(authErrorMessage(authError));
       } else {
         haptics.success();
       }
@@ -136,79 +141,99 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
           {mode === 'sign-in' ? 'Welcome' : 'Join us'}
         </ThemedText>
 
-        <View style={styles.form}>
-          <TextField
-            label="Email"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            autoCorrect={false}
-            spellCheck={false}
-            autoComplete="email"
-            keyboardType="email-address"
-            textContentType="emailAddress"
-            placeholder="Email"
-            hideLabel
-          />
-          <TextField
-            label="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoComplete={mode === 'sign-in' ? 'password' : 'password-new'}
-            textContentType={mode === 'sign-in' ? 'password' : 'newPassword'}
-            placeholder={mode === 'sign-in' ? 'Password' : 'Password (6 characters or more)'}
-            hideLabel
-          />
+        {resetting ? (
+          <ResetPasswordForm initialEmail={email} onDone={() => setResetting(false)} />
+        ) : (
+          <View style={styles.form}>
+            <TextField
+              label="Email"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              autoCorrect={false}
+              spellCheck={false}
+              autoComplete="email"
+              keyboardType="email-address"
+              textContentType="emailAddress"
+              placeholder="Email"
+              hideLabel
+            />
+            <TextField
+              label="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoComplete={mode === 'sign-in' ? 'password' : 'password-new'}
+              textContentType={mode === 'sign-in' ? 'password' : 'newPassword'}
+              placeholder={mode === 'sign-in' ? 'Password' : `Password (${MIN_PASSWORD_LENGTH} characters or more)`}
+              hideLabel
+            />
 
-          {error ? (
-            <ThemedText type="caption" themeColor="danger" accessibilityRole="alert">
-              {error}
-            </ThemedText>
-          ) : null}
-          {notice ? (
-            <View
-              style={[styles.notice, { backgroundColor: theme.backgroundSelected }]}
-              accessibilityLiveRegion="polite"
+            {error ? (
+              <ThemedText type="caption" themeColor="danger" accessibilityRole="alert">
+                {error}
+              </ThemedText>
+            ) : null}
+            {notice ? (
+              <View
+                style={[styles.notice, { backgroundColor: theme.backgroundSelected }]}
+                accessibilityLiveRegion="polite"
+              >
+                <ThemedText type="small">{notice}</ThemedText>
+              </View>
+            ) : null}
+
+            <Button
+              label={mode === 'sign-in' ? 'Sign in' : 'Create account'}
+              variant="brand"
+              onPress={onSubmit}
+              disabled={!canSubmit}
+              loading={pending === 'account'}
+              haptic="press"
+            />
+
+            {mode === 'sign-in' ? (
+              <Pressable
+                onPress={() => {
+                  haptics.select();
+                  setError(null);
+                  setNotice(null);
+                  setResetting(true);
+                }}
+                accessibilityRole="button"
+                hitSlop={10}
+                style={styles.switch}
+              >
+                <ThemedText type="captionBold">Forgot your password?</ThemedText>
+              </Pressable>
+            ) : null}
+
+            <Pressable
+              onPress={() => {
+                haptics.select();
+                setError(null);
+                setNotice(null);
+                onModeChange(mode === 'sign-in' ? 'sign-up' : 'sign-in');
+              }}
+              accessibilityRole="button"
+              hitSlop={10}
+              style={styles.switch}
             >
-              <ThemedText type="small">{notice}</ThemedText>
-            </View>
-          ) : null}
+              <ThemedText type="captionBold">
+                {mode === 'sign-in' ? 'New to Mongmo? Create an account' : 'Already have an account? Sign in'}
+              </ThemedText>
+            </Pressable>
 
-          <Button
-            label={mode === 'sign-in' ? 'Sign in' : 'Create account'}
-            variant="brand"
-            onPress={onSubmit}
-            disabled={!canSubmit}
-            loading={pending === 'account'}
-            haptic="press"
-          />
-
-          <Pressable
-            onPress={() => {
-              haptics.select();
-              setError(null);
-              setNotice(null);
-              onModeChange(mode === 'sign-in' ? 'sign-up' : 'sign-in');
-            }}
-            accessibilityRole="button"
-            hitSlop={10}
-            style={styles.switch}
-          >
-            <ThemedText type="captionBold">
-              {mode === 'sign-in' ? 'New to Mongmo? Create an account' : 'Already have an account? Sign in'}
-            </ThemedText>
-          </Pressable>
-
-          <Button
-            label="Continue as guest"
-            variant="ghost"
-            onPress={onGuest}
-            loading={pending === 'guest'}
-            disabled={pending === 'account'}
-            accessibilityHint="Look around without an account. You can create one later to keep your points."
-          />
-        </View>
+            <Button
+              label="Continue as guest"
+              variant="ghost"
+              onPress={onGuest}
+              loading={pending === 'guest'}
+              disabled={pending === 'account'}
+              accessibilityHint="Look around without an account. You can create one later to keep your points."
+            />
+          </View>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
