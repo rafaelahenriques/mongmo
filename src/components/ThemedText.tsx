@@ -129,10 +129,13 @@ const styles = StyleSheet.create({
     lineHeight: 28,
     letterSpacing: tracking(24, -1),
   },
+  /** Button labels: heavy and uppercase, like the block buttons they sit on. */
   button: {
-    fontFamily: FontFamily.bodySemiBold,
-    fontSize: 14,
+    fontFamily: FontFamily.heavy,
+    fontSize: 15,
     lineHeight: 20,
+    letterSpacing: tracking(15, 1),
+    textTransform: 'uppercase',
   },
   default: {
     fontFamily: FontFamily.body,

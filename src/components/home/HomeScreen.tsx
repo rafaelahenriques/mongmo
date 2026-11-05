@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { useRouter } from 'expo-router';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
@@ -6,37 +6,40 @@ import { formatInTimeZone } from 'date-fns-tz';
 
 import { shortName } from '@/components/achievements/LeaderboardList';
 import { ThemedText } from '@/components/ThemedText';
-import { Button } from '@/components/ui/Button';
-import { ColumnRow } from '@/components/ui/ColumnRow';
-import { Icon } from '@/components/ui/Icon';
-import { PhotoHero } from '@/components/ui/PhotoHero';
-import { RoundIconButton } from '@/components/ui/RoundIconButton';
+import { AppHeader } from '@/components/ui/AppHeader';
+import Chip from '@/components/ui/Chip';
+import { Icon, type IconName } from '@/components/ui/Icon';
 import { usePullToRefresh } from '@/components/ui/Screen';
 import { StampRow } from '@/components/ui/Stamps';
-import { AppHeader } from '@/components/ui/AppHeader';
 import { StepBar } from '@/components/ui/StepBar';
-import { PageInset } from '@/constants/theme';
+import { BrandPhotoFocus, BrandPhotos } from '@/constants/brandPhotos';
+import { productPhoto } from '@/constants/productPhotos';
+import { CardShadow, PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveOrder } from '@/hooks/useActiveOrder';
 import { useEvents } from '@/hooks/useEvents';
+import { useMenu } from '@/hooks/useMenu';
 import { useNotificationsFeed } from '@/hooks/useNotificationsFeed';
 import { useProfile } from '@/hooks/useProfile';
 import { useStore } from '@/hooks/useStore';
+import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/services/haptics';
 import { switchPickup } from '@/services/switchPickup';
-import { useBusyStore } from '@/state/busyStore';
+import { useCartStore, type CartLocation } from '@/state/cartStore';
 import { useLocationStore } from '@/state/locationStore';
 import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
-import { ORDER_STEP, ORDER_STEPS, ORDER_STATUS_TITLE, pickupCode } from '@/utils/orderFormat';
-import { STAMP_VALUE_LABEL, stampCard } from '@/utils/stamps';
+import { ORDER_STEP, ORDER_STEPS, ORDER_STATUS_TITLE, pickupCode, shortItemName } from '@/utils/orderFormat';
+import { stampCard } from '@/utils/stamps';
 import type { PopUpEvent } from '@/types';
 
-/** Stamps on the card: one per sixth of the way to the next reward. */
-
 /**
- * H-01 Home: what is on right now, your order, your points, and what's
- * next — in the design's label column, photo first.
+ * H-01 Home, laid out like a magazine (after Joe & The Juice's home): your
+ * points big on sage with the stamp line under them, a hello and the way
+ * to order, then cards: a reward to claim, your order, the pop-up that's on,
+ * a few things from the menu, and the pop-ups coming up. Each card has one
+ * action, an uppercase link with an arrow.
  */
 export default function HomeScreen() {
   const theme = useTheme();
@@ -49,6 +52,13 @@ export default function HomeScreen() {
   const { query: achievements, summary } = useAchievements();
   const feed = useNotificationsFeed();
   const coordinates = useLocationStore((state) => state.coordinates);
+  const cartLocation = useCartStore((state) => state.location);
+  const tabBarInset = useTabBarInset();
+
+  // The menu shown on Home: where you're ordering from, else the café's.
+  const menuLocation: CartLocation | null =
+    cartLocation ?? (store.data ? { type: 'store', storeId: store.data.id } : null);
+  const menu = useMenu(menuLocation);
 
   const { featured, upcoming } = useMemo(() => {
     const events = (eventsQuery.data ?? []).filter((event) => getEventPhase(event.startsAt, event.endsAt) !== 'ended');
@@ -61,284 +71,421 @@ export default function HomeScreen() {
         )[0]
       : live[0];
     const lead = nearestLive ?? byStart[0];
-    return {
-      featured: lead,
-      upcoming: byStart.filter((event) => event.id !== lead?.id).slice(0, 3),
-    };
+    return { featured: lead, upcoming: byStart.filter((event) => event.id !== lead?.id).slice(0, 3) };
   }, [eventsQuery.data, coordinates]);
 
-  const nextReward = useMemo(
-    () =>
-      [...(achievements.data?.rewards ?? [])]
-        .sort((a, b) => a.costPoints - b.costPoints)
-        .find((reward) => reward.costPoints > summary.points),
-    [achievements.data?.rewards, summary.points],
+  const rewards = useMemo(
+    () => [...(achievements.data?.rewards ?? [])].sort((a, b) => a.costPoints - b.costPoints),
+    [achievements.data?.rewards],
   );
+  const nextReward = rewards.find((reward) => reward.costPoints > summary.points);
+  // The best reward your points already cover: worth a card of its own.
+  const claimable = [...rewards].reverse().find((reward) => reward.costPoints <= summary.points);
   const stamps = stampCard(summary.points, nextReward);
+
+  // Three things to start an order with, each with its own photo.
+  const picks = useMemo(() => {
+    const seen = new Set<unknown>();
+    return (menu.data ?? [])
+      .filter((item) => !item.addOnFor)
+      .map((item) => ({ item, photo: productPhoto(item) }))
+      .filter(({ photo }) => {
+        if (!photo || seen.has(photo)) return false;
+        seen.add(photo);
+        return true;
+      })
+      .slice(0, 3);
+  }, [menu.data]);
 
   // "rafaela.henriques" (a name made from an email) greets as "Rafaela".
   const firstName = profile.data?.name ? shortName(profile.data.name).split(' ')[0] : '';
   const order = activeOrder.data;
   const openEvent = (id: string) => router.push({ pathname: '/(popups)/event/[id]', params: { id } });
-  const orderAt = async (event: PopUpEvent) => {
-    if (await switchPickup({ type: 'event', eventId: event.id, eventTitle: event.title })) router.navigate('/(orders)');
+  const openOrder = () => router.navigate('/(orders)');
+  const openItem = (id: string) => {
+    // The item page shows the menu of where you're picking up: the café's
+    // when nothing's chosen yet (an empty cart, so nothing to lose).
+    if (!cartLocation && menuLocation) useCartStore.getState().setLocation(menuLocation);
+    router.push({ pathname: '/(orders)/order/item/[id]', params: { id } });
   };
-  const orderFromStore = async () => {
-    if (!store.data) return;
-    if (await switchPickup({ type: 'store', storeId: store.data.id })) router.navigate('/(orders)');
+  const orderAt = async (event: PopUpEvent) => {
+    if (await switchPickup({ type: 'event', eventId: event.id, eventTitle: event.title })) openOrder();
   };
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <AppHeader title="Home" />
       <ScrollView
-        style={{ flex: 1, backgroundColor: theme.background }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refresh.refreshing}
-            onRefresh={refresh.onRefresh}
-            tintColor={theme.onSurfaceDark}
-          />
-        }
+        style={styles.screen}
+        contentContainerStyle={{ paddingBottom: tabBarInset + 32 }}
+        refreshControl={<RefreshControl refreshing={refresh.refreshing} onRefresh={refresh.onRefresh} />}
       >
-        <PhotoHero
-          imageUrl={featured?.imageUrl}
-          title={featured?.title ?? 'Mongmo'}
-          live={featured ? getEventPhase(featured.startsAt, featured.endsAt) === 'live' : false}
-          meta={
-            featured && coordinates ? formatDistance(distanceInMeters(coordinates, featured.coordinates)) : undefined
-          }
-          onPress={featured ? () => openEvent(featured.id) : undefined}
-          headingLevel={2}
-          accessibilityLabel={featured ? `${featured.title}. Open the pop-up.` : undefined}
-          top={
-            <View style={styles.heroTop}>
+        {/* Your points: the number big on sage, the photo beside it, the stamps under. */}
+        <Pressable
+          onPress={() => router.navigate('/(wallet)')}
+          accessibilityRole="button"
+          accessibilityLabel={`${summary.points} points. ${
+            nextReward ? `${nextReward.costPoints - summary.points} more to ${nextReward.title}.` : ''
+          } Open Wallet.`}
+          style={styles.hero}
+        >
+          <View style={[styles.heroBlock, { backgroundColor: theme.brandFill }]}>
+            <ThemedText
+              type="display"
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              style={[styles.heroNumber, { color: theme.onBrand }]}
+            >
+              {summary.points}
+            </ThemedText>
+            <ThemedText type="title" style={{ color: theme.onBrandSoft }}>
+              POINTS
+            </ThemedText>
+          </View>
+          {BrandPhotos.card ? (
+            <Image
+              accessible={false}
+              accessibilityLabel=""
+              source={BrandPhotos.card}
+              style={styles.heroPhoto}
+              contentFit="cover"
+              contentPosition={BrandPhotoFocus.card}
+            />
+          ) : null}
+        </Pressable>
+        <View style={styles.page}>
+          <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
+          <ThemedText type="caption" themeColor="textSecondary" style={styles.stampNote}>
+            {nextReward
+              ? `${nextReward.costPoints - summary.points} points to ${nextReward.title}`
+              : 'Your points cover a reward'}
+          </ThemedText>
+
+          {/* Hello, and the one big way in: order. */}
+          <View style={styles.helloRow}>
+            <View style={styles.flex}>
+              <ThemedText type="item" accessibilityRole="header">
+                {firstName ? `HEY ${firstName.toUpperCase()}!` : 'HEY THERE!'}
+              </ThemedText>
               <Pressable
                 onPress={() => router.push('/(home)/notifications')}
                 accessibilityRole="button"
                 accessibilityLabel={`Notifications${feed.unseen ? `, ${feed.unseen} new` : ''}`}
-                hitSlop={12}
                 style={styles.target}
               >
-                <ThemedText type="captionBold" style={{ color: theme.onSurfaceDark }}>
-                  {[firstName ? `Hi, ${firstName}` : 'Hi', feed.unseen ? `${feed.unseen} new` : null]
-                    .filter(Boolean)
-                    .join(' · ')}
+                <ThemedText type="caption" themeColor="textSecondary">
+                  {feed.unseen ? `${feed.unseen} new for you` : 'Bánh mì, pop-ups and good company.'}
                 </ThemedText>
               </Pressable>
             </View>
-          }
-        />
-
-        {featured ? (
-          <View style={styles.page}>
-            <View style={[styles.rule, { backgroundColor: theme.text }]} />
-            <FeaturedRow
-              event={featured}
-              onCheckIn={() => router.push({ pathname: '/(popups)/check-in/[id]', params: { id: featured.id } })}
-              onOrder={() => orderAt(featured)}
-              onOpen={() => openEvent(featured.id)}
-            />
           </View>
-        ) : null}
-
-        {order ? (
-          <View style={[styles.block, { backgroundColor: theme.backgroundSelected }]}>
-            <ColumnRow label="Your order">
-              <View style={styles.titleRow}>
-                <ThemedText type="title">{ORDER_STATUS_TITLE[order.status]}</ThemedText>
-                <RoundIconButton
-                  icon="arrowRight"
-                  onPress={() =>
-                    router.push({
-                      pathname: '/(orders)/order/status/[id]',
-                      params: { id: order.id },
-                    })
-                  }
-                  accessibilityLabel="Open your order"
-                />
-              </View>
-              <ThemedText type="caption" themeColor="textSecondary">
-                {pickupCode(order.id)}
-                {order.pickup_at ? ` · Pick up at ${new Date(order.pickup_at).toTimeString().slice(0, 5)}` : ''}
-              </ThemedText>
-              <View style={styles.steps}>
-                <StepBar steps={ORDER_STEPS} reached={ORDER_STEP[order.status] ?? 0} />
-              </View>
-            </ColumnRow>
-          </View>
-        ) : null}
-
-        <View style={styles.page}>
-          {/* A card, not one big button: the QR button and the Wallet link
-              inside it are buttons of their own. */}
-          <View style={[styles.pointsCard, { backgroundColor: theme.brandFill }]}>
-            <View style={styles.titleRow}>
-              <View style={styles.flex} accessible accessibilityLabel={`My points: ${summary.points}`}>
-                <ThemedText type="captionBold" style={{ color: theme.onBrand }}>
-                  My points
-                </ThemedText>
-                <View style={styles.pointsLine}>
-                  <ThemedText type="display" style={[styles.pointsNumber, { color: theme.onBrand }]}>
-                    {summary.points}
-                  </ThemedText>
-                  <ThemedText type="title" style={{ color: theme.onBrandSoft }}>
-                    POINTS
-                  </ThemedText>
-                </View>
-              </View>
-              <RoundIconButton
-                icon="qrcode"
-                onPress={() => router.push('/(wallet)/card')}
-                accessibilityLabel="Show my membership QR code"
-              />
-            </View>
-            <StampRow
-              earned={stamps.earned}
-              total={stamps.total}
-              partial={stamps.partial}
-              onBrand
-              style={styles.stamps}
-            />
+          <View style={styles.orderRow}>
             <Pressable
-              onPress={() => router.navigate('/(wallet)')}
+              onPress={() => router.push('/(wallet)/card')}
               accessibilityRole="button"
-              accessibilityHint="Opens Wallet"
-              hitSlop={8}
-              style={({ pressed }) => [styles.titleRow, { opacity: pressed ? 0.7 : 1 }]}
+              accessibilityLabel="Show my membership QR code"
+              style={({ pressed }) => [
+                styles.square,
+                { backgroundColor: theme.surfaceDark, opacity: pressed ? 0.8 : 1 },
+              ]}
             >
-              <View style={styles.flex}>
-                <ThemedText type="smallBold" style={{ color: theme.onBrand }}>
-                  {nextReward
-                    ? `${nextReward.costPoints - summary.points} more points to: ${nextReward.title}`
-                    : 'You can redeem a reward'}
-                </ThemedText>
-                <ThemedText type="caption" style={{ color: theme.onBrand }}>
-                  {STAMP_VALUE_LABEL}
-                </ThemedText>
+              <Icon name="qrcode" size={26} color={theme.onSurfaceDark} />
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                haptics.tap();
+                openOrder();
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="Order"
+              style={({ pressed }) => [styles.orderLink, { opacity: pressed ? 0.7 : 1 }]}
+            >
+              <ThemedText type="item">ORDER</ThemedText>
+              <Icon name="chevronRight" size={22} color={theme.text} weight="bold" />
+              <View style={[styles.square, styles.orderSquare, { backgroundColor: theme.brandFill }]}>
+                <Icon name="bag" size={28} color={theme.onBrand} />
               </View>
-              <Icon name="arrowRight" size={20} color={theme.onBrand} weight="bold" />
             </Pressable>
           </View>
         </View>
 
-        <View style={[styles.nextUp, { backgroundColor: theme.surfaceDark }]}>
-          <View style={styles.nextHead}>
-            <ThemedText type="title" style={{ color: theme.onSurfaceDark }} accessibilityRole="header">
-              Next up
-            </ThemedText>
-            <Pressable
-              onPress={() => router.push('/(popups)')}
-              accessibilityRole="link"
-              hitSlop={10}
-              style={styles.target}
+        <View style={styles.cards}>
+          {claimable ? (
+            <Card
+              tone="brand"
+              title="YOU CAN CLAIM A REWARD"
+              icon="gift"
+              body={`Your points cover: ${claimable.title}. Redeem it in Wallet.`}
+              link="CLAIM"
+              onPress={() => router.navigate('/(wallet)')}
+            />
+          ) : null}
+
+          {order ? (
+            <Card
+              title={ORDER_STATUS_TITLE[order.status].toUpperCase()}
+              eyebrow="YOUR ORDER"
+              body={`${pickupCode(order.id)}${
+                order.pickup_at ? ` · Pick up at ${new Date(order.pickup_at).toTimeString().slice(0, 5)}` : ''
+              }`}
+              link="VIEW ORDER"
+              onPress={() => router.push({ pathname: '/(orders)/order/status/[id]', params: { id: order.id } })}
             >
-              <ThemedText type="captionBold" style={{ color: theme.onSurfaceDark }}>
-                View all
-              </ThemedText>
-            </Pressable>
+              <StepBar steps={ORDER_STEPS} reached={ORDER_STEP[order.status] ?? 0} />
+            </Card>
+          ) : null}
+
+          {featured ? (
+            <PopUpCard
+              event={featured}
+              distance={coordinates ? formatDistance(distanceInMeters(coordinates, featured.coordinates)) : null}
+              onCheckIn={() => router.push({ pathname: '/(popups)/check-in/[id]', params: { id: featured.id } })}
+              onOpen={() => openEvent(featured.id)}
+              onOrder={() => orderAt(featured)}
+            />
+          ) : null}
+        </View>
+
+        {picks.length ? (
+          <View style={styles.section}>
+            <SectionHead title="Hungry? Start here" link="MENU" onPress={openOrder} />
+            <View style={styles.tiles}>
+              {picks.map(({ item, photo }) => (
+                <Pressable
+                  key={item.id}
+                  onPress={() => openItem(item.id)}
+                  accessibilityRole="button"
+                  accessibilityLabel={item.name}
+                  style={({ pressed }) => [
+                    styles.tile,
+                    { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.85 : 1 },
+                  ]}
+                >
+                  <Image
+                    accessible={false}
+                    accessibilityLabel=""
+                    source={photo}
+                    style={styles.tilePhoto}
+                    contentFit="cover"
+                  />
+                  {/* The section in caps ("BÁNH MÌ"), the filling under it. */}
+                  <View style={styles.tileName}>
+                    <ThemedText type="label" numberOfLines={1} style={styles.tileSection}>
+                      {item.category ?? item.name}
+                    </ThemedText>
+                    {item.category ? (
+                      <ThemedText type="caption" themeColor="textSecondary" numberOfLines={2}>
+                        {shortItemName(item.name, item.category)}
+                      </ThemedText>
+                    ) : null}
+                  </View>
+                </Pressable>
+              ))}
+            </View>
           </View>
-          {upcoming.length === 0 ? (
-            <Pressable onPress={orderFromStore} accessibilityRole="button" style={styles.upRow}>
-              <ThemedText type="caption" style={{ color: theme.onSurfaceDarkMuted }}>
-                Nothing else planned yet. Order ahead from the café meanwhile.
-              </ThemedText>
-            </Pressable>
-          ) : (
-            upcoming.map((event, index) => (
-              <Pressable
-                key={event.id}
-                onPress={() => openEvent(event.id)}
-                accessibilityRole="button"
-                accessibilityLabel={`${event.title}, ${upcomingWhen(event)}`}
-                style={[
-                  styles.upRow,
-                  index < upcoming.length - 1 && {
-                    borderBottomWidth: 1,
-                    borderBottomColor: theme.onSurfaceDark,
-                  },
-                ]}
-              >
-                <View style={[styles.thumb, { backgroundColor: theme.textSecondary }]}>
-                  {event.imageUrl ? (
-                    <Image
-                      accessible={false}
-                      accessibilityLabel=""
-                      source={{ uri: event.imageUrl }}
-                      style={StyleSheet.absoluteFill}
-                      contentFit="cover"
-                    />
-                  ) : null}
-                </View>
-                <View style={styles.flex}>
-                  <ThemedText type="smallBold" style={{ color: theme.onSurfaceDark }} numberOfLines={1}>
-                    {event.title}
-                  </ThemedText>
-                  <ThemedText type="caption" style={{ color: theme.onSurfaceDarkMuted }} numberOfLines={1}>
-                    {upcomingWhen(event)}
-                  </ThemedText>
-                </View>
-              </Pressable>
-            ))
-          )}
+        ) : null}
+
+        <View style={styles.section}>
+          <SectionHead
+            title={upcoming.length ? 'Pop-ups coming up' : 'Nothing else planned yet'}
+            link="SEE ALL"
+            onPress={() => router.navigate('/(popups)')}
+          />
+          {upcoming.map((event) => (
+            <PopUpRow key={event.id} event={event} onPress={() => openEvent(event.id)} />
+          ))}
         </View>
       </ScrollView>
     </View>
   );
 }
 
-/** "Today, 13:10. Stationsstraat 9." */
-function upcomingWhen(event: PopUpEvent): string {
-  const start = new Date(event.startsAt);
-  const today =
-    formatInTimeZone(new Date(), event.timeZone, 'yyyy-MM-dd') ===
-    formatInTimeZone(start, event.timeZone, 'yyyy-MM-dd');
-  const day = today ? 'Today' : formatInTimeZone(start, event.timeZone, 'EEE d MMM');
-  return `${day}, ${formatInTimeZone(start, event.timeZone, 'HH:mm')}. ${event.city}.`;
+/** A section's title, with its one link at the right ("MENU", "SEE ALL"). */
+function SectionHead({ title, link, onPress }: { title: string; link: string; onPress: () => void }) {
+  const theme = useTheme();
+  return (
+    <View style={styles.sectionHead}>
+      <ThemedText type="section" accessibilityRole="header" style={styles.flex}>
+        {title}
+      </ThemedText>
+      <Pressable onPress={onPress} accessibilityRole="link" hitSlop={10} style={styles.target}>
+        <ThemedText type="label" style={{ color: theme.primaryText }}>
+          {link}
+        </ThemedText>
+      </Pressable>
+    </View>
+  );
 }
 
-/** "Right now": the live (or next) pop-up, with check in and order buttons. */
-function FeaturedRow({
+/**
+ * A card with one job: an uppercase headline, a line or two, and its link
+ * with an arrow at the bottom right. `brand` puts the headline on sage.
+ */
+function Card({
+  title,
+  eyebrow,
+  icon,
+  body,
+  link,
+  onPress,
+  tone = 'plain',
+  children,
+}: {
+  title: string;
+  eyebrow?: string;
+  icon?: IconName;
+  body: string;
+  link: string;
+  onPress: () => void;
+  tone?: 'plain' | 'brand';
+  children?: ReactNode;
+}) {
+  const theme = useTheme();
+  const brand = tone === 'brand';
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${eyebrow ? `${eyebrow}: ` : ''}${title}. ${body}`}
+      style={({ pressed }) => [
+        styles.card,
+        { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.9 : 1 },
+      ]}
+    >
+      <View style={[styles.cardTop, brand && { backgroundColor: theme.brandFill }]}>
+        <View style={styles.flex}>
+          {eyebrow ? (
+            <ThemedText type="label" themeColor="textSecondary">
+              {eyebrow}
+            </ThemedText>
+          ) : null}
+          <ThemedText type="item" style={{ color: brand ? theme.onBrand : theme.text }}>
+            {title}
+          </ThemedText>
+        </View>
+        {icon ? <Icon name={icon} size={40} color={brand ? theme.onBrand : theme.text} /> : null}
+      </View>
+      <View style={styles.cardBody}>
+        {children}
+        <ThemedText type="small" themeColor="textSecondary">
+          {body}
+        </ThemedText>
+        <View style={styles.cardLink}>
+          <ThemedText type="label">{link}</ThemedText>
+          <Icon name="arrowRight" size={16} color={theme.text} weight="bold" />
+        </View>
+      </View>
+    </Pressable>
+  );
+}
+
+/**
+ * The pop-up that's on (or next): its photo with the name across it, when
+ * and where under it, and one link: check in when it's live, details before.
+ */
+function PopUpCard({
   event,
+  distance,
   onCheckIn,
-  onOrder,
   onOpen,
+  onOrder,
 }: {
   event: PopUpEvent;
+  distance: string | null;
   onCheckIn: () => void;
-  onOrder: () => void;
   onOpen: () => void;
+  onOrder: () => void;
 }) {
-  const busy = useBusyStore((state) => state.busy[event.id] ?? event.busy);
+  const theme = useTheme();
   const live = getEventPhase(event.startsAt, event.endsAt) === 'live';
   return (
-    <ColumnRow label={live ? 'Right now' : 'Coming up'}>
-      <ThemedText type="smallBold">{event.venue}</ThemedText>
-      <ThemedText type="caption" themeColor="textSecondary">
-        {formatEventWindow(event.startsAt, event.endsAt, event.timeZone)}
-        {'\n'}How busy: {busy.occupancy} of {busy.capacity}
-      </ThemedText>
-      {/* Two short labels in equal halves: they fit on any phone. */}
-      <View style={styles.actions}>
-        {live ? (
-          <>
-            <Button label="Check in" variant="brand" onPress={onCheckIn} style={styles.flex} />
-            <Button label="Order" variant="ghost" onPress={onOrder} style={styles.flex} />
-          </>
-        ) : (
-          <>
-            <Button label="Details" variant="brand" onPress={onOpen} style={styles.flex} />
-            <Button
-              label="Order"
-              accessibilityLabel="Order ahead"
-              variant="ghost"
-              onPress={onOrder}
-              style={styles.flex}
-            />
-          </>
-        )}
+    <View style={[styles.card, { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }]}>
+      <Pressable
+        onPress={onOpen}
+        accessibilityRole="button"
+        accessibilityLabel={`${live ? 'Live now: ' : 'Coming up: '}${event.title}. Open the pop-up.`}
+        style={[styles.popPhoto, { backgroundColor: theme.surfaceDark }]}
+      >
+        {event.imageUrl ? (
+          <Image
+            accessible={false}
+            accessibilityLabel=""
+            source={{ uri: event.imageUrl }}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+          />
+        ) : null}
+        <View style={styles.popShade} />
+        {live ? <Chip label="Live now" tone="live" /> : null}
+        <ThemedText type="item" numberOfLines={2} style={{ color: theme.onSurfaceDark }}>
+          {event.title.toUpperCase()}
+        </ThemedText>
+      </Pressable>
+      <View style={styles.cardBody}>
+        <ThemedText type="smallBold">{event.venue}</ThemedText>
+        <ThemedText type="small" themeColor="textSecondary">
+          {[formatEventWindow(event.startsAt, event.endsAt, event.timeZone), distance].filter(Boolean).join(' · ')}
+        </ThemedText>
+        <View style={styles.cardFoot}>
+          {/* Ordering here is the second thing: a quieter link on the left. */}
+          <Pressable onPress={onOrder} accessibilityRole="button" hitSlop={8} style={styles.target}>
+            <ThemedText type="label" themeColor="textSecondary">
+              {live ? 'ORDER HERE' : 'ORDER AHEAD'}
+            </ThemedText>
+          </Pressable>
+          <Pressable
+            onPress={live ? onCheckIn : onOpen}
+            accessibilityRole="button"
+            hitSlop={8}
+            style={[styles.cardLink, styles.target]}
+          >
+            <ThemedText type="label">{live ? 'CHECK IN' : 'DETAILS'}</ThemedText>
+            <Icon name="arrowRight" size={16} color={theme.text} weight="bold" />
+          </Pressable>
+        </View>
       </View>
-    </ColumnRow>
+    </View>
+  );
+}
+
+/** A pop-up coming up: its photo, name, when and where, and a sage square to open it. */
+function PopUpRow({ event, onPress }: { event: PopUpEvent; onPress: () => void }) {
+  const theme = useTheme();
+  const start = new Date(event.startsAt);
+  const when = `${formatInTimeZone(start, event.timeZone, 'EEE d MMM, HH:mm')} · ${event.city}`;
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${event.title}, ${when}`}
+      style={({ pressed }) => [
+        styles.row,
+        { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.9 : 1 },
+      ]}
+    >
+      <View style={[styles.rowPhoto, { backgroundColor: theme.backgroundSelected }]}>
+        {event.imageUrl ? (
+          <Image
+            accessible={false}
+            accessibilityLabel=""
+            source={{ uri: event.imageUrl }}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+          />
+        ) : null}
+      </View>
+      <View style={styles.rowTexts}>
+        <ThemedText type="card" numberOfLines={2}>
+          {event.title}
+        </ThemedText>
+        <ThemedText type="caption" themeColor="textSecondary" numberOfLines={2}>
+          {when}
+        </ThemedText>
+      </View>
+      <View style={[styles.rowGo, { backgroundColor: theme.brandFill }]}>
+        <Icon name="chevronRight" size={18} color={theme.onBrand} weight="bold" />
+      </View>
+    </Pressable>
   );
 }
 
@@ -346,96 +493,173 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  heroTop: {
-    position: 'absolute',
-    // The 44pt-tall greeting centres its text, so it starts 12pt higher.
-    top: 2,
-    left: PageInset,
-    right: PageInset,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  page: {
-    paddingHorizontal: PageInset,
-    paddingTop: 14,
-    paddingBottom: 4,
-  },
-  rule: {
-    height: 3,
-  },
-  block: {
-    paddingHorizontal: PageInset,
-    paddingTop: 4,
-    paddingBottom: 8,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  steps: {
-    paddingTop: 8,
-  },
-  pointsCard: {
-    marginTop: 14,
-    marginBottom: 22,
-    padding: 18,
-    gap: 12,
-  },
-  pointsLine: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 8,
-  },
-  pointsNumber: {
-    fontSize: 56,
-    // Never below the font size: iOS cuts the top off the glyphs.
-    lineHeight: 60,
-  },
-  stamps: {
-    marginVertical: 2,
-  },
-  link: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 8,
-    paddingTop: 8,
-  },
   flex: {
     flex: 1,
-  },
-  nextUp: {
-    paddingHorizontal: PageInset,
-    paddingTop: 22,
-    paddingBottom: 6,
-    gap: 4,
   },
   /** A text-only control, 44pt tall so it's easy to hit. */
   target: {
     minHeight: 44,
     justifyContent: 'center',
   },
-  nextHead: {
+  page: {
+    paddingHorizontal: PageInset,
+  },
+  hero: {
+    minHeight: 190,
+    marginBottom: 14,
+  },
+  heroBlock: {
+    width: '64%',
+    minHeight: 190,
+    paddingHorizontal: PageInset,
+    paddingTop: 18,
+    paddingBottom: 16,
+    justifyContent: 'flex-end',
+  },
+  heroNumber: {
+    fontSize: 64,
+    // Never below the font size: iOS cuts the top off the glyphs.
+    lineHeight: 68,
+  },
+  heroPhoto: {
+    position: 'absolute',
+    right: PageInset,
+    top: 26,
+    width: 132,
+    height: 132,
+    borderRadius: 66,
+  },
+  stampNote: {
+    marginTop: 6,
+  },
+  helloRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    marginTop: 20,
+  },
+  orderRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingBottom: 8,
+    marginTop: 8,
+    marginBottom: 24,
   },
-  upRow: {
+  orderLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  square: {
+    width: 56,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  orderSquare: {
+    width: 72,
+    height: 64,
+    marginLeft: 6,
+  },
+  cards: {
+    paddingHorizontal: PageInset,
+    gap: 16,
+  },
+  card: {
+    overflow: 'hidden',
+  },
+  cardTop: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 18,
+    paddingTop: 18,
+    paddingBottom: 14,
   },
-  thumb: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  cardBody: {
+    paddingHorizontal: 18,
+    paddingTop: 12,
+    paddingBottom: 6,
+    gap: 6,
+  },
+  cardFoot: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    columnGap: 12,
+  },
+  cardLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-end',
+    gap: 6,
+    minHeight: 44,
+  },
+  popPhoto: {
+    minHeight: 180,
+    padding: 18,
+    gap: 8,
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
+  },
+  popShade: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(26, 26, 23, 0.35)',
+  },
+  section: {
+    paddingHorizontal: PageInset,
+    paddingTop: 28,
+    gap: 10,
+  },
+  sectionHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  tiles: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  tile: {
+    flex: 1,
+    minWidth: 0,
+  },
+  tilePhoto: {
+    aspectRatio: 1,
+  },
+  tileName: {
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    gap: 2,
+  },
+  // Small enough that "SPRINGROLLS" fits a third of a phone.
+  tileSection: {
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0.4,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingRight: 12,
+    minHeight: 84,
+  },
+  rowPhoto: {
+    width: 84,
+    alignSelf: 'stretch',
     overflow: 'hidden',
+  },
+  rowTexts: {
+    flex: 1,
+    minWidth: 0,
+    paddingVertical: 12,
+    gap: 2,
+  },
+  rowGo: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
