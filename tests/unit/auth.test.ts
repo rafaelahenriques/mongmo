@@ -1,7 +1,7 @@
 import { Alert } from 'react-native';
 
 import { supabase } from '@/lib/supabase';
-import { changePassword, confirmDeleteAccount } from '@/services/auth';
+import { changePassword, confirmDeleteAccount, confirmLogOut } from '@/services/auth';
 
 const mockBucket = { list: jest.fn(), remove: jest.fn() };
 jest.mock('@/lib/supabase', () => ({
@@ -28,6 +28,17 @@ beforeEach(() => {
   jest.restoreAllMocks();
   auth.getUser.mockResolvedValue({ data: { user: USER }, error: null } as never);
   rpc.mockResolvedValue({ data: null, error: null });
+});
+
+describe('logging out', () => {
+  it('signs out only when they confirm', async () => {
+    answerDialog('Cancel');
+    await confirmLogOut();
+    expect(auth.signOut).not.toHaveBeenCalled();
+    answerDialog('Log out');
+    await confirmLogOut();
+    expect(auth.signOut).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('deleting the account', () => {

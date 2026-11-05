@@ -3,7 +3,7 @@ import { AppState, Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 
 import { orderPoints } from '@/constants/points';
-import { cartSubtotalCents, useCartStore } from '@/state/cartStore';
+import { cartItemCount, cartSubtotalCents, useCartStore } from '@/state/cartStore';
 import { useSettingsStore } from '@/state/settingsStore';
 
 const IDENTIFIER = 'cart-reminder';
@@ -32,7 +32,7 @@ export function useCartReminder(): void {
       const { items } = useCartStore.getState();
       if (items.length === 0) return;
       const [first] = items;
-      const more = items.reduce((sum, line) => sum + line.quantity, 0) - 1;
+      const more = cartItemCount(items) - 1;
       const points = orderPoints(cartSubtotalCents(items));
       void Notifications.scheduleNotificationAsync({
         identifier: IDENTIFIER,

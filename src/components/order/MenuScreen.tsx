@@ -21,7 +21,7 @@ import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { orderAgain } from '@/services/orderAgain';
-import { cartSubtotalCents, useCartStore } from '@/state/cartStore';
+import { cartItemCount, cartSubtotalCents, useCartStore } from '@/state/cartStore';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 import { formatCents } from '@/utils/orderFormat';
 import { pickupSlots } from '@/utils/pickupSlots';
@@ -63,7 +63,7 @@ export default function MenuScreen() {
   }, [location, store.data]);
 
   const sections = useMemo(() => sectionsOf((menu.data ?? []).filter((item) => !item.addOnFor)), [menu.data]);
-  const count = items.reduce((sum, item) => sum + item.quantity, 0);
+  const count = cartItemCount(items);
   const total = cartSubtotalCents(items);
 
   // Checkout picks the time; until then, the soonest one.

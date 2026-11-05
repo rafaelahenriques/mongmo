@@ -1,5 +1,5 @@
 import { confirm } from '@/services/confirm';
-import { isSameLocation, useCartStore, type CartLocation } from '@/state/cartStore';
+import { cartItemCount, isSameLocation, useCartStore, type CartLocation } from '@/state/cartStore';
 
 /**
  * Sets where to pick up. Each place has its own menu, so moving to another
@@ -8,7 +8,7 @@ import { isSameLocation, useCartStore, type CartLocation } from '@/state/cartSto
  */
 export async function switchPickup(next: CartLocation): Promise<boolean> {
   const { location, items, setLocation } = useCartStore.getState();
-  const count = items.reduce((sum, item) => sum + item.quantity, 0);
+  const count = cartItemCount(items);
   if (count > 0 && !isSameLocation(location, next)) {
     const yes = await confirm(
       'Start a new order here?',

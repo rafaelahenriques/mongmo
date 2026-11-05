@@ -146,19 +146,6 @@ export function formatEventWindow(
   return `${startPart} – ${endPart}`;
 }
 
-/** Uppercase date badge parts, e.g. { weekday: 'FRI', day: '25', month: 'SEP' }. */
-export function formatDayBadge(
-  iso: string,
-  timeZone: string,
-): { weekday: string; day: string; month: string } {
-  const date = new Date(iso);
-  return {
-    weekday: formatInTimeZone(date, timeZone, 'EEE').toUpperCase(),
-    day: formatInTimeZone(date, timeZone, 'dd'),
-    month: formatInTimeZone(date, timeZone, 'MMM').toUpperCase(),
-  };
-}
-
 /**
  * A Date whose *device-local* clock reads what `timeZone`'s clock reads at
  * `date`. Native date pickers only speak device time; round-tripping through

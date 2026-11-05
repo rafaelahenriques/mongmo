@@ -1,4 +1,11 @@
-import { cartLineKey, cartSubtotalCents, isSameLocation, useCartStore, type CartItem } from '@/state/cartStore';
+import {
+  cartItemCount,
+  cartLineKey,
+  cartSubtotalCents,
+  isSameLocation,
+  useCartStore,
+  type CartItem,
+} from '@/state/cartStore';
 
 const BANH_MI = { menuItemId: 'banh-mi', name: 'Bánh mì', priceCents: 950 };
 const EXTRA_PORK = { id: 'extra-pork', name: 'Extra pork', priceCents: 200 };
@@ -56,6 +63,7 @@ describe('cart total', () => {
       { menuItemId: 'coffee', name: 'Coffee', priceCents: 400, key: 'b', options: [], quantity: 1 },
     ];
     expect(cartSubtotalCents(lines)).toBe((950 + 200 + 100) * 2 + 400);
+    expect(cartItemCount(lines)).toBe(3);
   });
 });
 

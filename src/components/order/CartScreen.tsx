@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 
@@ -20,10 +20,11 @@ import { useLevel } from '@/hooks/useLevel';
 import { useMenu } from '@/hooks/useMenu';
 import { usePickupPlace } from '@/hooks/usePickupPlace';
 import { useTheme } from '@/hooks/useTheme';
-import { confirm } from '@/services/confirm';
+import { confirm, showError } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import { cartSubtotalCents, cartUnitCents, useCartStore, type CartItem } from '@/state/cartStore';
 import { formatCents, shortItemName } from '@/utils/orderFormat';
+import { discountOff } from '@/utils/rewards';
 import { stampsFor, stampsLabel } from '@/utils/stamps';
 
 /** How long "Product removed · UNDO" stays up. */
@@ -70,7 +71,7 @@ export default function CartScreen() {
   const discount = usableRewards.find(({ reward }) => reward.discountCents);
   const using = Boolean(discount && userRewardId === discount.userRewardId);
   const subtotal = cartSubtotalCents(items);
-  const off = using && discount ? Math.min(discount.reward.discountCents ?? 0, subtotal) : 0;
+  const off = using ? discountOff(discount?.reward, subtotal) : 0;
   const offer = (query.data?.rewards ?? [])
     .filter((reward) => reward.discountCents)
     .sort((a, b) => a.costPoints - b.costPoints)[0];
@@ -99,7 +100,7 @@ export default function CartScreen() {
       haptics.success();
       useCartStore.getState().setUserRewardId(id);
     } catch (error) {
-      Alert.alert('Couldn’t use the reward', error instanceof Error ? error.message : 'Please try again.');
+      showError('Couldn’t use the reward', error);
     } finally {
       setRedeeming(false);
     }

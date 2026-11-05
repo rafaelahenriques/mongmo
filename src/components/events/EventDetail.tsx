@@ -1,5 +1,5 @@
 import { useCallback, type ReactNode } from 'react';
-import { ActivityIndicator, Alert, RefreshControl, ScrollView, Share, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, RefreshControl, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatInTimeZone } from 'date-fns-tz';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -24,6 +24,7 @@ import { useNow } from '@/hooks/useNow';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { addToCalendar } from '@/services/calendar';
+import { showError, showMessage } from '@/services/confirm';
 import { openDirections } from '@/services/directions';
 import { haptics } from '@/services/haptics';
 import { UPDATE_APP_MESSAGE } from '@/services/nativeModules';
@@ -82,10 +83,10 @@ export default function EventDetail({ eventId }: EventDetailProps) {
     try {
       const result = await addToCalendar(event);
       if (result === 'added') haptics.success();
-      if (result === 'unavailable') Alert.alert('Add to calendar', UPDATE_APP_MESSAGE);
+      if (result === 'unavailable') showMessage('Add to calendar', UPDATE_APP_MESSAGE);
     } catch (error) {
       haptics.error();
-      Alert.alert('Couldn’t add it', error instanceof Error ? error.message : 'Please try again.');
+      showError('Couldn’t add it', error);
     }
   }, [event]);
 

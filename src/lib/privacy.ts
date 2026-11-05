@@ -63,8 +63,3 @@ export function scrubValue(value: unknown, depth = 0): unknown {
   }
   return out;
 }
-
-/** Whether a field of this name is dropped by scrubValue. */
-export function isSensitiveKey(key: string): boolean {
-  return SENSITIVE_KEY.test(key);
-}

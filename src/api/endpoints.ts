@@ -12,7 +12,6 @@ import { isThisWeek, isToday } from '@/utils/dateTime';
 import type { Database } from '@/types/database';
 import type {
   AchievementsResponse,
-  CheckInRecord,
   EarnedBadge,
   EventFilter,
   LeaderboardEntry,
@@ -386,43 +385,6 @@ export async function verifyCheckIn(
     p_longitude: coordinates.longitude,
   });
   if (error) throw toApiError(error);
-}
-
-type VisitedEventRow = {
-  checked_in_at: string;
-  events: {
-    id: string;
-    title: string;
-    city: string;
-    image_url: string | null;
-    starts_at: string;
-  } | null;
-};
-
-/** Past check-ins joined with their event, newest first — powers the photo gallery. */
-export async function getVisitedEvents(): Promise<CheckInRecord[]> {
-  // Scoped explicitly: RLS also lets an owner read every customer's check-ins.
-  const userId = await getCurrentUserId();
-  const { data, error } = await supabase
-    .from('check_ins')
-    .select('checked_in_at, events(id, title, city, image_url, starts_at)')
-    .eq('user_id', userId)
-    .order('checked_in_at', { ascending: false })
-    .returns<VisitedEventRow[]>();
-  if (error) throw toApiError(error);
-
-  return data
-    .filter((row): row is VisitedEventRow & { events: NonNullable<VisitedEventRow['events']> } =>
-      row.events !== null,
-    )
-    .map((row) => ({
-      eventId: row.events.id,
-      title: row.events.title,
-      city: row.events.city,
-      imageUrl: row.events.image_url ?? '',
-      startsAt: row.events.starts_at,
-      checkedInAt: row.checked_in_at,
-    }));
 }
 
 /** Other members' leaderboard scores for a period, aggregated server-side. */

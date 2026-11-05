@@ -204,11 +204,3 @@ export const Spacing = {
   five: 32,
   six: 64,
 } as const;
-
-/**
- * The tab bar sits below the screens (it takes its own space), so
- * screens need no extra inset for it.
- */
-export const BottomTabInset = 0;
-export const TopTabInset = 0;
-export const MaxContentWidth = 800;

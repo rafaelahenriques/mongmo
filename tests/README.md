@@ -2,7 +2,7 @@
 
 | Command | What it checks | Needs |
 |---|---|---|
-| `npm test` | Unit tests (`tests/unit`): points and levels maths, stamps, pickup times, the cart, switching pickup place, ordering, account deletion and password change, reordering, the privacy filter, the logger, crash reporting, environment checks, and the error screen. | Nothing |
+| `npm test` | Unit tests (`tests/unit`): points and levels maths, stamps, rewards and discounts, which pop-up comes first, pickup times, the cart, switching pickup place, ordering, logging out, account deletion and password change, reordering, dialogs, the privacy filter, the logger, crash reporting, environment checks, and the error screen. | Nothing |
 | `npm run test:integration` | Integration tests (`tests/integration`) against a real database: ordering and server-side prices, points for orders (and that they match what the app shows), levels and level rewards, privacy rules between customers, and that deleting an account deletes every row. | A local Supabase |
 | `npm run test:a11y` | Every screen of the web build, for accessibility. | The web build served locally |
 | `npm run verify` | Lint, type check and unit tests: what to run before pushing. | Nothing |
