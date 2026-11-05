@@ -227,7 +227,7 @@ export default function CartScreen() {
                       <Pressable
                         onPress={() => step(line, 1)}
                         accessibilityRole="button"
-                        accessibilityLabel={`One more ${line.name}`}
+                        accessibilityLabel={`+1: one more ${line.name}`}
                         hitSlop={10}
                         style={styles.lineButton}
                       >

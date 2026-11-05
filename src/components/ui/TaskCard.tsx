@@ -6,6 +6,7 @@ import { Icon, type IconName } from '@/components/ui/Icon';
 import { CardShadow } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
+import { nameFromContent } from '@/utils/a11y';
 
 export type TaskCardProps = {
   icon: IconName;
@@ -101,7 +102,7 @@ export function TaskCard({
         onPress();
       }}
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? [title, subtitle, value].filter(Boolean).join(', ')}
+      {...nameFromContent(accessibilityLabel ?? [title, subtitle, value].filter(Boolean).join(', '))}
       accessibilityHint={accessibilityHint}
       style={({ pressed }) => [cardStyle, { opacity: pressed ? 0.85 : 1 }]}
     >

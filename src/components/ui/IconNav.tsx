@@ -63,7 +63,7 @@ export function IconNav({ state, emitter, navigateToTab }: BottomTabBarProps) {
               if (!selected) navigateToTab(route.key);
             }}
             accessibilityRole="tab"
-            accessibilityState={{ selected }}
+            aria-selected={selected}
             accessibilityLabel={tab.label}
             style={styles.tab}
           >

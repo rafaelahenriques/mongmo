@@ -12,6 +12,7 @@ import { useMyOrders } from '@/hooks/useMyOrders';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
+import { nameFromContent } from '@/utils/a11y';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 import { formatCents, ORDER_STATUS_TITLE, pickupCode } from '@/utils/orderFormat';
 
@@ -51,7 +52,7 @@ export default function MyOrdersScreen() {
             open(order.id);
           }}
           accessibilityRole="button"
-          accessibilityLabel={`${ORDER_STATUS_TITLE[order.status]}, pickup code ${pickupCode(order.id)}. Open.`}
+          {...nameFromContent(`${ORDER_STATUS_TITLE[order.status]}, pickup code ${pickupCode(order.id)}. Open.`)}
           style={[styles.current, { backgroundColor: theme.backgroundSelected }]}
         >
           <View style={styles.flex}>

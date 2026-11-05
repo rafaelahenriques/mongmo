@@ -6,6 +6,7 @@ import { Icon, type IconName } from '@/components/ui/Icon';
 import { IconBadge, type IconBadgeProps } from '@/components/ui/IconBadge';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
+import { nameFromContent } from '@/utils/a11y';
 
 export type ListRowProps = {
   title: string;
@@ -75,7 +76,7 @@ export function ListRow({
         onPress();
       }}
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? [title, value].filter(Boolean).join(', ')}
+      {...nameFromContent(accessibilityLabel ?? [title, value].filter(Boolean).join(', '))}
       style={({ pressed }) => [rowStyle, { opacity: pressed ? 0.6 : 1 }]}
     >
       {content}

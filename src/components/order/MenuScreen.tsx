@@ -22,6 +22,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { orderAgain } from '@/services/orderAgain';
 import { cartItemCount, cartSubtotalCents, useCartStore } from '@/state/cartStore';
+import { nameFromContent } from '@/utils/a11y';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 import { formatCents } from '@/utils/orderFormat';
 import { pickupSlots } from '@/utils/pickupSlots';
@@ -90,7 +91,7 @@ export default function MenuScreen() {
             router.push('/(orders)/order/location');
           }}
           accessibilityRole="button"
-          accessibilityLabel={`Pick up at ${place?.name ?? ''}, ${when}. Change.`}
+          {...nameFromContent(`Pick up at ${place?.name ?? ''}, ${when}. Change.`)}
           style={({ pressed }) => [styles.pickup, { borderColor: theme.border, opacity: pressed ? 0.7 : 1 }]}
         >
           <Icon name="pin" size={24} color={theme.text} />
@@ -144,7 +145,7 @@ export default function MenuScreen() {
                     router.push({ pathname: '/(orders)/order/category/[name]', params: { name: section.name } });
                   }}
                   accessibilityRole="button"
-                  accessibilityLabel={`${section.name}, from ${formatCents(from)} euro`}
+                  {...nameFromContent(`${section.name}, from ${formatCents(from)} euro`)}
                   style={({ pressed }) => [styles.section, { opacity: pressed ? 0.6 : 1 }]}
                 >
                   <View style={styles.icon}>

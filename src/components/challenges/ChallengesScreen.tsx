@@ -88,8 +88,11 @@ export default function ChallengesScreen({ eventId }: { eventId: string }) {
             </ThemedText>
             <View
               style={[styles.track, { backgroundColor: theme.backgroundSelected }]}
-              accessible
-              accessibilityLabel={`${done.length} of ${challenges.length} done`}
+              role="progressbar"
+              aria-label={`${done.length} of ${challenges.length} done`}
+              aria-valuemin={0}
+              aria-valuemax={challenges.length}
+              aria-valuenow={done.length}
             >
               <View style={[styles.fill, { width: `${share * 100}%`, backgroundColor: theme.text }]} />
             </View>
