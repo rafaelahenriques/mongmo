@@ -109,7 +109,7 @@ export default function MapMode({
           <Card style={styles.centerCard}>
             {storeLoading ? (
               <>
-                <ActivityIndicator size="small" color={theme.text} />
+                <ActivityIndicator accessibilityLabel="Loading" size="small" color={theme.text} />
                 <ThemedText type="caption" themeColor="textSecondary" style={styles.centerText}>
                   Loading the map…
                 </ThemedText>

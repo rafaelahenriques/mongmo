@@ -43,7 +43,7 @@ export default function CategoryScreen({ name }: { name: string }) {
           </ThemedText>
         </View>
         {menu.isPending ? (
-          <ActivityIndicator color={theme.text} style={styles.loader} />
+          <ActivityIndicator accessibilityLabel="Loading" color={theme.text} style={styles.loader} />
         ) : !section ? (
           <ThemedText type="caption" themeColor="textSecondary">
             Nothing here right now.

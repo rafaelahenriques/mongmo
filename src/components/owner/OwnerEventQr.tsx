@@ -23,7 +23,7 @@ export default function OwnerEventQr({ eventId }: OwnerEventQrProps) {
   }
 
   if (query.isPending) {
-    return <ActivityIndicator size="small" color={theme.text} />;
+    return <ActivityIndicator accessibilityLabel="Loading" size="small" color={theme.text} />;
   }
 
   if (!query.data) {

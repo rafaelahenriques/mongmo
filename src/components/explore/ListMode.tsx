@@ -65,7 +65,7 @@ export default function ListMode({
     >
       {header}
 
-      {isLoading ? <ActivityIndicator color={theme.text} style={styles.loader} /> : null}
+      {isLoading ? <ActivityIndicator accessibilityLabel="Loading" color={theme.text} style={styles.loader} /> : null}
       {isError ? (
         <View style={styles.group} accessibilityRole="alert">
           <ThemedText type="caption" themeColor="textSecondary">

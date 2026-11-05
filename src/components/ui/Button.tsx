@@ -96,7 +96,7 @@ export function Button({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={colors.foreground} />
+        <ActivityIndicator accessibilityLabel="Loading" color={colors.foreground} />
       ) : (
         <View style={[styles.content, arrow && styles.spread]}>
           <View style={styles.labelRow}>

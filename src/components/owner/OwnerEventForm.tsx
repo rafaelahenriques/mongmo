@@ -155,7 +155,7 @@ export default function OwnerEventForm({ initial, submitLabel, pending, submitEr
           </View>
         </View>
         <View style={styles.inlineRow}>
-          <ThemedText type="smallBold" style={styles.flex}>
+          <ThemedText type="smallBold" style={styles.grow}>
             Capacity
           </ThemedText>
           <Stepper
@@ -249,13 +249,16 @@ const styles = StyleSheet.create({
   field: {
     gap: Spacing.one + 2,
   },
-  flex: {
-    flex: 1,
-  },
+  // With large text the control wraps under its label instead of running
+  // off the card.
   inlineRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     gap: Spacing.three,
+  },
+  grow: {
+    flexGrow: 1,
   },
   pills: {
     flexDirection: 'row',

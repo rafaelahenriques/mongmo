@@ -46,7 +46,7 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
         {menu.isPending ? (
-          <ActivityIndicator color={theme.text} />
+          <ActivityIndicator accessibilityLabel="Loading" color={theme.text} />
         ) : (
           <>
             <ThemedText type="section">This isn’t on the menu</ThemedText>

@@ -39,7 +39,7 @@ export default function OwnerOrderDetailScreen({ orderId }: { orderId: string })
         <TopBar title="Order" onBack={back} />
         <View style={styles.state}>
           {isLoading ? (
-            <ActivityIndicator color={theme.text} />
+            <ActivityIndicator accessibilityLabel="Loading" color={theme.text} />
           ) : (
             <ThemedText type="caption" themeColor="textSecondary">
               This order isn’t on the board.

@@ -45,7 +45,7 @@ export default function OwnerChallengeEditorScreen({ eventId, challengeId }: Own
   if (eventQuery.isPending || isLoading) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.text} />
+        <ActivityIndicator accessibilityLabel="Loading" size="large" color={theme.text} />
       </View>
     );
   }

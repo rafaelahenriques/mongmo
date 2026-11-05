@@ -147,7 +147,7 @@ export default function ChallengeList({ event, lockedReason, limit }: ChallengeL
   };
 
   if (isLoading) {
-    return <ActivityIndicator color={theme.text} style={styles.loader} />;
+    return <ActivityIndicator accessibilityLabel="Loading" color={theme.text} style={styles.loader} />;
   }
 
   const shown = limit ? challenges.slice(0, limit) : challenges;

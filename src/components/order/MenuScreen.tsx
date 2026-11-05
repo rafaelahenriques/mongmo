@@ -121,7 +121,7 @@ export default function MenuScreen() {
         {view === 'reorder' ? (
           <Reorder placeName={place?.name} onDone={() => router.push('/(orders)/order/cart')} />
         ) : menu.isPending && location ? (
-          <ActivityIndicator color={theme.text} style={styles.loader} />
+          <ActivityIndicator accessibilityLabel="Loading" color={theme.text} style={styles.loader} />
         ) : menu.isError ? (
           <View style={styles.message}>
             <ThemedText type="caption" themeColor="textSecondary">
@@ -196,7 +196,8 @@ function Reorder({ placeName, onDone }: { placeName?: string; onDone: () => void
     if (added) onDone();
   };
 
-  if (orders.isPending) return <ActivityIndicator color={theme.text} style={styles.loader} />;
+  if (orders.isPending)
+    return <ActivityIndicator accessibilityLabel="Loading" color={theme.text} style={styles.loader} />;
   if (past.length === 0) {
     return (
       <ThemedText type="caption" themeColor="textSecondary" style={styles.message}>

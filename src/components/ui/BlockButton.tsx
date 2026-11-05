@@ -75,7 +75,7 @@ export function BlockButton({
           {label}
         </ThemedText>
         {loading ? (
-          <ActivityIndicator color={color} />
+          <ActivityIndicator accessibilityLabel="Loading" color={color} />
         ) : (
           <View style={styles.right}>
             {value ? (

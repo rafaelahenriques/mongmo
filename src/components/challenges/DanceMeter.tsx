@@ -184,7 +184,7 @@ export default function DanceMeter({ title, points, seconds, sending, onDone, on
             />
           </Svg>
           {status === 'checking' ? (
-            <ActivityIndicator color={theme.text} />
+            <ActivityIndicator accessibilityLabel="Loading" color={theme.text} />
           ) : (
             <>
               <ThemedText type="display">{shown}</ThemedText>
