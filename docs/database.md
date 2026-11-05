@@ -11,7 +11,7 @@ applied in order. Per-migration notes: [`supabase/README.md`](../supabase/README
 | Places | `stores`, `events` (pop-ups) | Staff |
 | Food | `menus`, `menu_items`, `event_menus` | Staff |
 | Orders | `orders`, `order_items` | Functions only (`create_order`, `confirm_mock_payment`, `advance_order_status`) |
-| Programme | `challenges`; `check_ins`, `challenge_completions`, `photos` | Staff; functions only; the person (photos) |
+| Programme | `challenges`; `check_ins`, `challenge_completions`, `photos`, `photo_reports` | Staff; functions only; the person (photos, private; shared through `set_photo_shared`) |
 | Loyalty | `point_events`, `badges`, `user_badges`, `rewards`, `user_rewards`, `levels` | Functions only (rewards and badges: staff) |
 
 `profiles.id` is the login's id; everything per-person references it with
@@ -25,8 +25,9 @@ applied in order. Per-migration notes: [`supabase/README.md`](../supabase/README
   (`security definer`) that check the rules and write.
 - **Functions** can be called only by signed-in users, and only those
   granted (0023). Retention functions only by the service role.
-- **Storage:** `challenge-photos` is private, a folder per person;
-  `event-images` is public, written by staff.
+- **Storage:** `challenge-photos` is private, a folder per person,
+  readable by the person, staff, and anyone while a photo is shared in
+  Photos of the week; `event-images` is public, written by staff.
 - Proven by `tests/integration/accessControl.test.ts` on every push.
 
 ## Changing the schema

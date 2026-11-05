@@ -28,6 +28,10 @@ the checks marked ↻ before each release.
 - **Found:** a photo record held a link the app itself wrote (it could
   point anywhere). **Fixed:** removed; the storage path is the only
   reference.
+- **Found:** every signed-in member could read every challenge photo,
+  record and file. **Fixed** in `0029_photos_of_the_week.sql`: the person
+  and staff only, unless the person shares one in Photos of the week
+  (`tests/integration/photosOfTheWeek.test.ts`).
 - **Found:** four helper functions didn't pin their search path. **Fixed.**
 - **Found:** no length or format limits on profile links and staff-entered
   texts. **Fixed** with database checks.
@@ -42,7 +46,8 @@ the checks marked ↻ before each release.
 
 - Supabase is reached over https only outside development (enforced).
 - `public/_headers`: HSTS, nosniff, no framing, referrer and permissions
-  policies, and a Content-Security-Policy. The accessibility walk-through
+  policies, and a Content-Security-Policy (images only from the app and
+  Supabase, since the demo pictures stopped coming from Unsplash). The accessibility walk-through
   runs every screen under it and fails if anything is blocked.
 
 ## Authentication

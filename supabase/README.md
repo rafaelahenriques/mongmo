@@ -70,6 +70,8 @@ left, per "no hardcoded/mock data."
 | `0025_retention.sql` | Automatic deletion after each retention period (`docs/privacy/retention.md`): `apply_retention()` and the photo list it needs, run nightly by `.github/workflows/retention.yml`. Service role only. |
 | `0026_export_my_data.sql` | `export_my_data()`: everything held about the signed-in person, as JSON, for Settings → Your data → Download a copy. |
 | `0027_drop_profile_bio.sql` | Drops `profiles.bio`, and every bio written: nobody but its author ever saw it. |
+| `0028_privacy_cleanup.sql` | Check-in challenges record `withinRadius`, not the distance (old distances cleared); old photo links in results become a count; the leaderboard is opt-in for new accounts; the demo pop-ups' Unsplash pictures are cleared. |
+| `0029_photos_of_the_week.sql` | Challenge photos (records and files) are private to the person and staff. `set_photo_shared()` shares one in Photos of the week for 7 days; `photos_of_the_week()` lists them without names; `report_photo()` takes one down at once and records it in `photo_reports` for staff. |
 
 ### Points ledger, not a running total
 
