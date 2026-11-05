@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { AccessibilityInfo, Alert, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Image } from 'expo-image';
 
 import { shortName } from '@/components/achievements/LeaderboardList';
 import { ThemedText } from '@/components/ThemedText';
@@ -12,7 +11,6 @@ import { usePullToRefresh } from '@/components/ui/Screen';
 import { SquareIconButton } from '@/components/ui/SquareIconButton';
 import { StampRow } from '@/components/ui/Stamps';
 import { TaskCard } from '@/components/ui/TaskCard';
-import { BrandPhotos } from '@/constants/brandPhotos';
 import { CardShadow, PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useProfile } from '@/hooks/useProfile';
@@ -90,15 +88,6 @@ export default function WalletScreen() {
               </ThemedText>
             </View>
           </View>
-          {BrandPhotos.wallet ? (
-            <Image
-              accessible={false}
-              accessibilityLabel=""
-              source={BrandPhotos.wallet}
-              style={styles.photo}
-              contentFit="cover"
-            />
-          ) : null}
           <SquareIconButton
             icon="qrcode"
             tone="dark"
@@ -214,7 +203,8 @@ const styles = StyleSheet.create({
   },
   block: {
     minHeight: 226,
-    width: '68%',
+    // The whole width: no photo beside it, the QR square at its corner.
+    width: '100%',
     paddingHorizontal: PageInset,
     paddingTop: 26,
     paddingBottom: 20,
@@ -228,14 +218,6 @@ const styles = StyleSheet.create({
   word: {
     fontSize: 40,
     lineHeight: 42,
-  },
-  photo: {
-    position: 'absolute',
-    right: PageInset + 8,
-    top: 40,
-    width: 136,
-    height: 136,
-    borderRadius: 68,
   },
   qr: {
     position: 'absolute',

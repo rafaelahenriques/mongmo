@@ -261,7 +261,6 @@ const styles = StyleSheet.create({
   plate: {
     width: 150,
     height: 150,
-    borderRadius: 75,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 30,

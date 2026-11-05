@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Image } from 'expo-image';
 import QRCode from 'react-native-qrcode-svg';
 import { formatInTimeZone } from 'date-fns-tz';
 
@@ -8,7 +7,6 @@ import { shortName } from '@/components/achievements/LeaderboardList';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { ThemedText } from '@/components/ThemedText';
 import { StampRow } from '@/components/ui/Stamps';
-import { BrandPhotoFocus, BrandPhotos } from '@/constants/brandPhotos';
 import { Ink, PageInset, Paper } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useAuthUser } from '@/hooks/useAuthUser';
@@ -55,17 +53,6 @@ export default function MembershipCardScreen() {
       <View style={[styles.card, { backgroundColor: theme.brandFill }]}>
         <View style={styles.cardTop}>
           <Wordmark height={26} color={Ink} />
-          {BrandPhotos.card ? (
-            <Image
-              accessible={false}
-              accessibilityLabel=""
-              source={BrandPhotos.card}
-              style={styles.photo}
-              contentFit="cover"
-              contentPosition={BrandPhotoFocus.card}
-              accessibilityIgnoresInvertColors
-            />
-          ) : null}
         </View>
 
         <View
@@ -138,11 +125,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  photo: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
   },
   qr: {
     alignSelf: 'center',
