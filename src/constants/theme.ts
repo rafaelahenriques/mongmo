@@ -140,24 +140,43 @@ export const Fonts = Platform.select({
 });
 
 /**
- * Brand typefaces, loaded at startup (see FONT_ASSETS): League Spartan
- * Black, in capitals, for every title, label and big number; Lato for text.
- * League Spartan has every Vietnamese letter; Lato (Google's version) lacks
- * ư, ơ, đ and the stacked accents (sữa, đá), which the phone draws in its
- * own font.
- *
- * Each weight is its own family: pick the family, don't set `fontWeight`.
+ * Brand typefaces. Titles, names, labels, buttons and big numbers: League
+ * Spartan Black in capitals, bundled (see FONT_ASSETS) and with every
+ * Vietnamese letter. Text: Helvetica (see BodyFont).
  */
 export const FontFamily = {
-  body: 'Lato_400Regular',
-  bodyMedium: 'Lato_400Regular',
-  bodySemiBold: 'Lato_700Bold',
-  bodyBold: 'Lato_700Bold',
   /** League Spartan Black: titles, names and big numbers, in capitals. */
   display: 'LeagueSpartan_900Black',
   /** The same face for card titles, labels and buttons. */
   heavy: 'LeagueSpartan_900Black',
 } as const;
+
+/** Helvetica on the web, falling back to its look-alikes. */
+const HELVETICA_WEB = '"Helvetica Neue", Helvetica, Arial, sans-serif';
+
+/**
+ * Text in Helvetica. It's a licensed font, so it isn't bundled: iPhones and
+ * iPads have Helvetica Neue built in and the app uses theirs. Android has
+ * no Helvetica, so it uses its own Roboto; the web, Helvetica or Arial.
+ * Spread a weight into a style: `{ ...BodyFont.bold, fontSize: 14 }`.
+ */
+export const BodyFont = Platform.select({
+  ios: {
+    regular: { fontFamily: 'HelveticaNeue' },
+    medium: { fontFamily: 'HelveticaNeue-Medium' },
+    bold: { fontFamily: 'HelveticaNeue-Bold' },
+  },
+  android: {
+    regular: { fontFamily: 'sans-serif' },
+    medium: { fontFamily: 'sans-serif-medium' },
+    bold: { fontFamily: 'sans-serif', fontWeight: '700' as const },
+  },
+  default: {
+    regular: { fontFamily: HELVETICA_WEB, fontWeight: '400' as const },
+    medium: { fontFamily: HELVETICA_WEB, fontWeight: '500' as const },
+    bold: { fontFamily: HELVETICA_WEB, fontWeight: '700' as const },
+  },
+});
 
 /**
  * Corner radii. Round things sit on the page (pill buttons, chips, fields);
