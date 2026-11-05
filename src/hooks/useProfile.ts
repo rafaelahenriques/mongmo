@@ -23,7 +23,7 @@ export function useSetLeaderboardVisible() {
   });
 }
 
-/** Saves the user's name, bio and home city (Profile → Edit). */
+/** Saves the user's name and home city (Profile → Edit). */
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
 

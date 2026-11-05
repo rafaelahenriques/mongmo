@@ -69,6 +69,7 @@ left, per "no hardcoded/mock data."
 | `0024_challenge_photo_count.sql` | Photo challenges record how many photos there were, not their links (0023 removed `photos.url`). |
 | `0025_retention.sql` | Automatic deletion after each retention period (`docs/privacy/retention.md`): `apply_retention()` and the photo list it needs, run nightly by `.github/workflows/retention.yml`. Service role only. |
 | `0026_export_my_data.sql` | `export_my_data()`: everything held about the signed-in person, as JSON, for Settings → Your data → Download a copy. |
+| `0027_drop_profile_bio.sql` | Drops `profiles.bio`, and every bio written: nobody but its author ever saw it. |
 
 ### Points ledger, not a running total
 
