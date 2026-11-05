@@ -9,4 +9,5 @@ jest.mock('@sentry/react-native', () => ({
   addBreadcrumb: jest.fn(),
   captureException: jest.fn(),
   captureMessage: jest.fn(),
+  close: jest.fn(async () => true),
 }));

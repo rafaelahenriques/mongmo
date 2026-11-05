@@ -30,13 +30,19 @@ type SettingsState = {
   permissionsAsked: boolean;
   /** The level whose "Welcome to …" banner Home last showed (a level key). */
   levelSeen: string | null;
+  /** Crash reports: nothing is sent until the person says yes ('on'). */
+  crashReports: CrashReportsChoice;
   setNotificationPref: (key: keyof NotificationPrefs, enabled: boolean) => void;
   setThemeMode: (mode: ThemeMode) => void;
   markNotificationsSeen: () => void;
   markOpeningSeen: () => void;
   markPermissionsAsked: () => void;
   markLevelSeen: (key: string) => void;
+  setCrashReports: (choice: 'on' | 'off') => void;
 };
+
+/** 'unasked' until the person answers the crash reports question. */
+export type CrashReportsChoice = 'unasked' | 'on' | 'off';
 
 const DEFAULTS = {
   notifications: {
@@ -51,6 +57,7 @@ const DEFAULTS = {
   openingSeen: false,
   permissionsAsked: false,
   levelSeen: null as string | null,
+  crashReports: 'unasked' as CrashReportsChoice,
 };
 
 /**
@@ -69,6 +76,7 @@ export const useSettingsStore = create<SettingsState>()(
       markOpeningSeen: () => set({ openingSeen: true }),
       markPermissionsAsked: () => set({ permissionsAsked: true }),
       markLevelSeen: (key) => set({ levelSeen: key }),
+      setCrashReports: (choice) => set({ crashReports: choice }),
     }),
     {
       name: 'mongmo-settings',
@@ -77,7 +85,8 @@ export const useSettingsStore = create<SettingsState>()(
       // per-type toggles, seeded from the old value so existing installs
       // keep their choice instead of silently reverting to the defaults.
       // v3 added `achievements`, v4 `cartReminder` (both on by default).
-      version: 4,
+      // v5 added `crashReports`, unasked: everyone is asked once.
+      version: 5,
       migrate: (persisted, version) => {
         if (!persisted || typeof persisted !== 'object') return persisted as SettingsState;
         let state = persisted as Partial<SettingsState> & { notificationsEnabled?: boolean };
@@ -100,6 +109,7 @@ export const useSettingsStore = create<SettingsState>()(
         if (version < 4 && state.notifications) {
           state = { ...state, notifications: { ...state.notifications, cartReminder: true } };
         }
+        if (version < 5) state = { ...state, crashReports: 'unasked' };
         return state as SettingsState;
       },
     },

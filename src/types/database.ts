@@ -260,6 +260,7 @@ export type Database = {
         Args: Record<string, never>;
         Returns: { lifetime_points: number; first_order_bonus: boolean }[];
       };
+      export_my_data: { Args: Record<string, never>; Returns: Record<string, unknown> };
       delete_my_account: { Args: Record<string, never>; Returns: undefined };
       ensure_profile: { Args: Record<string, never>; Returns: undefined };
       my_badge_progress: {

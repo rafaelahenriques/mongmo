@@ -9,3 +9,4 @@ THIRD_PARTY_NOTICES.md
 assets/
 supabase/
 *.md
+public/privacy.html
