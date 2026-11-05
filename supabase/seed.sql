@@ -96,7 +96,7 @@ insert into public.events (
     (date_trunc('day', now() at time zone 'Europe/Brussels') - interval '2 days' + interval '23 hours') at time zone 'Europe/Brussels',
     'Europe/Brussels',
     'Bar Amorse takes over the street in front of Mongmo for an evening of natural wine, records and Vietnamese bar snacks.',
-    'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80',
+    null,
     array['Food & drinks', 'Music'], 80, 18, 'ended', 'https://bestel.mongmo-store.com/nl'
   ),
   (
@@ -107,7 +107,7 @@ insert into public.events (
     (date_trunc('day', now() at time zone 'Europe/Brussels') + interval '3 days' + interval '22 hours') at time zone 'Europe/Brussels',
     'Europe/Brussels',
     'Moonfest lights up Antwerp''s Chinatown with lanterns, street food and live performances — Mongmo brings a full bakery stand.',
-    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80',
+    null,
     array['Festival', 'Street food'], 400, 140, 'scheduled', 'https://bestel.mongmo-store.com/nl'
   ),
   (
@@ -118,7 +118,7 @@ insert into public.events (
     date_trunc('hour', now()) + interval '5 hours',
     'Europe/Brussels',
     'A wrap-up session with Bar Amorse: brunch plates, coffee from the bakery and slow records on the street.',
-    'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80',
+    null,
     array['Food & drinks', 'Music'], 80, 9, 'live', 'https://bestel.mongmo-store.com/nl'
   ),
   (
@@ -129,7 +129,7 @@ insert into public.events (
     (date_trunc('day', now() at time zone 'Europe/Brussels') + interval '1 days' + interval '26 hours') at time zone 'Europe/Brussels',
     'Europe/Brussels',
     'DJ Minh Vu spins Vinahouse and city pop until late, with bánh mì and iced coffee from the truck.',
-    'https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1200&q=80',
+    null,
     array['Music', 'Late night'], 250, 0, 'scheduled', 'https://bestel.mongmo-store.com/nl'
   ),
   (
@@ -140,7 +140,7 @@ insert into public.events (
     (date_trunc('day', now() at time zone 'Europe/Brussels') + interval '5 days' + interval '11 hours') at time zone 'Europe/Brussels',
     'Europe/Brussels',
     'Phin-filtered coffee and warm bánh bao for the morning commute. Bring your own cup for a small discount.',
-    'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80',
+    null,
     array['Coffee', 'Breakfast'], 60, 0, 'scheduled', 'https://bestel.mongmo-store.com/nl'
   ),
   (
@@ -151,7 +151,7 @@ insert into public.events (
     (date_trunc('day', now() at time zone 'Europe/Brussels') + interval '8 days' + interval '15 hours 30 minutes') at time zone 'Europe/Brussels',
     'Europe/Brussels',
     'The full bánh mì line-up for the lunch crowd in Ixelles — pork, lemongrass tofu and the weekly special.',
-    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80',
+    null,
     array['Street food', 'Lunch'], 120, 0, 'scheduled', 'https://bestel.mongmo-store.com/nl'
   ),
   (
@@ -162,7 +162,7 @@ insert into public.events (
     (date_trunc('day', now() at time zone 'Europe/Brussels') + interval '13 days' + interval '22 hours') at time zone 'Europe/Brussels',
     'Europe/Brussels',
     'Lanterns, lion dancers and a Mongmo stall full of sweets for the Lunar New Year — bring the whole family.',
-    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80',
+    null,
     array['Festival', 'Family'], 500, 0, 'scheduled', 'https://bestel.mongmo-store.com/nl'
   )
 on conflict (id) do update set
