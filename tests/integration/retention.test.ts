@@ -1,4 +1,4 @@
-import { admin, deleteAccount, placeOrder, SEED, signUp, type Customer } from './helpers';
+import { admin, deleteAccount, placeOrder, SEED, signUp, signUpOwner, type Customer } from './helpers';
 
 /** A date this many months before now. */
 const monthsAgo = (months: number) => new Date(Date.now() - months * 30.5 * 24 * 60 * 60 * 1000).toISOString();
@@ -52,6 +52,17 @@ it('marks an account for deletion only after 24 months without use', async () =>
       string[] | null) ?? [];
   expect(await expiredAt(new Date())).not.toContain(customer.userId);
   expect(await expiredAt(new Date(Date.now() + 25 * 31 * 24 * 60 * 60 * 1000))).toContain(customer.userId);
+});
+
+it('never marks a staff account for deletion', async () => {
+  const owner = await signUpOwner();
+  try {
+    const later = new Date(Date.now() + 25 * 31 * 24 * 60 * 60 * 1000).toISOString();
+    const { data } = await admin.rpc('retention_expired_accounts' as never, { p_now: later } as never);
+    expect((data as string[] | null) ?? []).not.toContain(owner.userId);
+  } finally {
+    await deleteAccount(owner);
+  }
 });
 
 it('cannot be run from the app', async () => {
