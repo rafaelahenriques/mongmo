@@ -1,4 +1,4 @@
-import { ApiError, toApiError } from '@/api/errors';
+import { ApiError, GENERIC_ERROR_MESSAGE, toApiError } from '@/api/errors';
 import { placeOrder } from '@/api/orders';
 import { supabase } from '@/lib/supabase';
 
@@ -52,7 +52,7 @@ describe('placeOrder', () => {
   });
 
   it("never pays for an order the server didn't create", async () => {
-    serverAnswers({ create_order: { error: { message: 'Item is not available' } } });
+    serverAnswers({ create_order: { error: { message: 'Item is not available', code: 'P0001' } } });
     await expect(placeOrder({ type: 'store', storeId: 'cafe' }, [], null)).rejects.toThrow('Item is not available');
     expect(rpc).not.toHaveBeenCalledWith('confirm_mock_payment', expect.anything());
   });
@@ -65,8 +65,45 @@ describe('placeOrder', () => {
 });
 
 describe('toApiError', () => {
-  it("is a 404 when a single row wasn't found, else a 500, with the server's message", () => {
-    expect(toApiError({ message: 'none', code: 'PGRST116' })).toMatchObject({ status: 404, message: 'none' });
-    expect(toApiError({ message: 'boom' })).toMatchObject({ status: 500, name: 'ApiError' });
+  beforeEach(() => jest.spyOn(console, 'warn').mockImplementation(() => undefined));
+  afterEach(() => jest.restoreAllMocks());
+
+  it('shows the messages our own database functions write for people', () => {
+    expect(toApiError({ message: 'Not enough points for this reward', code: 'P0001' })).toMatchObject({
+      status: 400,
+      message: 'Not enough points for this reward',
+    });
+    expect(toApiError({ message: 'This account no longer exists. Sign in again.', code: 'P0002' }).message).toBe(
+      'This account no longer exists. Sign in again.',
+    );
+  });
+
+  it('never shows internal details: rules, grants, constraint names', () => {
+    const leaky = [
+      { message: 'new row violates row-level security policy for table "photos"', code: '42501' },
+      { message: 'permission denied for function lifetime_points', code: '42501' },
+      { message: 'duplicate key value violates unique constraint "user_rewards_pkey"', code: '23505' },
+      { message: 'fetch failed' },
+    ];
+    for (const error of leaky) {
+      expect(toApiError(error)).toMatchObject({ status: 500, message: GENERIC_ERROR_MESSAGE });
+    }
+    expect(toApiError({ message: 'violates check constraint "events_text_limits_check"', code: '23514' }).message).toBe(
+      'Something there is too long or not allowed.',
+    );
+  });
+
+  it('logs the detail, scrubbed, for whoever investigates', () => {
+    toApiError({ message: 'permission denied for user 3f2a9c1e-1b2c-4d5e-8f90-123456789abc', code: '42501' });
+    expect(console.warn).toHaveBeenCalledWith('[api] request failed (42501): permission denied for user [id]');
+  });
+
+  it('says "not found" when a single row is missing', () => {
+    expect(
+      toApiError({ message: 'JSON object requested, multiple (or no) rows returned', code: 'PGRST116' }),
+    ).toMatchObject({
+      status: 404,
+      message: 'That couldn’t be found.',
+    });
   });
 });

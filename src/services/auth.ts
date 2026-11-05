@@ -1,4 +1,6 @@
+import { toApiError } from '@/api/errors';
 import { supabase } from '@/lib/supabase';
+import { authErrorMessage } from '@/services/authMessages';
 import { confirm, showError } from '@/services/confirm';
 
 /**
@@ -36,7 +38,7 @@ export async function confirmDeleteAccount(): Promise<void> {
   }
   const { error } = await supabase.rpc('delete_my_account');
   if (error) {
-    showError('Couldn’t delete your account', new Error(error.message));
+    showError('Couldn’t delete your account', toApiError(error));
     return;
   }
   await supabase.auth.signOut();
@@ -75,11 +77,10 @@ export async function changePassword(current: string, next: string): Promise<str
   if (check.error) {
     // 400 is a wrong password; anything else (too many tries, offline) says what it is.
     const wrong = check.error.code === 'invalid_credentials' || check.error.status === 400;
-    return wrong ? 'That isn’t your current password.' : check.error.message;
+    return wrong ? 'That isn’t your current password.' : authErrorMessage(check.error);
   }
 
   const { error } = await supabase.auth.updateUser({ password: next });
   if (!error) return null;
-  if (error.code === 'same_password') return 'Your new password is the same as the old one.';
-  return error.message;
+  return authErrorMessage(error);
 }
