@@ -22,19 +22,12 @@ export type OrderItemRow = Database['public']['Tables']['order_items']['Row'];
 /** The café and pop-up menus are the same shape; only the source id differs. */
 async function menuIdsForLocation(location: CartLocation): Promise<string[]> {
   if (location.type === 'store') {
-    const { data, error } = await supabase
-      .from('stores')
-      .select('menu_id')
-      .eq('id', location.storeId)
-      .single();
+    const { data, error } = await supabase.from('stores').select('menu_id').eq('id', location.storeId).single();
     if (error) throw toApiError(error);
     return data.menu_id ? [data.menu_id] : [];
   }
 
-  const { data, error } = await supabase
-    .from('event_menus')
-    .select('menu_id')
-    .eq('event_id', location.eventId);
+  const { data, error } = await supabase.from('event_menus').select('menu_id').eq('event_id', location.eventId);
   if (error) throw toApiError(error);
   return data.map((row) => row.menu_id);
 }

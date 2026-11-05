@@ -115,10 +115,7 @@ export async function updateEvent(eventId: string, input: OwnerEventInput): Prom
   if (error) throw toApiError(error);
 }
 
-export async function setEventStatus(
-  eventId: string,
-  status: 'ended' | 'cancelled',
-): Promise<void> {
+export async function setEventStatus(eventId: string, status: 'ended' | 'cancelled'): Promise<void> {
   const { error } = await supabase.from('events').update({ status }).eq('id', eventId);
   if (error) throw toApiError(error);
 }
@@ -188,11 +185,7 @@ export async function attachMenu(eventId: string, menuId: string): Promise<void>
 }
 
 export async function detachMenu(eventId: string, menuId: string): Promise<void> {
-  const { error } = await supabase
-    .from('event_menus')
-    .delete()
-    .eq('event_id', eventId)
-    .eq('menu_id', menuId);
+  const { error } = await supabase.from('event_menus').delete().eq('event_id', eventId).eq('menu_id', menuId);
   if (error) throw toApiError(error);
 }
 
@@ -229,7 +222,10 @@ export async function getOwnerOrderInfo(orders: OwnerOrderRow[]): Promise<Record
     supabase
       .from('order_items')
       .select('id, order_id, name_snapshot, options_snapshot, quantity, line_total_cents')
-      .in('order_id', orders.map((order) => order.id)),
+      .in(
+        'order_id',
+        orders.map((order) => order.id),
+      ),
   ]);
   if (people.error) throw toApiError(people.error);
   if (items.error) throw toApiError(items.error);

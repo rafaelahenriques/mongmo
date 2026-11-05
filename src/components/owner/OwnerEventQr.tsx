@@ -19,14 +19,7 @@ export default function OwnerEventQr({ eventId }: OwnerEventQrProps) {
   const query = useEventQrToken(eventId, revealed);
 
   if (!revealed) {
-    return (
-      <Button
-        label="Show check-in QR code"
-        variant="primary"
-        icon="qrcode"
-        onPress={() => setRevealed(true)}
-      />
-    );
+    return <Button label="Show check-in QR code" variant="primary" icon="qrcode" onPress={() => setRevealed(true)} />;
   }
 
   if (query.isPending) {

@@ -36,9 +36,7 @@ export async function saveGeofenceMetas(events: PopUpEvent[]): Promise<void> {
 }
 
 /** Look up a region's metadata by its `event:<id>` identifier. */
-export async function getGeofenceMeta(
-  identifier: string,
-): Promise<GeofenceMeta | null> {
+export async function getGeofenceMeta(identifier: string): Promise<GeofenceMeta | null> {
   try {
     const raw = await AsyncStorage.getItem(REGISTRY_KEY);
     if (!raw) return null;
@@ -51,10 +49,7 @@ export async function getGeofenceMeta(
 }
 
 /** True when this event alerted within the debounce window. */
-export async function wasRecentlyAlerted(
-  eventId: string,
-  now: number = Date.now(),
-): Promise<boolean> {
+export async function wasRecentlyAlerted(eventId: string, now: number = Date.now()): Promise<boolean> {
   try {
     const raw = await AsyncStorage.getItem(ALERTED_KEY_PREFIX + eventId);
     if (!raw) return false;
@@ -68,10 +63,7 @@ export async function wasRecentlyAlerted(
 }
 
 /** Record that an alert was just sent for this event. */
-export async function markAlerted(
-  eventId: string,
-  now: number = Date.now(),
-): Promise<void> {
+export async function markAlerted(eventId: string, now: number = Date.now()): Promise<void> {
   try {
     await AsyncStorage.setItem(ALERTED_KEY_PREFIX + eventId, String(now));
   } catch (error) {

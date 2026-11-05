@@ -53,9 +53,7 @@ export default function ListMode({
   const refresh = usePullToRefresh();
 
   const live = events.filter((event) => getEventPhase(event.startsAt, event.endsAt) === 'live');
-  const soon = events.filter(
-    (event) => !live.includes(event) && isToday(new Date(event.startsAt), event.timeZone),
-  );
+  const soon = events.filter((event) => !live.includes(event) && isToday(new Date(event.startsAt), event.timeZone));
   const later = events.filter((event) => !live.includes(event) && !soon.includes(event));
   const storeStatus = store ? getStoreStatus(store.hours, store.timeZone) : null;
 

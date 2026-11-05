@@ -36,10 +36,7 @@ export default function LeaderboardList({ rows, hidden, period, onChangePeriod }
       />
 
       {hidden ? (
-        <Card
-          tone="muted"
-          style={styles.hiddenNote}
-        >
+        <Card tone="muted" style={styles.hiddenNote}>
           <Icon name="eye" size={18} color={theme.textSecondary} />
           <ThemedText
             type="small"
@@ -47,8 +44,7 @@ export default function LeaderboardList({ rows, hidden, period, onChangePeriod }
             style={styles.flex}
             accessibilityLabel="You are hidden from the leaderboard by your privacy setting."
           >
-            You’re hidden from the leaderboard (Profile → Settings). Your points still count for badges and
-            rewards.
+            You’re hidden from the leaderboard (Profile → Settings). Your points still count for badges and rewards.
           </ThemedText>
         </Card>
       ) : null}

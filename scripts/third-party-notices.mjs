@@ -83,11 +83,22 @@ const packages = new Map();
   }
 })(productionTree().dependencies);
 
-const sorted = [...packages.values()].sort((a, b) => a.name.localeCompare(b.name) || a.version.localeCompare(b.version));
+const sorted = [...packages.values()].sort(
+  (a, b) => a.name.localeCompare(b.name) || a.version.localeCompare(b.version),
+);
 const cell = (value) => String(value).replace(/\|/g, '\\|').replace(/\s+/g, ' ');
 
 // One full text per licence: the first package whose licence is exactly it.
-const atomicIds = [...new Set(sorted.flatMap((p) => p.license.split(/\s+(?:AND|OR)\s+|[()]/).map((id) => id.trim()).filter(Boolean)))];
+const atomicIds = [
+  ...new Set(
+    sorted.flatMap((p) =>
+      p.license
+        .split(/\s+(?:AND|OR)\s+|[()]/)
+        .map((id) => id.trim())
+        .filter(Boolean),
+    ),
+  ),
+];
 const texts = atomicIds
   .filter((id) => id !== 'OFL-1.1') // the fonts' own text is added below
   .map((id) => [id, sorted.find((p) => p.license === id && p.text)?.text])

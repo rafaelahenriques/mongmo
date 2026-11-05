@@ -1,11 +1,18 @@
 import type { PopUpEvent } from '@/types';
 
 /** 2026-09-27T18:00:00.000Z → 20260927T180000Z (iCalendar UTC form). */
-const utcStamp = (date: Date) => date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+const utcStamp = (date: Date) =>
+  date
+    .toISOString()
+    .replace(/[-:]/g, '')
+    .replace(/\.\d{3}/, '');
 
 /** Text values escape backslashes, commas, semicolons and newlines (RFC 5545 §3.3.11). */
 const escapeText = (text: string) =>
-  text.replace(/\\/g, '\\\\').replace(/\r?\n/g, '\\n').replace(/([,;])/g, '\\$1');
+  text
+    .replace(/\\/g, '\\\\')
+    .replace(/\r?\n/g, '\\n')
+    .replace(/([,;])/g, '\\$1');
 
 /** Lines longer than 75 characters continue on the next line after a space (§3.1). */
 function fold(line: string): string {
