@@ -1,0 +1,80 @@
+name: CI
+
+# On every push and pull request: lint, types, unit tests, a dependency
+# audit and the web build, plus the integration tests against a fresh local
+# Supabase. Any error, or any lint warning, fails the run.
+on:
+  push:
+  pull_request:
+  workflow_call:
+
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  app:
+    name: Lint, types, unit tests, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Lint (warnings fail too)
+        run: npm run lint
+      - name: Type check
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm test -- --ci
+      - name: Dependency audit
+        run: npm audit --audit-level=moderate
+      - name: Build the web app
+        env:
+          EXPO_PUBLIC_APP_ENV: production
+          EXPO_PUBLIC_SUPABASE_URL: https://ci-build-check.supabase.co
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ci-build-check-anon-key
+        run: npx expo export --platform web --output-dir dist
+
+  integration:
+    name: Integration tests (local Supabase)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - uses: supabase/setup-cli@v3
+        with:
+          version: latest
+      - name: Start Supabase with every migration and the seed
+        run: |
+          # A throwaway local project around this repo's migrations and seed.
+          mkdir -p "$RUNNER_TEMP/db" && cd "$RUNNER_TEMP/db"
+          supabase init
+          cp -r "$GITHUB_WORKSPACE/supabase/migrations" supabase/
+          cp "$GITHUB_WORKSPACE/supabase/seed.sql" supabase/seed.sql
+          supabase start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta
+          supabase status -o json > status.json
+          for key in API_URL ANON_KEY SERVICE_ROLE_KEY; do
+            if [ "$(jq -r ".$key // empty" status.json)" = "" ]; then
+              echo "::error::supabase status has no $key (it has: $(jq -r 'keys | join(", ")' status.json))"
+              exit 1
+            fi
+          done
+          {
+            echo "SUPABASE_URL=$(jq -r .API_URL status.json)"
+            echo "SUPABASE_ANON_KEY=$(jq -r .ANON_KEY status.json)"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$(jq -r .SERVICE_ROLE_KEY status.json)"
+          } >> "$GITHUB_ENV"
+      - name: Integration tests
+        run: npm run test:integration -- --ci
