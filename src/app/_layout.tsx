@@ -4,20 +4,25 @@ import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider } from 'expo-router';
 
 import { PermissionsScreen } from '@/components/auth/PermissionsScreen';
+import { ConsentPrompt } from '@/components/privacy/ConsentPrompt';
 import SignInScreen from '@/components/auth/SignInScreen';
 import AppTabs from '@/components/ui/AppTabs';
 import { Providers } from '@/components/Providers';
 import { SplashIntro } from '@/components/SplashIntro';
 import { FONT_ASSETS } from '@/constants/fonts';
-import { initCrashReporting, withCrashReporting } from '@/lib/crashReporting';
+import { applyCrashReportsChoice, withCrashReporting } from '@/lib/crashReporting';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useNavigationTheme } from '@/hooks/useNavigationTheme';
 import { useSession } from '@/hooks/useSession';
 import { useResolvedScheme } from '@/hooks/useTheme';
 import { useSettingsStore } from '@/state/settingsStore';
 
-// As early as possible, so a crash during start-up is reported too.
-initCrashReporting();
+// Crash reporting starts as early as possible, but only once the person
+// has said yes (asked by ConsentPrompt, changeable in Settings).
+applyCrashReportsChoice(useSettingsStore.getState().crashReports);
+useSettingsStore.subscribe((state, previous) => {
+  if (state.crashReports !== previous.crashReports) applyCrashReportsChoice(state.crashReports);
+});
 
 function RootLayout() {
   useDocumentTitle();
@@ -41,6 +46,7 @@ function RootLayout() {
         {ready ? <FirstScreen signedIn={Boolean(session)} permissionsAsked={permissionsAsked} /> : null}
         {/* The logo animation plays over the app while it reads the cached
             session and loads fonts, then fades out to reveal it. */}
+        {introDone ? <ConsentPrompt /> : null}
         {!introDone && <SplashIntro ready={ready} onDone={finishIntro} />}
       </ThemeProvider>
     </Providers>

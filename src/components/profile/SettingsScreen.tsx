@@ -12,6 +12,7 @@ import { useAuthUser } from '@/hooks/useAuthUser';
 import { useProfile, useSetLeaderboardVisible } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
+import { crashReportingAvailable } from '@/lib/crashReporting';
 import { confirmDeleteAccount, confirmLogOut } from '@/services/auth';
 import {
   ensureNotificationPermission,
@@ -61,6 +62,8 @@ export default function SettingsScreen() {
   const themeMode = useSettingsStore((state) => state.themeMode);
   const setNotificationPref = useSettingsStore((state) => state.setNotificationPref);
   const setThemeMode = useSettingsStore((state) => state.setThemeMode);
+  const crashReports = useSettingsStore((state) => state.crashReports);
+  const setCrashReports = useSettingsStore((state) => state.setCrashReports);
   const profile = useProfile();
   const setLeaderboardVisible = useSetLeaderboardVisible();
   const account = useAuthUser();
@@ -161,6 +164,28 @@ export default function SettingsScreen() {
         {Platform.OS !== 'web' ? (
           <ListRow title="Location" value="Phone settings" onPress={() => void Linking.openSettings()} last />
         ) : null}
+      </Group>
+
+      <Group title="Privacy">
+        <ListRow
+          title="Your data"
+          subtitle="See it, download it, delete it"
+          onPress={() => router.push('/(profile)/your-data')}
+        />
+        {crashReportingAvailable ? (
+          <ListRow
+            title="Crash reports"
+            subtitle="Send a report when the app crashes. Nothing personal."
+            trailing={
+              <Toggle
+                value={crashReports === 'on'}
+                onValueChange={(on) => setCrashReports(on ? 'on' : 'off')}
+                accessibilityLabel="Crash reports"
+              />
+            }
+          />
+        ) : null}
+        <ListRow title="Privacy policy" onPress={() => router.push('/(profile)/privacy')} last />
       </Group>
 
       <Group title="Account">
