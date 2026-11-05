@@ -26,10 +26,21 @@ the release workflow publishes that section as the GitHub release notes.
 - Privacy policy in the app and on the web.
 - Crash reports, only if you say yes; change your mind in Settings.
 - The app version at the bottom of Settings.
+- Photos of the week on Home: after a challenge photo, choose whether to
+  share it. Shared photos show for a week without your name; stop sharing
+  from Account, or report someone else's.
+- Pop-ups without a picture of their own show Mongmo's photos.
+
+### Changed
+
+- The leaderboard is opt-in: join it from Achievements, leave it in
+  Settings.
 
 ### Removed
 
 - The profile bio: nobody else ever saw it, so we no longer keep it.
+- How far from the venue you were at a check-in challenge: only whether
+  you were close enough is kept.
 
 ### Security
 
@@ -38,3 +49,6 @@ the release workflow publishes that section as the GitHub release notes.
   are private, shown through short-lived links.
 - Error messages no longer show the server's own wording.
 - Old data is deleted automatically after its retention period.
+- Challenge photos are private to you and Mongmo staff unless you share
+  one.
+- The web app loads images only from itself and our own storage.

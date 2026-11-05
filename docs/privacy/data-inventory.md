@@ -10,18 +10,18 @@ as of 5 November 2026. Keep it current: the privacy policy
 | Data | Collected in | Stored in | Who can read it | Why | Kept for |
 |---|---|---|---|---|---|
 | Email, password (hashed by Supabase Auth) | `SignInScreen`, `ChangePasswordScreen` | `auth.users` | The person | Account | Account's life; 24 months unused |
-| Display name | Sign-up, `ProfileEditScreen` | `profiles.name` | The person; other members on the leaderboard unless hidden; staff | Account, leaderboard | Account's life |
+| Display name | Sign-up, `ProfileEditScreen` | `profiles.name` | The person; staff; other members only if the person joins the leaderboard | Account, leaderboard | Account's life |
 | Home city (optional) | `ProfileEditScreen` | `profiles.home_city` | The person; staff | Planned: shown on the leaderboard | Account's life |
 | Profile picture link | Nowhere yet | `profiles.avatar_url` | The person; staff | Planned: shown on the leaderboard | Account's life |
-| Leaderboard visibility | Settings | `profiles.leaderboard_visible` | The person | Opt-out | Account's life |
+| Leaderboard choice | Achievements, Settings | `profiles.leaderboard_visible` (off for new accounts) | The person | Opt-in | Account's life |
 | Orders: items, options, pickup place and time, totals, reward used | Cart, checkout | `orders`, `order_items` | The person; staff | Making the order | 24 months (drafts: 1 day) |
 | Points history | Server (orders, challenges, badges, rewards) | `point_events` | The person | Loyalty balance and level | Account's life |
 | Badges, rewards redeemed and used | Server | `user_badges`, `user_rewards` | The person | Loyalty | Used rewards: 24 months |
 | Check-ins (pop-up, time, by QR code) | `CheckInScreen` | `check_ins` | The person; staff | Challenges, badges | 24 months |
 | Location at check-in | `CheckInScreen` | **Not stored**: checked by `verify_check_in` and dropped | — | Proving presence | Not kept |
-| Challenge results | Challenge screens | `challenge_completions.data` | The person; staff | Points | 24 months |
-| Distance from the venue at a check-in challenge | Challenge screens | `challenge_completions.data.distanceM` | The person; staff | **Not needed** (see proposals) | 24 months |
-| Challenge photos | `PhotoCapture` | Private bucket `challenge-photos/<user id>/`, `photos` | The person; staff (signed links, one hour) | The photo challenge | 12 months |
+| Challenge results (a score, a vote, how many photos, within the venue's radius or not) | Challenge screens | `challenge_completions.data` | The person; staff | Points | 24 months |
+| Challenge photos | `PhotoCapture` | Private bucket `challenge-photos/<user id>/`, `photos` | The person; staff (signed links, one hour); other members, without a name, for 7 days if the person shares it | The photo challenge; Photos of the week by consent (asked after taking it) | 12 months |
+| Photo reports (which photo, who reported it, when) | Photos of the week | `photo_reports` | Staff | Moderation | With the photo or the reporter's account |
 | Account activity (last sign-in, session refresh) | Supabase Auth | `auth.users`, `auth.sessions` | Supabase, retention job | Security, retention | Supabase's own |
 
 ## Kept on the phone only
@@ -47,7 +47,6 @@ Notifications are scheduled on the phone: no push token is collected.
 | Sentry | Crash reports: code, device model, OS and app version; scrubbed of personal data (`crashReporting.ts`) | A crash | Processor | **Consent** (asked once, Settings → Crash reports) |
 | Apple / Google | Location (OS services), directions destination | Location features; "Directions" | Platform | OS permission prompts |
 | Photon (komoot) | Address search text | Staff creating a pop-up | Third party | Staff only |
-| images.unsplash.com | The viewer's IP address (image requests) | Demo pop-up images from `seed.sql` | Third party | Demo data only: see proposals |
 
 The app has no analytics, advertising or session replay SDK.
 
@@ -61,15 +60,11 @@ Decided:
 | 2 | Profile **home city** | **Kept**: it will be shown on the leaderboard. Update the privacy policy when it is |
 | 3 | Profile **picture link** | **Kept**: profile pictures will be shown on the leaderboard. Add the upload, the policy text and the store declarations then |
 
-Waiting for a yes or no (nothing changed yet):
-
-| # | What | Why remove or gate it | The change |
-|---|---|---|---|
-| 4 | **Distance from the venue** in check-in challenge results | Only pass or fail matters; the distance is location data | Store `{ "withinRadius": true }`; clear the distances already stored |
-| 5 | Old **photo links** in challenge results | Dead links since the bucket went private | Replace them with a photo count in existing rows |
-| 6 | **Leaderboard on by default** | Shares a name with other members before anyone chose to | New accounts start hidden (opt in); existing accounts keep their setting |
-| 7 | **Photos readable by every signed-in member** in the database rules | The app shows them only to the person and staff | Limit the rules to the uploader and staff |
-| 8 | **Demo images from images.unsplash.com** | Each view tells Unsplash the viewer's IP address | Replace them with images in our own storage before launch |
+| 4 | **Distance from the venue** in check-in challenge results | **Removed** (`0028`): stores `withinRadius` only; stored distances cleared |
+| 5 | Old **photo links** in challenge results | **Removed** (`0028`): replaced with a photo count |
+| 6 | **Leaderboard on by default** | **Opt-in** (`0028`): new accounts start hidden and join from Achievements; existing accounts keep their choice |
+| 7 | **Photos readable by every signed-in member** | **Private** (`0029`): the person and staff only, unless the person shares one in Photos of the week (asked after taking it; 7 days, no name; stop any time; reports take it down at once) |
+| 8 | **Demo images from images.unsplash.com** | **Removed** (`0028`): pop-ups without a picture show Mongmo's own bundled photos; the web's image policy now allows only the app and Supabase |
 
 ## Retention
 

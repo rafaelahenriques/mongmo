@@ -15,8 +15,6 @@ changes, change these answers in both consoles too.
       Play Console → App access.
 - [ ] **Privacy policy URL**: the web app's `/privacy.html` (built from the
       in-app policy), e.g. `https://app.mongmo-store.com/privacy.html`.
-- [ ] **Demo images** in the seed come from images.unsplash.com: replace
-      them with your own before launch (data inventory, proposal 8).
 
 ## Both stores
 
@@ -27,6 +25,7 @@ changes, change these answers in both consoles too.
 | Encryption (export compliance) | Standard HTTPS only: `usesNonExemptEncryption: false` in `app.json` |
 | Age rating | No objectionable content, no user-to-user chat, no gambling: 4+ / Everyone. If pop-ups advertise alcohol, answer "infrequent alcohol references" |
 | Location in the background | Used only for alerts near a live pop-up, off until the person turns it on; explained in the permission text |
+| User-generated content (Apple 1.2, Google Play UGC policy) | Photos of the week: members choose to share a challenge photo, shown without names for 7 days. Every shared photo has **Report**, which takes it down for everyone at once; staff see reports (`photo_reports`) and can remove any photo. Contact: hello@mongmo-store.com. Say so in the review notes |
 
 ## Apple: App Privacy (App Store Connect → App Privacy)
 
@@ -36,7 +35,7 @@ Tracking: **No**. No data is used for tracking or shared with data brokers.
 |---|---|---|---|
 | Contact Info → Email Address | Yes | Yes | App Functionality |
 | Contact Info → Name | Yes (display name) | Yes | App Functionality |
-| User Content → Photos or Videos | Yes (challenge photos) | Yes | App Functionality |
+| User Content → Photos or Videos | Yes (challenge photos; shown to other members only if the person shares one) | Yes | App Functionality |
 | Purchases → Purchase History | Yes (orders) | Yes | App Functionality |
 | Identifiers → User ID | Yes (account id) | Yes | App Functionality |
 | Usage Data → Product Interaction | Yes (check-ins, challenge results, points) | Yes | App Functionality |
