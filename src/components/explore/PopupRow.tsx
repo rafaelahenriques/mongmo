@@ -16,6 +16,7 @@ import { nameFromContent } from '@/utils/a11y';
 import { formatEventWindow } from '@/utils/dateTime';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import type { PopUpEvent } from '@/types';
+import { popUpImage } from '@/constants/brandPhotos';
 
 /**
  * A pop-up in the list (P-02): a little street map with its pin, the name
@@ -87,15 +88,13 @@ export function LiveCard({
         {...nameFromContent(`${event.title}, live now. ${busy.occupancy} of ${busy.capacity} busy. Open the pop-up.`)}
       >
         <View style={[styles.photo, { backgroundColor: theme.surfaceDark }]}>
-          {event.imageUrl ? (
-            <Image
-              accessible={false}
-              accessibilityLabel=""
-              source={{ uri: event.imageUrl }}
-              style={StyleSheet.absoluteFill}
-              contentFit="cover"
-            />
-          ) : null}
+          <Image
+            accessible={false}
+            accessibilityLabel=""
+            source={popUpImage(event)}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+          />
           <View style={[styles.liveTag, { backgroundColor: theme.brandFill }]}>
             <ThemedText type="label" style={{ color: theme.onBrand }}>
               Live now

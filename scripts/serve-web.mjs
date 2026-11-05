@@ -5,9 +5,9 @@
 //
 //   node scripts/serve-web.mjs <dist dir> <port> [extra connect-src origin]
 //
-// The optional origin is added to the Content-Security-Policy's connect-src,
-// for a local Supabase on http://127.0.0.1:54321 that the production policy
-// (https only) would block.
+// The optional origin is added to the Content-Security-Policy's connect-src
+// and img-src, for a local Supabase on http://127.0.0.1:54321 that the
+// production policy (https only) would block.
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
@@ -43,6 +43,7 @@ async function securityHeaders() {
     const origins = [extraConnect, extraConnect.replace(/^http/, 'ws')].join(' ');
     headers['Content-Security-Policy'] = headers['Content-Security-Policy']
       .replace('connect-src ', `connect-src ${origins} `)
+      .replace('img-src ', `img-src ${extraConnect} `)
       .replace('; upgrade-insecure-requests', '');
   }
   return headers;
