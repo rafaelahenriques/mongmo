@@ -149,7 +149,6 @@ type PhotoRow = {
   event_id: string;
   challenge_id: string | null;
   storage_path: string;
-  url: string;
   created_at: string;
 };
 
