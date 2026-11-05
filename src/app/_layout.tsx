@@ -9,13 +9,16 @@ import AppTabs from '@/components/ui/AppTabs';
 import { Providers } from '@/components/Providers';
 import { SplashIntro } from '@/components/SplashIntro';
 import { FONT_ASSETS } from '@/constants/fonts';
+import { initCrashReporting, withCrashReporting } from '@/lib/crashReporting';
 import { useNavigationTheme } from '@/hooks/useNavigationTheme';
 import { useSession } from '@/hooks/useSession';
 import { useResolvedScheme } from '@/hooks/useTheme';
 import { useSettingsStore } from '@/state/settingsStore';
 
+// As early as possible, so a crash during start-up is reported too.
+initCrashReporting();
 
-export default function RootLayout() {
+function RootLayout() {
   const navTheme = useNavigationTheme();
   const scheme = useResolvedScheme();
   const session = useSession();
@@ -24,9 +27,7 @@ export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts(FONT_ASSETS);
   const ready = session !== undefined && (fontsLoaded || fontError !== null);
   const [introDone, setIntroDone] = useState(false);
-  // Headless screenshot runs can't answer system permission prompts.
-  const permissionsAsked =
-    useSettingsStore((state) => state.permissionsAsked) || process.env.EXPO_PUBLIC_UI_TOUR === '1';
+  const permissionsAsked = useSettingsStore((state) => state.permissionsAsked);
   const finishIntro = useCallback(() => setIntroDone(true), []);
 
   return (
@@ -43,3 +44,5 @@ export default function RootLayout() {
     </Providers>
   );
 }
+
+export default withCrashReporting(RootLayout);

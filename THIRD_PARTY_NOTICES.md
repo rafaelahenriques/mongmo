@@ -25,7 +25,7 @@ end up inside the app; they are listed anyway. Don't edit this file by hand.
 This project started from Expo's `create-expo-app` template.
 Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full text below).
 
-## npm packages (628)
+## npm packages (808)
 
 | Package | Version | Licence | Copyright |
 | --- | --- | --- | --- |
@@ -55,13 +55,26 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @babel/parser | 7.29.9 | MIT | Copyright (C) 2012-2014 by various contributors (see AUTHORS) |
 | @babel/plugin-proposal-decorators | 7.29.7 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/plugin-proposal-export-default-from | 7.29.7 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
+| @babel/plugin-syntax-async-generators | 7.8.4 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
+| @babel/plugin-syntax-bigint | 7.8.3 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
+| @babel/plugin-syntax-class-properties | 7.12.13 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
+| @babel/plugin-syntax-class-static-block | 7.14.5 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/plugin-syntax-decorators | 7.29.7 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/plugin-syntax-dynamic-import | 7.8.3 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/plugin-syntax-export-default-from | 7.29.7 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/plugin-syntax-flow | 7.29.7 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
+| @babel/plugin-syntax-import-attributes | 7.29.7 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
+| @babel/plugin-syntax-import-meta | 7.10.4 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
+| @babel/plugin-syntax-json-strings | 7.8.3 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/plugin-syntax-jsx | 7.29.7 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
+| @babel/plugin-syntax-logical-assignment-operators | 7.10.4 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/plugin-syntax-nullish-coalescing-operator | 7.8.3 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
+| @babel/plugin-syntax-numeric-separator | 7.10.4 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
+| @babel/plugin-syntax-object-rest-spread | 7.8.3 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
+| @babel/plugin-syntax-optional-catch-binding | 7.8.3 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/plugin-syntax-optional-chaining | 7.8.3 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
+| @babel/plugin-syntax-private-property-in-object | 7.14.5 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
+| @babel/plugin-syntax-top-level-await | 7.14.5 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/plugin-syntax-typescript | 7.29.7 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/plugin-transform-arrow-functions | 7.29.7 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/plugin-transform-async-generator-functions | 7.29.7 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
@@ -101,6 +114,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @babel/template | 7.29.7 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/traverse | 7.29.8 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/types | 7.29.8 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
+| @bcoe/v8-coverage | 0.2.3 | MIT | Copyright © 2015-2017 Charles Samborski |
 | @expo-google-fonts/league-spartan | 0.4.2 | MIT AND OFL-1.1 | Copyright (c) 2020 Expo |
 | @expo-google-fonts/material-symbols | 0.4.52 | MIT AND Apache-2.0 | Copyright (c) 2020 Expo |
 | @expo/cli | 58.1.19 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
@@ -140,8 +154,30 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @expo/xcpretty | 4.4.7 | MIT | Copyright (c) 2013-2016 Marin Usalj; Copyright (c) 2021-present 650 Industries, Inc. (aka Expo) |
 | @isaacs/nonrecursive-glob-match | 1.0.3 | BlueOak-1.0.0 | copyright in it. |
 | @isaacs/ttlcache | 1.4.1 | ISC | Copyright (c) 2022-2023 - Isaac Z. Schlueter and Contributors; copyright notice and this permission notice appear in all copies. |
+| @istanbuljs/load-nyc-config | 1.1.0 | ISC | Copyright (c) 2019, Contributors |
+| @istanbuljs/schema | 0.1.6 | MIT | Copyright (c) 2019 CFWare, LLC |
+| @jest/console | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| @jest/core | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| @jest/diff-sequences | 30.5.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| @jest/environment | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| @jest/expect | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| @jest/expect-utils | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| @jest/fake-timers | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| @jest/get-type | 30.5.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| @jest/globals | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| @jest/pattern | 30.5.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| @jest/react-is-18 | 18.3.1 | MIT | Copyright (c) Facebook, Inc. and its affiliates. |
+| @jest/react-is-19 | 19.3.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
+| @jest/reporters | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
 | @jest/schemas | 29.6.3 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
+| @jest/schemas | 30.5.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| @jest/snapshot-utils | 30.5.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| @jest/source-map | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| @jest/test-result | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| @jest/test-sequencer | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| @jest/transform | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
 | @jest/types | 29.6.3 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
+| @jest/types | 30.5.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
 | @jridgewell/gen-mapping | 0.3.13 | MIT | Copyright 2024 Justin Ridgewell <justin@ridgewell.name> |
 | @jridgewell/remapping | 2.3.5 | MIT | Copyright 2024 Justin Ridgewell <justin@ridgewell.name> |
 | @jridgewell/resolve-uri | 3.1.2 | MIT | Copyright 2019 Justin Ridgewell <jridgewell@google.com> |
@@ -151,6 +187,10 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @noxcturnal/noxcturnal-linux-x64-gnu | 0.1.11 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright (c) 2026-present VoidZero Inc. & Contributors |
 | @noxcturnal/noxcturnal-linux-x64-musl | 0.1.11 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright (c) 2026-present VoidZero Inc. & Contributors |
 | @oxc-project/types | 0.154.0 | MIT | Copyright (c) 2024-present VoidZero Inc. & Contributors; Copyright (c) 2023 Boshen |
+| @parcel/watcher | 2.6.0 | MIT | Copyright (c) 2017-present Devon Govett |
+| @parcel/watcher-linux-x64-glibc | 2.6.0 | MIT | Copyright (c) 2017-present Devon Govett |
+| @parcel/watcher-linux-x64-musl | 2.6.0 | MIT | Copyright (c) 2017-present Devon Govett |
+| @pkgr/core | 0.3.6 | MIT | JounQin <admin@1stg.me> (https://www.1stG.me) |
 | @radix-ui/primitive | 1.2.0 | MIT | Copyright (c) 2022 WorkOS |
 | @radix-ui/react-collection | 1.2.0 | MIT | Copyright (c) 2022 WorkOS |
 | @radix-ui/react-compose-refs | 1.1.5 | MIT | Copyright (c) 2022 WorkOS |
@@ -185,7 +225,25 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @react-native/normalize-colors | 0.74.89 | MIT | See https://github.com/facebook/react-native |
 | @react-native/normalize-colors | 0.88.1 | MIT | See https://github.com/react/react-native |
 | @react-native/virtualized-lists | 0.88.1 | MIT | See https://github.com/react/react-native |
+| @sentry/browser | 10.75.2 | MIT | Copyright (c) 2019 Functional Software, Inc. dba Sentry |
+| @sentry/browser-utils | 10.75.2 | MIT | Copyright (c) 2020 Functional Software, Inc. dba Sentry |
+| @sentry/bundler-plugins | 10.75.2 | MIT | Copyright (c) 2022-2026, Sentry |
+| @sentry/cli | 2.58.6 | FSL-1.1-MIT | Copyright 2008-2025 Functional Software, Inc. dba Sentry |
+| @sentry/cli | 3.8.0 | FSL-1.1-MIT | Copyright 2008-2025 Functional Software, Inc. dba Sentry |
+| @sentry/cli-linux-x64 | 2.58.6 | FSL-1.1-MIT | See https://github.com/getsentry/sentry-cli |
+| @sentry/cli-linux-x64 | 3.8.0 | FSL-1.1-MIT | See https://github.com/getsentry/sentry-cli |
+| @sentry/conventions | 0.16.0 | MIT | Copyright (c) 2023-2025 Functional Software, Inc. dba Sentry |
+| @sentry/core | 10.75.2 | MIT | Copyright (c) 2019 Functional Software, Inc. dba Sentry |
+| @sentry/expo-upload-sourcemaps | 8.28.0 | MIT | Copyright (c) 2017-2026 Sentry |
+| @sentry/feedback | 10.75.2 | MIT | Copyright (c) 2023 Functional Software, Inc. dba Sentry |
+| @sentry/react | 10.75.2 | MIT | Copyright (c) 2019 Functional Software, Inc. dba Sentry |
+| @sentry/react-native | 8.28.0 | MIT | Copyright (c) 2017-2024 Sentry |
+| @sentry/replay | 10.75.2 | MIT | Copyright (c) 2022 Functional Software, Inc. dba Sentry |
+| @sentry/replay-canvas | 10.75.2 | MIT | Copyright (c) 2024 Functional Software, Inc. dba Sentry |
 | @sinclair/typebox | 0.27.12 | MIT | Copyright (c) 2017-2023 Haydn Paterson (sinclair) <haydn.developer@gmail.com> |
+| @sinclair/typebox | 0.34.52 | MIT | Copyright (c) 2017-2026 Haydn Paterson |
+| @sinonjs/commons | 3.0.1 | BSD-3-Clause | Copyright (c) 2018, Sinon.JS |
+| @sinonjs/fake-timers | 15.4.0 | BSD-3-Clause | Copyright (c) 2010-2014, Christian Johansen, christian@cjohansen.no. All rights reserved. |
 | @supabase/auth-js | 2.117.2 | MIT | Copyright (c) 2020 Supabase |
 | @supabase/functions-js | 2.117.2 | MIT | Copyright (c) 2020 Supabase |
 | @supabase/phoenix | 0.4.5 | MIT | Copyright (c) 2014 Chris McCord |
@@ -198,6 +256,11 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @tanstack/query-persist-client-core | 5.103.2 | MIT | Copyright (c) 2021-present Tanner Linsley |
 | @tanstack/react-query | 5.103.2 | MIT | Copyright (c) 2021-present Tanner Linsley |
 | @tanstack/react-query-persist-client | 5.103.2 | MIT | Copyright (c) 2021-present Tanner Linsley |
+| @testing-library/react-native | 14.1.0 | MIT | Copyright (c) 2018 Callstack and Rally Health |
+| @types/babel__core | 7.20.5 | MIT | Copyright (c) Microsoft Corporation. |
+| @types/babel__generator | 7.27.0 | MIT | Copyright (c) Microsoft Corporation. |
+| @types/babel__template | 7.4.4 | MIT | Copyright (c) Microsoft Corporation. |
+| @types/babel__traverse | 7.28.0 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/emscripten | 1.41.6 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/geojson | 7946.0.16 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/istanbul-lib-coverage | 2.0.6 | MIT | Copyright (c) Microsoft Corporation. |
@@ -205,10 +268,14 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @types/istanbul-reports | 3.0.4 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/node | 26.6.2 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/react | 19.3.0 | MIT | Copyright (c) Microsoft Corporation. |
+| @types/react-reconciler | 0.34.1 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/react-test-renderer | 19.3.0 | MIT | Copyright (c) Microsoft Corporation. |
+| @types/stack-utils | 2.0.3 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/yargs | 17.0.35 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/yargs-parser | 21.0.3 | MIT | Copyright (c) Microsoft Corporation. |
 | @ungap/structured-clone | 1.4.0 | ISC | Copyright (c) 2021, Andrea Giammarchi, @WebReflection; copyright notice and this permission notice appear in all copies. |
+| @unrs/resolver-binding-linux-x64-gnu | 1.12.2 | MIT | See https://github.com/unrs/unrs-resolver |
+| @unrs/resolver-binding-linux-x64-musl | 1.12.2 | MIT | See https://github.com/unrs/unrs-resolver |
 | @xmldom/xmldom | 0.8.15 | MIT | Copyright 2019 - present Christopher J. Brody and other contributors, as listed in: https://github.com/xmldom/xmldom/graphs/contributors; Copyright 2012 - 2017 @jindw <jindw@xidea.org> and other contributors, as listed in: https://github.com/jindw/xmldom/graphs/contributors |
 | @xmldom/xmldom | 0.9.12 | MIT | Copyright 2019 - present Christopher J. Brody and other contributors, as listed in: https://github.com/xmldom/xmldom/graphs/contributors; Copyright 2012 - 2017 @jindw <jindw@xidea.org> and other contributors, as listed in: https://github.com/jindw/xmldom/graphs/contributors |
 | 2g | 1.0.1 | MIT | Copyright (c) Phil Pluckthun,; Copyright (c) 650 Industries, Inc. (aka Expo), |
@@ -216,6 +283,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | accepts | 1.3.8 | MIT | Copyright (c) 2014 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2015 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | accepts | 2.0.0 | MIT | Copyright (c) 2014 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2015 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | acorn | 8.18.0 | MIT | Copyright (C) 2012-2022 by various contributors (see AUTHORS) |
+| agent-base | 6.0.2 | MIT | Nathan Rajlich <nathan@tootallnate.net> (http://n8.io/) |
 | agent-base | 7.1.4 | MIT | Copyright (c) 2013 Nathan Rajlich <nathan@tootallnate.net> |
 | agent-cli-detector | 0.1.7 | MIT | Copyright (c) 2026 David Mokos |
 | anser | 1.4.10 | MIT | Copyright (c) 2012-20 Ionică Bizău <bizauionica@gmail.com> (https://ionicabizau.net) |
@@ -225,9 +293,14 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | ansi-styles | 3.2.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | ansi-styles | 4.3.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | ansi-styles | 5.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| anymatch | 3.1.3 | ISC | Copyright (c) 2019 Elan Shanker, Paul Miller (https://paulmillr.com); copyright notice and this permission notice appear in all copies. |
 | arg | 5.0.2 | MIT | Copyright (c) 2021 Vercel, Inc. |
+| argparse | 1.0.10 | MIT | Copyright (C) 2012 by Vitaly Puzrin |
 | argparse | 2.0.1 | Python-2.0 | Copyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam, |
 | asap | 2.0.6 | MIT | Copyright 2009–2014 Contributors. All rights reserved. |
+| babel-jest | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| babel-plugin-istanbul | 8.0.0 | BSD-3-Clause | Copyright (c) 2016, Istanbul Code Coverage |
+| babel-plugin-jest-hoist | 30.5.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
 | babel-plugin-polyfill-corejs2 | 0.4.17 | MIT | Copyright (c) 2014-present Nicolò Ribaudo and other contributors |
 | babel-plugin-polyfill-corejs3 | 0.13.0 | MIT | Copyright (c) 2014-present Nicolò Ribaudo and other contributors |
 | babel-plugin-polyfill-regenerator | 0.6.8 | MIT | Copyright (c) 2014-present Nicolò Ribaudo and other contributors |
@@ -235,7 +308,9 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | babel-plugin-react-native-web | 0.21.4 | MIT | Copyright (c) Nicolas Gallagher. |
 | babel-plugin-syntax-hermes-parser | 0.36.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
 | babel-plugin-transform-flow-enums | 0.0.2 | MIT | Copyright (c) Facebook, Inc. and its affiliates. |
+| babel-preset-current-node-syntax | 1.2.0 | MIT | Copyright (c) 2020 Nicolò Ribaudo and other contributors |
 | babel-preset-expo | 58.0.24 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| babel-preset-jest | 30.5.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
 | badgin | 1.2.3 | MIT | Julian Hundeloh |
 | balanced-match | 4.0.4 | MIT | See https://github.com/juliangruber/balanced-match |
 | barcode-detector | 3.2.2 | MIT | Copyright (c) 2023 Ze-Zheng Wu |
@@ -252,18 +327,24 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | buffer | 5.7.1 | MIT | Copyright (c) Feross Aboukhadijeh, and other contributors. |
 | buffer-from | 1.1.2 | MIT | Copyright (c) 2016, 2018 Linus Unnebäck |
 | bytes | 3.1.2 | MIT | Copyright (c) 2012-2014 TJ Holowaychuk <tj@vision-media.ca>; Copyright (c) 2015 Jed Watson <jed.watson@me.com> |
+| callsites | 3.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | camelcase | 5.3.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | camelcase | 6.3.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | caniuse-lite | 1.0.30001810 | CC-BY-4.0 | copyright and certain other rights. Our licenses are; copyright--then that use is not regulated by the license. Our |
 | chalk | 2.4.2 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | chalk | 4.1.2 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| char-regex | 1.0.2 | MIT | Copyright (c) 2019 Richie Bendall |
 | ci-info | 3.9.0 | MIT | Copyright (c) 2016 Thomas Watson Steen |
+| ci-info | 4.4.0 | MIT | Copyright (c) 2016 Thomas Watson Steen |
+| cjs-module-lexer | 2.3.0 | MIT | Copyright (C) 2018-2020 Guy Bedford |
 | cli-cursor | 2.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | cli-spinners | 2.9.2 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | client-only | 0.0.1 | MIT | — |
 | cliui | 6.0.0 | ISC | Copyright (c) 2015, Contributors |
 | cliui | 8.0.1 | ISC | Copyright (c) 2015, Contributors |
 | clone | 1.0.4 | MIT | Copyright © 2011-2015 Paul Vorbach <paul@vorba.ch>; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
+| co | 4.6.0 | MIT | Copyright (c) 2014 TJ Holowaychuk &lt;tj@vision-media.ca&gt; |
+| collect-v8-coverage | 1.0.3 | MIT | Copyright (c) 2019 Simen Bekkhus |
 | color | 4.2.3 | MIT | Copyright (c) 2012 Heather Arthur |
 | color-convert | 1.9.3 | MIT | Copyright (c) 2011-2016 Heather Arthur <fayearthur@gmail.com> |
 | color-convert | 2.0.1 | MIT | Copyright (c) 2011-2016 Heather Arthur <fayearthur@gmail.com> |
@@ -292,30 +373,42 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | debug | 3.2.7 | MIT | Copyright (c) 2014 TJ Holowaychuk <tj@vision-media.ca> |
 | debug | 4.4.3 | MIT | Copyright (c) 2014-2017 TJ Holowaychuk <tj@vision-media.ca>; Copyright (c) 2018-2021 Josh Junon |
 | decamelize | 1.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| dedent | 1.7.2 | MIT | Desmond Brand |
+| deepmerge | 4.3.1 | MIT | Copyright (c) 2012 James Halliday, Josh Duff, and other contributors |
 | defaults | 1.0.4 | MIT | Copyright (c) 2022 Sindre Sorhus; Copyright (c) 2015 Elijah Insua |
 | define-lazy-prop | 2.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | depd | 2.0.0 | MIT | Copyright (c) 2014-2018 Douglas Christopher Wilson |
 | destroy | 1.2.0 | MIT | Copyright (c) 2014 Jonathan Ong me@jongleberry.com; Copyright (c) 2015-2022 Douglas Christopher Wilson doug@somethingdoug.com |
 | detect-libc | 2.1.2 | Apache-2.0 | copyright notice that is included in or attached to the work; copyright license to reproduce, prepare Derivative Works of, |
+| detect-newline | 3.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | dijkstrajs | 1.0.3 | MIT | Copyright (C) 2008 |
 | dnssd-advertise | 1.1.6 | MIT | Copyright (c) Phil Pluckthun,; Copyright (c) 650 Industries, Inc. (aka Expo), |
 | dom-serializer | 2.0.0 | MIT | Copyright (c) 2014 The cheeriojs contributors |
 | domelementtype | 2.3.0 | BSD-2-Clause | Copyright (c) Felix Böhm |
 | domhandler | 5.0.3 | BSD-2-Clause | Copyright (c) Felix Böhm |
 | domutils | 3.2.2 | BSD-2-Clause | Copyright (c) Felix Böhm |
+| dotenv | 17.4.2 | BSD-2-Clause | Copyright (c) 2015, Scott Motte |
 | ee-first | 1.1.1 | MIT | Copyright (c) 2014 Jonathan Ong me@jongleberry.com |
 | electron-to-chromium | 1.5.434 | ISC | Copyright 2018 Kilian Valkhof |
+| emittery | 0.13.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | emoji-regex | 8.0.0 | MIT | Mathias Bynens |
 | encodeurl | 1.0.2 | MIT | Copyright (c) 2016 Douglas Christopher Wilson |
 | encodeurl | 2.0.1 | MIT | Copyright (c) 2016 Douglas Christopher Wilson |
 | entities | 4.5.0 | BSD-2-Clause | Copyright (c) Felix Böhm |
+| error-ex | 1.3.4 | MIT | Copyright (c) 2015 JD Ballard |
 | error-stack-parser | 2.1.4 | MIT | Copyright (c) 2017 Eric Wendelin and other contributors |
 | es-errors | 1.3.0 | MIT | Copyright (c) 2024 Jordan Harband |
+| es-module-lexer | 2.3.2 | MIT | Copyright (C) 2018-2022 Guy Bedford |
 | escalade | 3.2.0 | MIT | Copyright (c) Luke Edwards <luke.edwards05@gmail.com> (lukeed.com) |
 | escape-html | 1.0.3 | MIT | Copyright (c) 2012-2013 TJ Holowaychuk; Copyright (c) 2015 Andreas Lubbe |
 | escape-string-regexp | 1.0.5 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| escape-string-regexp | 2.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| esprima | 4.0.1 | BSD-2-Clause | Ariya Hidayat |
 | etag | 1.8.1 | MIT | Copyright (c) 2014-2016 Douglas Christopher Wilson |
 | event-target-shim | 5.0.1 | MIT | Copyright (c) 2015 Toru Nagashima |
+| execa | 5.1.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
+| exit-x | 0.2.2 | MIT | Grunt Development Team (https://gruntjs.com/development-team) |
+| expect | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
 | expo | 58.0.23 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-application | 58.1.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-asset | 58.0.20 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
@@ -355,6 +448,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | expo-updates-interface | 58.0.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-web-browser | 58.0.7 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | exponential-backoff | 3.1.3 | Apache-2.0 | copyright notice that is included in or attached to the work; copyright license to reproduce, prepare Derivative Works of, |
+| fast-json-stable-stringify | 2.1.0 | MIT | Copyright (c) 2017 Evgeny Poberezkin; Copyright (c) 2013 James Halliday |
 | fb-dotslash | 0.5.8 | (MIT OR Apache-2.0) | See https://github.com/facebook/dotslash |
 | fb-watchman | 2.0.2 | Apache-2.0 | Wez Furlong <wez@fb.com> (http://wezfurlong.org) |
 | fbjs | 3.0.5 | MIT | Copyright (c) 2013-present, Facebook, Inc. |
@@ -364,6 +458,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | fill-range | 7.1.1 | MIT | Copyright (c) 2014-present, Jon Schlinkert. |
 | finalhandler | 1.1.2 | MIT | Copyright (c) 2014-2017 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | find-up | 4.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| find-up | 5.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | flow-enums-runtime | 0.0.6 | MIT | Copyright (c) Facebook, Inc. and its affiliates. |
 | flow-estree | 0.327.0 | MIT | Flow Team |
 | flow-estree | 0.331.0 | MIT | Flow Team |
@@ -375,6 +470,8 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | function-bind | 1.1.2 | MIT | Copyright (c) 2013 Raynos. |
 | gensync | 1.0.0-beta.2 | MIT | Copyright 2018 Logan Smyth <loganfsmyth@gmail.com> |
 | get-caller-file | 2.0.5 | ISC | Copyright 2018 Stefan Penner |
+| get-package-type | 0.1.0 | MIT | Copyright (c) 2020 CFWare, LLC |
+| get-stream | 6.0.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | getenv | 2.0.0 | MIT | Copyright (c) 2012-2019 Christoph Tavan <dev@tavan.de> |
 | glob | 14.0.3 | BlueOak-1.0.0 | copyright in it. |
 | graceful-fs | 4.2.11 | ISC | Copyright (c) 2011-2022 Isaac Z. Schlueter, Ben Noordhuis, and Contributors; copyright notice and this permission notice appear in all copies. |
@@ -385,32 +482,74 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | hermes-estree | 0.36.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
 | hermes-parser | 0.36.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
 | hosted-git-info | 7.0.2 | ISC | Copyright (c) 2015, Rebecca Turner; copyright notice and this permission notice appear in all copies. |
+| html-escaper | 2.0.2 | MIT | Copyright (C) 2017-present by Andrea Giammarchi - @WebReflection |
 | http-errors | 2.0.1 | MIT | Copyright (c) 2014 Jonathan Ong me@jongleberry.com; Copyright (c) 2016 Douglas Christopher Wilson doug@somethingdoug.com |
+| https-proxy-agent | 5.0.1 | MIT | Nathan Rajlich <nathan@tootallnate.net> (http://n8.io/) |
 | https-proxy-agent | 7.0.6 | MIT | Copyright (c) 2013 Nathan Rajlich <nathan@tootallnate.net> |
+| human-signals | 2.1.0 | Apache-2.0 | copyright notice that is included in or attached to the work; copyright license to reproduce, prepare Derivative Works of, |
 | hyphenate-style-name | 1.1.0 | BSD-3-Clause | Copyright (c) 2015, Espen Hovlandsdal |
 | iceberg-js | 0.8.1 | MIT | Copyright (c) 2025 Supabase |
 | ieee754 | 1.2.1 | BSD-3-Clause | Copyright 2008 Fair Oaks Labs, Inc. |
 | ignore | 5.3.2 | MIT | kael |
+| import-local | 3.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
+| imurmurhash | 0.1.4 | MIT | Jens Taylor |
+| indent-string | 4.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | inherits | 2.0.4 | ISC | Copyright (c) Isaac Z. Schlueter; copyright notice and this permission notice appear in all copies. |
 | inline-style-prefixer | 7.0.1 | MIT | Copyright (c) 2015 Robin Frischmann |
 | invariant | 2.2.4 | MIT | Copyright (c) 2013-present, Facebook, Inc. |
+| is-arrayish | 0.2.1 | MIT | Copyright (c) 2015 JD Ballard |
 | is-arrayish | 0.3.4 | MIT | Copyright (c) 2015 JD Ballard |
 | is-core-module | 2.17.0 | MIT | Copyright (c) 2014 Dave Justice; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
 | is-docker | 2.2.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
+| is-extglob | 2.1.1 | MIT | Copyright (c) 2014-2016, Jon Schlinkert |
 | is-fullwidth-code-point | 3.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| is-generator-fn | 2.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| is-glob | 4.0.3 | MIT | Copyright (c) 2014-2017, Jon Schlinkert. |
 | is-number | 7.0.0 | MIT | Copyright (c) 2014-present, Jon Schlinkert. |
 | is-plain-obj | 2.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| is-stream | 2.0.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | is-wsl | 2.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | isexe | 2.0.0 | ISC | Copyright (c) Isaac Z. Schlueter and Contributors; copyright notice and this permission notice appear in all copies. |
+| istanbul-lib-coverage | 3.2.2 | BSD-3-Clause | Copyright 2012-2015 Yahoo! Inc. |
+| istanbul-lib-instrument | 6.0.3 | BSD-3-Clause | Copyright 2012-2015 Yahoo! Inc. |
+| istanbul-lib-report | 3.0.1 | BSD-3-Clause | Copyright 2012-2015 Yahoo! Inc. |
+| istanbul-lib-source-maps | 5.0.6 | BSD-3-Clause | Copyright 2015 Yahoo! Inc. |
+| istanbul-reports | 3.2.0 | BSD-3-Clause | Copyright 2012-2015 Yahoo! Inc. |
+| jest | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-changed-files | 30.5.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-circus | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-cli | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-config | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-diff | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-docblock | 30.5.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-each | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-environment-node | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
 | jest-get-type | 29.6.3 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
+| jest-haste-map | 30.5.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-leak-detector | 30.5.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-matcher-utils | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-message-util | 30.5.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-mock | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-regex-util | 30.5.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-resolve | 30.5.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-resolve-dependencies | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-runner | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-runtime | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-snapshot | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
 | jest-util | 29.7.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
+| jest-util | 30.5.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
 | jest-validate | 29.7.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
+| jest-validate | 30.5.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
+| jest-watcher | 30.5.2 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
 | jest-worker | 29.7.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
+| jest-worker | 30.5.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
 | jimp-compact | 0.16.1 | MIT | See https://github.com/nuxt-community/jimp-compact |
 | js-tokens | 4.0.0 | MIT | Copyright (c) 2014, 2015, 2016, 2017, 2018 Simon Lydell |
+| js-yaml | 3.15.2 | MIT | Copyright (C) 2011-2015 by Vitaly Puzrin |
 | js-yaml | 4.3.2 | MIT | Copyright (C) 2011-2015 by Vitaly Puzrin |
 | jsc-safe-url | 0.2.4 | 0BSD | Rob Hogan <npm@rhogan.net> |
 | jsesc | 3.1.0 | MIT | Mathias Bynens |
+| json-parse-even-better-errors | 2.3.1 | MIT | Copyright 2017 Kat Marchán; Copyright npm, Inc. |
 | json5 | 2.2.3 | MIT | Copyright (c) 2012-2018 Aseem Kishore, and [others]. |
 | kleur | 3.0.3 | MIT | Copyright (c) Luke Edwards <luke.edwards05@gmail.com> (lukeed.com) |
 | lan-network | 0.2.1 | MIT | Copyright (c) Phil Pluckthun, |
@@ -418,7 +557,9 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | lightningcss | 1.33.0 | MPL-2.0 | (c) under Patent Claims infringed by Covered Software in the absence of |
 | lightningcss-linux-x64-gnu | 1.33.0 | MPL-2.0 | (c) under Patent Claims infringed by Covered Software in the absence of |
 | lightningcss-linux-x64-musl | 1.33.0 | MPL-2.0 | (c) under Patent Claims infringed by Covered Software in the absence of |
+| lines-and-columns | 1.2.4 | MIT | Copyright (c) 2015 Brian Donovan |
 | locate-path | 5.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| locate-path | 6.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | lodash.debounce | 4.0.8 | MIT | Copyright jQuery Foundation and other contributors <https://jquery.org/>; Copyright and related rights for sample code are waived via CC0. Sample |
 | lodash.throttle | 4.1.1 | MIT | Copyright jQuery Foundation and other contributors <https://jquery.org/>; Copyright and related rights for sample code are waived via CC0. Sample |
 | log-symbols | 2.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
@@ -427,6 +568,8 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | lru-cache | 11.5.3 | BlueOak-1.0.0 | copyright in it. |
 | lru-cache | 5.1.1 | ISC | Copyright (c) Isaac Z. Schlueter and Contributors; copyright notice and this permission notice appear in all copies. |
 | lucide-react-native | 1.47.0 | ISC | Copyright (c) 2026 Lucide Icons and Contributors; copyright notice and this permission notice appear in all copies. |
+| magic-string | 0.30.21 | MIT | Copyright 2018 Rich Harris |
+| make-dir | 4.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | makeerror | 1.0.12 | BSD-3-Clause | Copyright (c) 2014, Naitik Shah. All rights reserved. |
 | mdn-data | 2.0.14 | CC0-1.0 | Copyright and Related Rights in the Work and the meaning and intended legal; Copyright and Related Rights in the Work or (ii) assert any associated claims |
 | memoize-one | 5.2.1 | MIT | Copyright (c) 2019 Alexander Reardon |
@@ -468,21 +611,28 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | mime-types | 2.1.35 | MIT | Copyright (c) 2014 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2015 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | mime-types | 3.0.2 | MIT | Copyright (c) 2014 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2015 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | mimic-fn | 1.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| mimic-fn | 2.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| min-indent | 1.0.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com), James Kyle <me@thejameskyle.com> (thejameskyle.com) |
 | minimatch | 11.0.4 | BlueOak-1.0.0 | copyright in it. |
 | minipass | 7.1.3 | BlueOak-1.0.0 | copyright in it. |
 | ms | 2.0.0 | MIT | Copyright (c) 2016 Zeit, Inc. |
 | ms | 2.1.3 | MIT | Copyright (c) 2020 Vercel, Inc. |
 | multitars | 1.0.2 | MIT | Copyright (c) Phil Pluckthun,; Copyright (c) 650 Industries, Inc. (aka Expo), |
 | nanoid | 3.3.20 | MIT | Copyright 2017 Andrey Sitnik <andrey@sitnik.ru>; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
+| napi-postinstall | 0.3.4 | MIT | Copyright (c) 2021-present UnTS |
+| natural-compare | 1.4.0 | MIT | Lauri Rooden (https://github.com/litejs/natural-compare-lite) |
 | negotiator | 0.6.3 | MIT | Copyright (c) 2012-2014 Federico Romero; Copyright (c) 2012-2014 Isaac Z. Schlueter |
 | negotiator | 0.6.4 | MIT | Copyright (c) 2012-2014 Federico Romero; Copyright (c) 2012-2014 Isaac Z. Schlueter |
 | negotiator | 1.1.0 | MIT | Copyright (c) 2012-2014 Federico Romero; Copyright (c) 2012-2014 Isaac Z. Schlueter |
+| node-addon-api | 7.1.1 | MIT | Copyright (c) 2017 [Node.js API collaborators](https://github.com/nodejs/node-addon-api#collaborators) |
 | node-fetch | 2.7.0 | MIT | Copyright (c) 2016 David Frank |
 | node-forge | 1.4.3 | (BSD-3-Clause OR GPL-2.0) | Copyright (c) 2010, Digital Bazaar, Inc.; Copyright (C) 1989, 1991 Free Software Foundation, Inc. |
 | node-int64 | 0.4.0 | MIT | Copyright (c) 2014 Robert Kieffer |
 | node-releases | 2.0.56 | MIT | Copyright (c) 2017 Sergey Rubanov (https://github.com/chicoxyzzy) |
+| normalize-path | 3.0.0 | MIT | Copyright (c) 2014-2018, Jon Schlinkert. |
 | noxcturnal | 0.1.11 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright (c) 2026-present VoidZero Inc. & Contributors |
 | npm-package-arg | 11.0.3 | ISC | Copyright (c) npm, Inc.; copyright notice and this permission notice appear in all copies. |
+| npm-run-path | 4.0.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | nth-check | 2.1.1 | BSD-2-Clause | Copyright (c) Felix Böhm |
 | nullthrows | 1.1.1 | MIT | Copyright (c) 2016 Andres Suarez |
 | ob1 | 0.87.1 | MIT | See https://github.com/react/metro |
@@ -492,11 +642,15 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | on-finished | 2.4.2 | MIT | Copyright (c) 2013 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2014 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | on-headers | 1.1.0 | MIT | Copyright (c) 2014 Douglas Christopher Wilson |
 | onetime | 2.0.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| onetime | 5.1.2 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | open | 8.4.2 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | ora | 3.4.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | p-limit | 2.3.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| p-limit | 3.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | p-locate | 4.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| p-locate | 5.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | p-try | 2.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| parse-json | 5.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | parse-png | 2.1.0 | MIT | Copyright (c) Kevin Mårtensson <kevinmartensson@gmail.com> (github.com/kevva) |
 | parseurl | 1.3.3 | MIT | Copyright (c) 2014 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2014-2017 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | path-exists | 4.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
@@ -506,19 +660,24 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | picocolors | 1.1.1 | ISC | Copyright (c) 2021-2024 Oleksii Raspopov, Kostiantyn Denysov, Anton Verinov; copyright notice and this permission notice appear in all copies. |
 | picomatch | 2.3.2 | MIT | Copyright (c) 2017-present, Jon Schlinkert. |
 | picomatch | 4.0.7 | MIT | Copyright (c) 2017-present, Jon Schlinkert. |
+| pirates | 4.0.7 | MIT | Copyright (c) 2016-2018 Ari Porad |
+| pkg-dir | 4.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | plist | 3.1.1 | MIT | Copyright (c) 2010-2017 Nathan Rajlich <nathan@tootallnate.net> |
 | pngjs | 3.4.0 | MIT | See https://github.com/lukeapage/pngjs2 |
 | pngjs | 5.0.0 | MIT | See https://github.com/lukeapage/pngjs |
 | postcss | 8.5.32 | MIT | Copyright 2013 Andrey Sitnik <andrey@sitnik.es>; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
 | postcss-value-parser | 4.2.0 | MIT | Copyright (c) Bogdan Chadkin <trysound@yandex.ru> |
 | pretty-format | 29.7.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
+| pretty-format | 30.5.1 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright Contributors to the Jest project. |
 | proc-log | 4.2.0 | ISC | Copyright (c) GitHub, Inc.; copyright notice and this permission notice appear in all copies. |
 | progress | 2.0.3 | MIT | Copyright (c) 2017 TJ Holowaychuk <tj@vision-media.ca> |
 | promise | 7.3.1 | MIT | Copyright (c) 2014 Forbes Lindesay |
 | promise | 8.3.0 | MIT | Copyright (c) 2014 Forbes Lindesay |
 | prompts | 2.4.2 | MIT | Copyright (c) 2018 Terkel Gjervig Nielsen |
 | prop-types | 15.8.1 | MIT | Copyright (c) 2013-present, Facebook, Inc. |
+| proxy-from-env | 1.1.0 | MIT | Copyright (C) 2016-2018 Rob Wu <rob@robwu.nl>; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
 | punycode | 2.3.1 | MIT | Mathias Bynens |
+| pure-rand | 7.0.1 | MIT | Copyright (c) 2018 Nicolas DUBIEN |
 | qrcode | 1.5.4 | MIT | Copyright (c) 2012 Ryan Day |
 | range-parser | 1.2.1 | MIT | Copyright (c) 2012-2014 TJ Holowaychuk <tj@vision-media.ca>; Copyright (c) 2015-2016 Douglas Christopher Wilson <doug@somethingdoug.com |
 | react | 19.3.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
@@ -542,7 +701,9 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | react-native-url-polyfill | 2.0.0 | MIT | Copyright (c) 2019 Nicolas Charpentier |
 | react-native-web | 0.21.4 | MIT | Copyright (c) Nicolas Gallagher.; Copyright (c) Meta Platforms, Inc. and affiliates. |
 | react-native-worklets | 0.13.0 | MIT | Copyright (c) 2024 nobody |
+| react-reconciler | 0.34.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
 | react-refresh | 0.14.2 | MIT | Copyright (c) Facebook, Inc. and its affiliates. |
+| redent | 3.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | regenerate | 1.4.2 | MIT | Mathias Bynens |
 | regenerate-unicode-properties | 10.2.2 | MIT | Mathias Bynens |
 | regenerator-runtime | 0.13.11 | MIT | Copyright (c) 2014-present, Facebook, Inc. |
@@ -552,6 +713,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | require-directory | 2.1.1 | MIT | Copyright (c) 2011 Troy Goode <troygoode@gmail.com> |
 | require-main-filename | 2.0.0 | ISC | Copyright (c) 2016, Contributors |
 | resolve | 1.22.12 | MIT | Copyright (c) 2012 James Halliday |
+| resolve-cwd | 3.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | resolve-from | 5.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | resolve-workspace-root | 2.0.1 | MIT | Copyright (c) 2024-present Cedric van Putten <me@cedric.dev> |
 | restore-cursor | 2.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
@@ -574,23 +736,32 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | shebang-regex | 3.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | shell-quote | 1.12.0 | MIT | Copyright (c) 2013 James Halliday (mail@substack.net) |
 | signal-exit | 3.0.7 | ISC | Copyright (c) 2015, Contributors |
+| signal-exit | 4.1.0 | ISC | Copyright (c) 2015-2023 Benjamin Coe, Isaac Z. Schlueter, and Contributors |
 | simple-plist | 1.3.1 | MIT | Copyright (c) 2013 Joe Wollard; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
 | simple-swizzle | 0.2.4 | MIT | Copyright (c) 2015 Josh Junon |
 | sisteransi | 1.0.5 | MIT | Copyright (c) 2018 Terkel Gjervig Nielsen |
+| slash | 3.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | slugify | 1.6.9 | MIT | Copyright (c) Simeon Velichkov <simeonvelichkov@gmail.com> |
 | source-map | 0.5.7 | BSD-3-Clause | Copyright (c) 2009-2011, Mozilla Foundation and contributors |
 | source-map | 0.6.1 | BSD-3-Clause | Copyright (c) 2009-2011, Mozilla Foundation and contributors |
 | source-map-js | 1.2.2 | BSD-3-Clause | Copyright (c) 2009-2011, Mozilla Foundation and contributors |
 | source-map-support | 0.5.21 | MIT | Copyright (c) 2014 Evan Wallace |
+| sprintf-js | 1.0.3 | BSD-3-Clause | Copyright (c) 2007-2014, Alexandru Marasteanu <hello [at) alexei (dot] ro> |
+| stack-utils | 2.0.6 | MIT | Copyright (c) 2016-2022 Isaac Z. Schlueter <i@izs.me>, James Talmage <james@talmage.io> (github.com/jamestalmage), and Contributors |
 | stackframe | 1.3.4 | MIT | Copyright (c) 2017 Eric Wendelin and other contributors |
 | stacktrace-parser | 0.1.11 | MIT | Copyright (c) 2014-2019 Georg Tavonius |
 | standard-navigation | 0.0.5 | MIT | Satyajit Sahoo <satyajit.happy@gmail.com> |
 | statuses | 1.5.0 | MIT | Copyright (c) 2014 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2016 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | statuses | 2.0.2 | MIT | Copyright (c) 2014 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2016 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | stream-buffers | 2.2.0 | Unlicense | Sam Day <me@samcday.com.au> |
+| string-length | 4.0.2 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | string-width | 4.2.3 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | strip-ansi | 5.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | strip-ansi | 6.0.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| strip-bom | 4.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| strip-final-newline | 2.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| strip-indent | 3.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
+| strip-json-comments | 3.1.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | structured-headers | 0.4.1 | MIT | Evert Pot <me@evertpot.com> |
 | styleq | 0.1.3 | MIT | Copyright (c) Nicolas Gallagher |
 | supports-color | 5.5.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
@@ -598,9 +769,12 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | supports-color | 8.1.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | supports-hyperlinks | 2.3.0 | MIT | Copyright (c) James Talmage <james@talmage.io> (github.com/jamestalmage) |
 | supports-preserve-symlinks-flag | 1.0.0 | MIT | Copyright (c) 2022 Inspect JS |
+| synckit | 0.11.13 | MIT | Copyright (c) 2021 UnTS |
 | tagged-tag | 1.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | terminal-link | 2.1.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | terser | 5.51.2 | BSD-2-Clause | Copyright 2012-2018 (c) Mihai Bazon <mihai.bazon@gmail.com>; copyright notice, this list of conditions and the following |
+| test-exclude | 7.0.2 | ISC | Copyright (c) 2016, Contributors |
+| test-renderer | 1.3.1 | MIT | Maciej Jastrzebski <mdjastrzebski@gmail.com> |
 | text-encoding | 0.7.0 | (Unlicense OR Apache-2.0) | copyright notice that is included in or attached to the work; copyright license to reproduce, prepare Derivative Works of, |
 | throat | 5.0.0 | MIT | Copyright (c) 2013 Forbes Lindesay |
 | tinyglobby | 0.2.17 | MIT | Copyright (c) 2024 Madeline Gurriarán |
@@ -610,11 +784,13 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | toqr | 0.1.1 | MIT | Copyright (c) Phil Pluckthun,; Copyright (c) 650 Industries, Inc. (aka Expo), |
 | tr46 | 0.0.3 | MIT | Sebastian Mayr <npm@smayr.name> |
 | tslib | 2.8.1 | 0BSD | Copyright (c) Microsoft Corporation. |
+| type-detect | 4.0.8 | MIT | Copyright (c) 2013 Jake Luer <jake@alogicalparadox.com> (http://alogicalparadox.com) |
 | type-fest | 0.21.3 | (MIT OR CC0-1.0) | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https:/sindresorhus.com) |
 | type-fest | 0.7.1 | (MIT OR CC0-1.0) | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | type-fest | 5.10.0 | (MIT OR CC0-1.0) | Sindre Sorhus |
 | typescript | 6.0.3 | Apache-2.0 | Microsoft Corp. |
 | ua-parser-js | 1.0.41 | MIT | Copyright (c) 2012-2025 Faisal Salman <<f@faisalman.com>> |
+| undici | 6.29.1 | MIT | Copyright (c) Matteo Collina and Undici contributors |
 | undici-types | 8.9.0 | MIT | Copyright (c) Matteo Collina and Undici contributors |
 | unicode-canonical-property-names-ecmascript | 2.0.1 | MIT | Mathias Bynens |
 | unicode-match-property-ecmascript | 2.0.0 | MIT | Mathias Bynens |
@@ -622,10 +798,12 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | unicode-property-aliases-ecmascript | 2.2.0 | MIT | Mathias Bynens |
 | unimodules-app-loader | 58.0.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | unpipe | 1.0.0 | MIT | Copyright (c) 2015 Douglas Christopher Wilson <doug@somethingdoug.com> |
+| unrs-resolver | 1.12.2 | MIT | See https://github.com/unrs/unrs-resolver |
 | update-browserslist-db | 1.3.3 | MIT | Copyright 2022 Andrey Sitnik <andrey@sitnik.es> and other contributors; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
 | use-latest-callback | 0.2.6 | MIT | Copyright (c) 2023 Satyajit Sahoo |
 | use-sync-external-store | 1.7.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
 | utils-merge | 1.0.1 | MIT | Copyright (c) 2013-2017 Jared Hanson; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
+| v8-to-istanbul | 9.3.0 | ISC | Copyright (c) 2017, Contributors |
 | validate-npm-package-name | 5.0.1 | ISC | Copyright (c) 2015, npm, Inc |
 | vary | 1.1.2 | MIT | Copyright (c) 2014-2017 Douglas Christopher Wilson |
 | vlq | 1.0.1 | MIT | Copyright (c) 2017 [these people](https://github.com/Rich-Harris/vlq/graphs/contributors) |
@@ -642,6 +820,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | which-module | 2.0.1 | ISC | Copyright (c) 2016, Contributors |
 | wrap-ansi | 6.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | wrap-ansi | 7.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
+| write-file-atomic | 5.0.1 | ISC | Copyright (c) 2015, Rebecca Turner |
 | ws | 7.5.13 | MIT | Copyright (c) 2011 Einar Otto Stangvik <einaros@gmail.com> |
 | ws | 8.22.1 | MIT | Copyright (c) 2011 Einar Otto Stangvik <einaros@gmail.com>; Copyright (c) 2013 Arnout Kazemier and contributors |
 | xcode | 4.0.0 | Apache-2.0 | copyright notice that is included in or attached to the work; copyright license to reproduce, prepare Derivative Works of, |
@@ -655,6 +834,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | yargs | 17.7.3 | MIT | Copyright 2010 James Halliday (mail@substack.net); Modified work Copyright 2014 Contributors (ben@npmjs.com) |
 | yargs-parser | 18.1.3 | ISC | Copyright (c) 2016, Contributors |
 | yargs-parser | 21.1.1 | ISC | Copyright (c) 2016, Contributors |
+| yocto-queue | 0.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | zustand | 5.0.15 | MIT | Copyright (c) 2019 Paul Henschel |
 | zxing-wasm | 3.1.3 | MIT | Copyright (c) 2023 Ze-Zheng Wu |
 
@@ -981,7 +1161,7 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ```text
 BSD 3-Clause License
 
-Copyright (c) 2015, Espen Hovlandsdal
+Copyright (c) 2018, Sinon.JS
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -1008,6 +1188,121 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
+
+### FSL-1.1-MIT
+
+```text
+# Functional Source License, Version 1.1, MIT Future License
+
+## Abbreviation
+
+FSL-1.1-MIT
+
+## Notice
+
+Copyright 2008-2025 Functional Software, Inc. dba Sentry
+
+## Terms and Conditions
+
+### Licensor ("We")
+
+The party offering the Software under these Terms and Conditions.
+
+### The Software
+
+The "Software" is each version of the software that we make available under
+these Terms and Conditions, as indicated by our inclusion of these Terms and
+Conditions with the Software.
+
+### License Grant
+
+Subject to your compliance with this License Grant and the Patents,
+Redistribution and Trademark clauses below, we hereby grant you the right to
+use, copy, modify, create derivative works, publicly perform, publicly display
+and redistribute the Software for any Permitted Purpose identified below.
+
+### Permitted Purpose
+
+A Permitted Purpose is any purpose other than a Competing Use. A Competing Use
+means making the Software available to others in a commercial product or
+service that:
+
+1. substitutes for the Software;
+
+2. substitutes for any other product or service we offer using the Software
+   that exists as of the date we make the Software available; or
+
+3. offers the same or substantially similar functionality as the Software.
+
+Permitted Purposes specifically include using the Software:
+
+1. for your internal use and access;
+
+2. for non-commercial education;
+
+3. for non-commercial research; and
+
+4. in connection with professional services that you provide to a licensee
+   using the Software in accordance with these Terms and Conditions.
+
+### Patents
+
+To the extent your use for a Permitted Purpose would necessarily infringe our
+patents, the license grant above includes a license under our patents. If you
+make a claim against any party that the Software infringes or contributes to
+the infringement of any patent, then your patent license to the Software ends
+immediately.
+
+### Redistribution
+
+The Terms and Conditions apply to all copies, modifications and derivatives of
+the Software.
+
+If you redistribute any copies, modifications or derivatives of the Software,
+you must include a copy of or a link to these Terms and Conditions and not
+remove any copyright notices provided in or with the Software.
+
+### Disclaimer
+
+THE SOFTWARE IS PROVIDED "AS IS" AND WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING WITHOUT LIMITATION WARRANTIES OF FITNESS FOR A PARTICULAR
+PURPOSE, MERCHANTABILITY, TITLE OR NON-INFRINGEMENT.
+
+IN NO EVENT WILL WE HAVE ANY LIABILITY TO YOU ARISING OUT OF OR RELATED TO THE
+SOFTWARE, INCLUDING INDIRECT, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES,
+EVEN IF WE HAVE BEEN INFORMED OF THEIR POSSIBILITY IN ADVANCE.
+
+### Trademarks
+
+Except for displaying the License Details and identifying us as the origin of
+the Software, you have no right under these Terms and Conditions to use our
+trademarks, trade names, service marks or product names.
+
+## Grant of Future License
+
+We hereby irrevocably grant you an additional license to use the Software under
+the MIT license that is effective on the second anniversary of the date we make
+the Software available. On or after that date, you may use the Software under
+the MIT license, in which case the following will apply:
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 ```
 
 ### Python-2.0
