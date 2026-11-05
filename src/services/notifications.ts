@@ -2,6 +2,8 @@ import * as Notifications from 'expo-notifications';
 import { AndroidImportance } from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import { log } from '@/lib/log';
+
 /**
  * Show a banner + list entry with sound while
  * the app is in the foreground.
@@ -40,7 +42,7 @@ export async function ensureNotificationPermission(): Promise<boolean> {
     const requested = await Notifications.requestPermissionsAsync();
     return requested.granted;
   } catch (error) {
-    console.warn('Notification permission request failed', error);
+    log.warn('notifications', 'permission request failed', error);
     return false;
   }
 }
@@ -82,7 +84,7 @@ export async function notifyNow({ title, body, url }: LocalNotification): Promis
       trigger: null,
     });
   } catch (error) {
-    console.warn('Could not show notification', error);
+    log.warn('notifications', 'could not show notification', error);
   }
 }
 

@@ -18,7 +18,6 @@ import { PageInset } from '@/constants/theme';
 import { useEvents } from '@/hooks/useEvents';
 import { useStore } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
-import { useUiTour } from '@/hooks/useUiTour';
 import { openDirections } from '@/services/directions';
 import { haptics } from '@/services/haptics';
 import { useBusyStore } from '@/state/busyStore';
@@ -101,9 +100,6 @@ export default function ExploreScreen() {
     (eventId: string) => router.push({ pathname: '/(popups)/check-in/[id]', params: { id: eventId } }),
     [router],
   );
-
-  // No-op unless EXPO_PUBLIC_UI_TOUR=1 (headless screenshot walkthrough).
-  useUiTour({ events, openSheet: onSelectStore, closeSheet: onCloseSheet, setFilter, setMode });
 
   const toggle = (
     <View style={styles.topRow}>

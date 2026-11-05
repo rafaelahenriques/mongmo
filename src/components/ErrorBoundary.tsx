@@ -1,10 +1,11 @@
-import { Component, type ErrorInfo, type PropsWithChildren, type ReactNode } from 'react';
+import { Component, type PropsWithChildren, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { IconBadge } from '@/components/ui/IconBadge';
 import { Spacing } from '@/constants/theme';
+import { log } from '@/lib/log';
 import { useTheme } from '@/hooks/useTheme';
 
 type ErrorBoundaryState = { hasError: boolean };
@@ -17,8 +18,8 @@ export class ErrorBoundary extends Component<PropsWithChildren, ErrorBoundarySta
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, info: ErrorInfo): void {
-    console.error('Unhandled render error:', error, info.componentStack);
+  componentDidCatch(error: Error): void {
+    log.error('render', 'Unhandled render error', error);
   }
 
   private readonly reset = (): void => {

@@ -3,20 +3,13 @@ import { Platform } from 'react-native';
 import * as Location from 'expo-location';
 
 import { GEOFENCE_RADIUS_M } from '@/constants/config';
+import { log } from '@/lib/log';
 import { ensureNotificationPermission } from '@/services/notifications';
 import { useLocationStore } from '@/state/locationStore';
 import { useSettingsStore } from '@/state/settingsStore';
 import { GEOFENCE_TASK_NAME } from '@/tasks/geofenceTask';
 import { saveGeofenceMetas } from '@/utils/geofenceRegistry';
 import type { PopUpEvent } from '@/types';
-
-/**
- * Headless screenshot runs (EXPO_PUBLIC_UI_TOUR=1): the verification
- * simulator has no GUI window, so the system permission alert could never be
- * dismissed — skip the prompt. Geofence regions still register; only the
- * banner presentation needs permission, which real users grant normally.
- */
-const SKIP_PERMISSION_PROMPT = process.env.EXPO_PUBLIC_UI_TOUR === '1';
 
 /**
  * Registers a 500 m geofence around every relevant pop-up for as long as
@@ -45,9 +38,7 @@ export function useGeofencing(events: PopUpEvent[] | undefined): void {
 
     (async () => {
       // Alerts only matter with notification permission; never block on it.
-      if (!SKIP_PERMISSION_PROMPT) {
-        await ensureNotificationPermission();
-      }
+      await ensureNotificationPermission();
       if (cancelled) return;
 
       // iOS: background ("Always") authorization is what makes region
@@ -68,11 +59,11 @@ export function useGeofencing(events: PopUpEvent[] | undefined): void {
         notifyOnExit: false,
       }));
       await Location.startGeofencingAsync(GEOFENCE_TASK_NAME, regions);
-      console.log(`[geofencing] watching ${regions.length} event region(s)`);
+      log.debug('geofencing', `watching ${regions.length} event region(s)`);
     })().catch((error: unknown) => {
       // Denied location / Expo Go / simulators without services: degrade to
       // "map without alerts" instead of crashing.
-      console.warn('[geofencing] could not start', error);
+      log.warn('geofencing', 'could not start', error);
     });
 
     return () => {

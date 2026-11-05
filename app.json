@@ -12,6 +12,7 @@
       "bundleIdentifier": "com.rafaela-hnrqs.react-challenge"
     },
     "android": {
+      "package": "com.rafaelahnrqs.reactchallenge",
       "adaptiveIcon": {
         "backgroundColor": "#80C7BC",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

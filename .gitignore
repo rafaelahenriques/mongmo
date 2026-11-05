@@ -6,6 +6,7 @@ node_modules/
 # Expo
 .expo/
 dist/
+coverage/
 web-build/
 expo-env.d.ts
 
@@ -40,7 +41,6 @@ supabase/.temp
 # typescript
 *.tsbuildinfo
 
-example
 
 # generated native folders
 /ios

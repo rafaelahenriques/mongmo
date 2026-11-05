@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { GEOFENCE_DEBOUNCE_MS } from '@/constants/config';
+import { log } from '@/lib/log';
 import type { PopUpEvent } from '@/types';
 
 const REGISTRY_KEY = 'geofence:registry';
@@ -44,7 +45,7 @@ export async function getGeofenceMeta(
     const registry = JSON.parse(raw) as Record<string, GeofenceMeta>;
     return registry[identifier] ?? null;
   } catch (error) {
-    console.warn('Could not read geofence registry', error);
+    log.warn('geofencing', 'could not read the registry', error);
     return null;
   }
 }
@@ -74,6 +75,6 @@ export async function markAlerted(
   try {
     await AsyncStorage.setItem(ALERTED_KEY_PREFIX + eventId, String(now));
   } catch (error) {
-    console.warn('Could not persist geofence alert timestamp', error);
+    log.warn('geofencing', 'could not save the alert time', error);
   }
 }

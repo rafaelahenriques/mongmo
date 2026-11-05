@@ -35,7 +35,7 @@ Postgres so the client can only ever *ask*, never *decide*.
 5. `npm install`, then run a development build (see the root README — this
    app doesn't run in Expo Go).
 
-Without step 4, `src/lib/supabase.ts` throws immediately on launch with a
+Without step 4, `src/lib/env.ts` throws immediately on launch with a
 message pointing back here — the app intentionally has no mock fallback
 left, per "no hardcoded/mock data."
 

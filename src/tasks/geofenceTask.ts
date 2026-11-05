@@ -1,6 +1,7 @@
 import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 
+import { log } from '@/lib/log';
 import { nearbyNotification, notifyNow } from '@/services/notifications';
 import { getGeofenceMeta, markAlerted, wasRecentlyAlerted } from '@/utils/geofenceRegistry';
 
@@ -23,7 +24,7 @@ type GeofenceTaskData = {
  */
 TaskManager.defineTask<GeofenceTaskData>(GEOFENCE_TASK_NAME, async ({ data, error }) => {
   if (error) {
-    console.warn(`[${GEOFENCE_TASK_NAME}]`, error.message);
+    log.warn(GEOFENCE_TASK_NAME, error.message);
     return;
   }
   if (!data || data.eventType !== Location.GeofencingEventType.Enter) return;
@@ -42,16 +43,16 @@ TaskManager.defineTask<GeofenceTaskData>(GEOFENCE_TASK_NAME, async ({ data, erro
   // iOS reports the initial state of registered regions at app startup;
   // the active-hours check keeps those (and late-evening passes) silent.
   if (now < start || now > end) {
-    console.log(`[${GEOFENCE_TASK_NAME}] enter ignored (outside hours): ${meta.id}`);
+    log.debug(GEOFENCE_TASK_NAME, `enter ignored (outside hours): ${meta.id}`);
     return;
   }
 
   if (await wasRecentlyAlerted(meta.id, now)) {
-    console.log(`[${GEOFENCE_TASK_NAME}] enter debounced: ${meta.id}`);
+    log.debug(GEOFENCE_TASK_NAME, `enter debounced: ${meta.id}`);
     return;
   }
 
   await markAlerted(meta.id, now);
   await notifyNow(nearbyNotification(meta));
-  console.log(`[${GEOFENCE_TASK_NAME}] alert sent: ${meta.id}`);
+  log.debug(GEOFENCE_TASK_NAME, `alert sent: ${meta.id}`);
 });
