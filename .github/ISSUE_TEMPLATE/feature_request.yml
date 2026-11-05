@@ -1,0 +1,26 @@
+name: Feature request
+description: An idea for the app.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: Who is it for, and what can't they do today?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What should happen instead?
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before building it
+      options:
+        - label: It needs new personal data (update docs/privacy/data-inventory.md, the privacy policy and the store declarations)
+        - label: It needs a new permission (location, camera, notifications…)
+        - label: It changes the database (a migration that works with the app already on phones)
