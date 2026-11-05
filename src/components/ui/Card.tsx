@@ -56,7 +56,7 @@ export function Card({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled }}
+      aria-disabled={disabled}
       style={({ pressed }) => [surface, { transform: [{ scale: pressed && !disabled ? 0.98 : 1 }] }, style]}
     >
       {children}

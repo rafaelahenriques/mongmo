@@ -102,7 +102,8 @@ export function PickupCalendar({
                 accessibilityLabel={`${format(date, 'EEEE d MMMM')}${ymd === today ? ', today' : ''}${
                   available ? '' : ', no pickup'
                 }`}
-                accessibilityState={{ selected: chosen, disabled: !available }}
+                aria-pressed={chosen}
+                aria-disabled={!available}
                 style={styles.cell}
               >
                 <View style={[styles.day, chosen && { backgroundColor: theme.brandFill, borderColor: theme.text }]}>
@@ -141,7 +142,7 @@ function MonthArrow({
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel={label}
-      accessibilityState={{ disabled }}
+      aria-disabled={disabled}
       hitSlop={8}
       style={styles.arrow}
     >

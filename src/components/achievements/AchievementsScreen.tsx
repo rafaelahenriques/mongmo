@@ -54,7 +54,11 @@ export default function AchievementsScreen() {
         />
       </View>
       {view === 'leaderboard' ? (
-        <ScrollView contentContainerStyle={[styles.list, { paddingBottom: tabBarInset + 32 }]}>
+        <ScrollView
+          tabIndex={0}
+          aria-label="Leaderboard"
+          contentContainerStyle={[styles.list, { paddingBottom: tabBarInset + 32 }]}
+        >
           <LeaderboardList
             rows={leaderboard.rows}
             hidden={leaderboard.hidden}
@@ -72,7 +76,11 @@ export default function AchievementsScreen() {
           <Button label="Try again" variant="ghost" size="small" onPress={() => query.refetch()} />
         </View>
       ) : (
-        <ScrollView contentContainerStyle={[styles.list, { paddingBottom: tabBarInset + 32 }]}>
+        <ScrollView
+          tabIndex={0}
+          aria-label="Badges"
+          contentContainerStyle={[styles.list, { paddingBottom: tabBarInset + 32 }]}
+        >
           {badges.map((badge) => {
             const got = earned.get(badge.id);
             const step = progress[badge.key];

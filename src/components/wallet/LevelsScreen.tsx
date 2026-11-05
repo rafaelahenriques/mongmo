@@ -21,6 +21,9 @@ export default function LevelsScreen() {
 
   return (
     <ScrollView
+      // Reachable by keyboard, so it can be scrolled without a mouse.
+      tabIndex={0}
+      aria-label="Your level and the levels"
       style={{ flex: 1, backgroundColor: theme.background }}
       contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + 32 }]}
     >

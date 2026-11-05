@@ -20,6 +20,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { openDirections } from '@/services/directions';
 import { haptics } from '@/services/haptics';
 import { orderAgain } from '@/services/orderAgain';
+import { nameFromContent } from '@/utils/a11y';
 import { formatCents, ORDER_STATUS_TITLE, ORDER_STEP, ORDER_STEPS, pickupCode } from '@/utils/orderFormat';
 
 /**
@@ -126,7 +127,7 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
               subtitle={`${place.openLabel} · Directions`}
               state="arrow"
               onPress={() => openDirections(place.coordinates, `${place.name}, ${place.address}`)}
-              accessibilityLabel={`${place.name}, ${place.openLabel}. Directions.`}
+              {...nameFromContent(`${place.name}, ${place.openLabel}. Directions.`)}
             />
           ) : null}
 

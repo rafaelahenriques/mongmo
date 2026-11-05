@@ -30,6 +30,7 @@ import { switchPickup } from '@/services/switchPickup';
 import { useCartStore, type CartLocation } from '@/state/cartStore';
 import { useLocationStore } from '@/state/locationStore';
 import { useSettingsStore } from '@/state/settingsStore';
+import { nameFromContent } from '@/utils/a11y';
 import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import { ORDER_STEP, ORDER_STEPS, ORDER_STATUS_TITLE, pickupCode, shortItemName } from '@/utils/orderFormat';
@@ -255,7 +256,7 @@ export default function HomeScreen() {
                   key={item.id}
                   onPress={() => openItem(item.id)}
                   accessibilityRole="button"
-                  accessibilityLabel={item.name}
+                  {...nameFromContent(item.name)}
                   style={({ pressed }) => [
                     styles.tile,
                     { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.85 : 1 },
@@ -346,7 +347,7 @@ function Card({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${eyebrow ? `${eyebrow}: ` : ''}${title}. ${body}`}
+      {...nameFromContent(`${eyebrow ? `${eyebrow}: ` : ''}${title}. ${body}`)}
       style={({ pressed }) => [
         styles.card,
         { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.9 : 1 },
@@ -403,7 +404,7 @@ function PopUpCard({
       <Pressable
         onPress={onOpen}
         accessibilityRole="button"
-        accessibilityLabel={`${live ? 'Live now: ' : 'Coming up: '}${event.title}. Open the pop-up.`}
+        {...nameFromContent(`${live ? 'Live now: ' : 'Coming up: '}${event.title}. Open the pop-up.`)}
         style={[styles.popPhoto, { backgroundColor: theme.surfaceDark }]}
       >
         {event.imageUrl ? (
@@ -457,7 +458,7 @@ function PopUpRow({ event, onPress }: { event: PopUpEvent; onPress: () => void }
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${event.title}, ${when}`}
+      {...nameFromContent(`${event.title}, ${when}`)}
       style={({ pressed }) => [
         styles.row,
         { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.9 : 1 },

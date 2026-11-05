@@ -19,6 +19,7 @@ import { showError, showMessage } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import { useLocationStore } from '@/state/locationStore';
 import type { Challenge, PopUpEvent } from '@/types';
+import { nameFromContent } from '@/utils/a11y';
 import { challengeRequirement } from '@/utils/challengeConfig';
 import type { EventPhase } from '@/utils/dateTime';
 import { distanceInMeters } from '@/utils/distance';
@@ -154,7 +155,7 @@ export default function ChallengeList({ event, lockedReason, limit }: ChallengeL
             state={done ? 'done' : 'value'}
             value={`+${challenge.points}`}
             onPress={done || busy ? undefined : () => start(challenge)}
-            accessibilityLabel={`${challenge.title}, ${challenge.points} points, ${done ? 'done' : 'to do'}`}
+            {...nameFromContent(`${challenge.title}, ${challenge.points} points, ${done ? 'done' : 'to do'}`)}
             accessibilityHint={done ? undefined : (lockedReason ?? requirement ?? undefined)}
           />
         );

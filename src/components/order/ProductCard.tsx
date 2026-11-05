@@ -8,6 +8,7 @@ import { PRODUCT_PHOTO_POSITION, productPhoto } from '@/constants/productPhotos'
 import { CardShadow } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
+import { nameFromContent } from '@/utils/a11y';
 import { formatCents, shortItemName } from '@/utils/orderFormat';
 
 /**
@@ -38,7 +39,9 @@ export function ProductCard({
         onPress();
       }}
       accessibilityRole="button"
-      accessibilityLabel={`${item.name}, ${formatCents(item.priceCents)} euro${item.description ? `. ${item.description}` : ''}`}
+      {...nameFromContent(
+        `${item.name}, ${formatCents(item.priceCents)} euro${item.description ? `. ${item.description}` : ''}`,
+      )}
       style={({ pressed }) => [
         styles.card,
         { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.85 : 1 },
