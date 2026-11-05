@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { AccessibilityInfo, Alert, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Alert, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { shortName } from '@/components/achievements/LeaderboardList';
@@ -13,6 +13,7 @@ import { StampRow } from '@/components/ui/Stamps';
 import { TaskCard } from '@/components/ui/TaskCard';
 import { CardShadow, PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
+import { useLevel } from '@/hooks/useLevel';
 import { useProfile } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
@@ -34,13 +35,15 @@ export default function WalletScreen() {
   const refresh = usePullToRefresh();
   const profile = useProfile();
   const { query, summary, usableRewards, redeemReward, redeemPending } = useAchievements();
+  const level = useLevel();
   const points = summary.points;
 
   const rewards = useMemo(
     () => [...(query.data?.rewards ?? [])].sort((a, b) => a.costPoints - b.costPoints),
     [query.data?.rewards],
   );
-  const nextReward = rewards.find((reward) => reward.costPoints > points);
+  // The next reward you can work toward: a higher level's own rewards wait for that level.
+  const nextReward = rewards.find((reward) => reward.costPoints > points && level.unlocked(reward.minLevel));
   const stamps = stampCard(points, nextReward);
 
   const onRedeem = async (reward: Reward) => {
@@ -119,6 +122,51 @@ export default function WalletScreen() {
             ) : null}
           </View>
 
+          {/* Your level: where you are, how far to the next, and what it brings. */}
+          <Pressable
+            onPress={() => router.push('/(wallet)/levels')}
+            accessibilityRole="button"
+            accessibilityLabel={`Your level: ${level.current.name}.${
+              level.next ? ` ${level.toNext} points to ${level.next.name}: ${level.next.perk}.` : ''
+            } See the levels.`}
+            style={({ pressed }) => [
+              styles.levelCard,
+              { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.9 : 1 },
+            ]}
+          >
+            <View style={styles.levelHead}>
+              <View style={styles.flex}>
+                <ThemedText type="label" themeColor="textSecondary">
+                  Your level
+                </ThemedText>
+                <ThemedText type="subtitle">{level.current.name}</ThemedText>
+              </View>
+              <View style={styles.levelLink}>
+                <ThemedText type="label">Levels</ThemedText>
+                <Icon name="arrowRight" size={16} color={theme.text} weight="bold" />
+              </View>
+            </View>
+            {level.next ? (
+              <>
+                <View style={[styles.levelTrack, { backgroundColor: theme.backgroundSelected }]}>
+                  <View
+                    style={[
+                      styles.levelFill,
+                      { width: `${Math.round(level.progress * 100)}%`, backgroundColor: theme.primaryText },
+                    ]}
+                  />
+                </View>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {`${level.toNext} points to ${level.next.name}: ${level.next.perk.charAt(0).toLowerCase()}${level.next.perk.slice(1)}`}
+                </ThemedText>
+              </>
+            ) : (
+              <ThemedText type="small" themeColor="textSecondary">
+                {level.current.perk}
+              </ThemedText>
+            )}
+          </Pressable>
+
           {/* How points come in: three tiles, the number first, what it's for under it. */}
           <View style={styles.group}>
             <ThemedText type="subtitle" accessibilityRole="header">
@@ -156,17 +204,27 @@ export default function WalletScreen() {
                 Rewards
               </ThemedText>
               {rewards.map((reward) => {
-                const ready = points >= reward.costPoints;
+                const open = level.unlocked(reward.minLevel);
+                const ready = open && points >= reward.costPoints;
+                const levelName = level.levelName(reward.minLevel);
                 return (
                   <TaskCard
                     key={reward.id}
-                    icon="gift"
+                    icon={open ? 'gift' : 'lock'}
                     title={reward.title}
-                    subtitle={ready ? 'Ready to redeem' : `${reward.costPoints - points} points to go`}
+                    subtitle={
+                      !open
+                        ? `Unlocks at ${levelName}`
+                        : ready
+                          ? 'Ready to redeem'
+                          : `${reward.costPoints - points} points to go`
+                    }
                     state={ready ? 'value' : 'plain'}
                     value={ready ? 'Redeem' : stampsLabel(stampsFor(reward.costPoints))}
                     onPress={ready && !redeemPending ? () => void onRedeem(reward) : undefined}
-                    accessibilityLabel={`${reward.title}, ${stampsLabel(stampsFor(reward.costPoints))}, ${reward.costPoints} points${ready ? ', ready to redeem' : ''}`}
+                    accessibilityLabel={`${reward.title}, ${stampsLabel(stampsFor(reward.costPoints))}, ${reward.costPoints} points${
+                      !open ? `, unlocks at ${levelName}` : ready ? ', ready to redeem' : ''
+                    }`}
                   />
                 );
               })}
@@ -248,6 +306,28 @@ const styles = StyleSheet.create({
   },
   group: {
     gap: 8,
+  },
+  levelCard: {
+    padding: 16,
+    gap: 8,
+  },
+  levelHead: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  levelLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    minHeight: 44,
+  },
+  levelTrack: {
+    height: 8,
+    overflow: 'hidden',
+  },
+  levelFill: {
+    height: '100%',
   },
 });
 

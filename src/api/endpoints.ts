@@ -17,6 +17,7 @@ import type {
   EventFilter,
   LeaderboardEntry,
   LeaderboardPeriod,
+  Level,
   PopUpEvent,
   ProfileStats,
   Store,
@@ -232,6 +233,42 @@ export async function getPointsBalance(): Promise<number> {
   const { data, error } = await supabase.rpc('my_points_balance');
   if (error) throw toApiError(error);
   return data;
+}
+
+/** The points an order actually earned once collected (null before that). */
+export async function getOrderPoints(orderId: string): Promise<number | null> {
+  const { data, error } = await supabase
+    .from('point_events')
+    .select('points')
+    .eq('source', 'order')
+    .eq('source_id', orderId)
+    .maybeSingle();
+  if (error) throw toApiError(error);
+  return data?.points ?? null;
+}
+
+/** The loyalty levels, lowest first (Rice, Bamboo, Lotus, Jade). */
+export async function getLevels(): Promise<Level[]> {
+  const { data, error } = await supabase.from('levels').select('*').order('min_points');
+  if (error) throw toApiError(error);
+  return data.map((row) => ({
+    key: row.key,
+    name: row.name,
+    minPoints: row.min_points,
+    orderBonusPct: row.order_bonus_pct,
+    perk: row.perk,
+  }));
+}
+
+/**
+ * Your lifetime points (everything ever earned: the level comes from it) and
+ * whether your next collected order still earns the welcome double.
+ */
+export async function getLoyalty(): Promise<{ lifetimePoints: number; firstOrderBonus: boolean }> {
+  const { data, error } = await supabase.rpc('my_loyalty');
+  if (error) throw toApiError(error);
+  const row = data[0];
+  return { lifetimePoints: row?.lifetime_points ?? 0, firstOrderBonus: row?.first_order_bonus ?? true };
 }
 
 /** One line of the points ledger, with what it was for. */

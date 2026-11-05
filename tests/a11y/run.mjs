@@ -395,6 +395,11 @@ await step(page, 'Membership card', async () => {
   await page.waitForTimeout(1200);
   await button(page, 'Show your membership card').click();
 });
+await step(page, 'Levels', async () => {
+  await page.goBack();
+  await page.waitForTimeout(1200);
+  await button(page, /^Your level/).click();
+});
 await step(page, 'Achievements: badges', async () => {
   await back(page);
   await button(page, 'Achievements').click();

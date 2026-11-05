@@ -16,6 +16,7 @@ import { orderPoints } from '@/constants/points';
 import { PRODUCT_PHOTO_POSITION, productPhoto } from '@/constants/productPhotos';
 import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
+import { useLevel } from '@/hooks/useLevel';
 import { useMenu } from '@/hooks/useMenu';
 import { usePickupPlace } from '@/hooks/usePickupPlace';
 import { useTheme } from '@/hooks/useTheme';
@@ -42,6 +43,7 @@ export default function CartScreen() {
   const place = usePickupPlace();
   const menu = useMenu(location);
   const { query, summary, usableRewards, redeemRewardAsync } = useAchievements();
+  const level = useLevel();
   const [removed, setRemoved] = useState<{ line: CartItem; index: number } | null>(null);
   const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -271,7 +273,16 @@ export default function CartScreen() {
             <View style={styles.earn}>
               <Icon name="star" size={18} color={theme.text} />
               <ThemedText type="caption" style={styles.flex}>
-                {`Earn ${orderPoints(subtotal - off)} points when you pick this up.`}
+                {`Earn ${orderPoints(subtotal - off, {
+                  firstOrder: level.firstOrderBonus,
+                  bonusPct: level.current.orderBonusPct,
+                })} points when you pick this up${
+                  level.firstOrderBonus
+                    ? ': double, it’s your first order'
+                    : level.current.orderBonusPct
+                      ? `, with ${level.current.name}’s +${level.current.orderBonusPct}%`
+                      : ''
+                }.`}
               </ThemedText>
             </View>
 

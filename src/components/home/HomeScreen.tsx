@@ -17,6 +17,7 @@ import { CardShadow, PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveOrder } from '@/hooks/useActiveOrder';
 import { useEvents } from '@/hooks/useEvents';
+import { useLevel } from '@/hooks/useLevel';
 import { useMenu } from '@/hooks/useMenu';
 import { useNotificationsFeed } from '@/hooks/useNotificationsFeed';
 import { useProfile } from '@/hooks/useProfile';
@@ -27,6 +28,7 @@ import { haptics } from '@/services/haptics';
 import { switchPickup } from '@/services/switchPickup';
 import { useCartStore, type CartLocation } from '@/state/cartStore';
 import { useLocationStore } from '@/state/locationStore';
+import { useSettingsStore } from '@/state/settingsStore';
 import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import { ORDER_STEP, ORDER_STEPS, ORDER_STATUS_TITLE, pickupCode, shortItemName } from '@/utils/orderFormat';
@@ -73,13 +75,21 @@ export default function HomeScreen() {
     return { featured: lead, upcoming: byStart.filter((event) => event.id !== lead?.id).slice(0, 3) };
   }, [eventsQuery.data, coordinates]);
 
+  const level = useLevel();
+  const levelSeen = useSettingsStore((state) => state.levelSeen);
+  const markLevelSeen = useSettingsStore((state) => state.markLevelSeen);
+  // A level you've just reached gets one welcome card (Rice is where everyone starts).
+  const newLevel = level.current.minPoints > 0 && levelSeen !== level.current.key ? level.current : null;
   const rewards = useMemo(
     () => [...(achievements.data?.rewards ?? [])].sort((a, b) => a.costPoints - b.costPoints),
     [achievements.data?.rewards],
   );
-  const nextReward = rewards.find((reward) => reward.costPoints > summary.points);
+  // Only rewards your level opens: a higher level's own rewards wait for it.
+  const nextReward = rewards.find((reward) => reward.costPoints > summary.points && level.unlocked(reward.minLevel));
   // The best reward your points already cover: worth a card of its own.
-  const claimable = [...rewards].reverse().find((reward) => reward.costPoints <= summary.points);
+  const claimable = [...rewards]
+    .reverse()
+    .find((reward) => reward.costPoints <= summary.points && level.unlocked(reward.minLevel));
   const stamps = stampCard(summary.points, nextReward);
 
   // Three things to start an order with, each with its own photo.
@@ -123,7 +133,7 @@ export default function HomeScreen() {
         <Pressable
           onPress={() => router.navigate('/(wallet)')}
           accessibilityRole="button"
-          accessibilityLabel={`${summary.points} points. ${
+          accessibilityLabel={`${summary.points} points, ${level.current.name} level. ${
             nextReward ? `${nextReward.costPoints - summary.points} more to ${nextReward.title}.` : ''
           } Open Wallet.`}
           style={styles.hero}
@@ -137,8 +147,9 @@ export default function HomeScreen() {
             >
               {summary.points}
             </ThemedText>
-            <ThemedText type="title" style={{ color: theme.onBrandSoft }}>
-              POINTS
+            {/* The level under the number, like a membership tier. */}
+            <ThemedText type="title" numberOfLines={1} style={{ color: theme.onBrandSoft }}>
+              {level.current.name}
             </ThemedText>
           </View>
           <View style={styles.heroSide}>
@@ -208,6 +219,20 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.cards}>
+          {newLevel ? (
+            <Card
+              tone="brand"
+              title={`WELCOME TO ${newLevel.name.toUpperCase()}!`}
+              icon="trophy"
+              body={`You've reached a new level: ${newLevel.perk.charAt(0).toLowerCase()}${newLevel.perk.slice(1)}.`}
+              link="SEE LEVELS"
+              onPress={() => {
+                markLevelSeen(newLevel.key);
+                router.push('/(wallet)/levels');
+              }}
+            />
+          ) : null}
+
           {claimable ? (
             <Card
               tone="brand"
