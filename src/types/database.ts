@@ -186,6 +186,16 @@ type RewardRow = {
   discount_cents: number | null;
   expires_at: string | null;
   active: boolean;
+  /** A level's own reward: only that level (or higher) can redeem it. */
+  min_level: string | null;
+};
+
+type LevelRow = {
+  key: string;
+  name: string;
+  min_points: number;
+  order_bonus_pct: number;
+  perk: string;
 };
 
 type UserRewardRow = {
@@ -240,12 +250,17 @@ export type Database = {
       user_badges: Table<UserBadgeRow>;
       point_events: Table<PointEventRow>;
       rewards: Table<RewardRow>;
+      levels: Table<LevelRow>;
       user_rewards: Table<UserRewardRow>;
       orders: Table<OrderRow>;
       order_items: Table<OrderItemRow>;
     };
     Functions: {
       my_points_balance: { Args: Record<string, never>; Returns: number };
+      my_loyalty: {
+        Args: Record<string, never>;
+        Returns: { lifetime_points: number; first_order_bonus: boolean }[];
+      };
       delete_my_account: { Args: Record<string, never>; Returns: undefined };
       ensure_profile: { Args: Record<string, never>; Returns: undefined };
       my_badge_progress: {

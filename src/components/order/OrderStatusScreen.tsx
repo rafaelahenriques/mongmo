@@ -1,7 +1,9 @@
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatInTimeZone } from 'date-fns-tz';
+import { useQuery } from '@tanstack/react-query';
 
+import { getOrderPoints } from '@/api/endpoints';
 import { ThemedText } from '@/components/ThemedText';
 import { BlockButton } from '@/components/ui/BlockButton';
 import { ListRow } from '@/components/ui/ListRow';
@@ -10,6 +12,7 @@ import { TaskCard } from '@/components/ui/TaskCard';
 import { TopBar } from '@/components/ui/TopBar';
 import { PageInset } from '@/constants/theme';
 import { orderPoints } from '@/constants/points';
+import { useLevel } from '@/hooks/useLevel';
 import { useOrder } from '@/hooks/useOrder';
 import { usePlace } from '@/hooks/usePickupPlace';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
@@ -30,6 +33,12 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
   const tabBarInset = useTabBarInset();
   const { order, items } = useOrder(orderId);
   const data = order.data;
+  const level = useLevel();
+  const awarded = useQuery({
+    queryKey: ['points', 'order', orderId],
+    queryFn: () => getOrderPoints(orderId),
+    enabled: data?.status === 'collected',
+  });
   const place = usePlace(
     data
       ? data.event_id
@@ -61,6 +70,11 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
 
   const code = pickupCode(data.id);
   const done = data.status === 'collected' || data.status === 'cancelled';
+  // Collected: what the order actually earned. Before: the estimate, with
+  // the first-order double or your level's bonus.
+  const earned =
+    awarded.data ??
+    orderPoints(data.total_cents, { firstOrder: level.firstOrderBonus, bonusPct: level.current.orderBonusPct });
   const zone = place?.timeZone ?? 'Europe/Brussels';
   const pickup = data.pickup_at
     ? `Pick up at ${formatInTimeZone(data.pickup_at, zone, 'HH:mm')}`
@@ -127,11 +141,11 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
             ))}
             {data.discount_cents ? <ListRow title="Reward" value={`−${formatCents(data.discount_cents)}`} /> : null}
             <ListRow title="Total" value={formatCents(data.total_cents)} last={data.status === 'cancelled'} />
-            {data.status !== 'cancelled' && orderPoints(data.total_cents) > 0 ? (
+            {data.status !== 'cancelled' && earned > 0 ? (
               <ListRow
                 title="Points"
                 subtitle={data.status === 'collected' ? 'Added to your Wallet' : 'Added when you pick it up'}
-                value={`+${orderPoints(data.total_cents)}`}
+                value={`+${earned}`}
                 last
               />
             ) : null}

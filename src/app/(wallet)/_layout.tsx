@@ -9,6 +9,7 @@ export default function WalletLayout() {
       <Stack.Screen name="index" options={{ headerShown: false, headerTitle: 'Wallet' }} />
       <Stack.Screen name="card" options={{ headerTitle: 'Membership card' }} />
       <Stack.Screen name="history" options={{ headerTitle: 'Points' }} />
+      <Stack.Screen name="levels" options={{ headerTitle: 'Levels' }} />
     </Stack>
   );
 }

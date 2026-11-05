@@ -28,11 +28,14 @@ type SettingsState = {
   openingSeen: boolean;
   /** The location and notification switches were offered after sign-in. */
   permissionsAsked: boolean;
+  /** The level whose "Welcome to …" banner Home last showed (a level key). */
+  levelSeen: string | null;
   setNotificationPref: (key: keyof NotificationPrefs, enabled: boolean) => void;
   setThemeMode: (mode: ThemeMode) => void;
   markNotificationsSeen: () => void;
   markOpeningSeen: () => void;
   markPermissionsAsked: () => void;
+  markLevelSeen: (key: string) => void;
 };
 
 const DEFAULTS = {
@@ -47,6 +50,7 @@ const DEFAULTS = {
   notificationsSeenAt: null as string | null,
   openingSeen: false,
   permissionsAsked: false,
+  levelSeen: null as string | null,
 };
 
 /**
@@ -64,6 +68,7 @@ export const useSettingsStore = create<SettingsState>()(
       markNotificationsSeen: () => set({ notificationsSeenAt: new Date().toISOString() }),
       markOpeningSeen: () => set({ openingSeen: true }),
       markPermissionsAsked: () => set({ permissionsAsked: true }),
+      markLevelSeen: (key) => set({ levelSeen: key }),
     }),
     {
       name: 'mongmo-settings',

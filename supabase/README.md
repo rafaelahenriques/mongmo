@@ -63,6 +63,7 @@ left, per "no hardcoded/mock data."
 | `0018_points_rules.sql` | Points that pay for themselves: orders earn 10 points per euro once collected; challenges earn at most 50 points a day per pop-up; smaller badge bonuses; rewards cost whole stamps (1 stamp = 100 points). |
 | `0019_ensure_profile.sql` | `ensure_profile()`: makes a missing profile for the signed-in account (orders, check-ins and points all need one). |
 | `0020_delete_account_photos.sql` | Deleting an account deletes the photo files too: people may delete their own `challenge-photos/<id>/` files (the app removes them first), and `delete_my_account()` refuses while any remain. Everything else cascades from the login (see the function's comment). |
+| `0021_levels.sql` | Levels from lifetime points (everything ever earned, so redeeming never lowers it): Rice 0, Bamboo 500 (+10% points on orders), Lotus 1,500 (+25%), Jade 4,000 (+50%). A first collected order earns double. Three rewards only a level can redeem (tote bag, stew, 2 bánh mì); `redeem_reward` checks the level. The app reads `levels` and `my_loyalty()`. |
 
 ### Points ledger, not a running total
 

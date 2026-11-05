@@ -10,6 +10,7 @@ import { StampRow } from '@/components/ui/Stamps';
 import { Ink, PageInset, Paper } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useAuthUser } from '@/hooks/useAuthUser';
+import { useLevel } from '@/hooks/useLevel';
 import { useProfile } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
@@ -28,6 +29,7 @@ export default function MembershipCardScreen() {
   const tabBarInset = useTabBarInset();
   const profile = useProfile();
   const account = useAuthUser();
+  const level = useLevel();
   const { query, summary } = useAchievements();
   const points = summary.points;
 
@@ -35,8 +37,8 @@ export default function MembershipCardScreen() {
     () =>
       [...(query.data?.rewards ?? [])]
         .sort((a, b) => a.costPoints - b.costPoints)
-        .find((reward) => reward.costPoints > points),
-    [query.data?.rewards, points],
+        .find((reward) => reward.costPoints > points && level.unlocked(reward.minLevel)),
+    [query.data?.rewards, points, level],
   );
   const stamps = stampCard(points, nextReward);
   const userId = profile.data?.id ?? account.data?.id ?? null;
@@ -71,11 +73,9 @@ export default function MembershipCardScreen() {
             <ThemedText type="section" numberOfLines={1} style={{ color: Ink }}>
               {name ? shortName(name) : ' '}
             </ThemedText>
-            {since ? (
-              <ThemedText type="small" style={{ color: Ink }}>
-                {`Member since ${since}`}
-              </ThemedText>
-            ) : null}
+            <ThemedText type="small" style={{ color: Ink }}>
+              {[`${level.current.name} level`, since ? `member since ${since}` : null].filter(Boolean).join(' · ')}
+            </ThemedText>
           </View>
           <View style={styles.points}>
             <ThemedText type="section" style={{ color: Ink }}>

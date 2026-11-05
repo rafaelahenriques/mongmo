@@ -97,6 +97,7 @@ export function rewardRowToReward(row: RewardRow): Reward {
     costPoints: row.cost_points,
     discountCents: row.discount_cents,
     expiresAt: row.expires_at,
+    minLevel: row.min_level ?? null,
   };
 }
 
