@@ -14,7 +14,6 @@ export type StorePinProps = {
   onPress: () => void;
 };
 
-
 /**
  * The café on the map: the Ộ in sage on an ink disc (the pop-ups are
  * sage or paper). Tap it for the rest.
@@ -31,7 +30,13 @@ function StorePinComponent({ store, onPress }: StorePinProps) {
 
   return (
     <Marker coordinate={store.coordinates} anchor={{ x: 0.5, y: 0.5 }} onPress={onPress}>
-      <View accessible accessibilityRole="button" accessibilityLabel={label} onAccessibilityTap={onPress} style={styles.pin}>
+      <View
+        accessible
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        onAccessibilityTap={onPress}
+        style={styles.pin}
+      >
         <BrandPin tone="cafe" size={44} />
       </View>
     </Marker>

@@ -17,9 +17,7 @@ function RecenterButtonComponent({ enabled, onPress }: RecenterButtonProps) {
       size={48}
       onPress={onPress}
       disabled={!enabled}
-      accessibilityLabel={
-        enabled ? 'Recenter the map on my location' : 'Recenter unavailable — location access is off'
-      }
+      accessibilityLabel={enabled ? 'Recenter the map on my location' : 'Recenter unavailable — location access is off'}
     />
   );
 }

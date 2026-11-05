@@ -40,10 +40,7 @@ function toMinutes(hhmm: string): number {
 
 /** True when `date` falls on the same calendar day as `now` in `timeZone`. */
 export function isToday(date: Date, timeZone: string, now: Date = new Date()): boolean {
-  return (
-    formatInTimeZone(date, timeZone, 'yyyy-MM-dd') ===
-    formatInTimeZone(now, timeZone, 'yyyy-MM-dd')
-  );
+  return formatInTimeZone(date, timeZone, 'yyyy-MM-dd') === formatInTimeZone(now, timeZone, 'yyyy-MM-dd');
 }
 
 /**
@@ -59,24 +56,14 @@ export function isThisWeek(date: Date, timeZone: string, now: Date = new Date())
   });
   const nextWeekWall = addDays(weekStartWall, 7);
 
-  const weekStart = fromZonedTime(
-    `${formatLocal(weekStartWall, 'yyyy-MM-dd')}T00:00:00`,
-    timeZone,
-  );
-  const weekEnd = fromZonedTime(
-    `${formatLocal(nextWeekWall, 'yyyy-MM-dd')}T00:00:00`,
-    timeZone,
-  );
+  const weekStart = fromZonedTime(`${formatLocal(weekStartWall, 'yyyy-MM-dd')}T00:00:00`, timeZone);
+  const weekEnd = fromZonedTime(`${formatLocal(nextWeekWall, 'yyyy-MM-dd')}T00:00:00`, timeZone);
 
   return !isBefore(date, weekStart) && isBefore(date, weekEnd);
 }
 
 /** Whether an event is running right now (or has not started / already ended). */
-export function getEventPhase(
-  startsAtIso: string,
-  endsAtIso: string,
-  now: Date = new Date(),
-): EventPhase {
+export function getEventPhase(startsAtIso: string, endsAtIso: string, now: Date = new Date()): EventPhase {
   const start = new Date(startsAtIso);
   const end = new Date(endsAtIso);
   if (now < start) return 'upcoming';
@@ -88,11 +75,7 @@ export function getEventPhase(
  * Open/closed state of the store right now, plus a human-readable label
  * ("Open until 18:00" / "Opens today at 10:00" / "Opens Mon 28 Sep 10:00").
  */
-export function getStoreStatus(
-  hours: WeeklyHours,
-  timeZone: string,
-  now: Date = new Date(),
-): StoreStatus {
+export function getStoreStatus(hours: WeeklyHours, timeZone: string, now: Date = new Date()): StoreStatus {
   const nowMinutes = toMinutes(formatInTimeZone(now, timeZone, 'HH:mm'));
   const today = hours[weekdayOf(now, timeZone)];
 
@@ -107,8 +90,7 @@ export function getStoreStatus(
     const day = addDays(now, daysAhead);
     const dayHours = hours[weekdayOf(day, timeZone)];
     if (dayHours) {
-      const dayLabel =
-        daysAhead === 1 ? 'tomorrow' : formatInTimeZone(day, timeZone, 'EEE d MMM');
+      const dayLabel = daysAhead === 1 ? 'tomorrow' : formatInTimeZone(day, timeZone, 'EEE d MMM');
       return { isOpen: false, label: `Opens ${dayLabel} ${dayHours.open}` };
     }
   }
@@ -130,16 +112,10 @@ export function formatHoursRange(day: DayHours | null): string {
  * "Fri 25 Sep, 17:00 – 23:00" rendered in the event's own timezone; when the
  * event spans multiple days the end date is included too.
  */
-export function formatEventWindow(
-  startsAtIso: string,
-  endsAtIso: string,
-  timeZone: string,
-): string {
+export function formatEventWindow(startsAtIso: string, endsAtIso: string, timeZone: string): string {
   const start = new Date(startsAtIso);
   const end = new Date(endsAtIso);
-  const sameDay =
-    formatInTimeZone(start, timeZone, 'yyyy-MM-dd') ===
-    formatInTimeZone(end, timeZone, 'yyyy-MM-dd');
+  const sameDay = formatInTimeZone(start, timeZone, 'yyyy-MM-dd') === formatInTimeZone(end, timeZone, 'yyyy-MM-dd');
 
   const startPart = formatInTimeZone(start, timeZone, 'EEE d MMM, HH:mm');
   const endPart = formatInTimeZone(end, timeZone, sameDay ? 'HH:mm' : 'EEE d MMM, HH:mm');

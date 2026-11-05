@@ -104,7 +104,7 @@ function ProfileForm({ profile }: { profile: UserProfile }) {
           />
         </Card>
 
-        {nameProblem ?? save.error?.message ? (
+        {(nameProblem ?? save.error?.message) ? (
           <ThemedText type="smallBold" themeColor="danger" accessibilityRole="alert">
             {nameProblem ?? save.error?.message}
           </ThemedText>

@@ -10,8 +10,7 @@ import { log } from '@/lib/log';
  */
 onlineManager.setEventListener((setOnline) =>
   NetInfo.addEventListener((state) => {
-    const online =
-      state.isConnected !== false && state.isInternetReachable !== false;
+    const online = state.isConnected !== false && state.isInternetReachable !== false;
     setOnline(online);
   }),
 );

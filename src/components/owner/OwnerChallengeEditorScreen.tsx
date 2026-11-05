@@ -125,10 +125,15 @@ function ChallengeForm({
   const onDelete = async () => {
     if (!existing) return;
     haptics.warning();
-    const yes = await confirm('Delete this challenge?', 'People who already completed it keep their points.', 'Delete', {
-      cancelLabel: 'Keep it',
-      destructive: true,
-    });
+    const yes = await confirm(
+      'Delete this challenge?',
+      'People who already completed it keep their points.',
+      'Delete',
+      {
+        cancelLabel: 'Keep it',
+        destructive: true,
+      },
+    );
     if (yes) remove.mutate(existing.id, { onSuccess: () => router.back() });
   };
 
@@ -194,7 +199,7 @@ function ChallengeForm({
           </View>
         </Card>
 
-        {problem ?? serverError ? (
+        {(problem ?? serverError) ? (
           <ThemedText type="smallBold" themeColor="danger" accessibilityRole="alert">
             {problem ?? serverError}
           </ThemedText>

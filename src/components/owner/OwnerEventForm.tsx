@@ -212,7 +212,7 @@ export default function OwnerEventForm({ initial, submitLabel, pending, submitEr
         </View>
       </Card>
 
-      {error ?? submitError ? (
+      {(error ?? submitError) ? (
         <ThemedText type="smallBold" themeColor="danger" accessibilityRole="alert">
           {error ?? submitError}
         </ThemedText>

@@ -185,11 +185,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
         </View>
 
         {phase === 'live' ? (
-          <View
-            style={styles.busy}
-            accessible
-            accessibilityLabel={`How busy: ${busy.occupancy} of ${busy.capacity}`}
-          >
+          <View style={styles.busy} accessible accessibilityLabel={`How busy: ${busy.occupancy} of ${busy.capacity}`}>
             <View style={styles.busyRow}>
               <ThemedText type="caption" themeColor="textSecondary">
                 How busy

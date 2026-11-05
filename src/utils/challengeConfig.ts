@@ -156,7 +156,9 @@ export function challengeRequirement(rules: ChallengeRules, timeZone: string): s
     case 'capture':
       return `Take ${plural(rules.config.photoCount, 'photo', 'photos')}${rules.config.prompt ? ` of ${rules.config.prompt}` : ''}`;
     case 'discovery':
-      return rules.config.hint ? `Hint: ${rules.config.hint}` : `Take ${plural(rules.config.photoCount, 'photo', 'photos')}`;
+      return rules.config.hint
+        ? `Hint: ${rules.config.hint}`
+        : `Take ${plural(rules.config.photoCount, 'photo', 'photos')}`;
     case 'taste':
       return rules.config.dish ? `Rate the ${rules.config.dish}` : null;
     case 'timing':
