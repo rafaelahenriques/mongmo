@@ -1,0 +1,14 @@
+# Deleting the account signs out and returns to the welcome screen.
+appId: ${APP_ID}
+name: delete-account
+tags: [privacy]
+---
+- launchApp
+- tapOn: 'Account'
+- tapOn: 'Settings'
+- scrollUntilVisible:
+    element: 'Delete account'
+- tapOn: 'Delete account'
+# The confirmation dialog.
+- tapOn: 'Delete'
+- assertVisible: 'Get started'

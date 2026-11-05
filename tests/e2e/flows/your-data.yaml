@@ -1,0 +1,14 @@
+# Settings → Your data: the counts load and the privacy policy opens.
+appId: ${APP_ID}
+name: your-data
+tags: [privacy]
+---
+- launchApp
+- tapOn: 'Account'
+- tapOn: 'Settings'
+- scrollUntilVisible:
+    element: 'Your data'
+- tapOn: 'Your data'
+- assertVisible: 'Download a copy'
+- tapOn: 'Read the privacy policy'
+- assertVisible: 'Who we are'

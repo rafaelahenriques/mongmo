@@ -157,6 +157,7 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
               textContentType="emailAddress"
               placeholder="Email"
               hideLabel
+              testID="email"
             />
             <TextField
               label="Password"
@@ -167,6 +168,7 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
               textContentType={mode === 'sign-in' ? 'password' : 'newPassword'}
               placeholder={mode === 'sign-in' ? 'Password' : `Password (${MIN_PASSWORD_LENGTH} characters or more)`}
               hideLabel
+              testID="password"
             />
 
             {error ? (
