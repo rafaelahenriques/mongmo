@@ -33,6 +33,7 @@ import { useBusyStore } from '@/state/busyStore';
 import { useLocationStore } from '@/state/locationStore';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
+import { popUpImage } from '@/constants/brandPhotos';
 
 export type EventDetailProps = {
   eventId: string;
@@ -153,7 +154,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
       }
     >
       <PhotoHero
-        imageUrl={event.imageUrl}
+        image={popUpImage(event)}
         title={event.title}
         live={phase === 'live'}
         meta={distance !== null ? formatDistance(distance) : undefined}

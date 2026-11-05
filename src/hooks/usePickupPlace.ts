@@ -4,6 +4,7 @@ import { useCartStore, type CartLocation } from '@/state/cartStore';
 import type { Coordinates } from '@/types';
 import { getStoreStatus } from '@/utils/dateTime';
 import type { PickupPlace } from '@/utils/pickupSlots';
+import { popUpImage } from '@/constants/brandPhotos';
 
 /** Where an order is picked up, resolved: its name, address, hours. */
 export type ResolvedPlace = {
@@ -17,7 +18,8 @@ export type ResolvedPlace = {
   /** For pickup times. */
   pickup: PickupPlace;
   /** The pop-up's own photo, if it has one. */
-  imageUrl: string | null;
+  /** The pop-up's picture (URL or bundled); none for the café. */
+  image: string | number | null;
 };
 
 /** The café or pop-up a cart (or an order) is for; null until it loads. */
@@ -36,7 +38,7 @@ export function usePlace(location: CartLocation | null): ResolvedPlace | null {
       timeZone: data.timeZone,
       openLabel: `Until ${new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: data.timeZone }).format(new Date(data.endsAt))}`,
       pickup: { kind: 'event', startsAt: data.startsAt, endsAt: data.endsAt, timeZone: data.timeZone },
-      imageUrl: data.imageUrl || null,
+      image: popUpImage(data),
     };
   }
   if (location?.type === 'store' && store.data) {
@@ -49,7 +51,7 @@ export function usePlace(location: CartLocation | null): ResolvedPlace | null {
       timeZone: data.timeZone,
       openLabel: getStoreStatus(data.hours, data.timeZone).label,
       pickup: { kind: 'store', hours: data.hours, timeZone: data.timeZone },
-      imageUrl: null,
+      image: null,
     };
   }
   return null;

@@ -19,7 +19,8 @@ export function PickupHeader({
 }: {
   place: string;
   /** The place's photo; none gives the sage band. */
-  image?: string | null;
+  /** A remote URL or a bundled image (`require`). */
+  image?: string | number | null;
   onBack: () => void;
 }) {
   const theme = useTheme();
@@ -31,7 +32,7 @@ export function PickupHeader({
         <Image
           accessible={false}
           accessibilityLabel=""
-          source={{ uri: image }}
+          source={image}
           style={StyleSheet.absoluteFill}
           contentFit="cover"
           transition={motion.imageFadeMs}
