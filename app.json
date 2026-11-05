@@ -2,14 +2,16 @@
   "expo": {
     "name": "Mongmo",
     "slug": "react-challenge",
-    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "reactchallenge",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/mongmo.icon",
-      "bundleIdentifier": "com.rafaela-hnrqs.react-challenge"
+      "bundleIdentifier": "com.rafaela-hnrqs.react-challenge",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.rafaelahnrqs.reactchallenge",

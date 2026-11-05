@@ -1,5 +1,6 @@
 import { useCallback, useState, type ReactNode } from 'react';
 import { Linking, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import Constants from 'expo-constants';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -13,6 +14,7 @@ import { useProfile, useSetLeaderboardVisible } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { crashReportingAvailable } from '@/lib/crashReporting';
+import { env } from '@/lib/env';
 import { confirmDeleteAccount, confirmLogOut } from '@/services/auth';
 import {
   ensureNotificationPermission,
@@ -23,6 +25,14 @@ import {
 import { useSettingsStore, type NotificationPrefs, type ThemeMode } from '@/state/settingsStore';
 
 const HELP_EMAIL = 'hello@mongmo-store.com';
+
+/** "Version 1.2.0", plus the environment on test builds: what a bug report asks for. */
+const VERSION_LABEL = [
+  `Version ${Constants.expoConfig?.version ?? '?'}`,
+  env.appEnv === 'production' ? null : env.appEnv,
+]
+  .filter(Boolean)
+  .join(' · ');
 
 const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
   { value: 'system', label: 'System' },
@@ -199,6 +209,10 @@ export default function SettingsScreen() {
         <ListRow title="Log out" onPress={confirmLogOut} chevron={false} />
         <ListRow title="Delete account" onPress={() => void confirmDeleteAccount()} chevron={false} danger last />
       </Group>
+
+      <ThemedText type="small" style={{ color: theme.textSecondary }}>
+        {VERSION_LABEL}
+      </ThemedText>
     </ScrollView>
   );
 }
