@@ -159,11 +159,11 @@ export type Reward = {
   /** Flat discount an order can apply, when this reward is a discount (not a free item). */
   discountCents: number | null;
   expiresAt: string | null;
-  /** The level this reward belongs to (`bamboo`…), or null for everyone's. */
+  /** The level this reward belongs to (`rising`…), or null for everyone's. */
   minLevel: string | null;
 };
 
-/** A loyalty level: Rice, Bamboo, Lotus, Jade (supabase/migrations/0021_levels.sql). */
+/** A loyalty level: Dough, Rising, Golden, Crisp (supabase/migrations/0021_levels.sql). */
 export type Level = {
   key: string;
   name: string;

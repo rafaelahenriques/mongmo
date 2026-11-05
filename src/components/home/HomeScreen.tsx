@@ -78,7 +78,7 @@ export default function HomeScreen() {
   const level = useLevel();
   const levelSeen = useSettingsStore((state) => state.levelSeen);
   const markLevelSeen = useSettingsStore((state) => state.markLevelSeen);
-  // A level you've just reached gets one welcome card (Rice is where everyone starts).
+  // A level you've just reached gets one welcome card (Dough is where everyone starts).
   const newLevel = level.current.minPoints > 0 && levelSeen !== level.current.key ? level.current : null;
   const rewards = useMemo(
     () => [...(achievements.data?.rewards ?? [])].sort((a, b) => a.costPoints - b.costPoints),
