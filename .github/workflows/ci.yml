@@ -70,6 +70,10 @@ jobs:
     name: Accessibility (every screen, axe)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      # A throwaway owner on the throwaway database, for the owner screens.
+      OWNER_EMAIL: owner-a11y@mongmo.test
+      OWNER_PASSWORD: owner-a11y-ci-1
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
@@ -82,6 +86,8 @@ jobs:
         run: |
           EXPO_PUBLIC_SUPABASE_URL="$SUPABASE_URL" EXPO_PUBLIC_SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
             npx expo export --platform web --output-dir dist
+      - name: An owner account, and a reported photo for it to review
+        run: node tests/a11y/seed-owner.mjs
       - name: Install the browser
         run: npx playwright install --with-deps chromium
       - name: Walk every screen under the security headers

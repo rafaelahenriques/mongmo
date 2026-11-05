@@ -39,7 +39,7 @@ export default function PointsHistoryScreen() {
     >
       <BigNumber value={summary.points} word="Points" size={46} />
       {history.isPending ? (
-        <ActivityIndicator color={theme.text} style={styles.loader} />
+        <ActivityIndicator accessibilityLabel="Loading" color={theme.text} style={styles.loader} />
       ) : history.isError ? (
         <ThemedText type="caption" themeColor="textSecondary">
           Couldn’t load your points. Pull down to try again.

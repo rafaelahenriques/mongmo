@@ -58,7 +58,7 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
         <TopBar title="Your order" onBack={back} />
         <View style={styles.state}>
           {order.isPending ? (
-            <ActivityIndicator color={theme.text} />
+            <ActivityIndicator accessibilityLabel="Loading" color={theme.text} />
           ) : (
             <ThemedText type="caption" themeColor="textSecondary">
               Couldn’t find this order.

@@ -89,7 +89,7 @@ export default function CheckInScreen({ eventId }: { eventId: string }) {
   if (!event) {
     return (
       <View style={[styles.center, { backgroundColor: theme.surfaceDark }]}>
-        <ActivityIndicator color={theme.onSurfaceDark} />
+        <ActivityIndicator accessibilityLabel="Loading" color={theme.onSurfaceDark} />
       </View>
     );
   }
@@ -187,7 +187,7 @@ function Scan({
           <Corners color={theme.brand} />
           {pending ? (
             <View style={[StyleSheet.absoluteFill, styles.center]}>
-              <ActivityIndicator color={theme.onSurfaceDark} size="large" />
+              <ActivityIndicator accessibilityLabel="Loading" color={theme.onSurfaceDark} size="large" />
             </View>
           ) : null}
         </View>

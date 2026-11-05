@@ -1,7 +1,8 @@
 // Accessibility pass over every screen of the web build.
 //
 //   APP_URL=http://localhost:8081 node tests/a11y/run.mjs
-//   (owner screens too: OWNER_EMAIL=… OWNER_PASSWORD=… on an owner account)
+//   (owner screens too: OWNER_EMAIL=… OWNER_PASSWORD=… on an owner account;
+//   tests/a11y/seed-owner.mjs makes one on a local database)
 //
 // It signs up a fresh account through the app (the Supabase project must let
 // new accounts in without confirming their email), then walks every screen
@@ -144,6 +145,8 @@ async function keyboardChecks(page) {
       const ring = (style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) > 0) || style.boxShadow !== 'none';
       return {
         id: el.dataset.a11yId,
+        // A date or time field takes a Tab per part (day, month, year…).
+        parts: el.tagName === 'INPUT' && /^(date|time|datetime-local|month|week)$/.test(el.type) ? 6 : 1,
         ring,
         label: (el.getAttribute('aria-label') || el.innerText || '').trim().slice(0, 40),
       };
@@ -153,12 +156,17 @@ async function keyboardChecks(page) {
       continue;
     }
     if (!info.ring) out.push({ rule: 'focus-visible', target: `"${info.label}"` });
-    if (info.id === last) same += 1;
-    else same = 0;
-    if (same >= 3) {
-      out.push({ rule: 'keyboard', target: `focus stuck on "${info.label}"` });
-      break;
+    if (info.id === last) {
+      // Tab moves through a date or time field's parts (day, month, year)
+      // without leaving it; more than that is a trap.
+      same += 1;
+      if (same >= info.parts + 2) {
+        out.push({ rule: 'keyboard', target: `focus stuck on "${info.label}"` });
+        break;
+      }
+      continue;
     }
+    same = 0;
     if (reached.has(info.id) && reached.size > 1) break; // wrapped around
     reached.add(info.id);
     last = info.id;
@@ -462,23 +470,36 @@ if (process.env.OWNER_EMAIL && process.env.OWNER_PASSWORD) {
   owner.on('dialog', (dialog) => dialog.accept());
   await owner.goto(APP, { waitUntil: 'load' });
   await owner.waitForTimeout(WAIT);
-  await button(owner, 'I already have an account').click();
+  await button(owner, 'Get started').click();
+  await button(owner, /^Already have an account/).click();
   await owner.getByPlaceholder('Email').fill(process.env.OWNER_EMAIL);
   await owner.getByPlaceholder('Password').fill(process.env.OWNER_PASSWORD);
   await button(owner, 'Sign in').click();
   await owner.waitForTimeout(WAIT);
+  const ownerTools = async () => {
+    await owner.goBack();
+    await owner.waitForTimeout(1200);
+  };
   await step(owner, 'Owner tools', async () => {
+    const notNow = button(owner, 'Not now');
+    if (await notNow.count()) await notNow.click();
     await button(owner, 'Account').click();
     await owner.waitForTimeout(1200);
     await button(owner, /^Owner tools/).click();
   });
-  await step(owner, 'Owner: orders', () => button(owner, /^Orders/).click());
+  await step(owner, 'Owner: orders', () => button(owner, /Manage orders/).click());
   await step(owner, 'Owner: pop-ups', async () => {
-    await owner.goBack();
-    await owner.waitForTimeout(1200);
-    await button(owner, /pop-ups/i).click();
+    await ownerTools();
+    await button(owner, /^Manage pop-ups/).click();
   });
-  await step(owner, 'Owner: new pop-up', () => button(owner, /New pop-up/).click());
+  await step(owner, 'Owner: new pop-up', async () => {
+    await ownerTools();
+    await button(owner, /^New pop-up/).click();
+  });
+  await step(owner, 'Owner: reported photos', async () => {
+    await ownerTools();
+    await button(owner, /^Reported photos/).click();
+  });
 }
 
 await browser.close();

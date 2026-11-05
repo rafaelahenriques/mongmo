@@ -71,7 +71,7 @@ export default function AchievementsScreen() {
           />
         </ScrollView>
       ) : query.isPending ? (
-        <ActivityIndicator color={theme.text} style={styles.loader} />
+        <ActivityIndicator accessibilityLabel="Loading" color={theme.text} style={styles.loader} />
       ) : query.isError ? (
         <View style={styles.message}>
           <ThemedText type="caption" themeColor="textSecondary">

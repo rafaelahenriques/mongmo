@@ -49,7 +49,7 @@ export default function NotificationsScreen() {
 
   return (
     <ScreenScroll contentStyle={styles.content}>
-      {isPending ? <ActivityIndicator color={theme.text} /> : null}
+      {isPending ? <ActivityIndicator accessibilityLabel="Loading" color={theme.text} /> : null}
       {!isPending && items.length === 0 ? (
         <ThemedText type="caption" themeColor="textSecondary">
           Nothing yet. Orders, pop-ups near you and points you earn show up here.

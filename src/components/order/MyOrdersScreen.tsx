@@ -78,7 +78,7 @@ export default function MyOrdersScreen() {
           History
         </ThemedText>
         {orders.isPending ? (
-          <ActivityIndicator color={theme.text} style={styles.loader} />
+          <ActivityIndicator accessibilityLabel="Loading" color={theme.text} style={styles.loader} />
         ) : orders.isError ? (
           <ThemedText type="caption" themeColor="textSecondary">
             Couldn’t load your orders.

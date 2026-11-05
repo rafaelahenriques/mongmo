@@ -15,6 +15,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 import { pickupCode } from '@/utils/orderFormat';
+import { nameFromContent } from '@/utils/a11y';
 
 /**
  * A-02 Orders board: New, Being made, Ready as underlined words with
@@ -54,7 +55,7 @@ export default function OwnerOrdersScreen() {
       />
 
       {isLoading ? (
-        <ActivityIndicator color={theme.text} style={styles.loader} />
+        <ActivityIndicator accessibilityLabel="Loading" color={theme.text} style={styles.loader} />
       ) : shown.length === 0 ? (
         <ThemedText type="caption" themeColor="textSecondary" style={styles.empty}>
           No {COLUMN_LABEL[column].toLowerCase()} orders.
@@ -74,7 +75,7 @@ export default function OwnerOrdersScreen() {
                   router.push({ pathname: '/(profile)/owner/order/[id]', params: { id: order.id } });
                 }}
                 accessibilityRole="button"
-                accessibilityLabel={`Order ${code}${about?.name ? ` for ${about.name}` : ''}. Open.`}
+                {...nameFromContent(`Order ${code}${about?.name ? ` for ${about.name}` : ''}. Open.`)}
                 style={styles.ticketBody}
               >
                 <View style={styles.ticketTop}>

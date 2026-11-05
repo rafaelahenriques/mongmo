@@ -113,7 +113,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
     return (
       <View style={[styles.stateContainer, { backgroundColor: theme.background }]} accessibilityLabel="Loading">
         <ScreenReaderTitle>Pop-up</ScreenReaderTitle>
-        <ActivityIndicator size="large" color={theme.text} />
+        <ActivityIndicator accessibilityLabel="Loading" size="large" color={theme.text} />
         <ThemedText type="caption" themeColor="textSecondary">
           Loading the pop-up…
         </ThemedText>

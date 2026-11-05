@@ -43,7 +43,7 @@ export default function ProfileScreen() {
   if (profile.isPending) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.text} />
+        <ActivityIndicator accessibilityLabel="Loading" size="large" color={theme.text} />
         <ThemedText type="small" themeColor="textSecondary">
           Loading your profile…
         </ThemedText>

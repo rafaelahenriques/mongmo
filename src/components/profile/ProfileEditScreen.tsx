@@ -23,7 +23,7 @@ export default function ProfileEditScreen() {
   if (!profile.data) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.text} />
+        <ActivityIndicator accessibilityLabel="Loading" size="large" color={theme.text} />
       </View>
     );
   }

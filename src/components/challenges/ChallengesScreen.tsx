@@ -58,7 +58,7 @@ export default function ChallengesScreen({ eventId }: { eventId: string }) {
       {!event ? (
         <View style={styles.state}>
           {query.isPending ? (
-            <ActivityIndicator color={theme.text} />
+            <ActivityIndicator accessibilityLabel="Loading" color={theme.text} />
           ) : (
             <>
               <ThemedText type="caption" themeColor="textSecondary">

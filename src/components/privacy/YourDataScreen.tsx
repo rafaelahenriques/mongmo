@@ -59,7 +59,7 @@ export default function YourDataScreen() {
         here.
       </ThemedText>
 
-      {data.isPending ? <ActivityIndicator color={theme.text} /> : null}
+      {data.isPending ? <ActivityIndicator accessibilityLabel="Loading" color={theme.text} /> : null}
       {data.isError ? (
         <ThemedText themeColor="textSecondary" accessibilityRole="alert">
           Couldn’t load your data. Check your connection.
