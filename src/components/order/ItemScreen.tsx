@@ -83,7 +83,7 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
-      <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}>
+      <ScrollView style={styles.flex} contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]}>
         <View style={[styles.photo, { height: 220 + insets.top, backgroundColor: theme.backgroundSelected }]}>
           {photo ? (
             <Image
@@ -177,27 +177,23 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
               })
             ),
           )}
+
+          {/* How many and add, side by side right under the choices: where
+              you finish, not down at the screen's edge. */}
+          <View style={[styles.bar, { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }]}>
+            <View style={styles.quantity}>
+              <Stepper value={quantity} onChange={setQuantity} min={1} max={20} label={item.name} />
+            </View>
+            <BlockButton
+              label="Add to cart"
+              value={formatCents(unit * quantity)}
+              onPress={onAdd}
+              accessibilityHint={`Adds ${quantity} to your cart`}
+              style={styles.add}
+            />
+          </View>
         </View>
       </ScrollView>
-
-      {/* How many and add, side by side at the bottom: the one action here. */}
-      <View
-        style={[
-          styles.bar,
-          { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, paddingBottom: insets.bottom },
-        ]}
-      >
-        <View style={styles.quantity}>
-          <Stepper value={quantity} onChange={setQuantity} min={1} max={20} label={item.name} />
-        </View>
-        <BlockButton
-          label="Add to cart"
-          value={formatCents(unit * quantity)}
-          onPress={onAdd}
-          accessibilityHint={`Adds ${quantity} to your cart`}
-          style={styles.flex}
-        />
-      </View>
     </View>
   );
 }
@@ -240,12 +236,19 @@ const styles = StyleSheet.create({
   },
   bar: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'stretch',
+    marginTop: 20,
   },
   quantity: {
     justifyContent: 'center',
-    paddingHorizontal: PageInset,
+    paddingHorizontal: 14,
     minHeight: 64,
+  },
+  // Fills the rest of the row; with very large text it drops under the stepper.
+  add: {
+    flexGrow: 1,
+    flexBasis: 190,
   },
   center: {
     textAlign: 'center',
