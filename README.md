@@ -86,6 +86,19 @@ npx expo run:ios       # or: npx expo run:android
 
 After the first native build, `npx expo start` is enough for day-to-day work. Open it from the installed development build, not Expo Go.
 
+## Tests and checks
+
+`npm run verify` runs lint, the type check and the unit tests; run it before
+pushing. CI runs those, a dependency audit, the web build and the
+integration tests on every push, and fails on any error. See
+[tests/README.md](tests/README.md).
+
+## Environments and releases
+
+Development, staging and production each have their own app and their own
+Supabase project. How to set them up, deploy, and roll back:
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
 ## License
 
 Proprietary. © 2026 Rafaela Henriques and Mongmo, all rights reserved; see
