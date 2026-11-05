@@ -67,7 +67,7 @@ export default function YourDataScreen() {
       ) : null}
       {data.data ? (
         <View>
-          <ListRow title="Email" value={account?.email ?? (account?.guest ? 'Guest, none' : '–')} chevron={false} />
+          <ListRow title="Email" subtitle={account?.email ?? (account?.guest ? 'Guest, none' : '–')} chevron={false} />
           <ListRow title="Name" value={profile?.name ?? '–'} chevron={false} />
           <ListRow title="Orders" value={count(data.data, 'orders')} chevron={false} />
           <ListRow title="Points entries" value={count(data.data, 'points')} chevron={false} />

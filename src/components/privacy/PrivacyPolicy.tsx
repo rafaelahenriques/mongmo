@@ -24,6 +24,9 @@ export function PrivacyPolicy({
   const theme = useTheme();
   return (
     <ScrollView
+      // Reachable with the keyboard, so it can be scrolled without a mouse.
+      tabIndex={0}
+      aria-label={policy.title}
       style={{ flex: 1, backgroundColor: theme.background }}
       contentContainerStyle={[styles.content, { paddingBottom: bottomInset }]}
     >
