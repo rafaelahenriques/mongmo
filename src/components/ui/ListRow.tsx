@@ -60,7 +60,11 @@ export function ListRow({
           </ThemedText>
         ) : null}
       </View>
-      {value ? <ThemedText type="captionBold">{value}</ThemedText> : null}
+      {value ? (
+        <ThemedText type="captionBold" style={styles.value}>
+          {value}
+        </ThemedText>
+      ) : null}
       {trailing}
       {onPress && chevron ? <Icon name="chevronRight" size={16} color={theme.text} /> : null}
     </>
@@ -100,5 +104,9 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     flexBasis: 120,
     gap: 2,
+  },
+  // A long value (an email) wraps rather than being cut off.
+  value: {
+    flexShrink: 1,
   },
 });

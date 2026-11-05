@@ -450,6 +450,12 @@ await step(page, 'Settings', async () => {
   await button(page, 'Settings').click();
 });
 await step(page, 'Change password', () => button(page, 'Change password').click());
+await step(page, 'Your data', async () => {
+  await page.goBack();
+  await page.waitForTimeout(1200);
+  await button(page, /^Your data/).click();
+});
+await step(page, 'Privacy policy', () => button(page, 'Read the privacy policy').click());
 
 if (process.env.OWNER_EMAIL && process.env.OWNER_PASSWORD) {
   const owner = await (await browser.newContext({ viewport: { width: 390, height: 844 } })).newPage();
