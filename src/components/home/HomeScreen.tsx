@@ -38,6 +38,8 @@ import { featuredPopUps } from '@/utils/popUps';
 import { bestClaimableReward, nextReward } from '@/utils/rewards';
 import { stampCard } from '@/utils/stamps';
 import type { PopUpEvent } from '@/types';
+import { popUpImage } from '@/constants/brandPhotos';
+import PhotosOfTheWeek from '@/components/home/PhotosOfTheWeek';
 
 /**
  * H-01 Home, laid out like a magazine (after Joe & The Juice's home): your
@@ -286,6 +288,8 @@ export default function HomeScreen() {
           </View>
         ) : null}
 
+        <PhotosOfTheWeek style={styles.section} />
+
         <View style={styles.section}>
           <SectionHead
             title={upcoming.length ? 'Pop-ups coming up' : 'Nothing else planned yet'}
@@ -407,15 +411,13 @@ function PopUpCard({
         {...nameFromContent(`${live ? 'Live now: ' : 'Coming up: '}${event.title}. Open the pop-up.`)}
         style={[styles.popPhoto, { backgroundColor: theme.surfaceDark }]}
       >
-        {event.imageUrl ? (
-          <Image
-            accessible={false}
-            accessibilityLabel=""
-            source={{ uri: event.imageUrl }}
-            style={StyleSheet.absoluteFill}
-            contentFit="cover"
-          />
-        ) : null}
+        <Image
+          accessible={false}
+          accessibilityLabel=""
+          source={popUpImage(event)}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+        />
         <View style={styles.popShade} />
         {live ? <Chip label="Live now" tone="live" /> : null}
         <ThemedText type="item" numberOfLines={2} style={{ color: theme.onSurfaceDark }}>
@@ -465,15 +467,13 @@ function PopUpRow({ event, onPress }: { event: PopUpEvent; onPress: () => void }
       ]}
     >
       <View style={[styles.rowPhoto, { backgroundColor: theme.backgroundSelected }]}>
-        {event.imageUrl ? (
-          <Image
-            accessible={false}
-            accessibilityLabel=""
-            source={{ uri: event.imageUrl }}
-            style={StyleSheet.absoluteFill}
-            contentFit="cover"
-          />
-        ) : null}
+        <Image
+          accessible={false}
+          accessibilityLabel=""
+          source={popUpImage(event)}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+        />
       </View>
       <View style={styles.rowTexts}>
         <ThemedText type="card" numberOfLines={2}>
