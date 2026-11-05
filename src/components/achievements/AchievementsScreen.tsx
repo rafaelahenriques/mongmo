@@ -50,6 +50,7 @@ export default function AchievementsScreen() {
           value={view}
           onChange={setView}
           accessibilityLabel="Show"
+          look="tabs"
         />
       </View>
       {view === 'leaderboard' ? (
@@ -88,13 +89,27 @@ export default function AchievementsScreen() {
                 accessibilityLabel={`${badge.title}. ${badge.description}. ${status}.`}
               >
                 <Coin icon={badgeIcon(badge.key)} earned={Boolean(got)} size={76} />
+                {/* The badge's name first, what it takes under it, then how far you are. */}
                 <View style={styles.texts}>
-                  <ThemedText type="section" themeColor={got ? 'text' : 'textSecondary'}>
-                    {status}
-                  </ThemedText>
-                  <ThemedText type="card">{badge.title}</ThemedText>
+                  <ThemedText type="section">{badge.title}</ThemedText>
                   <ThemedText type="caption" themeColor="textSecondary">
                     {badge.description}
+                  </ThemedText>
+                  {!got && step ? (
+                    <View style={[styles.track, { backgroundColor: theme.backgroundSelected }]}>
+                      <View
+                        style={[
+                          styles.fill,
+                          {
+                            width: `${Math.min(100, (step.current / Math.max(1, step.target)) * 100)}%`,
+                            backgroundColor: theme.primaryText,
+                          },
+                        ]}
+                      />
+                    </View>
+                  ) : null}
+                  <ThemedText type="captionBold" style={{ color: got ? theme.primaryText : theme.text }}>
+                    {status}
                   </ThemedText>
                 </View>
               </View>
@@ -133,6 +148,15 @@ const styles = StyleSheet.create({
   },
   texts: {
     flex: 1,
-    gap: 1,
+    gap: 4,
+  },
+  track: {
+    height: 6,
+    borderRadius: 3,
+    overflow: 'hidden',
+    marginTop: 4,
+  },
+  fill: {
+    height: '100%',
   },
 });

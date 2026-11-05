@@ -33,7 +33,7 @@ export default function MyOrdersScreen() {
     enabled: all.length > 0,
   });
 
-  const open = (id: string) => router.push({ pathname: '/(orders)/order/status/[id]', params: { id } });
+  const open = (id: string) => router.push({ pathname: '/(profile)/order/[id]', params: { id } });
   const current = all.filter((order) => ACTIVE.includes(order.status));
   const past = all.filter((order) => !ACTIVE.includes(order.status));
   const time = (iso: string) => formatInTimeZone(iso, DISPLAY_TIME_ZONE, 'HH:mm');

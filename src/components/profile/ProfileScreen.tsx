@@ -107,7 +107,7 @@ export default function ProfileScreen() {
           <ListRow
             title="My orders"
             value={current.length ? `${current.length} on the way` : undefined}
-            onPress={() => router.push('/(orders)/orders')}
+            onPress={() => router.push('/(profile)/orders')}
           />
           {user.role === 'owner' ? (
             <ListRow title="Owner tools" subtitle="Pop-ups, challenges and orders" onPress={openOwnerTools} />

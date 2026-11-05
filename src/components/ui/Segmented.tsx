@@ -17,26 +17,30 @@ export type SegmentOption<T extends string> = {
 };
 
 /**
- * One of a few options, in the three looks the design gives different jobs:
- * - `words`: a row of pill buttons, ink when picked, that switch a list
- *   or a view (Menu | Reorder, Badges | Leaderboard, Today · This week).
- * - `switch`: a dark pill that changes the view (Map | List).
- * - `blocks`: square segments, sage when picked, that set a value
- *   (Bakery | Live pop-up, Mango | Peanut).
+ * One of a few options. Each look has one job, so two rows of options on a
+ * screen never look alike (the bigger the job, the bigger the look):
+ * - `tabs`: the screen's views, as big words with an ink bar under the
+ *   chosen one over a hairline (Badges | Leaderboard, Menu | Reorder).
+ * - `chips`: a filter on a list, as small outlined pills, ink when chosen
+ *   (Weekly · All-time, Today · This week · All).
+ * - `switch`: a compact track for a setting or a floating view toggle
+ *   (Map | List, System · Light · Dark).
+ * - `blocks`: square segments, sage and ringed when picked, for a choice in
+ *   a form (Bakery | Live pop-up, Mango | Peanut).
  */
 export function Segmented<T extends string>({
   options,
   value,
   onChange,
   accessibilityLabel,
-  look = 'words',
+  look,
   style,
 }: {
   options: SegmentOption<T>[];
   value: T;
   onChange: (value: T) => void;
   accessibilityLabel: string;
-  look?: 'words' | 'switch' | 'blocks';
+  look: 'tabs' | 'chips' | 'switch' | 'blocks';
   style?: StyleProp<ViewStyle>;
 }) {
   const theme = useTheme();
@@ -49,23 +53,65 @@ export function Segmented<T extends string>({
   return (
     <View
       style={[
-        look === 'words' && styles.words,
+        look === 'tabs' && [styles.tabs, { borderBottomColor: theme.border }],
+        look === 'chips' && styles.chips,
         look === 'switch' && [styles.switch, { backgroundColor: theme.background, boxShadow: CardShadow }],
         look === 'blocks' && styles.blocks,
         style,
       ]}
-      accessibilityRole="tablist"
+      // Tabs and the view switch change what the screen shows; chips and
+      // blocks pick one value, like radio buttons.
+      accessibilityRole={look === 'tabs' || look === 'switch' ? 'tablist' : 'radiogroup'}
       accessibilityLabel={accessibilityLabel}
     >
       {options.map((option) => {
         const selected = option.value === value;
         const label = option.count !== undefined ? `${option.label} (${option.count})` : option.label;
+        const asTab = look === 'tabs' || look === 'switch';
         const common = {
           onPress: () => select(option),
-          accessibilityRole: 'tab' as const,
-          accessibilityState: { selected },
+          accessibilityRole: asTab ? ('tab' as const) : ('radio' as const),
+          accessibilityState: asTab ? { selected } : { checked: selected },
           accessibilityLabel: option.accessibilityLabel ?? label,
         };
+
+        if (look === 'tabs') {
+          return (
+            <Pressable
+              key={option.value}
+              {...common}
+              style={({ pressed }) => [styles.tab, { opacity: pressed ? 0.6 : 1 }]}
+            >
+              <ThemedText type="section" style={{ color: selected ? theme.text : theme.textSecondary }}>
+                {label}
+              </ThemedText>
+              {/* The chosen tab's bar sits on the hairline. */}
+              <View style={[styles.tabBar, { backgroundColor: selected ? theme.text : 'transparent' }]} />
+            </Pressable>
+          );
+        }
+
+        if (look === 'chips') {
+          return (
+            <Pressable
+              key={option.value}
+              {...common}
+              hitSlop={6}
+              style={({ pressed }) => [
+                styles.chip,
+                {
+                  backgroundColor: selected ? theme.primary : 'transparent',
+                  borderColor: selected ? theme.primary : theme.outline,
+                  opacity: pressed ? 0.7 : 1,
+                },
+              ]}
+            >
+              <ThemedText type="captionBold" style={{ color: selected ? theme.onPrimary : theme.text }}>
+                {label}
+              </ThemedText>
+            </Pressable>
+          );
+        }
 
         if (look === 'switch') {
           const color = selected ? theme.onPrimary : theme.text;
@@ -110,38 +156,40 @@ export function Segmented<T extends string>({
           );
         }
 
-        return (
-          <Pressable
-            key={option.value}
-            {...common}
-            hitSlop={4}
-            style={({ pressed }) => [
-              styles.pill,
-              { backgroundColor: selected ? theme.primary : theme.backgroundSelected, opacity: pressed ? 0.8 : 1 },
-            ]}
-          >
-            <ThemedText type="smallBold" style={{ color: selected ? theme.onPrimary : theme.text }}>
-              {label}
-            </ThemedText>
-          </Pressable>
-        );
+        return null;
       })}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  words: {
+  tabs: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    columnGap: 24,
+    borderBottomWidth: 1,
+  },
+  tab: {
+    minHeight: 44,
+    justifyContent: 'flex-end',
+    gap: 8,
+  },
+  tabBar: {
+    height: 3,
+    marginBottom: -1,
+  },
+  chips: {
     flexDirection: 'row',
     alignItems: 'center',
     flexWrap: 'wrap',
     gap: Spacing.two,
   },
-  pill: {
-    minHeight: 40,
-    paddingHorizontal: 18,
-    paddingVertical: 8,
-    borderRadius: 20,
+  chip: {
+    minHeight: 32,
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    borderRadius: 16,
+    borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
