@@ -24,7 +24,7 @@ export type TopBarProps = {
 };
 
 /**
- * The design's top bar: a chevron, the screen's name in uppercase Outfit
+ * The design's top bar: a chevron, the screen's name in uppercase League Spartan
  * Black, and an optional value on the right. Used as every stack header.
  */
 export function TopBar({

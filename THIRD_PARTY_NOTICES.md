@@ -11,8 +11,8 @@ end up inside the app; they are listed anyway. Don't edit this file by hand.
 
 Both are used under the SIL Open Font License 1.1 (full text below).
 
-- **Outfit:** Copyright 2021 The Outfit Project Authors (https://github.com/Outfitio/Outfit-Fonts)
-- **Be Vietnam Pro:** Copyright 2021 The Be Vietnam Pro Project Authors (https://github.com/bettergui/BeVietnamPro)
+- **League Spartan:** Copyright 2020 The League Spartan Project Authors (https://github.com/theleagueof/league-spartan)
+- **Lato:** Copyright (c) 2010-2014 by tyPoland Lukasz Dziedzic (team@latofonts.com) with Reserved Font Name "Lato"
 
 ## Icons, maps and data
 
@@ -27,7 +27,7 @@ Both are used under the SIL Open Font License 1.1 (full text below).
 This project started from Expo's `create-expo-app` template.
 Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full text below).
 
-## npm packages (630)
+## npm packages (629)
 
 | Package | Version | Licence | Copyright |
 | --- | --- | --- | --- |
@@ -103,9 +103,9 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @babel/template | 7.29.7 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/traverse | 7.29.8 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/types | 7.29.8 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
-| @expo-google-fonts/be-vietnam-pro | 0.4.1 | MIT AND OFL-1.1 | Copyright (c) 2020 Expo |
+| @expo-google-fonts/lato | 0.4.1 | MIT AND OFL-1.1 | Copyright (c) 2020 Expo |
+| @expo-google-fonts/league-spartan | 0.4.2 | MIT AND OFL-1.1 | Copyright (c) 2020 Expo |
 | @expo-google-fonts/material-symbols | 0.4.52 | MIT AND Apache-2.0 | Copyright (c) 2020 Expo |
-| @expo-google-fonts/outfit | 0.4.3 | MIT AND OFL-1.1 | Copyright (c) 2020 Expo |
 | @expo/cli | 58.1.19 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | @expo/code-signing-certificates | 0.0.7 | MIT | Copyright (c) 2020-present 650 Industries, Inc. (aka Expo) |
 | @expo/config | 58.0.11 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
@@ -141,6 +141,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @expo/ui | 58.0.27 | MIT | 650 Industries, Inc. |
 | @expo/ws-tunnel | 2.0.1 | MIT | Copyright (c) 2025-present 650 Industries, Inc. (aka Expo) |
 | @expo/xcpretty | 4.4.7 | MIT | Copyright (c) 2013-2016 Marin Usalj; Copyright (c) 2021-present 650 Industries, Inc. (aka Expo) |
+| @isaacs/nonrecursive-glob-match | 1.0.3 | BlueOak-1.0.0 | copyright in it. |
 | @isaacs/ttlcache | 1.4.1 | ISC | Copyright (c) 2022-2023 - Isaac Z. Schlueter and Contributors; copyright notice and this permission notice appear in all copies. |
 | @jest/schemas | 29.6.3 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
 | @jest/types | 29.6.3 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
@@ -328,7 +329,6 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | expo-dev-launcher | 58.0.18 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-dev-menu | 58.0.12 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-dev-menu-interface | 58.0.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-device | 58.0.5 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-file-system | 58.0.13 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-font | 58.0.11 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-glass-effect | 58.0.5 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
@@ -379,7 +379,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | gensync | 1.0.0-beta.2 | MIT | Copyright 2018 Logan Smyth <loganfsmyth@gmail.com> |
 | get-caller-file | 2.0.5 | ISC | Copyright 2018 Stefan Penner |
 | getenv | 2.0.0 | MIT | Copyright (c) 2012-2019 Christoph Tavan <dev@tavan.de> |
-| glob | 13.0.6 | BlueOak-1.0.0 | copyright in it. |
+| glob | 14.0.3 | BlueOak-1.0.0 | copyright in it. |
 | graceful-fs | 4.2.11 | ISC | Copyright (c) 2011-2022 Isaac Z. Schlueter, Ben Noordhuis, and Contributors; copyright notice and this permission notice appear in all copies. |
 | has-flag | 3.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | has-flag | 4.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
@@ -471,7 +471,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | mime-types | 2.1.35 | MIT | Copyright (c) 2014 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2015 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | mime-types | 3.0.2 | MIT | Copyright (c) 2014 Jonathan Ong <me@jongleberry.com>; Copyright (c) 2015 Douglas Christopher Wilson <doug@somethingdoug.com> |
 | mimic-fn | 1.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
-| minimatch | 10.2.6 | BlueOak-1.0.0 | copyright in it. |
+| minimatch | 11.0.4 | BlueOak-1.0.0 | copyright in it. |
 | minipass | 7.1.3 | BlueOak-1.0.0 | copyright in it. |
 | ms | 2.0.0 | MIT | Copyright (c) 2016 Zeit, Inc. |
 | ms | 2.1.3 | MIT | Copyright (c) 2020 Vercel, Inc. |
@@ -505,7 +505,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | path-exists | 4.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | path-key | 3.1.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | path-parse | 1.0.7 | MIT | Copyright (c) 2015 Javier Blanco |
-| path-scurry | 2.0.2 | BlueOak-1.0.0 | copyright in it. |
+| path-scurry | 3.0.0 | BlueOak-1.0.0 | copyright in it. |
 | picocolors | 1.1.1 | ISC | Copyright (c) 2021-2024 Oleksii Raspopov, Kostiantyn Denysov, Anton Verinov; copyright notice and this permission notice appear in all copies. |
 | picomatch | 2.3.2 | MIT | Copyright (c) 2017-present, Jon Schlinkert. |
 | picomatch | 4.0.7 | MIT | Copyright (c) 2017-present, Jon Schlinkert. |
@@ -617,7 +617,6 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | type-fest | 0.7.1 | (MIT OR CC0-1.0) | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | type-fest | 5.10.0 | (MIT OR CC0-1.0) | Sindre Sorhus |
 | typescript | 6.0.3 | Apache-2.0 | Microsoft Corp. |
-| ua-parser-js | 0.7.41 | MIT | Copyright (c) 2012-2025 Faisal Salman <<f@faisalman.com>> |
 | ua-parser-js | 1.0.41 | MIT | Copyright (c) 2012-2025 Faisal Salman <<f@faisalman.com>> |
 | undici-types | 8.9.0 | MIT | Copyright (c) Matteo Collina and Undici contributors |
 | unicode-canonical-property-names-ecmascript | 2.0.1 | MIT | Mathias Bynens |
@@ -898,6 +897,66 @@ Apache License
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+```
+
+### BlueOak-1.0.0
+
+```text
+# Blue Oak Model License
+
+Version 1.0.0
+
+## Purpose
+
+This license gives everyone as much permission to work with
+this software as possible, while protecting contributors
+from liability.
+
+## Acceptance
+
+In order to receive this license, you must agree to its
+rules.  The rules of this license are both obligations
+under that agreement and conditions to your license.
+You must not do anything with this software that triggers
+a rule that you cannot or will not follow.
+
+## Copyright
+
+Each contributor licenses you to do everything with this
+software that would otherwise infringe that contributor's
+copyright in it.
+
+## Notices
+
+You must ensure that everyone who gets a copy of
+any part of this software from you, with or without
+changes, also gets the text of this license or a link to
+<https://blueoakcouncil.org/license/1.0.0>.
+
+## Excuse
+
+If anyone notifies you in writing that you have not
+complied with [Notices](#notices), you can keep your
+license by taking all practical steps to comply within 30
+days after the notice.  If you do not do so, your license
+ends immediately.
+
+## Patent
+
+Each contributor licenses you to do everything with this
+software that would otherwise infringe any patent claims
+they can license or become able to license.
+
+## Reliability
+
+No contributor can revoke this license.
+
+## No Liability
+
+***As far as the law allows, this software comes as is,
+without any warranty or condition, and no contributor
+will be liable to anyone for any damages related to this
+software or this license, under any kind of legal claim.***
 ```
 
 ### ISC
@@ -1658,74 +1717,6 @@ THIS IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRE
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
 
-### BlueOak-1.0.0
-
-```text
-All packages under `src/` are licensed according to the terms in
-their respective `LICENSE` or `LICENSE.md` files.
-
-The remainder of this project is licensed under the Blue Oak
-Model License, as follows:
-
------
-
-# Blue Oak Model License
-
-Version 1.0.0
-
-## Purpose
-
-This license gives everyone as much permission to work with
-this software as possible, while protecting contributors
-from liability.
-
-## Acceptance
-
-In order to receive this license, you must agree to its
-rules.  The rules of this license are both obligations
-under that agreement and conditions to your license.
-You must not do anything with this software that triggers
-a rule that you cannot or will not follow.
-
-## Copyright
-
-Each contributor licenses you to do everything with this
-software that would otherwise infringe that contributor's
-copyright in it.
-
-## Notices
-
-You must ensure that everyone who gets a copy of
-any part of this software from you, with or without
-changes, also gets the text of this license or a link to
-<https://blueoakcouncil.org/license/1.0.0>.
-
-## Excuse
-
-If anyone notifies you in writing that you have not
-complied with [Notices](#notices), you can keep your
-license by taking all practical steps to comply within 30
-days after the notice.  If you do not do so, your license
-ends immediately.
-
-## Patent
-
-Each contributor licenses you to do everything with this
-software that would otherwise infringe any patent claims
-they can license or become able to license.
-
-## Reliability
-
-No contributor can revoke this license.
-
-## No Liability
-
-***As far as the law allows, this software comes as is,
-without any warranty or condition, and no contributor
-will be liable to anyone for any damages related to this
-software or this license, under any kind of legal claim.***
-```
-
 ### 0BSD
 
 ```text
@@ -2246,7 +2237,7 @@ For more information, please see
 ### OFL-1.1 (SIL Open Font License 1.1)
 
 ```text
-Copyright 2021 The Outfit Project Authors (https://github.com/Outfitio/Outfit-Fonts)
+Copyright 2020 The League Spartan Project Authors (https://github.com/theleagueof/league-spartan)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:

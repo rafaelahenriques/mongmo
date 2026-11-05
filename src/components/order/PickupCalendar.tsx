@@ -59,7 +59,7 @@ export function PickupCalendar({
   return (
     <View style={styles.calendar}>
       <View style={styles.head}>
-        <ThemedText type="smallBold" accessibilityRole="header" headingLevel={2} style={styles.flex}>
+        <ThemedText type="section" accessibilityRole="header" headingLevel={2} style={styles.flex}>
           {format(first, 'MMMM yyyy')}
         </ThemedText>
         {months.length > 1 ? (
