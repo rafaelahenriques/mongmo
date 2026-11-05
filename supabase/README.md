@@ -72,6 +72,7 @@ left, per "no hardcoded/mock data."
 | `0027_drop_profile_bio.sql` | Drops `profiles.bio`, and every bio written: nobody but its author ever saw it. |
 | `0028_privacy_cleanup.sql` | Check-in challenges record `withinRadius`, not the distance (old distances cleared); old photo links in results become a count; the leaderboard is opt-in for new accounts; the demo pop-ups' Unsplash pictures are cleared. |
 | `0029_photos_of_the_week.sql` | Challenge photos (records and files) are private to the person and staff. `set_photo_shared()` shares one in Photos of the week for 7 days; `photos_of_the_week()` lists them without names; `report_photo()` takes one down at once and records it in `photo_reports` for staff. |
+| `0030_review_reported_photos.sql` | Staff decide on reported photos (Owner tools → Reported photos): `reported_photos()`, `review_reported_photo()` (put it back or keep it down), `delete_reported_photo()` (after the app removes the file; staff may delete only taken-down files). Reports are deleted once decided; the photo keeps the outcome, which the export shows. |
 
 ### Points ledger, not a running total
 

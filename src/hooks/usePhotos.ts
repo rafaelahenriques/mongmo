@@ -1,6 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { getEventPhotos, getMyPhotos, getPhotosOfTheWeek, reportPhoto, setPhotoShared } from '@/api/photos';
+import {
+  deleteReportedPhoto,
+  getEventPhotos,
+  getMyPhotos,
+  getPhotosOfTheWeek,
+  getReportedPhotos,
+  reportPhoto,
+  reviewReportedPhoto,
+  setPhotoShared,
+  type ReportedPhoto,
+} from '@/api/photos';
 
 /** The signed-in user's challenge photos (Profile gallery). */
 export function useMyPhotos() {
@@ -36,6 +46,21 @@ export function useReportPhoto() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: reportPhoto,
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['photos'] }),
+  });
+}
+
+/** Staff: reported photos waiting for a decision (Owner tools). */
+export function useReportedPhotos(enabled = true) {
+  return useQuery({ queryKey: ['photos', 'reported'], queryFn: getReportedPhotos, enabled });
+}
+
+/** Staff: decide on a reported photo: put it back, keep it down, or delete it. */
+export function useReviewReportedPhoto() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ photo, decision }: { photo: ReportedPhoto; decision: 'restore' | 'keep' | 'delete' }) =>
+      decision === 'delete' ? deleteReportedPhoto(photo) : reviewReportedPhoto(photo.id, decision === 'restore'),
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['photos'] }),
   });
 }

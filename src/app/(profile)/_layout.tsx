@@ -22,6 +22,7 @@ export default function ProfileLayout() {
       <Stack.Screen name="owner/challenge/new" options={{ headerTitle: 'New challenge' }} />
       <Stack.Screen name="owner/challenge/[id]" options={{ headerTitle: 'Edit challenge' }} />
       <Stack.Screen name="owner/orders" options={{ headerTitle: 'Orders' }} />
+      <Stack.Screen name="owner/reports" options={{ headerTitle: 'Reported photos' }} />
       <Stack.Screen name="owner/order/[id]" options={{ headerShown: false }} />
     </Stack>
   );
