@@ -53,7 +53,7 @@ export function useOrderStatusNotifications(): void {
                 title: ORDER_STATUS_LABEL[next.status],
                 body:
                   next.status === 'ready'
-                    ? "Your order is ready for pickup!"
+                    ? 'Your order is ready for pickup!'
                     : `Your order is now ${ORDER_STATUS_LABEL[next.status].toLowerCase()}.`,
                 data: { url: `/(orders)/order/status/${next.id}` },
                 sound: true,

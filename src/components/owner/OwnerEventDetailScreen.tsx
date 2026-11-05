@@ -1,4 +1,4 @@
-import { Alert, ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import OwnerChallengesManager from '@/components/owner/OwnerChallengesManager';
@@ -20,6 +20,7 @@ import { useOwnerEvent, useSetEventStatus, useUpdateEvent } from '@/hooks/useOwn
 import { useEventPhotos } from '@/hooks/usePhotos';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
+import { confirm } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import { formatEventWindow } from '@/utils/dateTime';
 
@@ -72,20 +73,20 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
   });
   const finished = event.status === 'ended' || event.status === 'cancelled';
 
-  const onEndEvent = () => {
+  const onEndEvent = async () => {
     haptics.warning();
-    Alert.alert('End this pop-up?', 'It will stop appearing as live.', [
-      { text: 'Back', style: 'cancel' },
-      { text: 'End pop-up', onPress: () => setStatus.mutate('ended') },
-    ]);
+    if (await confirm('End this pop-up?', 'It will stop appearing as live.', 'End pop-up', { cancelLabel: 'Back' })) {
+      setStatus.mutate('ended');
+    }
   };
 
-  const onCancelEvent = () => {
+  const onCancelEvent = async () => {
     haptics.warning();
-    Alert.alert('Cancel this pop-up?', 'It will be removed from Explore.', [
-      { text: 'Back', style: 'cancel' },
-      { text: 'Cancel pop-up', style: 'destructive', onPress: () => setStatus.mutate('cancelled') },
-    ]);
+    const yes = await confirm('Cancel this pop-up?', 'It will be removed from Explore.', 'Cancel pop-up', {
+      cancelLabel: 'Back',
+      destructive: true,
+    });
+    if (yes) setStatus.mutate('cancelled');
   };
 
   return (
@@ -116,7 +117,7 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
           variant="ghost"
           size="medium"
           icon="eye"
-          onPress={() => router.push({ pathname: '/(explore)/event/[id]', params: { id: eventId } })}
+          onPress={() => router.push({ pathname: '/(popups)/event/[id]', params: { id: eventId } })}
           style={styles.preview}
         />
       </Card>

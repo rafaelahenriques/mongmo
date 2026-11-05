@@ -6,6 +6,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { IconButton } from '@/components/ui/IconButton';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { useMotion } from '@/constants/motion';
 
 export type SheetProps = PropsWithChildren<{
   visible: boolean;
@@ -21,10 +22,11 @@ export type SheetProps = PropsWithChildren<{
  */
 export function Sheet({ visible, title, subtitle, onClose, children }: SheetProps) {
   const theme = useTheme();
+  const motion = useMotion();
   const insets = useSafeAreaInsets();
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
+    <Modal visible={visible} transparent animationType={motion.sheet} onRequestClose={onClose} statusBarTranslucent>
       <View style={styles.root}>
         <Pressable
           style={[StyleSheet.absoluteFill, styles.backdrop]}
@@ -33,10 +35,7 @@ export function Sheet({ visible, title, subtitle, onClose, children }: SheetProp
           accessibilityLabel="Close"
         />
         <View
-          style={[
-            styles.sheet,
-            { backgroundColor: theme.background, paddingBottom: insets.bottom + Spacing.four },
-          ]}
+          style={[styles.sheet, { backgroundColor: theme.background, paddingBottom: insets.bottom + Spacing.four }]}
           accessibilityViewIsModal
         >
           <View style={[styles.grabber, { backgroundColor: theme.border }]} />

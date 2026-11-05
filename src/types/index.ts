@@ -31,7 +31,6 @@ export type MenuItem = {
   id: string;
   name: string;
   description?: string;
-  price?: string;
 };
 
 /**
@@ -76,6 +75,8 @@ export type PopUpEvent = {
   menu: MenuItem[];
   orderUrl: string;
   busy: BusyState;
+  /** When the owner added it (for "New pop-up" in Notifications). */
+  createdAt?: string;
 };
 
 /** Anything that can be pinned: either the store or an event, never blended. */
@@ -136,18 +137,6 @@ export type AchievementsResponse = {
   rewards: Reward[];
 };
 
-/** One event check-in, recorded locally; also powers the photo gallery. */
-export type CheckInRecord = {
-  eventId: string;
-  title: string;
-  city: string;
-  imageUrl: string;
-  /** Start time of the event as served (for night-owl evaluation). */
-  startsAt: string;
-  /** When the user actually checked in (ISO 8601). */
-  checkedInAt: string;
-};
-
 /** Spendable reward from the achievements catalog. */
 export type Reward = {
   id: string;
@@ -157,6 +146,19 @@ export type Reward = {
   /** Flat discount an order can apply, when this reward is a discount (not a free item). */
   discountCents: number | null;
   expiresAt: string | null;
+  /** The level this reward belongs to (`rising`…), or null for everyone's. */
+  minLevel: string | null;
+};
+
+/** A loyalty level: Dough, Rising, Golden, Crisp (supabase/migrations/0021_levels.sql). */
+export type Level = {
+  key: string;
+  name: string;
+  /** Lifetime points that reach it. */
+  minPoints: number;
+  /** Extra points on orders, in percent. */
+  orderBonusPct: number;
+  perk: string;
 };
 
 /**
@@ -195,7 +197,7 @@ export type ChallengeRules = {
 
 /**
  * A single challenge on an event. Every type shares this shape; its rules
- * decide the interaction (components/challenges/ChallengeItem.tsx) and what
+ * decide the interaction (components/challenges/ChallengeList.tsx) and what
  * the server checks before it counts.
  */
 export type Challenge = ChallengeRules & {

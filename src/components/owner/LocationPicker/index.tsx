@@ -8,6 +8,7 @@ import { Icon } from '@/components/ui/Icon';
 import { TextField } from '@/components/ui/TextField';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { useMotion } from '@/constants/motion';
 import { PlaceSearchField } from './PlaceSearchField';
 import { pinnedPoint, useLocationPicker, type LocationPickerProps } from './useLocationPicker';
 
@@ -21,6 +22,7 @@ const PIN_DELTA = 0.006;
 export function LocationPicker(props: LocationPickerProps) {
   const { value, onChange } = props;
   const theme = useTheme();
+  const motion = useMotion();
   const { busy, note, problem, pick, search, locate, move } = useLocationPicker(props);
   const [showCoordinates, setShowCoordinates] = useState(false);
   const mapRef = useRef<MapView>(null);
@@ -31,8 +33,11 @@ export function LocationPicker(props: LocationPickerProps) {
   const longitude = point?.longitude;
   useEffect(() => {
     if (latitude === undefined || longitude === undefined) return;
-    mapRef.current?.animateToRegion({ latitude, longitude, latitudeDelta: PIN_DELTA, longitudeDelta: PIN_DELTA }, 400);
-  }, [latitude, longitude]);
+    mapRef.current?.animateToRegion(
+      { latitude, longitude, latitudeDelta: PIN_DELTA, longitudeDelta: PIN_DELTA },
+      motion.mapMoveMs,
+    );
+  }, [latitude, longitude, motion.mapMoveMs]);
 
   return (
     <View style={styles.container}>

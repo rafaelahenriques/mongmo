@@ -16,17 +16,11 @@ type ProfileRow = Database['public']['Tables']['profiles']['Row'];
 type BadgeRow = Database['public']['Tables']['badges']['Row'];
 type RewardRow = Database['public']['Tables']['rewards']['Row'];
 
-/** `€6.50` from an integer cent amount. */
-export function formatPriceCents(cents: number): string {
-  return `€${(cents / 100).toFixed(2)}`;
-}
-
 export function menuItemRowToMenuItem(row: MenuItemRow): MenuItem {
   return {
     id: row.id,
     name: row.name,
     description: row.description ?? undefined,
-    price: formatPriceCents(row.price_cents),
   };
 }
 
@@ -63,6 +57,7 @@ export function eventRowToEvent(row: EventRow, menuItemRows: MenuItemRow[] = [])
     menu: menuItemRows.map(menuItemRowToMenuItem),
     orderUrl: row.order_url ?? '',
     busy: { occupancy: row.occupancy, capacity: row.capacity },
+    createdAt: row.created_at,
   };
 }
 
@@ -96,6 +91,7 @@ export function rewardRowToReward(row: RewardRow): Reward {
     costPoints: row.cost_points,
     discountCents: row.discount_cents,
     expiresAt: row.expires_at,
+    minLevel: row.min_level ?? null,
   };
 }
 

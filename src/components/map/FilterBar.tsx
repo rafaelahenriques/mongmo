@@ -1,54 +1,33 @@
 import { memo } from 'react';
-import { StyleSheet, View } from 'react-native';
 
-import Chip from '@/components/ui/Chip';
 import { Segmented } from '@/components/ui/Segmented';
-import { Spacing } from '@/constants/theme';
 import type { EventFilter } from '@/types';
 
 const OPTIONS: { value: EventFilter; label: string }[] = [
   { value: 'today', label: 'Today' },
-  { value: 'week', label: 'This Week' },
+  { value: 'week', label: 'This week' },
   { value: 'all', label: 'All' },
 ];
 
 export type FilterBarProps = {
   value: EventFilter;
   onChange: (filter: EventFilter) => void;
-  /** Shows the "Live" indicator when the busy websocket is connected. */
-  live?: boolean;
 };
 
 /**
- * Segmented date filter for the map. Only event pins respond to it — the
- * permanent store pin is always visible.
+ * The date filter for pop-ups, as chips. Only pop-ups respond to
+ * it; the permanent café is always there.
  */
-function FilterBarComponent({ value, onChange, live = false }: FilterBarProps) {
+function FilterBarComponent({ value, onChange }: FilterBarProps) {
   return (
-    <View style={styles.row}>
-      <Segmented
-        options={OPTIONS.map((option) => ({ ...option, accessibilityLabel: `Show events: ${option.label}` }))}
-        value={value}
-        onChange={onChange}
-        accessibilityLabel="Filter pop-up events by date"
-        surface="floating"
-        style={styles.segment}
-      />
-      {live ? <Chip label="Live" tone="success" /> : null}
-    </View>
+    <Segmented
+      options={OPTIONS.map((option) => ({ ...option, accessibilityLabel: `Show pop-ups: ${option.label}` }))}
+      value={value}
+      onChange={onChange}
+      accessibilityLabel="Filter pop-ups by date"
+      look="chips"
+    />
   );
 }
 
 export default memo(FilterBarComponent);
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: Spacing.two,
-  },
-  segment: {
-    flexShrink: 1,
-  },
-});

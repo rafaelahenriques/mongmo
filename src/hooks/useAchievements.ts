@@ -103,5 +103,8 @@ export function useAchievements() {
     /** Progress towards each badge, by badge key. */
     progress: progressQuery.data ?? {},
     redeemReward: redeem.mutate,
+    /** Same, as a promise of the redeemed reward's id (the cart uses it right away). */
+    redeemRewardAsync: redeem.mutateAsync,
+    redeemPending: redeem.isPending,
   };
 }

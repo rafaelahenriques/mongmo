@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { errorMessage } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import { describePlace, getCurrentPlace, searchPlace } from '@/services/location';
 import type { PlaceSuggestion } from '@/services/placeSearch';
@@ -71,7 +72,7 @@ export function useLocationPicker({ value, onChange }: LocationPickerProps) {
       });
       report(`Pinned to ${[place.street, place.city].filter(Boolean).join(', ') || 'that address'}.`, false);
     } catch (error) {
-      report(error instanceof Error ? error.message : 'Address search failed.', true);
+      report(errorMessage(error, 'Address search failed.'), true);
     } finally {
       setBusy(null);
     }
@@ -97,7 +98,7 @@ export function useLocationPicker({ value, onChange }: LocationPickerProps) {
       });
       report(`Pinned to where you are${place.accuracy ? ` (±${Math.round(place.accuracy)} m)` : ''}.`, false);
     } catch (error) {
-      report(error instanceof Error ? error.message : 'Couldn’t get your location.', true);
+      report(errorMessage(error, 'Couldn’t get your location.'), true);
     } finally {
       setBusy(null);
     }

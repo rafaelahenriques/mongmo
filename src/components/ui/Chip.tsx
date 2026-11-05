@@ -9,8 +9,8 @@ import { useTheme } from '@/hooks/useTheme';
 export type ChipProps = {
   label: string;
   /**
-   * neutral: rose fill · dark: Shadow Grey · live: sage with a dot ·
-   * info: cream · success/danger/warning: rose fill, semantic label (AA).
+   * neutral: light stone · dark: dark · live: sage ("Live now") ·
+   * info: cream · success/danger/warning: light stone, semantic label (AA).
    */
   tone?: 'neutral' | 'dark' | 'live' | 'info' | 'success' | 'danger' | 'warning';
   icon?: IconName;
@@ -22,7 +22,7 @@ function ChipComponent({ label, tone = 'neutral', icon, style }: ChipProps) {
   const theme = useTheme();
   const background =
     tone === 'dark'
-      ? theme.primary
+      ? theme.surfaceDark
       : tone === 'live'
         ? theme.brandFill
         : tone === 'info'
@@ -30,7 +30,7 @@ function ChipComponent({ label, tone = 'neutral', icon, style }: ChipProps) {
           : theme.backgroundSelected;
   const color =
     tone === 'dark'
-      ? theme.onPrimary
+      ? theme.onSurfaceDark
       : tone === 'live'
         ? theme.onBrand
         : tone === 'info'
@@ -41,9 +41,8 @@ function ChipComponent({ label, tone = 'neutral', icon, style }: ChipProps) {
 
   return (
     <View style={[styles.chip, { backgroundColor: background }, style]}>
-      {tone === 'live' ? <View style={[styles.dot, { backgroundColor: theme.onBrand }]} /> : null}
       {icon ? <Icon name={icon} size={12} color={color} /> : null}
-      <ThemedText type="smallBold" numberOfLines={1} style={[styles.text, { color }]}>
+      <ThemedText type="captionBold" numberOfLines={1} style={{ color }}>
         {label}
       </ThemedText>
     </View>
@@ -58,17 +57,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.one + 1,
     borderRadius: Radius.pill,
-    paddingHorizontal: Spacing.two + 2,
+    paddingHorizontal: 12,
     paddingVertical: Spacing.one,
     alignSelf: 'flex-start',
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  text: {
-    fontSize: 12,
-    lineHeight: 16,
   },
 });

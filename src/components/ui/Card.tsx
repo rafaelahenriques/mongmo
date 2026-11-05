@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { Radius, Spacing } from '@/constants/theme';
+import { CardShadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 
@@ -11,12 +11,12 @@ export type CardProps = PropsWithChildren<{
   disabled?: boolean;
   accessibilityLabel?: string;
   accessibilityHint?: string;
-  /** default: white · muted: rose fill · brand: sage · accent: cream · primary: Shadow Grey. */
+  /** default: near-white with a shadow · muted: light stone · brand: sage · accent: cream · primary: dark. */
   tone?: 'default' | 'muted' | 'brand' | 'accent' | 'primary';
   style?: StyleProp<ViewStyle>;
 }>;
 
-/** The app's main surface: a soft, rounded card with a faint shadow. */
+/** The app's main surface: a square near-white card with a soft shadow. */
 export function Card({
   children,
   onPress,
@@ -32,14 +32,13 @@ export function Card({
     muted: theme.backgroundSelected,
     brand: theme.brandFill,
     accent: theme.accent,
-    primary: theme.primary,
+    primary: theme.surfaceDark,
   }[tone];
   const surface = [
     styles.card,
     {
       backgroundColor,
-      boxShadow:
-        tone === 'default' ? `0px 1px 2px ${theme.shadow}, 0px 10px 28px ${theme.shadow}` : undefined,
+      boxShadow: tone === 'default' ? CardShadow : undefined,
     },
   ];
 
@@ -67,8 +66,7 @@ export function Card({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: Radius.large,
-    padding: Spacing.three + Spacing.one,
+    padding: Spacing.three,
     gap: Spacing.two,
   },
 });

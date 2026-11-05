@@ -1,10 +1,11 @@
 import { forwardRef, memo } from 'react';
 import { StyleSheet } from 'react-native';
-import RNMapView, { type Region } from 'react-native-maps';
+import RNMapView, { Polyline, type Region } from 'react-native-maps';
 
 import EventPin from '@/components/map/EventPin';
 import StorePin from '@/components/map/StorePin';
-import type { PopUpEvent, Store } from '@/types';
+import { Colors } from '@/constants/theme';
+import type { Coordinates, PopUpEvent, Store } from '@/types';
 
 /** Imperative handle the recenter button uses to animate the camera. */
 export type MapHandle = RNMapView;
@@ -16,6 +17,8 @@ export type MapViewProps = {
   store: Store | null;
   /** Currently relevant events, already date-filtered by the API. */
   events: PopUpEvent[];
+  /** A dotted line from you to the live pop-up (you first). */
+  route?: [Coordinates, Coordinates];
   onSelectStore: () => void;
   onSelectEvent: (eventId: string) => void;
 };
@@ -25,7 +28,7 @@ export type MapViewProps = {
  * react-native-maps import never reaches the web bundle — see MapView.web.tsx.
  */
 const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(
-  { initialRegion, showsUserLocation, store, events, onSelectEvent, onSelectStore },
+  { initialRegion, showsUserLocation, store, events, route, onSelectEvent, onSelectStore },
   ref,
 ) {
   return (
@@ -35,8 +38,18 @@ const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(
       initialRegion={initialRegion}
       showsUserLocation={showsUserLocation}
       showsCompass={false}
-      accessibilityLabel="Map showing the Mongmo store and pop-up events"
+      showsPointsOfInterests={false}
+      accessibilityLabel="Map showing the Mongmo café and pop-ups"
     >
+      {route ? (
+        <Polyline
+          coordinates={route}
+          strokeColor={Colors.light.brandFill}
+          strokeWidth={5}
+          lineCap="round"
+          lineDashPattern={[1, 10]}
+        />
+      ) : null}
       {store ? <StorePin store={store} onPress={onSelectStore} /> : null}
       {events.map((event) => (
         <EventPin key={event.id} event={event} onPress={() => onSelectEvent(event.id)} />

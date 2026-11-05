@@ -10,7 +10,7 @@ import Chip from '@/components/ui/Chip';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { openDirections } from '@/services/directions';
-import { useCartStore } from '@/state/cartStore';
+import { switchPickup } from '@/services/switchPickup';
 import {
   WEEKDAY_LABELS,
   WEEKDAY_ORDER,
@@ -37,10 +37,10 @@ export default function StoreSheetContent({ store, busy, onClose }: StoreSheetCo
   const today = getCurrentWeekday(store.timeZone);
 
   const onDirections = (): void => openDirections(store.coordinates, store.name);
-  const openOrder = (): void => {
-    useCartStore.getState().setLocation({ type: 'store', storeId: store.id });
+  const openOrder = async (): Promise<void> => {
+    if (!(await switchPickup({ type: 'store', storeId: store.id }))) return;
     onClose();
-    router.push('/(orders)/order/menu');
+    router.navigate('/(orders)');
   };
   const callStore = (): void => {
     Linking.openURL(`tel:${store.phone.replace(/\s+/g, '')}`).catch(() => undefined);

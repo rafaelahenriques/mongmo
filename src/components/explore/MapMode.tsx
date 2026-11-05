@@ -8,16 +8,10 @@ import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Spacing } from '@/constants/theme';
-import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { useLocationStore } from '@/state/locationStore';
-import type { Coordinates, EventFilter, PopUpEvent, Store } from '@/types';
-
-const EMPTY_FILTER_COPY: Record<EventFilter, string> = {
-  today: 'No pop-ups today.',
-  week: 'No pop-ups this week.',
-  all: 'No upcoming pop-ups.',
-};
+import type { Coordinates, PopUpEvent, Store } from '@/types';
+import { useMotion } from '@/constants/motion';
 
 const KORTRIJK_CENTER: Coordinates = { latitude: 50.8276, longitude: 3.2662 };
 
@@ -58,33 +52,34 @@ export type MapModeProps = {
   storeLoadError: boolean;
   onRetryStore: () => void;
   events: PopUpEvent[];
-  filter: EventFilter;
-  eventsEmpty: boolean;
-  eventsError: boolean;
+  /** The live pop-up the panel features: the map draws the way there. */
+  live?: PopUpEvent;
   onSelectStore: () => void;
   onSelectEvent: (eventId: string) => void;
 };
 
-/** Full-screen native map: store pin, event pins, user location dot, recenter. */
+/** The map: café and pop-up pins, your position, the way to the live one, recenter. */
 export default function MapMode({
   store,
   storeLoading,
   storeLoadError,
   onRetryStore,
   events,
-  filter,
-  eventsEmpty,
-  eventsError,
+  live,
   onSelectStore,
   onSelectEvent,
 }: MapModeProps) {
   const theme = useTheme();
-  const tabBarInset = useTabBarInset();
+  const motion = useMotion();
   const permission = useLocationStore((state) => state.permission);
   const userCoordinates = useLocationStore((state) => state.coordinates);
   const mapRef = useRef<MapHandle>(null);
 
   const initialRegion = useMemo(() => computeInitialRegion(store, events), [store, events]);
+  const route = useMemo<[Coordinates, Coordinates] | undefined>(
+    () => (live && userCoordinates ? [userCoordinates, live.coordinates] : undefined),
+    [live, userCoordinates],
+  );
 
   const onRecenter = useCallback(() => {
     if (!userCoordinates) return;
@@ -95,9 +90,9 @@ export default function MapMode({
         latitudeDelta: 0.03,
         longitudeDelta: 0.03,
       },
-      600,
+      motion.mapMoveMs,
     );
-  }, [userCoordinates]);
+  }, [userCoordinates, motion.mapMoveMs]);
 
   return (
     <View style={styles.container}>
@@ -107,6 +102,7 @@ export default function MapMode({
         showsUserLocation={permission === 'granted'}
         store={store}
         events={events}
+        route={route}
         onSelectStore={onSelectStore}
         onSelectEvent={onSelectEvent}
       />
@@ -117,52 +113,27 @@ export default function MapMode({
             {storeLoading ? (
               <>
                 <ActivityIndicator size="small" color={theme.text} />
-                <ThemedText type="small" themeColor="textSecondary" style={styles.centerText}>
-                  Loading map data…
+                <ThemedText type="caption" themeColor="textSecondary" style={styles.centerText}>
+                  Loading the map…
                 </ThemedText>
               </>
             ) : (
               <>
-                <ThemedText type="smallBold" style={styles.centerTitle}>
-                  Couldn&apos;t load the store
+                <ThemedText type="smallBold" style={styles.centerText}>
+                  Couldn&apos;t load the café
                 </ThemedText>
-                <ThemedText type="small" themeColor="textSecondary" style={styles.centerText}>
+                <ThemedText type="caption" themeColor="textSecondary" style={styles.centerText}>
                   Check your connection and try again.
                 </ThemedText>
-                <Button
-                  label="Retry"
-                  accessibilityLabel="Retry loading store data"
-                  size="medium"
-                  onPress={onRetryStore}
-                />
+                <Button label="Retry" accessibilityLabel="Retry loading the café" size="medium" onPress={onRetryStore} />
               </>
             )}
           </Card>
         </View>
       ) : null}
 
-      {store && eventsEmpty && !eventsError ? (
-        <View style={[styles.emptyWrap, { bottom: tabBarInset + 80 }]} pointerEvents="none">
-          <View
-            style={[styles.emptyCard, { backgroundColor: theme.backgroundElement, boxShadow: `0px 8px 24px ${theme.shadow}` }]}
-            accessibilityRole="text"
-            accessibilityLabel={`${EMPTY_FILTER_COPY[filter]} Tap the Mongmo store pin for hours, capacity and directions.`}
-          >
-            <ThemedText type="smallBold" style={styles.centerTitle}>
-              {EMPTY_FILTER_COPY[filter]}
-            </ThemedText>
-            <ThemedText type="small" themeColor="textSecondary" style={styles.centerText}>
-              Tap the Mongmo store pin for hours, capacity and directions.
-            </ThemedText>
-          </View>
-        </View>
-      ) : null}
-
-      <View style={[styles.recenterWrap, { bottom: tabBarInset + Spacing.three }]}>
-        <RecenterButton
-          enabled={permission === 'granted' && userCoordinates !== null}
-          onPress={onRecenter}
-        />
+      <View style={styles.recenterWrap}>
+        <RecenterButton enabled={permission === 'granted' && userCoordinates !== null} onPress={onRecenter} />
       </View>
     </View>
   );
@@ -188,24 +159,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     maxWidth: 320,
   },
-  centerTitle: {
-    textAlign: 'center',
-  },
   centerText: {
     textAlign: 'center',
-  },
-  emptyWrap: {
-    position: 'absolute',
-    left: Spacing.three,
-    right: Spacing.three,
-  },
-  emptyCard: {
-    borderRadius: 24,
-    padding: Spacing.three,
-    gap: Spacing.one,
   },
   recenterWrap: {
     position: 'absolute',
     right: Spacing.three,
+    bottom: Spacing.three,
   },
 });

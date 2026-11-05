@@ -6,9 +6,6 @@ export const GEOFENCE_RADIUS_M = 500;
 /** Per-event debounce so one entry never produces repeated push alerts. */
 export const GEOFENCE_DEBOUNCE_MS = 6 * 60 * 60 * 1000;
 
-/** Where "Order online" sends the user. */
-export const ORDER_URL = 'https://bestel.mongmo-store.com/nl';
-
 /** Public events page, used as the share URL. */
 export const EVENTS_PAGE_URL = 'https://www.mongmo-store.com/events';
 

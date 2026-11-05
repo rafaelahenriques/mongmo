@@ -7,42 +7,50 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 
 /**
- * Option chip. With `checked` it's a radio in a group (kind, duration,
- * challenge type); without, a one-tap preset button (start time).
+ * Outlined option chip, sage when picked. With `checked` it's a radio in a
+ * group (kind, duration, challenge type), or a checkbox on its own
+ * (`toggle`: extra protein); without, a one-tap preset button.
  */
 export function OptionPill({
   label,
   checked,
   icon,
+  toggle = false,
+  accessibilityLabel,
   onPress,
 }: {
   label: string;
   checked?: boolean;
   icon?: IconName;
+  /** On or off by itself, rather than one of a group. */
+  toggle?: boolean;
+  /** What a screen reader says, when the visible word isn't enough ("Add"). */
+  accessibilityLabel?: string;
   onPress: () => void;
 }) {
   const theme = useTheme();
   const selected = checked === true;
-  const color = selected ? theme.onPrimary : theme.text;
+  const color = selected ? theme.onBrand : theme.text;
   return (
     <Pressable
       onPress={() => {
         haptics.select();
         onPress();
       }}
-      accessibilityRole={checked === undefined ? 'button' : 'radio'}
+      accessibilityRole={checked === undefined ? 'button' : toggle ? 'checkbox' : 'radio'}
       accessibilityState={checked === undefined ? undefined : { checked }}
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel ?? label}
       style={({ pressed }) => [
         styles.pill,
         {
-          backgroundColor: selected ? theme.primary : theme.backgroundSelected,
+          backgroundColor: selected ? theme.brandFill : 'transparent',
+          borderColor: selected ? theme.brandFill : theme.text,
           transform: [{ scale: pressed ? 0.96 : 1 }],
         },
       ]}
     >
       {icon ? <Icon name={icon} size={14} color={color} /> : null}
-      <ThemedText type="smallBold" style={{ color }}>
+      <ThemedText type="captionBold" style={{ color }}>
         {label}
       </ThemedText>
     </Pressable>
@@ -55,7 +63,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.one + 2,
     borderRadius: Radius.pill,
-    paddingHorizontal: Spacing.three,
-    minHeight: 38,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    minHeight: 28,
   },
 });

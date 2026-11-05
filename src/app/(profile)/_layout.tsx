@@ -6,9 +6,13 @@ export default function ProfileLayout() {
   const screenOptions = useStackScreenOptions();
   return (
     <Stack screenOptions={screenOptions}>
-      <Stack.Screen name="index" options={{ headerShown: false, headerTitle: 'Profile' }} />
+      <Stack.Screen name="index" options={{ headerShown: false, headerTitle: 'Account' }} />
       <Stack.Screen name="edit" options={{ headerTitle: 'Edit profile' }} />
-      <Stack.Screen name="achievements" options={{ headerTitle: 'Achievements' }} />
+      <Stack.Screen name="settings" options={{ headerTitle: 'Settings' }} />
+      <Stack.Screen name="password" options={{ headerTitle: 'Change password' }} />
+      {/* My orders lives under Account: opening it never switches you to the Order tab. */}
+      <Stack.Screen name="orders" options={{ headerTitle: 'My orders' }} />
+      <Stack.Screen name="order/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="owner/index" options={{ headerTitle: 'Owner tools' }} />
       <Stack.Screen name="owner/events" options={{ headerTitle: 'Manage pop-ups' }} />
       <Stack.Screen name="owner/event/new" options={{ headerTitle: 'New pop-up' }} />
@@ -16,6 +20,7 @@ export default function ProfileLayout() {
       <Stack.Screen name="owner/challenge/new" options={{ headerTitle: 'New challenge' }} />
       <Stack.Screen name="owner/challenge/[id]" options={{ headerTitle: 'Edit challenge' }} />
       <Stack.Screen name="owner/orders" options={{ headerTitle: 'Orders' }} />
+      <Stack.Screen name="owner/order/[id]" options={{ headerShown: false }} />
     </Stack>
   );
 }

@@ -12,11 +12,11 @@ import { isThisWeek, isToday } from '@/utils/dateTime';
 import type { Database } from '@/types/database';
 import type {
   AchievementsResponse,
-  CheckInRecord,
   EarnedBadge,
   EventFilter,
   LeaderboardEntry,
   LeaderboardPeriod,
+  Level,
   PopUpEvent,
   ProfileStats,
   Store,
@@ -101,9 +101,26 @@ export async function getEvent(id: string): Promise<PopUpEvent> {
 /** The signed-in user's profile. */
 export async function getProfile(): Promise<UserProfile> {
   const userId = await getCurrentUserId();
-  const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+  const read = () => supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+  let { data, error } = await read();
   if (error) throw toApiError(error);
+  if (!data) {
+    // Signed in but no profile (an older account): make it, then read it.
+    await ensureProfile();
+    ({ data, error } = await read());
+    if (error) throw toApiError(error);
+    if (!data) throw new Error('Couldn’t set up your profile.');
+  }
   return profileRowToUserProfile(data);
+}
+
+/**
+ * Makes the signed-in user's profile if it's missing (0019_ensure_profile.sql).
+ * Orders, check-ins and points all hang off it.
+ */
+export async function ensureProfile(): Promise<void> {
+  const { error } = await supabase.rpc('ensure_profile');
+  if (error) throw toApiError(error);
 }
 
 export type ProfileEdit = {
@@ -217,6 +234,130 @@ export async function getPointsBalance(): Promise<number> {
   return data;
 }
 
+/** The points an order actually earned once collected (null before that). */
+export async function getOrderPoints(orderId: string): Promise<number | null> {
+  const { data, error } = await supabase
+    .from('point_events')
+    .select('points')
+    .eq('source', 'order')
+    .eq('source_id', orderId)
+    .maybeSingle();
+  if (error) throw toApiError(error);
+  return data?.points ?? null;
+}
+
+/** The loyalty levels, lowest first (Dough, Rising, Golden, Crisp). */
+export async function getLevels(): Promise<Level[]> {
+  const { data, error } = await supabase.from('levels').select('*').order('min_points');
+  if (error) throw toApiError(error);
+  return data.map((row) => ({
+    key: row.key,
+    name: row.name,
+    minPoints: row.min_points,
+    orderBonusPct: row.order_bonus_pct,
+    perk: row.perk,
+  }));
+}
+
+/**
+ * Your lifetime points (everything ever earned: the level comes from it) and
+ * whether your next collected order still earns the welcome double.
+ */
+export async function getLoyalty(): Promise<{ lifetimePoints: number; firstOrderBonus: boolean }> {
+  const { data, error } = await supabase.rpc('my_loyalty');
+  if (error) throw toApiError(error);
+  const row = data[0];
+  return { lifetimePoints: row?.lifetime_points ?? 0, firstOrderBonus: row?.first_order_bonus ?? true };
+}
+
+/** One line of the points ledger, with what it was for. */
+export type PointsHistoryEntry = {
+  id: string;
+  points: number;
+  source: 'challenge_completion' | 'badge' | 'reward_redeemed' | 'order';
+  /** The challenge, badge or reward. */
+  title: string;
+  /** The pop-up a challenge belonged to. */
+  place: string | null;
+  challengeType: string | null;
+  createdAt: string;
+};
+
+type CompletionTitleRow = {
+  id: string;
+  challenges: { title: string; type: string; events: { title: string } | null } | null;
+};
+
+/**
+ * The points ledger, newest first, with each entry's challenge, badge or
+ * reward resolved to a title (RLS limits every table to the user's own rows).
+ */
+export async function getPointsHistory(limit = 50): Promise<PointsHistoryEntry[]> {
+  const { data: rows, error } = await supabase
+    .from('point_events')
+    .select('id, points, source, source_id, created_at')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw toApiError(error);
+  const idsFor = (source: string) =>
+    rows.filter((row) => row.source === source && row.source_id).map((row) => row.source_id as string);
+
+  const [completions, badges, rewards, orders] = await Promise.all([
+    supabase.from('challenge_completions').select('id, challenges(title, type, events(title))').in('id', idsFor('challenge_completion')),
+    supabase.from('user_badges').select('id, badges(title)').in('id', idsFor('badge')),
+    supabase.from('user_rewards').select('id, rewards(title)').in('id', idsFor('reward_redeemed')),
+    supabase.from('orders').select('id, events(title), stores(name)').in('id', idsFor('order')),
+  ]);
+  for (const result of [completions, badges, rewards, orders]) if (result.error) throw toApiError(result.error);
+
+  const completionById = new Map(
+    ((completions.data ?? []) as unknown as CompletionTitleRow[]).map((row) => [row.id, row.challenges]),
+  );
+  const badgeById = new Map(
+    ((badges.data ?? []) as unknown as { id: string; badges: { title: string } | null }[]).map((row) => [row.id, row.badges]),
+  );
+  const orderPlaceById = new Map(
+    (
+      (orders.data ?? []) as unknown as {
+        id: string;
+        events: { title: string } | null;
+        stores: { name: string } | null;
+      }[]
+    ).map((row) => [row.id, row.events?.title ?? row.stores?.name ?? null]),
+  );
+  const rewardById = new Map(
+    ((rewards.data ?? []) as unknown as { id: string; rewards: { title: string } | null }[]).map((row) => [row.id, row.rewards]),
+  );
+
+  return rows.map((row) => {
+    const challenge = row.source === 'challenge_completion' ? completionById.get(row.source_id ?? '') : null;
+    const title =
+      row.source === 'challenge_completion'
+        ? (challenge?.title ?? 'Challenge')
+        : row.source === 'badge'
+          ? `Badge: ${badgeById.get(row.source_id ?? '')?.title ?? 'unlocked'}`
+          : row.source === 'order'
+            ? 'Order picked up'
+            : `Reward redeemed`;
+    return {
+      id: row.id,
+      points: row.points,
+      source: row.source,
+      title,
+      place:
+        row.source === 'challenge_completion'
+          ? (challenge?.events?.title ?? null)
+          : row.source === 'reward_redeemed'
+            ? (rewardById.get(row.source_id ?? '')?.title ?? null)
+            : row.source === 'order'
+              ? (orderPlaceById.get(row.source_id ?? '') ?? null)
+              : null,
+      challengeType: challenge?.type ?? null,
+      createdAt: row.created_at,
+    };
+  });
+}
+
 /** Cumulative stats for the Profile screen (events attended, orders, etc.). */
 export async function getProfileStats(): Promise<ProfileStats> {
   const { data, error } = await supabase.rpc('my_stats');
@@ -224,10 +365,11 @@ export async function getProfileStats(): Promise<ProfileStats> {
   return statsRowToProfileStats(data[0]);
 }
 
-/** Spends points on a reward; the server validates balance + expiry. */
-export async function redeemReward(rewardId: string): Promise<void> {
-  const { error } = await supabase.rpc('redeem_reward', { p_reward_id: rewardId });
+/** Spends points on a reward; the server validates balance + expiry. Resolves to the redeemed reward's id. */
+export async function redeemReward(rewardId: string): Promise<string> {
+  const { data, error } = await supabase.rpc('redeem_reward', { p_reward_id: rewardId });
   if (error) throw toApiError(error);
+  return (data as { id: string }).id;
 }
 
 /** Verifies + records a check-in: QR token match, event window, geofence. */
@@ -243,43 +385,6 @@ export async function verifyCheckIn(
     p_longitude: coordinates.longitude,
   });
   if (error) throw toApiError(error);
-}
-
-type VisitedEventRow = {
-  checked_in_at: string;
-  events: {
-    id: string;
-    title: string;
-    city: string;
-    image_url: string | null;
-    starts_at: string;
-  } | null;
-};
-
-/** Past check-ins joined with their event, newest first — powers the photo gallery. */
-export async function getVisitedEvents(): Promise<CheckInRecord[]> {
-  // Scoped explicitly: RLS also lets an owner read every customer's check-ins.
-  const userId = await getCurrentUserId();
-  const { data, error } = await supabase
-    .from('check_ins')
-    .select('checked_in_at, events(id, title, city, image_url, starts_at)')
-    .eq('user_id', userId)
-    .order('checked_in_at', { ascending: false })
-    .returns<VisitedEventRow[]>();
-  if (error) throw toApiError(error);
-
-  return data
-    .filter((row): row is VisitedEventRow & { events: NonNullable<VisitedEventRow['events']> } =>
-      row.events !== null,
-    )
-    .map((row) => ({
-      eventId: row.events.id,
-      title: row.events.title,
-      city: row.events.city,
-      imageUrl: row.events.image_url ?? '',
-      startsAt: row.events.starts_at,
-      checkedInAt: row.checked_in_at,
-    }));
 }
 
 /** Other members' leaderboard scores for a period, aggregated server-side. */

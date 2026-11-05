@@ -1,11 +1,4 @@
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  View,
-  type StyleProp,
-  type ViewStyle,
-} from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Icon, type IconName } from '@/components/ui/Icon';
@@ -17,8 +10,10 @@ export type ButtonProps = {
   label: string;
   onPress: () => void;
   /**
-   * primary: Shadow Grey pill · brand: Weathered Sage (the one main action on a
-   * screen) · secondary: Paper · ghost: rose fill · danger: rose, red label.
+   * The hierarchy: one filled button per group, the rest outlined.
+   * brand: sage, the main action · primary: ink, a main action on sage or
+   * where sage is already taken · secondary (and ghost): outlined in ink,
+   * a second action · danger: outlined in red, for removing things.
    */
   variant?: 'primary' | 'brand' | 'secondary' | 'ghost' | 'danger';
   size?: 'large' | 'medium' | 'small';
@@ -26,7 +21,7 @@ export type ButtonProps = {
   /** A trailing arrow in a circle, for "go somewhere" actions. */
   arrow?: boolean;
   loading?: boolean;
-  /** Muted rose with a grey label, still readable (AA) rather than faded out. */
+  /** Light stone with a grey label, still readable (AA) rather than faded out. */
   disabled?: boolean;
   /** Feedback on press; `press` for weightier actions. */
   haptic?: 'tap' | 'press' | 'none';
@@ -36,11 +31,13 @@ export type ButtonProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-const HEIGHT = { large: 56, medium: 46, small: 36 } as const;
-const PADDING = { large: Spacing.four, medium: Spacing.three, small: Spacing.three } as const;
+const HEIGHT = { large: 52, medium: 44, small: 32 } as const;
+const OUTLINED = new Set<ButtonProps['variant']>(['secondary', 'ghost', 'danger']);
+const PADDING = { large: 20, medium: Spacing.three, small: 14 } as const;
 
 /**
- * Pill button. Shrinks a touch when pressed; labels stay at AA contrast.
+ * Block button: square, its label heavy and uppercase. Shrinks a touch
+ * when pressed; labels stay at AA contrast.
  * The label never leaves the pill: if the button is narrower than it, it
  * ends with "…" (lay buttons out with ButtonRow so that stays rare).
  */
@@ -64,9 +61,9 @@ export function Button({
     : {
         primary: { background: theme.primary, foreground: theme.onPrimary },
         brand: { background: theme.brandFill, foreground: theme.onBrand },
-        secondary: { background: theme.backgroundElement, foreground: theme.text },
-        ghost: { background: theme.backgroundSelected, foreground: theme.text },
-        danger: { background: theme.backgroundSelected, foreground: theme.danger },
+        secondary: { background: 'transparent', foreground: theme.text },
+        ghost: { background: 'transparent', foreground: theme.text },
+        danger: { background: 'transparent', foreground: theme.danger },
       }[variant];
   const inactive = disabled || loading;
   const iconSize = size === 'small' ? 15 : 18;
@@ -89,7 +86,9 @@ export function Button({
           paddingHorizontal: PADDING[size],
           paddingRight: arrow ? Spacing.one + 2 : undefined,
           backgroundColor: colors.background,
-          boxShadow: variant === 'secondary' && !disabled ? `0px 4px 14px ${theme.shadow}` : undefined,
+          // Outlined variants keep a 1.5pt ring in their label's colour.
+          borderWidth: OUTLINED.has(variant) && !disabled ? 1.5 : 0,
+          borderColor: colors.foreground,
           transform: [{ scale: pressed && !inactive ? 0.97 : 1 }],
         },
         style,
@@ -122,7 +121,8 @@ export function Button({
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: Radius.pill,
+    // Square blocks, like the app's cards and bars.
+    borderRadius: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -147,12 +147,12 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   smallLabel: {
-    fontSize: 14,
-    lineHeight: 18,
+    fontSize: 12,
+    lineHeight: 16,
   },
   arrow: {
-    width: 36,
-    height: 36,
+    width: 32,
+    height: 32,
     borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
