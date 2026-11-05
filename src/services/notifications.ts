@@ -1,8 +1,11 @@
 import * as Notifications from 'expo-notifications';
+import { AndroidImportance } from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import { log } from '@/lib/log';
+
 /**
- * SDK 57 notification behavior: show a banner + list entry with sound while
+ * Show a banner + list entry with sound while
  * the app is in the foreground.
  */
 export function configureNotifications(): void {
@@ -27,7 +30,7 @@ export async function ensureNotificationPermission(): Promise<boolean> {
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('default', {
         name: 'Pop-up alerts',
-        importance: Notifications.AndroidImportance.DEFAULT,
+        importance: AndroidImportance.DEFAULT,
         vibrationPattern: [0, 200],
         lightColor: '#388075',
       });
@@ -39,7 +42,7 @@ export async function ensureNotificationPermission(): Promise<boolean> {
     const requested = await Notifications.requestPermissionsAsync();
     return requested.granted;
   } catch (error) {
-    console.warn('Notification permission request failed', error);
+    log.warn('notifications', 'permission request failed', error);
     return false;
   }
 }
@@ -81,7 +84,7 @@ export async function notifyNow({ title, body, url }: LocalNotification): Promis
       trigger: null,
     });
   } catch (error) {
-    console.warn('Could not show notification', error);
+    log.warn('notifications', 'could not show notification', error);
   }
 }
 
@@ -99,8 +102,8 @@ export async function sendTestNotification(): Promise<boolean> {
 /** Content for a "you're near a pop-up" alert (geofence task and foreground check). */
 export function nearbyNotification(event: { id: string; title: string; city: string }): LocalNotification {
   return {
-    title: `${event.title} is nearby`,
-    body: `You're within 500 m of the pop-up in ${event.city}. Tap to see details.`,
-    url: `/(explore)/event/${event.id}`,
+    title: "You're 500 m away",
+    body: `${event.title} is live. Check in when you get there.`,
+    url: `/(popups)/event/${event.id}`,
   };
 }

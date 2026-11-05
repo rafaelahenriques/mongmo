@@ -213,6 +213,41 @@ export async function getOwnerOrders(): Promise<OwnerOrderRow[]> {
   return data;
 }
 
+/** Who ordered and what's in it, for the owner's board and order detail. */
+export type OwnerOrderInfo = {
+  name: string | null;
+  lines: { id: string; name: string; options: string | null; quantity: number; totalCents: number }[];
+};
+
+export async function getOwnerOrderInfo(orders: OwnerOrderRow[]): Promise<Record<string, OwnerOrderInfo>> {
+  if (orders.length === 0) return {};
+  const [people, items] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, name')
+      .in('id', [...new Set(orders.map((order) => order.user_id))]),
+    supabase
+      .from('order_items')
+      .select('id, order_id, name_snapshot, options_snapshot, quantity, line_total_cents')
+      .in('order_id', orders.map((order) => order.id)),
+  ]);
+  if (people.error) throw toApiError(people.error);
+  if (items.error) throw toApiError(items.error);
+  const names = new Map(people.data.map((person) => [person.id, person.name]));
+  const info: Record<string, OwnerOrderInfo> = {};
+  for (const order of orders) info[order.id] = { name: names.get(order.user_id) ?? null, lines: [] };
+  for (const row of items.data) {
+    info[row.order_id]?.lines.push({
+      id: row.id,
+      name: row.name_snapshot,
+      options: row.options_snapshot,
+      quantity: row.quantity,
+      totalCents: row.line_total_cents,
+    });
+  }
+  return info;
+}
+
 export async function advanceOrderStatus(
   orderId: string,
   status: 'preparing' | 'ready' | 'collected' | 'cancelled',

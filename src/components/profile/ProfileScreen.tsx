@@ -5,18 +5,16 @@ import { formatInTimeZone } from 'date-fns-tz';
 
 import { Avatar } from '@/components/profile/Avatar';
 import PhotoGallery from '@/components/profile/PhotoGallery';
-import SettingsPanel from '@/components/profile/SettingsPanel';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import Chip from '@/components/ui/Chip';
 import { IconBadge } from '@/components/ui/IconBadge';
-import { IconButton } from '@/components/ui/IconButton';
 import { ListRow } from '@/components/ui/ListRow';
 import { ScreenScroll, SectionHeader } from '@/components/ui/Screen';
-import { StatRow } from '@/components/ui/StatRow';
+import { TopBar } from '@/components/ui/TopBar';
 import { Spacing } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
+import { useAuthUser } from '@/hooks/useAuthUser';
+import { useMyOrders } from '@/hooks/useMyOrders';
 import { useMyPhotos } from '@/hooks/usePhotos';
 import { useProfile } from '@/hooks/useProfile';
 import { useTheme } from '@/hooks/useTheme';
@@ -24,18 +22,22 @@ import { confirmLogOut } from '@/services/auth';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 
 /**
- * Profile tab: who you are, your numbers, a jump into achievements (and
- * owner tools for owners), the photo gallery of past check-ins, and
- * settings (notifications, appearance, privacy, log out).
+ * Account (from the person in the top bar): who you are, then
+ * achievements, your orders, owner tools for owners, edit profile and
+ * settings, and the photos you took for challenges.
  */
 export default function ProfileScreen() {
   const theme = useTheme();
   const router = useRouter();
   const profile = useProfile();
-  const { summary } = useAchievements();
+  const email = useAuthUser().data?.email;
+  const achievements = useAchievements();
+  const { summary } = achievements;
+  const orders = useMyOrders();
+  const back = () => (router.canGoBack() ? router.back() : router.replace('/(home)'));
   const photos = useMyPhotos();
 
-  const openAchievements = useCallback(() => router.push('/(profile)/achievements'), [router]);
+  const openAchievements = useCallback(() => router.push('/(achievements)/achievements'), [router]);
   const openOwnerTools = useCallback(() => router.push('/(profile)/owner'), [router]);
 
   if (profile.isPending) {
@@ -70,80 +72,64 @@ export default function ProfileScreen() {
 
   const user = profile.data;
   const memberSince = formatInTimeZone(new Date(user.memberSince), DISPLAY_TIME_ZONE, 'MMM yyyy');
+  const badgeCount = achievements.query.data?.badges.length ?? 0;
+  const current = (orders.data ?? []).filter((order) => ['paid', 'preparing', 'ready'].includes(order.status));
 
   return (
-    <ScreenScroll topInset>
-      <View style={styles.identity}>
-        <Avatar name={user.name} url={user.avatarUrl} />
-        <View style={styles.identityTexts}>
-          <ThemedText type="title" numberOfLines={2} accessibilityRole="header">
-            {user.name}
-          </ThemedText>
-          {user.bio ? (
-            <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
-              {user.bio}
+    <View style={[styles.screen, { backgroundColor: theme.background }]}>
+      <TopBar title="Account" onBack={back} />
+      <ScreenScroll>
+        <View style={styles.identity}>
+          <Avatar name={user.name} url={user.avatarUrl} />
+          <View style={styles.identityTexts}>
+            <ThemedText type="title" numberOfLines={2} accessibilityRole="header">
+              {user.name}
             </ThemedText>
-          ) : null}
+            {email ? (
+              <ThemedText type="captionBold" numberOfLines={1} selectable>
+                {email}
+              </ThemedText>
+            ) : null}
+            <ThemedText type="caption" themeColor="textSecondary">
+              {[user.homeCity, `Since ${memberSince}`, user.role === 'owner' ? 'Owner' : null]
+                .filter(Boolean)
+                .join(' · ')}
+            </ThemedText>
+          </View>
         </View>
-        <IconButton
-          icon="edit"
-          tone="card"
-          size={40}
-          onPress={() => router.push('/(profile)/edit')}
-          accessibilityLabel="Edit profile"
+
+        <View>
+          <ListRow
+            title="Achievements"
+            value={badgeCount ? `${summary.earned.length} of ${badgeCount}` : undefined}
+            onPress={openAchievements}
+          />
+          <ListRow
+            title="My orders"
+            value={current.length ? `${current.length} on the way` : undefined}
+            onPress={() => router.push('/(profile)/orders')}
+          />
+          {user.role === 'owner' ? (
+            <ListRow title="Owner tools" subtitle="Pop-ups, challenges and orders" onPress={openOwnerTools} />
+          ) : null}
+          <ListRow title="Edit profile" onPress={() => router.push('/(profile)/edit')} />
+          <ListRow title="Settings" onPress={() => router.push('/(profile)/settings')} last />
+        </View>
+
+        <SectionHeader title="Your photos" />
+        <PhotoGallery
+          photos={photos.data ?? []}
+          emptyText="Photos you take for challenges show up here. Check in at a pop-up and try a photo challenge."
         />
-      </View>
-      <View style={styles.chips}>
-        {user.homeCity ? <Chip label={user.homeCity} icon="pin" /> : null}
-        <Chip label={`Since ${memberSince}`} icon="calendar" />
-        {user.role === 'owner' ? <Chip label="Owner" tone="dark" icon="store" /> : null}
-      </View>
-
-      <StatRow
-        stats={[
-          { label: 'Events', value: String(summary.eventsAttended), caption: 'attended' },
-          { label: 'Points', value: summary.points.toLocaleString(), caption: 'earned', emphasis: true },
-          { label: 'Badges', value: String(summary.earned.length), caption: 'unlocked' },
-        ]}
-      />
-
-      <Card style={styles.links}>
-        <ListRow
-          title="Achievements"
-          subtitle="Badges, rewards and the leaderboard"
-          icon="trophy"
-          iconTone="accent"
-          onPress={openAchievements}
-          accessibilityLabel="View your achievements and rewards"
-        />
-        {user.role === 'owner' ? (
-          <>
-            <View style={[styles.divider, { backgroundColor: theme.border }]} />
-            <ListRow
-              title="Owner tools"
-              subtitle="Pop-ups, challenges, menus and orders"
-              icon="store"
-              iconTone="primary"
-              onPress={openOwnerTools}
-              accessibilityLabel="Owner tools: manage events, challenges and orders"
-            />
-          </>
-        ) : null}
-      </Card>
-
-      <SectionHeader title="Your photos" />
-      <PhotoGallery
-        photos={photos.data ?? []}
-        emptyText="Photos you take for challenges show up here. Check in at a pop-up and try a photo challenge."
-      />
-
-      <SectionHeader title="Settings" />
-      <SettingsPanel />
-    </ScreenScroll>
+      </ScreenScroll>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
   identity: {
     flexDirection: 'row',
     alignItems: 'center',

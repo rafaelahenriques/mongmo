@@ -44,7 +44,7 @@ export function useRewardExpiryNotifications(): void {
           content: {
             title: 'Reward expiring soon',
             body: `${reward.title} expires soon — redeem it before it's gone.`,
-            data: { url: '/(profile)/achievements' },
+            data: { url: '/(wallet)' },
             sound: true,
           },
           trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: new Date(fireAt) },

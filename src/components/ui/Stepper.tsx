@@ -1,10 +1,15 @@
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { IconButton } from '@/components/ui/IconButton';
-import { Spacing } from '@/constants/theme';
+import { Radius, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/services/haptics';
 
-/** − 2 + control. Labels name the thing being counted. */
+/**
+ * − 2 + control. Labels name the thing being counted. `medium` is the
+ * design's small sage pill (menu rows, cart); `large` uses round buttons.
+ */
 export function Stepper({
   value,
   onChange,
@@ -26,21 +31,69 @@ export function Stepper({
   formatValue?: (value: number) => string;
   size?: 'medium' | 'large';
 }) {
-  const button = size === 'large' ? 48 : 34;
+  const theme = useTheme();
+  const canDecrease = value - step >= min;
+  const canIncrease = value + step <= max;
+
+  if (size === 'medium') {
+    const tap = (next: number) => {
+      haptics.select();
+      onChange(next);
+    };
+    return (
+      <View style={[styles.pill, { backgroundColor: theme.brandFill }]}>
+        <Pressable
+          onPress={() => tap(Math.max(min, value - step))}
+          disabled={!canDecrease}
+          accessibilityRole="button"
+          accessibilityLabel={`Decrease ${label}`}
+          accessibilityState={{ disabled: !canDecrease }}
+          hitSlop={8}
+          style={styles.pillButton}
+        >
+          <ThemedText type="captionBold" style={{ color: theme.onBrand, opacity: canDecrease ? 1 : 0.4 }}>
+            −
+          </ThemedText>
+        </Pressable>
+        <ThemedText
+          type="captionBold"
+          style={[styles.pillValue, { color: theme.onBrand }]}
+          accessibilityLabel={`${label}: ${formatValue(value)}`}
+          accessibilityLiveRegion="polite"
+        >
+          {formatValue(value)}
+        </ThemedText>
+        <Pressable
+          onPress={() => tap(Math.min(max, value + step))}
+          disabled={!canIncrease}
+          accessibilityRole="button"
+          accessibilityLabel={`Increase ${label}`}
+          accessibilityState={{ disabled: !canIncrease }}
+          hitSlop={8}
+          style={styles.pillButton}
+        >
+          <ThemedText type="captionBold" style={{ color: theme.onBrand, opacity: canIncrease ? 1 : 0.4 }}>
+            +
+          </ThemedText>
+        </Pressable>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.row}>
       <IconButton
         icon="remove"
         tone="muted"
-        size={button}
+        size={48}
         haptic="select"
-        disabled={value - step < min}
+        disabled={!canDecrease}
         onPress={() => onChange(Math.max(min, value - step))}
         accessibilityLabel={`Decrease ${label}`}
       />
       <ThemedText
-        type={size === 'large' ? 'subtitle' : 'smallBold'}
-        style={[styles.value, { minWidth: size === 'large' ? 40 : 28 }]}
+        type="subtitle"
+        style={[styles.value, { minWidth: 40 }]}
         accessibilityLabel={`${label}: ${formatValue(value)}`}
         accessibilityLiveRegion="polite"
       >
@@ -49,9 +102,9 @@ export function Stepper({
       <IconButton
         icon="add"
         tone="muted"
-        size={button}
+        size={48}
         haptic="select"
-        disabled={value + step > max}
+        disabled={!canIncrease}
         onPress={() => onChange(Math.min(max, value + step))}
         accessibilityLabel={`Increase ${label}`}
       />
@@ -66,6 +119,24 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   value: {
+    textAlign: 'center',
+  },
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 40,
+    borderRadius: Radius.pill,
+    paddingHorizontal: Spacing.one,
+  },
+  // 40 × 40 at least: big enough to hit, and they grow with the text.
+  pillButton: {
+    minWidth: 40,
+    minHeight: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pillValue: {
+    minWidth: 20,
     textAlign: 'center',
   },
 });

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { CHALLENGE_TYPE_ORDER, CHALLENGE_TYPES } from '@/components/challenges/challengeTypes';
@@ -17,6 +17,7 @@ import { useOwnerChallenges } from '@/hooks/useOwnerChallenges';
 import { useOwnerEvent } from '@/hooks/useOwnerEvent';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
+import { confirm } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import type { Challenge, ChallengeRules } from '@/types';
 import {
@@ -121,17 +122,14 @@ function ChallengeForm({
     else create.mutate(input, done);
   };
 
-  const onDelete = () => {
+  const onDelete = async () => {
     if (!existing) return;
     haptics.warning();
-    Alert.alert('Delete this challenge?', 'People who already completed it keep their points.', [
-      { text: 'Keep it', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => remove.mutate(existing.id, { onSuccess: () => router.back() }),
-      },
-    ]);
+    const yes = await confirm('Delete this challenge?', 'People who already completed it keep their points.', 'Delete', {
+      cancelLabel: 'Keep it',
+      destructive: true,
+    });
+    if (yes) remove.mutate(existing.id, { onSuccess: () => router.back() });
   };
 
   return (

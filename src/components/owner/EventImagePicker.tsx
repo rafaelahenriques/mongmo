@@ -10,8 +10,10 @@ import { ButtonRow } from '@/components/ui/ButtonRow';
 import { IconBadge } from '@/components/ui/IconBadge';
 import { inkAlpha, Paper, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { errorMessage } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import { hasNativeFeature, UPDATE_APP_MESSAGE } from '@/services/nativeModules';
+import { useMotion } from '@/constants/motion';
 
 const PICKER_OPTIONS: ImagePickerOptions = {
   mediaTypes: ['images'],
@@ -26,13 +28,17 @@ const PICKER_OPTIONS: ImagePickerOptions = {
  */
 export function EventImagePicker({ value, onChange }: { value: string; onChange: (url: string) => void }) {
   const theme = useTheme();
+  const motion = useMotion();
   const [uploading, setUploading] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
+  /** The photo just removed, so it can be put back (nothing's saved until the form is). */
+  const [removed, setRemoved] = useState<string | null>(null);
 
   const available = hasNativeFeature('imagePicker');
 
   const choose = async (source: 'library' | 'camera') => {
     setProblem(null);
+    setRemoved(null);
     try {
       // Loaded on demand: see services/nativeModules.ts.
       const ImagePicker = await import('expo-image-picker');
@@ -55,7 +61,7 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
       haptics.success();
     } catch (error) {
       haptics.error();
-      setProblem(error instanceof Error ? error.message : 'Couldn’t upload that photo.');
+      setProblem(errorMessage(error, 'Couldn’t upload that photo.'));
     } finally {
       setUploading(false);
     }
@@ -69,7 +75,7 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
             source={{ uri: value }}
             style={StyleSheet.absoluteFill}
             contentFit="cover"
-            transition={200}
+            transition={motion.imageFadeMs}
             accessibilityLabel="The pop-up's photo"
           />
         ) : (
@@ -114,7 +120,31 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
         ) : null}
       </ButtonRow>
       {value ? (
-        <Button label="Remove photo" variant="danger" size="small" icon="trash" onPress={() => onChange('')} />
+        <Button
+          label="Remove photo"
+          variant="danger"
+          size="small"
+          icon="trash"
+          onPress={() => {
+            setRemoved(value);
+            onChange('');
+          }}
+        />
+      ) : removed ? (
+        <View style={styles.undo} accessibilityLiveRegion="polite">
+          <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
+            Photo removed.
+          </ThemedText>
+          <Button
+            label="Undo"
+            variant="ghost"
+            size="small"
+            onPress={() => {
+              onChange(removed);
+              setRemoved(null);
+            }}
+          />
+        </View>
       ) : null}
 
       {problem ? (
@@ -129,6 +159,14 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
 const styles = StyleSheet.create({
   container: {
     gap: Spacing.three,
+  },
+  undo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  flex: {
+    flex: 1,
   },
   preview: {
     aspectRatio: 16 / 9,

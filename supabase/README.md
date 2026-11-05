@@ -14,8 +14,10 @@ Postgres so the client can only ever *ask*, never *decide*.
 2. Apply the schema, in order:
    ```bash
    npx supabase link --project-ref <your-project-ref>   # skip for local
-   npx supabase db push                                  # applies supabase/migrations/*.sql
+   npx supabase db push --remote                         # applies supabase/migrations/*.sql
    ```
+   Since CLI 3, `db push` targets the local stack unless you pass `--remote`
+   (without it you get `connect ECONNREFUSED 127.0.0.1:54322`).
    For local development, `npx supabase db reset` applies every migration
    **and** `supabase/seed.sql` in one step.
 3. **Seed a hosted project.** `db push` only runs migrations — it never
@@ -33,7 +35,7 @@ Postgres so the client can only ever *ask*, never *decide*.
 5. `npm install`, then run a development build (see the root README — this
    app doesn't run in Expo Go).
 
-Without step 4, `src/lib/supabase.ts` throws immediately on launch with a
+Without step 4, `src/lib/env.ts` throws immediately on launch with a
 message pointing back here — the app intentionally has no mock fallback
 left, per "no hardcoded/mock data."
 
@@ -56,6 +58,13 @@ left, per "no hardcoded/mock data."
 | `0013_event_images.sql` | `event-images` bucket for uploaded pop-up photos (public read, owner-only writes, images up to 5 MB); caps challenge photos at 10 MB. |
 | `0014_more_badges.sql` | Five more badges — city-hopper, event-hopper, shutterbug, taste-tester, challenge-champion — and the extended `evaluate_badges()` that awards them (distinct check-in cities/events, photo/taste challenge completions, 10 challenges total). |
 | `0015_live_orders_motion_badges.sql` | **Security fix:** `award_badge`/`evaluate_badges` are no longer callable through the API (anyone signed in could award themselves badges). Pop-up orders only while the pop-up runs; the `motion` (dance meter) challenge type; a starter photo challenge on every new pop-up; four more badges — night-owl, dance-machine, crowd-voice, early-bird — with `badge_progress()` as the single definition of every badge's rule (`evaluate_badges` awards from it, `my_badge_progress()` shows progress in the app). |
+| `0016_delete_account.sql` | `delete_my_account()`: Settings → Delete account. Removes the signed-in user, their orders and everything that hangs off their profile; pop-ups an owner created stay, without a creator. |
+| `0017_item_options.sql` | Item options: `menu_items.add_on_for` marks a dip or extra protein as an option for a section; order lines carry their options (`order_items.options_snapshot`) and `create_order` prices them. |
+| `0018_points_rules.sql` | Points that pay for themselves: orders earn 10 points per euro once collected; challenges earn at most 50 points a day per pop-up; smaller badge bonuses; rewards cost whole stamps (1 stamp = 100 points). |
+| `0019_ensure_profile.sql` | `ensure_profile()`: makes a missing profile for the signed-in account (orders, check-ins and points all need one). |
+| `0020_delete_account_photos.sql` | Deleting an account deletes the photo files too: people may delete their own `challenge-photos/<id>/` files (the app removes them first), and `delete_my_account()` refuses while any remain. Everything else cascades from the login (see the function's comment). |
+| `0021_levels.sql` | Levels from lifetime points (everything ever earned, so redeeming never lowers it): Dough 0, Rising 500 (+10% points on orders), Golden 1,500 (+25%), Crisp 4,000 (+50%), named after the bánh mì's bake. A first collected order earns double. Three rewards only a level can redeem (tote bag, stew, 2 bánh mì); `redeem_reward` checks the level. The app reads `levels` and `my_loyalty()`. |
+| `0022_level_names.sql` | Renames the levels from 0021's first names (Rice, Bamboo, Lotus, Jade) to Dough, Rising, Golden, Crisp on a database that already has them; nothing on a fresh one. |
 
 ### Points ledger, not a running total
 
@@ -122,9 +131,9 @@ update public.profiles set role = 'owner'
 where id = (select id from auth.users where email = 'you@example.com');
 ```
 
-Then **log out and sign back in** in the app (Profile → Log out): the app
+Then **log out and sign back in** in the app (Account → Settings → Log out): the app
 caches your profile, so it won't notice the new role until it refetches.
-Once you're an owner, the Profile tab shows an "Owner tools" card, and you can promote others from
+Once you're an owner, Account (the person in the top bar) shows "Owner tools", and you can promote others from
 there too if owner UI for that gets added later (right now, only the schema
 supports it — see `is_owner()` and the `prevent_role_escalation` trigger).
 
@@ -156,9 +165,9 @@ tab's error state shows the same message. Match it here:
 
 | Message | Cause → fix |
 |---|---|
-| `permission denied for table …` | The role has no table grant → `npx supabase db push` (applies `0007_explicit_grants.sql`). |
+| `permission denied for table …` | The role has no table grant → `npx supabase db push --remote` (applies `0007_explicit_grants.sql`). |
 | `Cannot coerce the result to a single JSON object` (zero rows) on `["store"]` | No seed data → run `seed.sql` in the SQL Editor (Setup step 3). |
-| the same on `["profile"]` | Your account has no `profiles` row → `npx supabase db push` (applies `0008_backfill_profiles.sql`). |
+| the same on `["profile"]` | Your account has no `profiles` row → `npx supabase db push --remote` (applies `0008_backfill_profiles.sql`). |
 | `JWT expired` / `invalid JWT` | Stale session → Profile → Log out, then sign in again. |
 
 **"There's no login screen."** That's expected once you've signed in: the

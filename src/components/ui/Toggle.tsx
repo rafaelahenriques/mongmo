@@ -1,38 +1,68 @@
-import { Platform, Switch } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
+import Animated, { ReduceMotion, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 
-import { Paper } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
+import { MOTION } from '@/constants/motion';
+
+const WIDTH = 46;
+const HEIGHT = 26;
+const KNOB = 20;
+const TRAVEL = WIDTH - KNOB - 6;
 
 /**
- * The app's switch: deep sage when on (3:1 or more against any surface it
- * sits on), a selection tick of haptics on change.
- * react-native-web colours the "on" thumb from its own `activeThumbColor`
- * prop (teal by default), which React Native's types don't include.
+ * The app's switch, drawn to the design: sage track with a dark knob when
+ * on, stone track with a light knob when off. A selection tick of haptics
+ * on change. Reads as a switch to screen readers.
  */
 export function Toggle({
   value,
   onValueChange,
   accessibilityLabel,
+  disabled = false,
 }: {
   value: boolean;
   onValueChange: (value: boolean) => void;
   accessibilityLabel: string;
+  disabled?: boolean;
 }) {
   const theme = useTheme();
-  const webProps = Platform.OS === 'web' ? { activeThumbColor: Paper } : {};
+  const knob = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: withTiming(value ? TRAVEL : 0, { duration: MOTION.toggleMs, reduceMotion: ReduceMotion.System }) },
+    ],
+  }));
+
   return (
-    <Switch
-      value={value}
-      onValueChange={(next) => {
+    <Pressable
+      onPress={() => {
         haptics.select();
-        onValueChange(next);
+        onValueChange(!value);
       }}
+      accessibilityRole="switch"
       accessibilityLabel={accessibilityLabel}
-      trackColor={{ true: theme.brand, false: theme.backgroundSelected }}
-      thumbColor={Paper}
-      ios_backgroundColor={theme.backgroundSelected}
-      {...webProps}
-    />
+      accessibilityState={{ checked: value, disabled }}
+      disabled={disabled}
+      hitSlop={8}
+      style={[styles.track, { backgroundColor: value ? theme.brandFill : theme.outline, opacity: disabled ? 0.5 : 1 }]}
+    >
+      <Animated.View
+        style={[styles.knob, { backgroundColor: value ? theme.onBrand : theme.backgroundElement }, knob]}
+      />
+    </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  track: {
+    width: WIDTH,
+    height: HEIGHT,
+    borderRadius: HEIGHT / 2,
+    padding: 3,
+  },
+  knob: {
+    width: KNOB,
+    height: KNOB,
+    borderRadius: KNOB / 2,
+  },
+});

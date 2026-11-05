@@ -3,16 +3,22 @@ import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider } from 'expo-router';
 
+import { PermissionsScreen } from '@/components/auth/PermissionsScreen';
 import SignInScreen from '@/components/auth/SignInScreen';
 import AppTabs from '@/components/ui/AppTabs';
 import { Providers } from '@/components/Providers';
 import { SplashIntro } from '@/components/SplashIntro';
 import { FONT_ASSETS } from '@/constants/fonts';
+import { initCrashReporting, withCrashReporting } from '@/lib/crashReporting';
 import { useNavigationTheme } from '@/hooks/useNavigationTheme';
 import { useSession } from '@/hooks/useSession';
 import { useResolvedScheme } from '@/hooks/useTheme';
+import { useSettingsStore } from '@/state/settingsStore';
 
-export default function RootLayout() {
+// As early as possible, so a crash during start-up is reported too.
+initCrashReporting();
+
+function RootLayout() {
   const navTheme = useNavigationTheme();
   const scheme = useResolvedScheme();
   const session = useSession();
@@ -21,6 +27,7 @@ export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts(FONT_ASSETS);
   const ready = session !== undefined && (fontsLoaded || fontError !== null);
   const [introDone, setIntroDone] = useState(false);
+  const permissionsAsked = useSettingsStore((state) => state.permissionsAsked);
   const finishIntro = useCallback(() => setIntroDone(true), []);
 
   return (
@@ -29,7 +36,7 @@ export default function RootLayout() {
           resolved scheme as the screens, settings override included. */}
       <ThemeProvider value={navTheme}>
         <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-        {ready && (session ? <AppTabs /> : <SignInScreen />)}
+        {ready ? <FirstScreen signedIn={Boolean(session)} permissionsAsked={permissionsAsked} /> : null}
         {/* The logo animation plays over the app while it reads the cached
             session and loads fonts, then fades out to reveal it. */}
         {!introDone && <SplashIntro ready={ready} onDone={finishIntro} />}
@@ -37,3 +44,12 @@ export default function RootLayout() {
     </Providers>
   );
 }
+
+/** Signed out: sign in. Signed in: the permissions screen once, then the app. */
+function FirstScreen({ signedIn, permissionsAsked }: { signedIn: boolean; permissionsAsked: boolean }) {
+  if (!signedIn) return <SignInScreen />;
+  if (!permissionsAsked) return <PermissionsScreen />;
+  return <AppTabs />;
+}
+
+export default withCrashReporting(RootLayout);

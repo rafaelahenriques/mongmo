@@ -1,104 +1,191 @@
 import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
 
-import { FontFamily, Fonts, ThemeColor } from '@/constants/theme';
+import { BodyFont, FontFamily, Fonts, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
 export type ThemedTextProps = TextProps & {
   type?:
     | 'default'
     | 'display'
+    | 'name'
     | 'title'
     | 'subtitle'
     | 'section'
+    | 'card'
     | 'label'
+    | 'item'
     | 'button'
     | 'small'
     | 'smallBold'
+    | 'caption'
+    | 'captionBold'
+    | 'micro'
     | 'link'
     | 'linkPrimary'
     | 'code';
   themeColor?: ThemeColor;
+  /** A header's level (1–3). Without it, it follows the text style. */
+  headingLevel?: 1 | 2 | 3;
 };
 
-export function ThemedText({ style, type = 'default', themeColor, ...rest }: ThemedTextProps) {
+/**
+ * Heading levels by text style, for headers that don't say: a screen's
+ * title is 1, every other header a section (2) right under it, so no level
+ * is ever skipped. On the web they become h1 and h2. Pass `headingLevel`
+ * for a group nested inside a section (3).
+ */
+const HEADING_LEVEL: Partial<Record<NonNullable<ThemedTextProps['type']>, 1 | 2 | 3>> = {
+  display: 1,
+  name: 1,
+  card: 1,
+  title: 2,
+  subtitle: 2,
+  section: 2,
+  item: 2,
+};
+
+export function ThemedText({ style, type = 'default', themeColor, headingLevel, ...rest }: ThemedTextProps) {
   const theme = useTheme();
+  const level =
+    rest.accessibilityRole === 'header' || rest.role === 'heading' ? (headingLevel ?? HEADING_LEVEL[type] ?? 2) : null;
+  const capped = type === 'display' || type === 'name';
 
   return (
     <Text
+      // Display sizes are already large text: past 1.3× they'd break the
+      // layout. Everything else follows the system text size in full.
+      maxFontSizeMultiplier={capped ? 1.3 : undefined}
       style={[
         { color: theme[themeColor ?? 'text'] },
         styles[type],
         type === 'linkPrimary' && { color: theme.primaryText },
         style,
       ]}
+      {...(level ? ({ 'aria-level': level } as object) : null)}
+      // On the web, marks the cap (data-text-cap) for the large-text test.
+      {...(capped && Platform.OS === 'web' ? ({ dataSet: { textCap: '1.3' } } as object) : null)}
       {...rest}
     />
   );
 }
 
+/** Figma letter spacing is a percentage of the font size. */
+const tracking = (size: number, percent: number) => (size * percent) / 100;
+
 const styles = StyleSheet.create({
-  /** Big numerals (points, pickup codes, counts). */
+  /** Big numbers: points, pickup codes, "+20". */
   display: {
     fontFamily: FontFamily.display,
-    fontSize: 64,
-    lineHeight: 64,
-    letterSpacing: -0.5,
+    fontSize: 72,
+    lineHeight: 80,
+    letterSpacing: tracking(72, -1),
+    textTransform: 'uppercase',
   },
-  /** Screen headings — condensed, sentence case. */
+  /** A pop-up's name over its photo. */
+  name: {
+    fontFamily: FontFamily.display,
+    fontSize: 46,
+    lineHeight: 52,
+    letterSpacing: tracking(46, -1),
+    textTransform: 'uppercase',
+  },
+  /** Screen headings ("Being made", "Next up"). */
   title: {
     fontFamily: FontFamily.display,
-    fontSize: 40,
-    lineHeight: 42,
-    letterSpacing: -0.3,
+    fontSize: 30,
+    lineHeight: 36,
+    letterSpacing: tracking(30, -1),
+    textTransform: 'uppercase',
   },
   subtitle: {
     fontFamily: FontFamily.display,
-    fontSize: 28,
+    fontSize: 24,
     lineHeight: 30,
-  },
-  /** Section headings ("Nearby pop-ups", "Settings"). */
-  section: {
-    fontFamily: FontFamily.bodySemiBold,
-    fontSize: 18,
-    lineHeight: 24,
-  },
-  /** Small uppercase eyebrow above a value or group. */
-  label: {
-    fontFamily: FontFamily.bodySemiBold,
-    fontSize: 12,
-    lineHeight: 16,
+    letterSpacing: 0,
     textTransform: 'uppercase',
-    letterSpacing: 0.8,
   },
-  button: {
-    fontFamily: FontFamily.bodySemiBold,
-    fontSize: 16,
+  /** Section headings ("Challenges", "Today", "Keep earning"). */
+  section: {
+    fontFamily: FontFamily.display,
+    fontSize: 20,
+    lineHeight: 26,
+    letterSpacing: 0,
+    textTransform: 'uppercase',
+  },
+  /** Uppercase titles on cards and rows ("RATE THE BEST DISH"). */
+  card: {
+    fontFamily: FontFamily.heavy,
+    fontSize: 15,
     lineHeight: 20,
+    textTransform: 'uppercase',
+  },
+  /** Uppercase labels: the tab bar, top bars, block buttons, segments. */
+  label: {
+    fontFamily: FontFamily.heavy,
+    fontSize: 14,
+    lineHeight: 18,
+    letterSpacing: tracking(14, 2),
+    textTransform: 'uppercase',
+  },
+  /** Menu item names and prices on the menu board. */
+  item: {
+    fontFamily: FontFamily.heavy,
+    fontSize: 24,
+    lineHeight: 30,
+    letterSpacing: 0,
+    textTransform: 'uppercase',
+  },
+  /** Button labels: heavy and uppercase, like the block buttons they sit on. */
+  button: {
+    fontFamily: FontFamily.heavy,
+    fontSize: 15,
+    lineHeight: 20,
+    letterSpacing: tracking(15, 1),
+    textTransform: 'uppercase',
   },
   default: {
-    fontFamily: FontFamily.body,
+    ...BodyFont.regular,
     fontSize: 16,
     lineHeight: 24,
   },
+  /** Secondary lines: times, places, hints (same as caption). */
   small: {
-    fontFamily: FontFamily.bodyMedium,
+    ...BodyFont.regular,
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 19,
   },
+  /** Row titles, names, values. */
   smallBold: {
-    fontFamily: FontFamily.bodySemiBold,
+    ...BodyFont.bold,
+    fontSize: 16,
+    lineHeight: 22,
+  },
+  caption: {
+    ...BodyFont.regular,
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 19,
+  },
+  captionBold: {
+    ...BodyFont.bold,
+    fontSize: 14,
+    lineHeight: 19,
+  },
+  /** Step labels and small tags. */
+  micro: {
+    ...BodyFont.medium,
+    fontSize: 12,
+    lineHeight: 15,
   },
   link: {
-    fontFamily: FontFamily.bodySemiBold,
-    lineHeight: 30,
+    ...BodyFont.bold,
     fontSize: 14,
+    lineHeight: 19,
+    textDecorationLine: 'underline',
   },
   linkPrimary: {
-    fontFamily: FontFamily.bodySemiBold,
-    lineHeight: 30,
+    ...BodyFont.bold,
     fontSize: 14,
+    lineHeight: 20,
   },
   code: {
     fontFamily: Fonts.mono,

@@ -110,6 +110,8 @@ type MenuItemRow = {
   category: string | null;
   sort_order: number;
   available: boolean;
+  /** Sections this item is an option for (0017); null for a normal item. */
+  add_on_for: string[] | null;
 };
 
 type ChallengeRow = {
@@ -171,7 +173,7 @@ type PointEventRow = {
   id: string;
   user_id: string;
   points: number;
-  source: 'challenge_completion' | 'badge' | 'reward_redeemed';
+  source: 'challenge_completion' | 'badge' | 'reward_redeemed' | 'order';
   source_id: string | null;
   created_at: string;
 };
@@ -184,6 +186,16 @@ type RewardRow = {
   discount_cents: number | null;
   expires_at: string | null;
   active: boolean;
+  /** A level's own reward: only that level (or higher) can redeem it. */
+  min_level: string | null;
+};
+
+type LevelRow = {
+  key: string;
+  name: string;
+  min_points: number;
+  order_bonus_pct: number;
+  perk: string;
 };
 
 type UserRewardRow = {
@@ -213,6 +225,8 @@ type OrderItemRow = {
   order_id: string;
   menu_item_id: string | null;
   name_snapshot: string;
+  /** The options chosen for the line, by name (0017). */
+  options_snapshot: string | null;
   unit_price_cents_snapshot: number;
   quantity: number;
   line_total_cents: number;
@@ -236,12 +250,19 @@ export type Database = {
       user_badges: Table<UserBadgeRow>;
       point_events: Table<PointEventRow>;
       rewards: Table<RewardRow>;
+      levels: Table<LevelRow>;
       user_rewards: Table<UserRewardRow>;
       orders: Table<OrderRow>;
       order_items: Table<OrderItemRow>;
     };
     Functions: {
       my_points_balance: { Args: Record<string, never>; Returns: number };
+      my_loyalty: {
+        Args: Record<string, never>;
+        Returns: { lifetime_points: number; first_order_bonus: boolean }[];
+      };
+      delete_my_account: { Args: Record<string, never>; Returns: undefined };
+      ensure_profile: { Args: Record<string, never>; Returns: undefined };
       my_badge_progress: {
         Args: Record<string, never>;
         Returns: { key: string; current: number; target: number }[];

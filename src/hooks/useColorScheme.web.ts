@@ -9,11 +9,7 @@ const getClientSnapshot = (): boolean => true;
 const getServerSnapshot = (): boolean => false;
 
 export function useColorScheme() {
-  const hasHydrated = useSyncExternalStore(
-    subscribe,
-    getClientSnapshot,
-    getServerSnapshot,
-  );
+  const hasHydrated = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
 
   const colorScheme = useRNColorScheme();
 

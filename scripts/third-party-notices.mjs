@@ -94,7 +94,7 @@ const texts = atomicIds
   .filter(([, text]) => text);
 
 const fontLicense = (pkg) => readFileSync(join(ROOT, 'node_modules/@expo-google-fonts', pkg, 'LICENSE_FONT'), 'utf8');
-const ofl = fontLicense('barlow-condensed');
+const ofl = fontLicense('league-spartan');
 const fontCopyright = (pkg) => fontLicense(pkg).split('\n')[0].replace(/,\s*$/, '');
 
 const out = `# Third-party notices
@@ -108,10 +108,8 @@ end up inside the app; they are listed anyway. Don't edit this file by hand.
 
 ## Fonts
 
-Both are used under the SIL Open Font License 1.1 (full text below).
-
-- **Barlow Condensed:** ${fontCopyright('barlow-condensed')}
-- **Be Vietnam Pro:** ${fontCopyright('be-vietnam-pro')}
+- **League Spartan** (titles), bundled, used under the SIL Open Font License 1.1 (full text below): ${fontCopyright('league-spartan')}
+- **Helvetica Neue** (text) is not bundled: on Apple devices the app uses the copy built into the system, under Apple's terms. Android shows its own system font (Roboto) and the web Helvetica or Arial from the browser.
 
 ## Icons, maps and data
 

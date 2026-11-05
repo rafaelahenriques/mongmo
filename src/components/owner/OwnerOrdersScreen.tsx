@@ -1,150 +1,162 @@
 import { useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { formatInTimeZone } from 'date-fns-tz';
 
+import { COLUMN_LABEL, columnFor, NEXT_STEP, untilPickup, type OwnerColumn } from '@/components/owner/ownerOrderFormat';
 import { ThemedText } from '@/components/ThemedText';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
-import { IconBadge } from '@/components/ui/IconBadge';
-import { IconButton } from '@/components/ui/IconButton';
-import { ScreenScroll } from '@/components/ui/Screen';
+import { BlockButton } from '@/components/ui/BlockButton';
 import { Segmented } from '@/components/ui/Segmented';
-import { Spacing } from '@/constants/theme';
+import { CardShadow, PageInset } from '@/constants/theme';
+import { useNow } from '@/hooks/useNow';
 import { useOwnerOrders } from '@/hooks/useOwnerOrders';
+import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
-import { formatCents, pickupCode } from '@/utils/orderFormat';
-import type { OwnerOrderRow } from '@/api/owner';
+import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
+import { pickupCode } from '@/utils/orderFormat';
 
-type Column = 'new' | 'preparing' | 'ready' | 'collected';
-
-const COLUMN_LABEL: Record<Column, string> = {
-  new: 'New',
-  preparing: 'Preparing',
-  ready: 'Ready',
-  collected: 'Collected',
-};
-
-/** New = paid orders that haven't started preparation yet. */
-function columnFor(order: OwnerOrderRow): Column | null {
-  if (order.status === 'paid') return 'new';
-  if (order.status === 'preparing' || order.status === 'ready' || order.status === 'collected') {
-    return order.status;
-  }
-  return null;
-}
-
-const NEXT: Partial<Record<Column, { status: 'preparing' | 'ready' | 'collected'; label: string }>> = {
-  new: { status: 'preparing', label: 'Start preparing' },
-  preparing: { status: 'ready', label: 'Mark ready' },
-  ready: { status: 'collected', label: 'Mark collected' },
-};
-
-/** Owner: orders by status — pick a column, then advance or cancel each order. */
+/**
+ * A-02 Orders board: New, Being made, Ready as underlined words with
+ * counts, each order a ticket — code, pickup time, who, what — and one tap
+ * to move it on. Open a ticket for the detail.
+ */
 export default function OwnerOrdersScreen() {
   const theme = useTheme();
-  const { orders, isLoading, advance } = useOwnerOrders();
-  const [column, setColumn] = useState<Column>('new');
+  const router = useRouter();
+  const tabBarInset = useTabBarInset();
+  const now = useNow(30_000).getTime();
+  const { orders, info, isLoading, advance } = useOwnerOrders();
+  const [column, setColumn] = useState<OwnerColumn>('new');
 
-  if (isLoading) {
-    return (
-      <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.text} />
-      </View>
-    );
-  }
-
-  const count = (target: Column) => orders.filter((order) => columnFor(order) === target).length;
-  const columnOrders = orders.filter((order) => columnFor(order) === column);
-  const next = NEXT[column];
+  const count = (target: OwnerColumn) => orders.filter((order) => columnFor(order.status) === target).length;
+  // Soonest pickup first: it sets the order of work.
+  const shown = orders
+    .filter((order) => columnFor(order.status) === column)
+    .sort((a, b) => (a.pickup_at ?? a.created_at).localeCompare(b.pickup_at ?? b.created_at));
+  const next = NEXT_STEP[column];
 
   return (
-    <ScreenScroll>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.background }}
+      contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + 32 }]}
+    >
       <Segmented
-        options={(Object.keys(COLUMN_LABEL) as Column[]).map((value) => ({
+        options={(Object.keys(COLUMN_LABEL) as OwnerColumn[]).map((value) => ({
           value,
           label: COLUMN_LABEL[value],
           count: count(value),
-          accessibilityLabel: `${COLUMN_LABEL[value]}: ${count(value)} ${count(value) === 1 ? 'order' : 'orders'}`,
         }))}
         value={column}
         onChange={setColumn}
-        accessibilityLabel="Order status"
-        fill
+        accessibilityLabel="Orders"
+        look="tabs"
       />
 
-      {columnOrders.length === 0 ? (
-        <View style={styles.empty}>
-          <IconBadge name="receipt" size={56} />
-          <ThemedText type="small" themeColor="textSecondary">
-            No {COLUMN_LABEL[column].toLowerCase()} orders.
-          </ThemedText>
-        </View>
+      {isLoading ? (
+        <ActivityIndicator color={theme.text} style={styles.loader} />
+      ) : shown.length === 0 ? (
+        <ThemedText type="caption" themeColor="textSecondary" style={styles.empty}>
+          No {COLUMN_LABEL[column].toLowerCase()} orders.
+        </ThemedText>
       ) : (
-        columnOrders.map((order) => (
-          <Card key={order.id} style={styles.order}>
-            <View style={styles.orderTop}>
-              <View style={styles.flex}>
-                <ThemedText type="small" themeColor="textSecondary">
-                  {new Date(order.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
-                  {' · '}
-                  {formatCents(order.total_cents)}
+        shown.map((order) => {
+          const about = info[order.id];
+          const code = pickupCode(order.id);
+          return (
+            <View
+              key={order.id}
+              style={[styles.ticket, { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }]}
+            >
+              <Pressable
+                onPress={() => {
+                  haptics.tap();
+                  router.push({ pathname: '/(profile)/owner/order/[id]', params: { id: order.id } });
+                }}
+                accessibilityRole="button"
+                accessibilityLabel={`Order ${code}${about?.name ? ` for ${about.name}` : ''}. Open.`}
+                style={styles.ticketBody}
+              >
+                <View style={styles.ticketTop}>
+                  <ThemedText type="title" style={styles.flex}>
+                    {code}
+                  </ThemedText>
+                  <ThemedText type="captionBold">
+                    {order.pickup_at
+                      ? `Pickup ${formatInTimeZone(order.pickup_at, DISPLAY_TIME_ZONE, 'HH:mm')}`
+                      : 'Pickup ASAP'}
+                  </ThemedText>
+                </View>
+                {about?.name ? <ThemedText type="smallBold">{about.name}</ThemedText> : null}
+                {about?.lines.length ? (
+                  <ThemedText type="caption" themeColor="textSecondary">
+                    {about.lines
+                      .map(
+                        (line) =>
+                          `${line.quantity > 1 ? `${line.quantity} × ` : ''}${line.name}` +
+                          (line.options ? ` (${line.options.toLowerCase()})` : ''),
+                      )
+                      .join('. ')}
+                  </ThemedText>
+                ) : null}
+              </Pressable>
+              <View style={styles.ticketFoot}>
+                <ThemedText type="caption" themeColor="textSecondary" style={styles.until}>
+                  {untilPickup(order.pickup_at, now)}
                 </ThemedText>
-                {/* Same code the customer shows at pickup. */}
-                <ThemedText type="title" style={column === 'new' ? { color: theme.brand } : undefined}>
-                  {pickupCode(order.id)}
-                </ThemedText>
+                {next ? (
+                  <BlockButton
+                    label={next.label}
+                    size="compact"
+                    tone={column === 'new' ? 'sage' : 'dark'}
+                    onPress={() => advance({ orderId: order.id, status: next.status })}
+                  />
+                ) : null}
               </View>
-              {column !== 'collected' ? (
-                <IconButton
-                  icon="close"
-                  tone="muted"
-                  size={36}
-                  onPress={() => {
-                    haptics.warning();
-                    advance({ orderId: order.id, status: 'cancelled' });
-                  }}
-                  accessibilityLabel="Cancel order"
-                />
-              ) : null}
             </View>
-            {next ? (
-              <Button
-                label={next.label}
-                variant={column === 'new' ? 'brand' : 'primary'}
-                size="medium"
-                arrow
-                haptic="press"
-                onPress={() => advance({ orderId: order.id, status: next.status })}
-                accessibilityLabel={`Move order to ${next.status}`}
-              />
-            ) : null}
-          </Card>
-        ))
+          );
+        })
       )}
-    </ScreenScroll>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  state: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  content: {
+    paddingHorizontal: PageInset,
+    paddingTop: 4,
+    gap: 10,
+  },
+  loader: {
+    marginVertical: 24,
   },
   empty: {
-    alignItems: 'center',
-    gap: Spacing.two,
-    paddingVertical: Spacing.five,
-  },
-  order: {
-    gap: Spacing.three,
-  },
-  orderTop: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: Spacing.two,
+    paddingVertical: 16,
   },
   flex: {
     flex: 1,
+  },
+  ticket: {
+    marginTop: 2,
+  },
+  ticketBody: {
+    gap: 2,
+    paddingHorizontal: 14,
+    paddingTop: 12,
+    paddingBottom: 10,
+  },
+  ticketTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  ticketFoot: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 44,
+  },
+  until: {
+    paddingLeft: 14,
   },
 });

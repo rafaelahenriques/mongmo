@@ -21,7 +21,7 @@ Expo (React Native) · Expo Router · TypeScript · Supabase (PostgreSQL, Auth, 
 
 | Folder | Contents |
 |---|---|
-| `src/app/` | File-based routes: explore, home, orders and profile (including the owner screens) |
+| `src/app/` | File-based routes: the Home, Pop-ups, Order and Wallet tabs, plus Account (with the owner screens) and Achievements, opened from the top bar |
 | `src/api/`, `src/hooks/` | Supabase queries and mutations wrapped in TanStack Query hooks |
 | `src/services/` | Location, geofencing, notifications, calendar, motion and haptics, with web variants |
 | `src/state/` | Zustand stores for cart, filters, location and settings |
@@ -85,6 +85,19 @@ npx expo run:ios       # or: npx expo run:android
 ```
 
 After the first native build, `npx expo start` is enough for day-to-day work. Open it from the installed development build, not Expo Go.
+
+## Tests and checks
+
+`npm run verify` runs lint, the type check and the unit tests; run it before
+pushing. CI runs those, a dependency audit, the web build and the
+integration tests on every push, and fails on any error. See
+[tests/README.md](tests/README.md).
+
+## Environments and releases
+
+Development, staging and production each have their own app and their own
+Supabase project. How to set them up, deploy, and roll back:
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## License
 

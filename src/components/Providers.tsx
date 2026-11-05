@@ -1,6 +1,7 @@
 import { useEffect, type PropsWithChildren } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { ReducedMotionConfig, ReduceMotion } from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
@@ -13,6 +14,7 @@ import { queryClient } from '@/api/queryClient';
 import { PERSIST_BUSTER, PERSIST_MAX_AGE_MS } from '@/constants/config';
 import { useEvents } from '@/hooks/useEvents';
 import { useBadgeUnlockNotifications } from '@/hooks/useBadgeUnlockNotifications';
+import { useCartReminder } from '@/hooks/useCartReminder';
 import { useGeofencing } from '@/hooks/useGeofencing';
 import { useNearbyAlerts } from '@/hooks/useNearbyAlerts';
 import { useOrderStatusNotifications } from '@/hooks/useOrderStatusNotifications';
@@ -50,6 +52,8 @@ export type ProvidersProps = PropsWithChildren<{
 export function Providers({ children, session }: ProvidersProps) {
   return (
     <GestureHandlerRootView style={styles.root}>
+      {/* Reanimated animations follow the system's reduce-motion setting (src/constants/motion.ts). */}
+      <ReducedMotionConfig mode={ReduceMotion.System} />
       <PersistQueryClientProvider
         client={queryClient}
         persistOptions={{ persister, maxAge: PERSIST_MAX_AGE_MS, buster: PERSIST_BUSTER }}
@@ -72,6 +76,7 @@ function AppServices({ children }: PropsWithChildren) {
   useStore();
   useOrderStatusNotifications();
   useRewardExpiryNotifications();
+  useCartReminder();
 
   // All upcoming events power the geofence region set, independent of the
   // filter currently selected on the map.

@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'rea
 
 import { ThemedText } from '@/components/ThemedText';
 import { Icon, type IconName } from '@/components/ui/Icon';
-import { Radius, Spacing } from '@/constants/theme';
+import { CardShadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 
@@ -10,120 +10,217 @@ export type SegmentOption<T extends string> = {
   value: T;
   label: string;
   icon?: IconName;
-  /** Shown large above the label, e.g. how many orders are in that column. */
+  /** Shown after the label, e.g. how many orders are in that column: "New (2)". */
   count?: number;
   /** Defaults to `label`. */
   accessibilityLabel?: string;
 };
 
 /**
- * Pill segmented control: the selected option is a solid Shadow Grey pill.
- * `fill` shares the full width equally between the options, so four of
- * them fit a small phone.
+ * One of a few options. Each look has one job, so two rows of options on a
+ * screen never look alike (the bigger the job, the bigger the look):
+ * - `tabs`: the screen's views, as big words with an ink bar under the
+ *   chosen one over a hairline (Badges | Leaderboard, Menu | Reorder).
+ * - `chips`: a filter on a list, as small outlined pills, ink when chosen
+ *   (Weekly · All-time, Today · This week · All).
+ * - `switch`: a compact track for a setting or a floating view toggle
+ *   (Map | List, System · Light · Dark).
+ * - `blocks`: square segments, sage and ringed when picked, for a choice in
+ *   a form (Bakery | Live pop-up, Mango | Peanut).
  */
 export function Segmented<T extends string>({
   options,
   value,
   onChange,
   accessibilityLabel,
-  surface = 'muted',
-  fill = false,
+  look,
   style,
 }: {
   options: SegmentOption<T>[];
   value: T;
   onChange: (value: T) => void;
   accessibilityLabel: string;
-  /** `floating` is a white track with a shadow, for controls over a map. */
-  surface?: 'muted' | 'floating';
-  fill?: boolean;
+  look: 'tabs' | 'chips' | 'switch' | 'blocks';
   style?: StyleProp<ViewStyle>;
 }) {
   const theme = useTheme();
+  const select = (option: SegmentOption<T>) => {
+    if (option.value === value) return;
+    haptics.select();
+    onChange(option.value);
+  };
+
   return (
     <View
       style={[
-        styles.track,
-        fill && styles.trackFill,
-        surface === 'floating'
-          ? { backgroundColor: theme.backgroundElement, boxShadow: `0px 6px 18px ${theme.shadow}` }
-          : { backgroundColor: theme.backgroundSelected },
+        look === 'tabs' && [styles.tabs, { borderBottomColor: theme.border }],
+        look === 'chips' && styles.chips,
+        look === 'switch' && [styles.switch, { backgroundColor: theme.background, boxShadow: CardShadow }],
+        look === 'blocks' && styles.blocks,
         style,
       ]}
-      accessibilityRole="tablist"
+      // Tabs and the view switch change what the screen shows; chips and
+      // blocks pick one value, like radio buttons.
+      accessibilityRole={look === 'tabs' || look === 'switch' ? 'tablist' : 'radiogroup'}
       accessibilityLabel={accessibilityLabel}
     >
       {options.map((option) => {
         const selected = option.value === value;
-        const color = selected ? theme.onPrimary : theme.text;
-        return (
-          <Pressable
-            key={option.value}
-            onPress={() => {
-              if (selected) return;
-              haptics.select();
-              onChange(option.value);
-            }}
-            accessibilityRole="tab"
-            accessibilityState={{ selected }}
-            accessibilityLabel={option.accessibilityLabel ?? option.label}
-            style={[
-              styles.option,
-              fill && styles.optionFill,
-              option.count !== undefined && styles.optionStacked,
-              selected && { backgroundColor: theme.primary },
-            ]}
-          >
-            {option.icon ? <Icon name={option.icon} size={14} color={color} /> : null}
-            {option.count !== undefined ? (
-              <ThemedText type="section" style={{ color }}>
-                {option.count}
-              </ThemedText>
-            ) : null}
-            <ThemedText
-              type={option.count !== undefined ? 'small' : 'smallBold'}
-              numberOfLines={1}
-              adjustsFontSizeToFit={fill}
-              minimumFontScale={0.8}
-              style={{ color }}
+        const label = option.count !== undefined ? `${option.label} (${option.count})` : option.label;
+        const asTab = look === 'tabs' || look === 'switch';
+        const common = {
+          onPress: () => select(option),
+          accessibilityRole: asTab ? ('tab' as const) : ('radio' as const),
+          accessibilityState: asTab ? { selected } : { checked: selected },
+          accessibilityLabel: option.accessibilityLabel ?? label,
+        };
+
+        if (look === 'tabs') {
+          return (
+            <Pressable
+              key={option.value}
+              {...common}
+              style={({ pressed }) => [styles.tab, { opacity: pressed ? 0.6 : 1 }]}
             >
-              {option.label}
-            </ThemedText>
-          </Pressable>
-        );
+              <ThemedText type="section" style={{ color: selected ? theme.text : theme.textSecondary }}>
+                {label}
+              </ThemedText>
+              {/* The chosen tab's bar sits on the hairline. */}
+              <View style={[styles.tabBar, { backgroundColor: selected ? theme.text : 'transparent' }]} />
+            </Pressable>
+          );
+        }
+
+        if (look === 'chips') {
+          return (
+            <Pressable
+              key={option.value}
+              {...common}
+              hitSlop={6}
+              style={({ pressed }) => [
+                styles.chip,
+                {
+                  backgroundColor: selected ? theme.primary : 'transparent',
+                  borderColor: selected ? theme.primary : theme.outline,
+                  opacity: pressed ? 0.7 : 1,
+                },
+              ]}
+            >
+              <ThemedText type="captionBold" style={{ color: selected ? theme.onPrimary : theme.text }}>
+                {label}
+              </ThemedText>
+            </Pressable>
+          );
+        }
+
+        if (look === 'switch') {
+          const color = selected ? theme.onPrimary : theme.text;
+          return (
+            <Pressable
+              key={option.value}
+              {...common}
+              style={[styles.switchOption, selected && { backgroundColor: theme.primary }]}
+            >
+              {option.icon ? <Icon name={option.icon} size={12} color={color} /> : null}
+              <ThemedText type="captionBold" style={{ color }}>
+                {label}
+              </ThemedText>
+            </Pressable>
+          );
+        }
+
+        if (look === 'blocks') {
+          return (
+            <Pressable
+              key={option.value}
+              {...common}
+              style={[
+                styles.block,
+                {
+                  backgroundColor: selected ? theme.brandFill : theme.backgroundSelected,
+                  // An ink ring, so the choice doesn't rest on sage vs stone alone.
+                  borderColor: selected ? theme.text : 'transparent',
+                },
+              ]}
+            >
+              <ThemedText
+                type="label"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+                style={{ color: selected ? theme.onBrand : theme.textSecondary }}
+              >
+                {label}
+              </ThemedText>
+            </Pressable>
+          );
+        }
+
+        return null;
       })}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  track: {
+  tabs: {
     flexDirection: 'row',
-    borderRadius: Radius.pill,
-    padding: 4,
-    gap: 4,
+    flexWrap: 'wrap',
+    columnGap: 24,
+    borderBottomWidth: 1,
+  },
+  tab: {
+    minHeight: 44,
+    justifyContent: 'flex-end',
+    gap: 8,
+  },
+  tabBar: {
+    height: 3,
+    marginBottom: -1,
+  },
+  chips: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: Spacing.two,
+  },
+  chip: {
+    minHeight: 32,
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  switch: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    maxWidth: '100%',
     alignSelf: 'flex-start',
+    borderRadius: 18,
+    padding: 3,
   },
-  trackFill: {
-    alignSelf: 'stretch',
-  },
-  option: {
+  switchOption: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.one,
-    borderRadius: Radius.pill,
+    borderRadius: 15,
     paddingHorizontal: Spacing.three,
-    minHeight: 36,
+    paddingVertical: 6,
   },
-  optionFill: {
+  blocks: {
+    flexDirection: 'row',
+    alignSelf: 'stretch',
+    gap: 2,
+  },
+  block: {
     flex: 1,
     minWidth: 0,
+    alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: Spacing.one,
-  },
-  optionStacked: {
-    flexDirection: 'column',
-    gap: 0,
-    paddingVertical: Spacing.one + 2,
+    paddingHorizontal: 10,
+    paddingVertical: 11,
+    borderWidth: 2,
   },
 });
