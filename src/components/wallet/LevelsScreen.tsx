@@ -10,7 +10,7 @@ import type { Level } from '@/types';
 
 /**
  * Levels (after Joe & The Juice's tiers): your level big on sage with the
- * points to the next one, then the ladder, Rice to Jade, each with what it
+ * points to the next one, then the ladder, Dough to Crisp, each with what it
  * unlocks. Every point you've ever earned counts; redeeming never takes
  * you down a level.
  */

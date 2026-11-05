@@ -1,14 +1,14 @@
--- Levels: Rice, Bamboo, Lotus, Jade.
+-- Levels: Dough, Rising, Golden, Crisp, the bánh mì's own bake.
 --
 -- Your level comes from your lifetime points: every point you've ever
 -- earned (orders, challenges, badges). Redeeming a reward spends points
 -- from your balance but never lowers your lifetime total, so you never
 -- drop a level.
 --
---   Rice    from the start     points on every order and challenge
---   Bamboo  500 points (~€50)  +10% points on orders, a Mongmo tote bag
---   Lotus   1,500 (~€150)      +25% points on orders, a free stew
---   Jade    4,000 (~€400)      +50% points on orders, 2 free bánh mì to share
+--   Dough   from the start     points on every order and challenge
+--   Rising  500 points (~€50)  +10% points on orders, a Mongmo tote bag
+--   Golden  1,500 (~€150)      +25% points on orders, a free stew
+--   Crisp   4,000 (~€400)      +50% points on orders, 2 free bánh mì to share
 --
 -- And a welcome deal: your first collected order earns double points.
 
@@ -29,10 +29,10 @@ create policy "levels are readable by everyone" on public.levels for select usin
 grant select on public.levels to anon, authenticated;
 
 insert into public.levels (key, name, min_points, order_bonus_pct, perk) values
-  ('rice', 'Rice', 0, 0, 'Points on every order and challenge'),
-  ('bamboo', 'Bamboo', 500, 10, '+10% points on orders, and a Mongmo tote bag to claim'),
-  ('lotus', 'Lotus', 1500, 25, '+25% points on orders, and a free Vietnamese stew to claim'),
-  ('jade', 'Jade', 4000, 50, '+50% points on orders, and 2 free bánh mì to share')
+  ('dough', 'Dough', 0, 0, 'Points on every order and challenge'),
+  ('rising', 'Rising', 500, 10, '+10% points on orders, and a Mongmo tote bag to claim'),
+  ('golden', 'Golden', 1500, 25, '+25% points on orders, and a free Vietnamese stew to claim'),
+  ('crisp', 'Crisp', 4000, 50, '+50% points on orders, and 2 free bánh mì to share')
 on conflict (key) do update set
   name = excluded.name,
   min_points = excluded.min_points,
@@ -123,9 +123,9 @@ $$;
 alter table public.rewards add column if not exists min_level text references public.levels (key);
 
 insert into public.rewards (id, title, description, cost_points, discount_cents, active, min_level) values
-  ('00000000-0000-0000-0000-0000000000a5', 'Mongmo tote bag', 'For Bamboo and up: the canvas tote, yours to keep', 400, null, true, 'bamboo'),
-  ('00000000-0000-0000-0000-0000000000a6', 'Free Vietnamese stew', 'For Lotus and up: bò kho or gà cà ri, your pick', 1200, null, true, 'lotus'),
-  ('00000000-0000-0000-0000-0000000000a7', '2 free bánh mì', 'For Jade: one for you, one for a friend', 1500, null, true, 'jade')
+  ('00000000-0000-0000-0000-0000000000a5', 'Mongmo tote bag', 'For Rising and up: the canvas tote, yours to keep', 400, null, true, 'rising'),
+  ('00000000-0000-0000-0000-0000000000a6', 'Free Vietnamese stew', 'For Golden and up: bò kho or gà cà ri, your pick', 1200, null, true, 'golden'),
+  ('00000000-0000-0000-0000-0000000000a7', '2 free bánh mì', 'For Crisp: one for you, one for a friend', 1500, null, true, 'crisp')
 on conflict (id) do update set
   title = excluded.title,
   description = excluded.description,

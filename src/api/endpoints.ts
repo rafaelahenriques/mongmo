@@ -247,7 +247,7 @@ export async function getOrderPoints(orderId: string): Promise<number | null> {
   return data?.points ?? null;
 }
 
-/** The loyalty levels, lowest first (Rice, Bamboo, Lotus, Jade). */
+/** The loyalty levels, lowest first (Dough, Rising, Golden, Crisp). */
 export async function getLevels(): Promise<Level[]> {
   const { data, error } = await supabase.from('levels').select('*').order('min_points');
   if (error) throw toApiError(error);
