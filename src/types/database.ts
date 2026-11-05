@@ -43,7 +43,6 @@ type ProfileRow = {
   id: string;
   role: 'customer' | 'owner';
   name: string;
-  bio: string;
   avatar_url: string | null;
   home_city: string | null;
   leaderboard_visible: boolean;

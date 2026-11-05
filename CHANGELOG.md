@@ -27,6 +27,10 @@ the release workflow publishes that section as the GitHub release notes.
 - Crash reports, only if you say yes; change your mind in Settings.
 - The app version at the bottom of Settings.
 
+### Removed
+
+- The profile bio: nobody else ever saw it, so we no longer keep it.
+
 ### Security
 
 - Sign-in kept in the phone's Keychain or Keystore.

@@ -2,5 +2,4 @@
 export const PROFILE_LIMITS = {
   name: 40,
   homeCity: 60,
-  bio: 160,
 } as const;

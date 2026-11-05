@@ -15,7 +15,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import type { UserProfile } from '@/types';
 
-/** Profile → Edit: display name (shown on the leaderboard), home city and bio. */
+/** Profile → Edit: display name (shown on the leaderboard) and home city. */
 export default function ProfileEditScreen() {
   const theme = useTheme();
   const profile = useProfile();
@@ -38,10 +38,9 @@ function ProfileForm({ profile }: { profile: UserProfile }) {
 
   const [name, setName] = useState(profile.name);
   const [homeCity, setHomeCity] = useState(profile.homeCity);
-  const [bio, setBio] = useState(profile.bio);
 
   const trimmedName = name.trim();
-  const changed = trimmedName !== profile.name || homeCity.trim() !== profile.homeCity || bio.trim() !== profile.bio;
+  const changed = trimmedName !== profile.name || homeCity.trim() !== profile.homeCity;
   const nameProblem = trimmedName ? null : 'Your name can’t be empty.';
 
   const onSave = () => {
@@ -50,7 +49,7 @@ function ProfileForm({ profile }: { profile: UserProfile }) {
       return;
     }
     save.mutate(
-      { name, bio, homeCity },
+      { name, homeCity },
       {
         onSuccess: () => {
           haptics.success();
@@ -92,15 +91,6 @@ function ProfileForm({ profile }: { profile: UserProfile }) {
             maxLength={PROFILE_LIMITS.homeCity}
             autoCapitalize="words"
             placeholder="e.g. Kortrijk"
-          />
-          <TextField
-            label="Bio"
-            value={bio}
-            onChangeText={setBio}
-            maxLength={PROFILE_LIMITS.bio}
-            multiline
-            placeholder="Your go-to order, favourite pop-up…"
-            hint={`${bio.length} / ${PROFILE_LIMITS.bio}`}
           />
         </Card>
 

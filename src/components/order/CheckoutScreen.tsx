@@ -109,7 +109,6 @@ export default function CheckoutScreen() {
       // Staff call the order by name; a guest's profile is "Mongmo fan".
       await updateProfile({
         name: name.trim(),
-        bio: profile.data?.bio ?? '',
         homeCity: profile.data?.homeCity ?? '',
       }).catch(() => undefined);
     }

@@ -11,8 +11,8 @@ as of 5 November 2026. Keep it current: the privacy policy
 |---|---|---|---|---|---|
 | Email, password (hashed by Supabase Auth) | `SignInScreen`, `ChangePasswordScreen` | `auth.users` | The person | Account | Account's life; 24 months unused |
 | Display name | Sign-up, `ProfileEditScreen` | `profiles.name` | The person; other members on the leaderboard unless hidden; staff | Account, leaderboard | Account's life |
-| Home city, bio | `ProfileEditScreen` | `profiles.home_city`, `profiles.bio` | The person; staff | **None found** (see proposals) | Account's life |
-| Profile picture link | Nowhere in the app | `profiles.avatar_url` | The person; staff | **None found** (see proposals) | Account's life |
+| Home city (optional) | `ProfileEditScreen` | `profiles.home_city` | The person; staff | Planned: shown on the leaderboard | Account's life |
+| Profile picture link | Nowhere yet | `profiles.avatar_url` | The person; staff | Planned: shown on the leaderboard | Account's life |
 | Leaderboard visibility | Settings | `profiles.leaderboard_visible` | The person | Opt-out | Account's life |
 | Orders: items, options, pickup place and time, totals, reward used | Cart, checkout | `orders`, `order_items` | The person; staff | Making the order | 24 months (drafts: 1 day) |
 | Points history | Server (orders, challenges, badges, rewards) | `point_events` | The person | Loyalty balance and level | Account's life |
@@ -51,15 +51,20 @@ Notifications are scheduled on the phone: no push token is collected.
 
 The app has no analytics, advertising or session replay SDK.
 
-## Proposed removals: waiting for approval
+## Proposed removals
 
-Nothing below has been changed. Each needs a yes or no.
+Decided:
+
+| # | What | Decision |
+|---|---|---|
+| 1 | Profile **bio** | **Removed** (`0027_drop_profile_bio.sql`): nobody but the person ever saw it |
+| 2 | Profile **home city** | **Kept**: it will be shown on the leaderboard. Update the privacy policy when it is |
+| 3 | Profile **picture link** | **Kept**: profile pictures will be shown on the leaderboard. Add the upload, the policy text and the store declarations then |
+
+Waiting for a yes or no (nothing changed yet):
 
 | # | What | Why remove or gate it | The change |
 |---|---|---|---|
-| 1 | Profile **bio** | Typed free text that nobody but the person ever sees | Remove the field from Edit profile and the column (migration) |
-| 2 | Profile **home city** | Shown only to the person; used for nothing | Remove the field and the column |
-| 3 | Profile **picture link** | No way to set it in the app; collected nowhere | Drop the column |
 | 4 | **Distance from the venue** in check-in challenge results | Only pass or fail matters; the distance is location data | Store `{ "withinRadius": true }`; clear the distances already stored |
 | 5 | Old **photo links** in challenge results | Dead links since the bucket went private | Replace them with a photo count in existing rows |
 | 6 | **Leaderboard on by default** | Shares a name with other members before anyone chose to | New accounts start hidden (opt in); existing accounts keep their setting |

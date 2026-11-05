@@ -125,7 +125,6 @@ export async function ensureProfile(): Promise<void> {
 
 export type ProfileEdit = {
   name: string;
-  bio: string;
   homeCity: string;
 };
 
@@ -138,7 +137,7 @@ export async function updateProfile(edit: ProfileEdit): Promise<void> {
   const userId = await getCurrentUserId();
   const { error } = await supabase
     .from('profiles')
-    .update({ name: edit.name.trim(), bio: edit.bio.trim(), home_city: edit.homeCity.trim() || null })
+    .update({ name: edit.name.trim(), home_city: edit.homeCity.trim() || null })
     .eq('id', userId);
   if (error) {
     // 23514 = a check constraint: something empty or too long slipped past the form.
