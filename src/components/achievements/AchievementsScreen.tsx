@@ -13,6 +13,7 @@ import { TopBar } from '@/components/ui/TopBar';
 import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
+import { useSetLeaderboardVisible } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import type { LeaderboardPeriod } from '@/types';
@@ -33,6 +34,7 @@ export default function AchievementsScreen() {
   const [view, setView] = useState<'badges' | 'leaderboard'>('badges');
   const [period, setPeriod] = useState<LeaderboardPeriod>('weekly');
   const leaderboard = useLeaderboard(period);
+  const joinLeaderboard = useSetLeaderboardVisible();
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
@@ -64,6 +66,8 @@ export default function AchievementsScreen() {
             hidden={leaderboard.hidden}
             period={period}
             onChangePeriod={setPeriod}
+            onJoin={() => joinLeaderboard.mutate(true)}
+            joining={joinLeaderboard.isPending}
           />
         </ScrollView>
       ) : query.isPending ? (

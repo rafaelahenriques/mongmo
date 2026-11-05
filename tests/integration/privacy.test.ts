@@ -39,3 +39,14 @@ it("won't let a customer make themselves an owner", async () => {
   const { data } = await alice.client.from('profiles').select('role').eq('id', alice.userId).single();
   expect(data?.role).toBe('customer');
 });
+
+it('keeps new members off the leaderboard until they join it', async () => {
+  const { data: profile } = await alice.client
+    .from('profiles')
+    .select('leaderboard_visible')
+    .eq('id', alice.userId)
+    .single();
+  expect(profile?.leaderboard_visible).toBe(false);
+  const { data: rows } = await bob.client.rpc('leaderboard', { p_period: 'all' } as never);
+  expect(((rows ?? []) as { user_id: string }[]).map((row) => row.user_id)).not.toContain(alice.userId);
+});

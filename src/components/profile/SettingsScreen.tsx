@@ -165,7 +165,7 @@ export default function SettingsScreen() {
           subtitle="Off keeps your points private"
           trailing={
             <Toggle
-              value={profile.data?.leaderboardVisible ?? true}
+              value={profile.data?.leaderboardVisible ?? false}
               onValueChange={(value) => setLeaderboardVisible.mutate(value)}
               accessibilityLabel="Show me on the leaderboard"
             />
