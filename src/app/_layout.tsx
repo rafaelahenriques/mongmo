@@ -10,6 +10,7 @@ import { Providers } from '@/components/Providers';
 import { SplashIntro } from '@/components/SplashIntro';
 import { FONT_ASSETS } from '@/constants/fonts';
 import { initCrashReporting, withCrashReporting } from '@/lib/crashReporting';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import { useNavigationTheme } from '@/hooks/useNavigationTheme';
 import { useSession } from '@/hooks/useSession';
 import { useResolvedScheme } from '@/hooks/useTheme';
@@ -19,6 +20,7 @@ import { useSettingsStore } from '@/state/settingsStore';
 initCrashReporting();
 
 function RootLayout() {
+  useDocumentTitle();
   const navTheme = useNavigationTheme();
   const scheme = useResolvedScheme();
   const session = useSession();
