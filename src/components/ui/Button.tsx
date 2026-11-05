@@ -36,7 +36,8 @@ const OUTLINED = new Set<ButtonProps['variant']>(['secondary', 'ghost', 'danger'
 const PADDING = { large: 20, medium: Spacing.three, small: 14 } as const;
 
 /**
- * Pill button. Shrinks a touch when pressed; labels stay at AA contrast.
+ * Block button: square, its label heavy and uppercase. Shrinks a touch
+ * when pressed; labels stay at AA contrast.
  * The label never leaves the pill: if the button is narrower than it, it
  * ends with "…" (lay buttons out with ButtonRow so that stays rare).
  */
@@ -120,7 +121,8 @@ export function Button({
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: Radius.pill,
+    // Square blocks, like the app's cards and bars.
+    borderRadius: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },

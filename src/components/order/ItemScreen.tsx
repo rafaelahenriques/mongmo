@@ -6,13 +6,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CategoryIcon } from '@/components/order/CategoryIcon';
 import { ThemedText } from '@/components/ThemedText';
-import { Button } from '@/components/ui/Button';
+import { BlockButton } from '@/components/ui/BlockButton';
 import { SquareIconButton } from '@/components/ui/SquareIconButton';
 import { OptionPill } from '@/components/ui/OptionPill';
 import { Segmented } from '@/components/ui/Segmented';
 import { Stepper } from '@/components/ui/Stepper';
 import { PRODUCT_PHOTO_POSITION, productPhoto } from '@/constants/productPhotos';
-import { PageInset } from '@/constants/theme';
+import { CardShadow, PageInset } from '@/constants/theme';
 import { useMenu } from '@/hooks/useMenu';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
@@ -83,7 +83,7 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
-      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}>
+      <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}>
         <View style={[styles.photo, { height: 220 + insets.top, backgroundColor: theme.backgroundSelected }]}>
           {photo ? (
             <Image
@@ -107,24 +107,32 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
         </View>
 
         <View style={styles.page}>
+          {/* Centred under the photo: the section small, the item big in caps,
+              what's in it under that (after Joe & The Juice's product page). */}
           <View style={styles.title}>
+            {short !== item.name && item.category ? (
+              <ThemedText type="label" themeColor="textSecondary" style={styles.center}>
+                {item.category}
+              </ThemedText>
+            ) : null}
             <ThemedText
               type="item"
               accessibilityRole="header"
               headingLevel={1}
               accessibilityLabel={item.name}
-              style={styles.flex}
+              style={styles.center}
             >
-              {(short !== item.name && item.category ? item.category : item.name).toUpperCase()}
+              {short.toUpperCase()}
             </ThemedText>
-            <ThemedText type="item">{formatCents(item.priceCents)}</ThemedText>
+            {item.description ? (
+              <ThemedText type="default" themeColor="textSecondary" style={styles.center}>
+                {item.description}
+              </ThemedText>
+            ) : null}
+            <ThemedText type="smallBold" style={styles.center}>
+              {formatCents(item.priceCents)}
+            </ThemedText>
           </View>
-          {short !== item.name ? <ThemedText type="section">{short}</ThemedText> : null}
-          {item.description ? (
-            <ThemedText type="default" themeColor="textSecondary">
-              {item.description}
-            </ThemedText>
-          ) : null}
           {groups.map((group) =>
             group.choice ? (
               <View key={group.name} style={styles.group}>
@@ -169,23 +177,27 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
               })
             ),
           )}
-          <View style={[styles.row, { borderColor: theme.border }]}>
-            <ThemedText type="smallBold" style={styles.flex}>
-              Quantity
-            </ThemedText>
-            <Stepper value={quantity} onChange={setQuantity} min={1} max={20} label={item.name} />
-          </View>
-          <Button
-            label={`Add to cart · ${formatCents(unit * quantity)}`}
-            accessibilityLabel={`Add ${quantity} to cart, ${formatCents(unit * quantity)} euro`}
-            variant="brand"
-            icon="bag"
-            haptic="press"
-            onPress={onAdd}
-            style={styles.add}
-          />
         </View>
       </ScrollView>
+
+      {/* How many and add, side by side at the bottom: the one action here. */}
+      <View
+        style={[
+          styles.bar,
+          { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, paddingBottom: insets.bottom },
+        ]}
+      >
+        <View style={styles.quantity}>
+          <Stepper value={quantity} onChange={setQuantity} min={1} max={20} label={item.name} />
+        </View>
+        <BlockButton
+          label="Add to cart"
+          value={formatCents(unit * quantity)}
+          onPress={onAdd}
+          accessibilityHint={`Adds ${quantity} to your cart`}
+          style={styles.flex}
+        />
+      </View>
     </View>
   );
 }
@@ -224,10 +236,19 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   scroll: {
-    paddingBottom: 40,
+    paddingBottom: 32,
   },
-  add: {
-    marginTop: 18,
+  bar: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+  },
+  quantity: {
+    justifyContent: 'center',
+    paddingHorizontal: PageInset,
+    minHeight: 64,
+  },
+  center: {
+    textAlign: 'center',
   },
   photo: {
     alignItems: 'center',
@@ -252,9 +273,9 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   title: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
+    alignItems: 'center',
+    gap: 6,
+    paddingBottom: 8,
   },
   flex: {
     flex: 1,
