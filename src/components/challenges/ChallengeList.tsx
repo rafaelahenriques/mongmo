@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Share, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Modal, Share, StyleSheet, View } from 'react-native';
 import { formatInTimeZone } from 'date-fns-tz';
 
 import { uploadChallengePhoto } from '@/api/photos';
@@ -15,6 +15,7 @@ import { useChallenges } from '@/hooks/useChallenges';
 import { useNow } from '@/hooks/useNow';
 import { useTheme } from '@/hooks/useTheme';
 import { getCurrentUserId } from '@/lib/supabase';
+import { showError, showMessage } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import { useLocationStore } from '@/state/locationStore';
 import type { Challenge, PopUpEvent } from '@/types';
@@ -75,7 +76,7 @@ export default function ChallengeList({ event, lockedReason, limit }: ChallengeL
         },
         // The server says exactly what's missing ("Take 3 photos — 1
         // uploaded so far", "This one opens at 18:00"), so show it as is.
-        onError: (error) => Alert.alert('Not yet', error instanceof Error ? error.message : 'Please try again.'),
+        onError: (error) => showError('Not yet', error),
       },
     );
 
@@ -97,7 +98,7 @@ export default function ChallengeList({ event, lockedReason, limit }: ChallengeL
     if (completedByChallenge.has(challenge.id) || busy) return;
     if (lockedReason) {
       haptics.warning();
-      Alert.alert('Not yet', lockedReason);
+      showMessage('Not yet', lockedReason);
       return;
     }
     if (challenge.type === 'check_in') {
@@ -119,7 +120,7 @@ export default function ChallengeList({ event, lockedReason, limit }: ChallengeL
       }
     } catch (error) {
       haptics.error();
-      Alert.alert('Upload failed', error instanceof Error ? error.message : 'Check your connection and try again.');
+      showError('Upload failed', error, 'Check your connection and try again.');
       return;
     } finally {
       setUploading(false);

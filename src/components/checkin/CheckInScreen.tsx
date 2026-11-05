@@ -130,18 +130,16 @@ export default function CheckInScreen({ eventId }: { eventId: string }) {
       />
     );
   }
-  return <Scan event={event} distance={distance} pending={mutation.isPending} onScan={onScan} onClose={close} />;
+  return <Scan distance={distance} pending={mutation.isPending} onScan={onScan} onClose={close} />;
 }
 
 /** K-02: dark screen, camera with sage corners, location first. */
 function Scan({
-  event,
   distance,
   pending,
   onScan,
   onClose,
 }: {
-  event: PopUpEvent;
   distance: number | null;
   pending: boolean;
   onScan: (token: string) => void;

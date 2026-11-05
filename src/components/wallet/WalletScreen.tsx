@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { AccessibilityInfo, Alert, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { shortName } from '@/components/achievements/LeaderboardList';
@@ -17,10 +17,11 @@ import { useLevel } from '@/hooks/useLevel';
 import { useProfile } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
-import { confirm } from '@/services/confirm';
+import { confirm, showError } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import type { Reward } from '@/types';
 import { CHALLENGE_POINTS_PER_DAY, POINTS_PER_EURO, POINTS_PER_STAMP } from '@/constants/points';
+import { byCost, nextReward } from '@/utils/rewards';
 import { stampCard, stampsFor, stampsLabel } from '@/utils/stamps';
 
 /**
@@ -38,13 +39,9 @@ export default function WalletScreen() {
   const level = useLevel();
   const points = summary.points;
 
-  const rewards = useMemo(
-    () => [...(query.data?.rewards ?? [])].sort((a, b) => a.costPoints - b.costPoints),
-    [query.data?.rewards],
-  );
-  // The next reward you can work toward: a higher level's own rewards wait for that level.
-  const nextReward = rewards.find((reward) => reward.costPoints > points && level.unlocked(reward.minLevel));
-  const stamps = stampCard(points, nextReward);
+  const rewards = useMemo(() => byCost(query.data?.rewards ?? []), [query.data?.rewards]);
+  const goal = nextReward(rewards, points, level.unlocked);
+  const stamps = stampCard(points, goal);
 
   const onRedeem = async (reward: Reward) => {
     const yes = await confirm(
@@ -58,8 +55,7 @@ export default function WalletScreen() {
         haptics.success();
         AccessibilityInfo.announceForAccessibility(`${reward.title} redeemed.`);
       },
-      onError: (error) =>
-        Alert.alert('Couldn’t redeem it', error instanceof Error ? error.message : 'Please try again.'),
+      onError: (error) => showError('Couldn’t redeem it', error),
     });
   };
 
@@ -105,19 +101,15 @@ export default function WalletScreen() {
           {/* Next reward: what it is, the card toward it, how far off. */}
           <View style={styles.stamps}>
             <ThemedText type="label" themeColor="textSecondary">
-              {nextReward ? 'Next reward' : 'Your stamp card'}
+              {goal ? 'Next reward' : 'Your stamp card'}
             </ThemedText>
             <ThemedText type="subtitle" accessibilityRole="header">
-              {nextReward
-                ? nextReward.title
-                : rewards.length
-                  ? 'Full: redeem a reward below'
-                  : 'Earn points at every pop-up'}
+              {goal ? goal.title : rewards.length ? 'Full: redeem a reward below' : 'Earn points at every pop-up'}
             </ThemedText>
             <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
-            {nextReward ? (
+            {goal ? (
               <ThemedText type="smallBold">
-                {`${stamps.earned} of ${stampsLabel(stamps.total)} · ${nextReward.costPoints - points} points to go`}
+                {`${stamps.earned} of ${stampsLabel(stamps.total)} · ${goal.costPoints - points} points to go`}
               </ThemedText>
             ) : null}
           </View>

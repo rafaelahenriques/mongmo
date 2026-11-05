@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
 import { formatInTimeZone } from 'date-fns-tz';
 
 import { updateProfile } from '@/api/endpoints';
@@ -15,6 +14,7 @@ import { Segmented } from '@/components/ui/Segmented';
 import { TextField } from '@/components/ui/TextField';
 import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
+import { useAuthUser } from '@/hooks/useAuthUser';
 import { useEvents } from '@/hooks/useEvents';
 import { useEventsWithMenu } from '@/hooks/useEventsWithMenu';
 import { usePickupPlace } from '@/hooks/usePickupPlace';
@@ -23,13 +23,13 @@ import { useNow } from '@/hooks/useNow';
 import { useProfile } from '@/hooks/useProfile';
 import { useStore } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
-import { supabase } from '@/lib/supabase';
-import { confirm } from '@/services/confirm';
+import { confirm, errorMessage } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import { cartSubtotalCents, useCartStore } from '@/state/cartStore';
 import { getEventPhase } from '@/utils/dateTime';
 import { formatCents } from '@/utils/orderFormat';
 import { pickupDays } from '@/utils/pickupSlots';
+import { discountOff } from '@/utils/rewards';
 
 /**
  * O-04 Checkout: where (the bakery or the live pop-up), when (today or
@@ -47,10 +47,7 @@ export default function CheckoutScreen() {
   const events = useEvents('today');
   const withMenu = useEventsWithMenu();
   const profile = useProfile();
-  const guest = useQuery({
-    queryKey: ['auth', 'is-anonymous'],
-    queryFn: async () => (await supabase.auth.getUser()).data.user?.is_anonymous ?? false,
-  });
+  const account = useAuthUser();
   const { usableRewards } = useAchievements();
   const placeOrder = usePlaceOrder();
   /** The chosen pickup day, yyyy-MM-dd; until one's tapped, the first open day. */
@@ -86,8 +83,8 @@ export default function CheckoutScreen() {
 
   const discount = usableRewards.find(({ userRewardId: id, reward }) => id === userRewardId && reward.discountCents);
   const subtotal = cartSubtotalCents(items);
-  const off = discount ? Math.min(discount.reward.discountCents ?? 0, subtotal) : 0;
-  const needsName = guest.data === true && !(profile.data?.name && profile.data.name !== 'Mongmo fan');
+  const off = discountOff(discount?.reward, subtotal);
+  const needsName = account.data?.isGuest === true && !(profile.data?.name && profile.data.name !== 'Mongmo fan');
 
   const switchTo = async (kind: 'store' | 'event') => {
     if (!location || kind === location.type) return;
@@ -135,7 +132,7 @@ export default function CheckoutScreen() {
         },
         onError: (mutationError) => {
           haptics.error();
-          setError(mutationError instanceof Error ? mutationError.message : 'Something went wrong. Please try again.');
+          setError(errorMessage(mutationError, 'Something went wrong. Please try again.'));
         },
       },
     );

@@ -1,27 +1,19 @@
-import { Alert, Platform } from 'react-native';
-
 import { supabase } from '@/lib/supabase';
-
-const TITLE = 'Log out?';
-const MESSAGE = 'You can sign back in any time — your points and badges are saved.';
+import { confirm, showError } from '@/services/confirm';
 
 /**
  * Asks before signing out. Signing out ends the Supabase session, which
  * useSession picks up to swap the tabs for the sign-in screen (and clear the
  * query cache).
  */
-export function confirmLogOut() {
-  // react-native-web's Alert.alert is a no-op, so on web the button would
-  // silently do nothing.
-  if (Platform.OS === 'web') {
-    if (window.confirm(`${TITLE}\n\n${MESSAGE}`)) void supabase.auth.signOut();
-    return;
-  }
-
-  Alert.alert(TITLE, MESSAGE, [
-    { text: 'Cancel', style: 'cancel' },
-    { text: 'Log out', style: 'destructive', onPress: () => supabase.auth.signOut() },
-  ]);
+export async function confirmLogOut(): Promise<void> {
+  const yes = await confirm(
+    'Log out?',
+    'You can sign back in any time — your points and badges are saved.',
+    'Log out',
+    { destructive: true },
+  );
+  if (yes) await supabase.auth.signOut();
 }
 
 /**
@@ -29,27 +21,22 @@ export function confirmLogOut() {
  * points, badges, photos records) and signs out.
  */
 export async function confirmDeleteAccount(): Promise<void> {
-  const title = 'Delete your account?';
-  const message = 'Your points, badges, rewards, photos and order history go for good. This can’t be undone.';
-  const yes =
-    Platform.OS === 'web'
-      ? window.confirm(`${title}\n\n${message}`)
-      : await new Promise<boolean>((resolve) =>
-          Alert.alert(title, message, [
-            { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
-            { text: 'Delete', style: 'destructive', onPress: () => resolve(true) },
-          ]),
-        );
+  const yes = await confirm(
+    'Delete your account?',
+    'Your points, badges, rewards, photos and order history go for good. This can’t be undone.',
+    'Delete',
+    { destructive: true },
+  );
   if (!yes) return;
   try {
     await deleteMyPhotos();
   } catch (error) {
-    Alert.alert('Couldn’t delete your photos', error instanceof Error ? error.message : 'Please try again.');
+    showError('Couldn’t delete your photos', error);
     return;
   }
   const { error } = await supabase.rpc('delete_my_account');
   if (error) {
-    Alert.alert('Couldn’t delete your account', error.message);
+    showError('Couldn’t delete your account', new Error(error.message));
     return;
   }
   await supabase.auth.signOut();

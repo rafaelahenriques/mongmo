@@ -4,6 +4,7 @@ import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-n
 import { Image } from 'expo-image';
 import { formatInTimeZone } from 'date-fns-tz';
 
+import type { OrderMenuItem } from '@/api/orders';
 import { shortName } from '@/components/achievements/LeaderboardList';
 import { ThemedText } from '@/components/ThemedText';
 import { AppHeader } from '@/components/ui/AppHeader';
@@ -32,6 +33,8 @@ import { useSettingsStore } from '@/state/settingsStore';
 import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import { ORDER_STEP, ORDER_STEPS, ORDER_STATUS_TITLE, pickupCode, shortItemName } from '@/utils/orderFormat';
+import { featuredPopUps } from '@/utils/popUps';
+import { bestClaimableReward, nextReward } from '@/utils/rewards';
 import { stampCard } from '@/utils/stamps';
 import type { PopUpEvent } from '@/types';
 
@@ -61,50 +64,24 @@ export default function HomeScreen() {
     cartLocation ?? (store.data ? { type: 'store', storeId: store.data.id } : null);
   const menu = useMenu(menuLocation);
 
-  const { featured, upcoming } = useMemo(() => {
-    const events = (eventsQuery.data ?? []).filter((event) => getEventPhase(event.startsAt, event.endsAt) !== 'ended');
-    const byStart = [...events].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
-    const live = byStart.filter((event) => getEventPhase(event.startsAt, event.endsAt) === 'live');
-    // The nearest live pop-up, else the next one to start.
-    const nearestLive = coordinates
-      ? [...live].sort(
-          (a, b) => distanceInMeters(coordinates, a.coordinates) - distanceInMeters(coordinates, b.coordinates),
-        )[0]
-      : live[0];
-    const lead = nearestLive ?? byStart[0];
-    return { featured: lead, upcoming: byStart.filter((event) => event.id !== lead?.id).slice(0, 3) };
-  }, [eventsQuery.data, coordinates]);
+  const { featured, upcoming } = useMemo(
+    () => featuredPopUps(eventsQuery.data ?? [], coordinates),
+    [eventsQuery.data, coordinates],
+  );
 
   const level = useLevel();
   const levelSeen = useSettingsStore((state) => state.levelSeen);
   const markLevelSeen = useSettingsStore((state) => state.markLevelSeen);
   // A level you've just reached gets one welcome card (Dough is where everyone starts).
   const newLevel = level.current.minPoints > 0 && levelSeen !== level.current.key ? level.current : null;
-  const rewards = useMemo(
-    () => [...(achievements.data?.rewards ?? [])].sort((a, b) => a.costPoints - b.costPoints),
-    [achievements.data?.rewards],
-  );
-  // Only rewards your level opens: a higher level's own rewards wait for it.
-  const nextReward = rewards.find((reward) => reward.costPoints > summary.points && level.unlocked(reward.minLevel));
+  const rewards = achievements.data?.rewards ?? [];
+  const goal = nextReward(rewards, summary.points, level.unlocked);
   // The best reward your points already cover: worth a card of its own.
-  const claimable = [...rewards]
-    .reverse()
-    .find((reward) => reward.costPoints <= summary.points && level.unlocked(reward.minLevel));
-  const stamps = stampCard(summary.points, nextReward);
+  const claimable = bestClaimableReward(rewards, summary.points, level.unlocked);
+  const stamps = stampCard(summary.points, goal);
 
   // Three things to start an order with, each with its own photo.
-  const picks = useMemo(() => {
-    const seen = new Set<unknown>();
-    return (menu.data ?? [])
-      .filter((item) => !item.addOnFor)
-      .map((item) => ({ item, photo: productPhoto(item) }))
-      .filter(({ photo }) => {
-        if (!photo || seen.has(photo)) return false;
-        seen.add(photo);
-        return true;
-      })
-      .slice(0, 3);
-  }, [menu.data]);
+  const picks = useMemo(() => menuPicks(menu.data ?? []), [menu.data]);
 
   // "rafaela.henriques" (a name made from an email) greets as "Rafaela".
   const firstName = profile.data?.name ? shortName(profile.data.name).split(' ')[0] : '';
@@ -134,7 +111,7 @@ export default function HomeScreen() {
           onPress={() => router.navigate('/(wallet)')}
           accessibilityRole="button"
           accessibilityLabel={`${summary.points} points, ${level.current.name} level. ${
-            nextReward ? `${nextReward.costPoints - summary.points} more to ${nextReward.title}.` : ''
+            goal ? `${goal.costPoints - summary.points} more to ${goal.title}.` : ''
           } Open Wallet.`}
           style={styles.hero}
         >
@@ -154,13 +131,13 @@ export default function HomeScreen() {
           </View>
           <View style={styles.heroSide}>
             <ThemedText type="label" themeColor="textSecondary">
-              {nextReward ? 'NEXT REWARD' : 'REWARDS'}
+              {goal ? 'NEXT REWARD' : 'REWARDS'}
             </ThemedText>
             <ThemedText type="section" numberOfLines={3}>
-              {nextReward ? nextReward.title : 'Your points cover one'}
+              {goal ? goal.title : 'Your points cover one'}
             </ThemedText>
             <ThemedText type="caption" themeColor="textSecondary">
-              {nextReward ? `${nextReward.costPoints - summary.points} points to go` : 'Redeem it in Wallet'}
+              {goal ? `${goal.costPoints - summary.points} points to go` : 'Redeem it in Wallet'}
             </ThemedText>
           </View>
         </Pressable>
@@ -510,6 +487,22 @@ function PopUpRow({ event, onPress }: { event: PopUpEvent; onPress: () => void }
       </View>
     </Pressable>
   );
+}
+
+type Photo = NonNullable<ReturnType<typeof productPhoto>>;
+
+/** A few things to start an order with: main items, not options, each with a photo no other pick has. */
+function menuPicks(items: OrderMenuItem[], count = 3): { item: OrderMenuItem; photo: Photo }[] {
+  const seen = new Set<Photo>();
+  const picks: { item: OrderMenuItem; photo: Photo }[] = [];
+  for (const item of items) {
+    const photo = productPhoto(item);
+    if (item.addOnFor || !photo || seen.has(photo)) continue;
+    seen.add(photo);
+    picks.push({ item, photo });
+    if (picks.length === count) break;
+  }
+  return picks;
 }
 
 const styles = StyleSheet.create({

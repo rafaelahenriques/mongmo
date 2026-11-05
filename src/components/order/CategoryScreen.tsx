@@ -11,7 +11,7 @@ import { PageInset } from '@/constants/theme';
 import { useMenu } from '@/hooks/useMenu';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
-import { cartSubtotalCents, useCartStore } from '@/state/cartStore';
+import { cartItemCount, cartSubtotalCents, useCartStore } from '@/state/cartStore';
 import { formatCents } from '@/utils/orderFormat';
 
 /**
@@ -28,7 +28,7 @@ export default function CategoryScreen({ name }: { name: string }) {
   const section = sectionsOf((menu.data ?? []).filter((item) => !item.addOnFor)).find(
     (candidate) => candidate.name.toLowerCase() === name.toLowerCase(),
   );
-  const count = items.reduce((sum, item) => sum + item.quantity, 0);
+  const count = cartItemCount(items);
 
   const back = () => (router.canGoBack() ? router.back() : router.replace('/(orders)'));
 

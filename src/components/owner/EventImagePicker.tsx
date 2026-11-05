@@ -10,6 +10,7 @@ import { ButtonRow } from '@/components/ui/ButtonRow';
 import { IconBadge } from '@/components/ui/IconBadge';
 import { inkAlpha, Paper, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { errorMessage } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import { hasNativeFeature, UPDATE_APP_MESSAGE } from '@/services/nativeModules';
 import { useMotion } from '@/constants/motion';
@@ -60,7 +61,7 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
       haptics.success();
     } catch (error) {
       haptics.error();
-      setProblem(error instanceof Error ? error.message : 'Couldn’t upload that photo.');
+      setProblem(errorMessage(error, 'Couldn’t upload that photo.'));
     } finally {
       setUploading(false);
     }

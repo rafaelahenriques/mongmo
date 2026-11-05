@@ -31,7 +31,6 @@ export type MenuItem = {
   id: string;
   name: string;
   description?: string;
-  price?: string;
 };
 
 /**
@@ -136,18 +135,6 @@ export type EarnedBadge = {
 export type AchievementsResponse = {
   badges: BadgeDefinition[];
   rewards: Reward[];
-};
-
-/** One event check-in, recorded locally; also powers the photo gallery. */
-export type CheckInRecord = {
-  eventId: string;
-  title: string;
-  city: string;
-  imageUrl: string;
-  /** Start time of the event as served (for night-owl evaluation). */
-  startsAt: string;
-  /** When the user actually checked in (ISO 8601). */
-  checkedInAt: string;
 };
 
 /** Spendable reward from the achievements catalog. */

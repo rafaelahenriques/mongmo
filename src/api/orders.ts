@@ -1,3 +1,4 @@
+import { ensureProfile } from '@/api/endpoints';
 import { toApiError } from '@/api/errors';
 import { getCurrentUserId, supabase } from '@/lib/supabase';
 import type { CartLocation } from '@/state/cartStore';
@@ -75,8 +76,7 @@ export async function placeOrder(
   userRewardId: string | null = null,
 ): Promise<OrderRow> {
   // An order needs the profile it belongs to; older accounts may lack one.
-  const { error: profileError } = await supabase.rpc('ensure_profile');
-  if (profileError) throw toApiError(profileError);
+  await ensureProfile();
 
   const { data: order, error } = await supabase.rpc('create_order', {
     p_store_id: location.type === 'store' ? location.storeId : null,

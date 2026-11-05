@@ -130,6 +130,11 @@ export function cartUnitCents(item: CartItem): number {
   return item.priceCents + item.options.reduce((sum, option) => sum + option.priceCents, 0);
 }
 
+/** How many items are in the cart, counting each line's quantity. */
+export function cartItemCount(items: CartItem[]): number {
+  return items.reduce((sum, item) => sum + item.quantity, 0);
+}
+
 /** Total price of everything currently in the cart, in integer cents. */
 export function cartSubtotalCents(items: CartItem[]): number {
   return items.reduce((sum, item) => sum + cartUnitCents(item) * item.quantity, 0);

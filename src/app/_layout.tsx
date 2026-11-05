@@ -36,13 +36,20 @@ function RootLayout() {
           resolved scheme as the screens, settings override included. */}
       <ThemeProvider value={navTheme}>
         <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-        {ready && (session ? permissionsAsked ? <AppTabs /> : <PermissionsScreen /> : <SignInScreen />)}
+        {ready ? <FirstScreen signedIn={Boolean(session)} permissionsAsked={permissionsAsked} /> : null}
         {/* The logo animation plays over the app while it reads the cached
             session and loads fonts, then fades out to reveal it. */}
         {!introDone && <SplashIntro ready={ready} onDone={finishIntro} />}
       </ThemeProvider>
     </Providers>
   );
+}
+
+/** Signed out: sign in. Signed in: the permissions screen once, then the app. */
+function FirstScreen({ signedIn, permissionsAsked }: { signedIn: boolean; permissionsAsked: boolean }) {
+  if (!signedIn) return <SignInScreen />;
+  if (!permissionsAsked) return <PermissionsScreen />;
+  return <AppTabs />;
 }
 
 export default withCrashReporting(RootLayout);

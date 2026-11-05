@@ -1,10 +1,10 @@
-import { useState, type PropsWithChildren, type ReactNode } from 'react';
+import { useState, type PropsWithChildren } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/ThemedText';
-import { Spacing, TopTabInset } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -35,7 +35,7 @@ export function ScreenScroll({
       contentContainerStyle={[
         styles.content,
         {
-          paddingTop: topInset ? insets.top + TopTabInset + Spacing.three : Spacing.three,
+          paddingTop: topInset ? insets.top + Spacing.three : Spacing.three,
           paddingBottom: tabBarInset + Spacing.five,
         },
         contentStyle,
@@ -73,25 +73,6 @@ export function usePullToRefresh() {
   return { refreshing, onRefresh };
 }
 
-/** Big in-page heading for tab roots: optional eyebrow, title, trailing control. */
-export function LargeHeader({ eyebrow, title, trailing }: { eyebrow?: string; title: string; trailing?: ReactNode }) {
-  return (
-    <View style={styles.header}>
-      <View style={styles.headerTexts}>
-        {eyebrow ? (
-          <ThemedText type="small" themeColor="textSecondary">
-            {eyebrow}
-          </ThemedText>
-        ) : null}
-        <ThemedText type="title" accessibilityRole="header">
-          {title}
-        </ThemedText>
-      </View>
-      {trailing}
-    </View>
-  );
-}
-
 /** Section title with an optional text action on the right. */
 export function SectionHeader({
   title,
@@ -122,17 +103,6 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: Spacing.three + Spacing.one,
     gap: Spacing.three,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    gap: Spacing.three,
-    marginBottom: Spacing.one,
-  },
-  headerTexts: {
-    flex: 1,
-    gap: 2,
   },
   section: {
     flexDirection: 'row',
