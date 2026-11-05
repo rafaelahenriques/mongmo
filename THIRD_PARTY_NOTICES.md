@@ -9,10 +9,8 @@ end up inside the app; they are listed anyway. Don't edit this file by hand.
 
 ## Fonts
 
-Both are used under the SIL Open Font License 1.1 (full text below).
-
-- **League Spartan:** Copyright 2020 The League Spartan Project Authors (https://github.com/theleagueof/league-spartan)
-- **Lato:** Copyright (c) 2010-2014 by tyPoland Lukasz Dziedzic (team@latofonts.com) with Reserved Font Name "Lato"
+- **League Spartan** (titles), bundled, used under the SIL Open Font License 1.1 (full text below): Copyright 2020 The League Spartan Project Authors (https://github.com/theleagueof/league-spartan)
+- **Helvetica Neue** (text) is not bundled: on Apple devices the app uses the copy built into the system, under Apple's terms. Android shows its own system font (Roboto) and the web Helvetica or Arial from the browser.
 
 ## Icons, maps and data
 
@@ -27,7 +25,7 @@ Both are used under the SIL Open Font License 1.1 (full text below).
 This project started from Expo's `create-expo-app` template.
 Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full text below).
 
-## npm packages (629)
+## npm packages (628)
 
 | Package | Version | Licence | Copyright |
 | --- | --- | --- | --- |
@@ -103,7 +101,6 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @babel/template | 7.29.7 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/traverse | 7.29.8 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
 | @babel/types | 7.29.8 | MIT | Copyright (c) 2014-present Sebastian McKenzie and other contributors |
-| @expo-google-fonts/lato | 0.4.1 | MIT AND OFL-1.1 | Copyright (c) 2020 Expo |
 | @expo-google-fonts/league-spartan | 0.4.2 | MIT AND OFL-1.1 | Copyright (c) 2020 Expo |
 | @expo-google-fonts/material-symbols | 0.4.52 | MIT AND Apache-2.0 | Copyright (c) 2020 Expo |
 | @expo/cli | 58.1.19 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |

@@ -1,6 +1,6 @@
 import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
 
-import { FontFamily, Fonts, ThemeColor } from '@/constants/theme';
+import { BodyFont, FontFamily, Fonts, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
 export type ThemedTextProps = TextProps & {
@@ -144,46 +144,46 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   default: {
-    fontFamily: FontFamily.body,
+    ...BodyFont.regular,
     fontSize: 16,
     lineHeight: 24,
   },
   /** Secondary lines: times, places, hints (same as caption). */
   small: {
-    fontFamily: FontFamily.body,
+    ...BodyFont.regular,
     fontSize: 14,
     lineHeight: 19,
   },
   /** Row titles, names, values. */
   smallBold: {
-    fontFamily: FontFamily.bodySemiBold,
+    ...BodyFont.bold,
     fontSize: 16,
     lineHeight: 22,
   },
   caption: {
-    fontFamily: FontFamily.body,
+    ...BodyFont.regular,
     fontSize: 14,
     lineHeight: 19,
   },
   captionBold: {
-    fontFamily: FontFamily.bodySemiBold,
+    ...BodyFont.bold,
     fontSize: 14,
     lineHeight: 19,
   },
   /** Step labels and small tags. */
   micro: {
-    fontFamily: FontFamily.bodyMedium,
+    ...BodyFont.medium,
     fontSize: 12,
     lineHeight: 15,
   },
   link: {
-    fontFamily: FontFamily.bodySemiBold,
+    ...BodyFont.bold,
     fontSize: 14,
     lineHeight: 19,
     textDecorationLine: 'underline',
   },
   linkPrimary: {
-    fontFamily: FontFamily.bodySemiBold,
+    ...BodyFont.bold,
     fontSize: 14,
     lineHeight: 20,
   },

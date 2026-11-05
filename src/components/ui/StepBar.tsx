@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
-import { FontFamily } from '@/constants/theme';
+import { BodyFont } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 
 /**
@@ -56,6 +56,6 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   done: {
-    fontFamily: FontFamily.bodySemiBold,
+    ...BodyFont.bold,
   },
 });

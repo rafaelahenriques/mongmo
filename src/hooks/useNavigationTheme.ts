@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { DarkTheme, DefaultTheme } from 'expo-router';
 
-import { Colors, FontFamily } from '@/constants/theme';
+import { BodyFont, Colors } from '@/constants/theme';
 import { useResolvedScheme } from '@/hooks/useTheme';
 
 /**
@@ -31,10 +31,10 @@ export function useNavigationTheme() {
       // Header titles use `bold`: a compact semibold, not the display face,
       // so the chrome stays quiet next to each screen's big heading.
       fonts: {
-        regular: { fontFamily: FontFamily.body, fontWeight: 'normal' as const },
-        medium: { fontFamily: FontFamily.bodyMedium, fontWeight: 'normal' as const },
-        bold: { fontFamily: FontFamily.bodySemiBold, fontWeight: 'normal' as const },
-        heavy: { fontFamily: FontFamily.bodyBold, fontWeight: 'normal' as const },
+        regular: { fontWeight: 'normal' as const, ...BodyFont.regular },
+        medium: { fontWeight: 'normal' as const, ...BodyFont.medium },
+        bold: { fontWeight: 'normal' as const, ...BodyFont.bold },
+        heavy: { fontWeight: 'normal' as const, ...BodyFont.bold },
       },
     };
   }, [scheme, colors]);

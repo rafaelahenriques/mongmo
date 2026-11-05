@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { formatInTimeZone, fromZonedTime } from 'date-fns-tz';
 
 import { ThemedText } from '@/components/ThemedText';
-import { FontFamily, Radius, Spacing } from '@/constants/theme';
+import { BodyFont, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import type { DateTimeFieldProps } from './types';
 
@@ -19,7 +19,7 @@ export function DateTimeField({ label, value, onChange, timeZone, minimumDate }:
   };
 
   const inputStyle = {
-    fontFamily: FontFamily.bodySemiBold,
+    ...BodyFont.bold,
     fontSize: 14,
     color: theme.text,
     backgroundColor: theme.backgroundSelected,

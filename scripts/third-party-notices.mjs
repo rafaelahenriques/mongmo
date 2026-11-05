@@ -108,10 +108,8 @@ end up inside the app; they are listed anyway. Don't edit this file by hand.
 
 ## Fonts
 
-Both are used under the SIL Open Font License 1.1 (full text below).
-
-- **League Spartan:** ${fontCopyright('league-spartan')}
-- **Lato:** ${fontCopyright('lato')}
+- **League Spartan** (titles), bundled, used under the SIL Open Font License 1.1 (full text below): ${fontCopyright('league-spartan')}
+- **Helvetica Neue** (text) is not bundled: on Apple devices the app uses the copy built into the system, under Apple's terms. Android shows its own system font (Roboto) and the web Helvetica or Arial from the browser.
 
 ## Icons, maps and data
 
