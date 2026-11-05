@@ -1,4 +1,4 @@
-import { toApiError } from '@/api/errors';
+import { ApiError, toApiError } from '@/api/errors';
 import { signedPhotoUrls, uploadImage } from '@/api/storage';
 import { getCurrentUserId, supabase } from '@/lib/supabase';
 
@@ -13,6 +13,8 @@ export type Photo = {
   shared: boolean;
   /** Can be shared: taken in the last week and never taken down. */
   canShare: boolean;
+  /** Taken out of Photos of the week after a report. */
+  takenDown: boolean;
 };
 
 /** A photo in Photos of the week: no name, only whether it's yours. */
@@ -120,6 +122,7 @@ async function getPhotos(filter: PhotoFilter): Promise<Photo[]> {
         createdAt: row.created_at,
         shared: row.shared_at !== null && Date.now() - Date.parse(row.shared_at) < WEEK_MS,
         canShare: row.removed_at === null && Date.now() - Date.parse(row.created_at) < WEEK_MS,
+        takenDown: row.removed_at !== null,
       },
     ];
   });
@@ -133,4 +136,54 @@ export async function getMyPhotos(): Promise<Photo[]> {
 /** Every guest's photos from one pop-up (the owner's view). */
 export async function getEventPhotos(eventId: string): Promise<Photo[]> {
   return getPhotos({ eventId });
+}
+
+/** A photo taken down after a report, waiting for staff to decide. */
+export type ReportedPhoto = {
+  id: string;
+  path: string;
+  /** Empty when the file can't be shown (already gone). */
+  url: string;
+  eventTitle: string;
+  takenAt: string;
+  removedAt: string;
+  reports: number;
+};
+
+/** Staff: reported photos waiting for a decision, oldest first. */
+export async function getReportedPhotos(): Promise<ReportedPhoto[]> {
+  const { data, error } = await supabase.rpc('reported_photos');
+  if (error) throw toApiError(error);
+  if (data.length === 0) return [];
+  // Staff must be able to decide even when a photo can't be shown.
+  const urls = await signedPhotoUrls(data.map((row) => row.storage_path)).catch(() => new Map<string, string>());
+  return data.map((row) => ({
+    id: row.id,
+    path: row.storage_path,
+    url: urls.get(row.storage_path) ?? '',
+    eventTitle: row.event_title,
+    takenAt: row.taken_at,
+    removedAt: row.removed_at,
+    reports: row.reports,
+  }));
+}
+
+/** Staff: put a reported photo back (`restore`), or keep it down. */
+export async function reviewReportedPhoto(photoId: string, restore: boolean): Promise<void> {
+  const { error } = await supabase.rpc('review_reported_photo', { p_photo_id: photoId, p_restore: restore });
+  if (error) throw toApiError(error);
+}
+
+/** Staff: delete a reported photo for good, the file first, then its record. */
+export async function deleteReportedPhoto(photo: Pick<ReportedPhoto, 'id' | 'path'>): Promise<void> {
+  const bucket = supabase.storage.from('challenge-photos');
+  const removed = await bucket.remove([photo.path]);
+  if (removed.error) throw toApiError({ message: removed.error.message });
+  // Storage reports nothing removed both when the file was already gone and
+  // when a rule refused: only carry on to the record if it's really gone.
+  if (removed.data.length === 0 && !(await bucket.createSignedUrl(photo.path, 60)).error) {
+    throw new ApiError('Couldn’t delete the photo’s file. Try again.', 500);
+  }
+  const { error } = await supabase.rpc('delete_reported_photo', { p_photo_id: photo.id });
+  if (error) throw toApiError(error);
 }

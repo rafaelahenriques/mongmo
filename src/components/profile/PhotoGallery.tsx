@@ -84,6 +84,13 @@ export default function PhotoGallery({ photos, emptyText, own = false }: PhotoGa
 /** Share one of your photos in Photos of the week, or stop sharing it. */
 function ShareToggle({ photo, onDone }: { photo: Photo; onDone: () => void }) {
   const setShared = useSetPhotoShared();
+  if (photo.takenDown) {
+    return (
+      <ThemedText type="small" style={styles.light}>
+        Someone reported this photo, so it was taken out of Photos of the week. It stays private to you.
+      </ThemedText>
+    );
+  }
   if (!photo.shared && !photo.canShare) {
     return (
       <ThemedText type="small" style={styles.light}>

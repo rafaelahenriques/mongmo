@@ -30,6 +30,8 @@ the release workflow publishes that section as the GitHub release notes.
   share it. Shared photos show for a week without your name; stop sharing
   from Account, or report someone else's.
 - Pop-ups without a picture of their own show Mongmo's photos.
+- Owner tools → Reported photos: staff put a reported photo back, keep it
+  down, or delete it for good. Reports are deleted once decided.
 
 ### Changed
 

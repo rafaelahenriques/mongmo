@@ -9,12 +9,14 @@ import { TaskCard } from '@/components/ui/TaskCard';
 import { CardShadow, PageInset } from '@/constants/theme';
 import { useOwnerEvents } from '@/hooks/useOwnerEvents';
 import { useOwnerOrders } from '@/hooks/useOwnerOrders';
+import { useReportedPhotos } from '@/hooks/usePhotos';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 
 /**
  * A-01 Owner tools: today's orders as three big numbers (new ones are the
- * loudest), MANAGE ORDERS, then pop-ups — a new one, or the ones you have.
+ * loudest), MANAGE ORDERS, then pop-ups — a new one, or the ones you have —
+ * and reported photos waiting for a decision.
  */
 export default function OwnerHomeScreen() {
   const theme = useTheme();
@@ -22,6 +24,8 @@ export default function OwnerHomeScreen() {
   const tabBarInset = useTabBarInset();
   const { orders } = useOwnerOrders();
   const eventsQuery = useOwnerEvents();
+  const reported = useReportedPhotos();
+  const toReview = reported.data?.length ?? 0;
 
   const counts = useMemo(
     () => ({
@@ -78,6 +82,17 @@ export default function OwnerHomeScreen() {
         subtitle={`${events.live} live, ${events.upcoming} upcoming`}
         state="arrow"
         onPress={() => router.push('/(profile)/owner/events')}
+      />
+
+      <ThemedText type="subtitle" accessibilityRole="header">
+        Photos of the week
+      </ThemedText>
+      <TaskCard
+        icon="photo"
+        title="Reported photos"
+        subtitle={toReview === 0 ? 'Nothing to review' : `${toReview} to review`}
+        state="arrow"
+        onPress={() => router.push('/(profile)/owner/reports')}
       />
     </ScrollView>
   );
