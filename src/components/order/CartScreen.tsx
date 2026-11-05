@@ -347,10 +347,10 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     borderBottomWidth: 1,
   },
+  // Square, like the rest of the app's photos.
   round: {
     width: 64,
     height: 64,
-    borderRadius: 32,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',

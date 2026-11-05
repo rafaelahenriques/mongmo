@@ -12,7 +12,6 @@ import { Icon, type IconName } from '@/components/ui/Icon';
 import { usePullToRefresh } from '@/components/ui/Screen';
 import { StampRow } from '@/components/ui/Stamps';
 import { StepBar } from '@/components/ui/StepBar';
-import { BrandPhotoFocus, BrandPhotos } from '@/constants/brandPhotos';
 import { productPhoto } from '@/constants/productPhotos';
 import { CardShadow, PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
@@ -120,7 +119,7 @@ export default function HomeScreen() {
         contentContainerStyle={{ paddingBottom: tabBarInset + 32 }}
         refreshControl={<RefreshControl refreshing={refresh.refreshing} onRefresh={refresh.onRefresh} />}
       >
-        {/* Your points: the number big on sage, the photo beside it, the stamps under. */}
+        {/* Your points: the number big on sage, the next reward beside it, the stamps under. */}
         <Pressable
           onPress={() => router.navigate('/(wallet)')}
           accessibilityRole="button"
@@ -142,24 +141,20 @@ export default function HomeScreen() {
               POINTS
             </ThemedText>
           </View>
-          {BrandPhotos.card ? (
-            <Image
-              accessible={false}
-              accessibilityLabel=""
-              source={BrandPhotos.card}
-              style={styles.heroPhoto}
-              contentFit="cover"
-              contentPosition={BrandPhotoFocus.card}
-            />
-          ) : null}
+          <View style={styles.heroSide}>
+            <ThemedText type="label" themeColor="textSecondary">
+              {nextReward ? 'NEXT REWARD' : 'REWARDS'}
+            </ThemedText>
+            <ThemedText type="section" numberOfLines={3}>
+              {nextReward ? nextReward.title : 'Your points cover one'}
+            </ThemedText>
+            <ThemedText type="caption" themeColor="textSecondary">
+              {nextReward ? `${nextReward.costPoints - summary.points} points to go` : 'Redeem it in Wallet'}
+            </ThemedText>
+          </View>
         </Pressable>
         <View style={styles.page}>
           <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
-          <ThemedText type="caption" themeColor="textSecondary" style={styles.stampNote}>
-            {nextReward
-              ? `${nextReward.costPoints - summary.points} points to ${nextReward.title}`
-              : 'Your points cover a reward'}
-          </ThemedText>
 
           {/* Hello, and the one big way in: order. */}
           <View style={styles.helloRow}>
@@ -198,13 +193,16 @@ export default function HomeScreen() {
               }}
               accessibilityRole="button"
               accessibilityLabel="Order"
-              style={({ pressed }) => [styles.orderLink, { opacity: pressed ? 0.7 : 1 }]}
+              // One sage block, the word on it: the block says "tap me", no
+              // arrow or icon needed on top.
+              style={({ pressed }) => [
+                styles.orderBlock,
+                { backgroundColor: theme.brandFill, opacity: pressed ? 0.85 : 1 },
+              ]}
             >
-              <ThemedText type="item">ORDER</ThemedText>
-              <Icon name="chevronRight" size={22} color={theme.text} weight="bold" />
-              <View style={[styles.square, styles.orderSquare, { backgroundColor: theme.brandFill }]}>
-                <Icon name="bag" size={28} color={theme.onBrand} />
-              </View>
+              <ThemedText type="item" style={{ color: theme.onBrand }}>
+                ORDER
+              </ThemedText>
             </Pressable>
           </View>
         </View>
@@ -505,11 +503,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: PageInset,
   },
   hero: {
+    flexDirection: 'row',
     minHeight: 190,
     marginBottom: 14,
   },
   heroBlock: {
-    width: '64%',
+    width: '56%',
     minHeight: 190,
     paddingHorizontal: PageInset,
     paddingTop: 18,
@@ -521,16 +520,12 @@ const styles = StyleSheet.create({
     // Never below the font size: iOS cuts the top off the glyphs.
     lineHeight: 68,
   },
-  heroPhoto: {
-    position: 'absolute',
-    right: PageInset,
-    top: 26,
-    width: 132,
-    height: 132,
-    borderRadius: 66,
-  },
-  stampNote: {
-    marginTop: 6,
+  heroSide: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    gap: 4,
   },
   helloRow: {
     flexDirection: 'row',
@@ -539,26 +534,22 @@ const styles = StyleSheet.create({
   },
   orderRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: 'stretch',
+    gap: 8,
     marginTop: 8,
     marginBottom: 24,
   },
-  orderLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
+  orderBlock: {
+    flex: 1,
+    minHeight: 56,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
   },
   square: {
     width: 56,
     height: 56,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  orderSquare: {
-    width: 72,
-    height: 64,
-    marginLeft: 6,
   },
   cards: {
     paddingHorizontal: PageInset,
