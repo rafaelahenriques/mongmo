@@ -10,3 +10,4 @@ assets/
 supabase/
 *.md
 public/privacy.html
+docs/design/material-theme.json

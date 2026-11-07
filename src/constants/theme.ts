@@ -8,14 +8,18 @@ import '@/global.css';
 import { Platform } from 'react-native';
 
 /**
- * Mongmo palette, from the brand style guide and the app design in Figma:
- * one accent colour, Weathered Sage, for what is live and for the main
- * action; everything else is near-black ink, off-white paper and greys
- * (Aged Concrete White as "stone", Shadow Grey for quiet text).
+ * Mongmo palette, from the brand style guide, the app design in Figma and
+ * the Material 3 theme built from it (docs/design/theme.md: primary sage
+ * #80C7BC, secondary cream #F1E4B2, tertiary rose #B88F8C, neutral stone
+ * #ECEAE3, neutral variant ink #2F302B). Weathered Sage is for what is live
+ * and for the main action; everything else is near-black ink, off-white
+ * paper and greys. Where the Material scheme names a role the app has
+ * (error, outline, the deep sage for text), its value is used here.
  *
- * The brand never uses pure white or pure black. Paper is the near-white
- * page and Ink the near-black of the dark mode, camera screens and QR code.
- * Text colours pass WCAG AA (4.5:1) on every surface they sit on.
+ * The brand never uses pure white or pure black, so Material's #FFFFFF and
+ * #000000 roles become Paper and Ink. Paper is the near-white page and Ink
+ * the near-black of the dark mode, camera screens and QR code. Text colours
+ * pass WCAG AA (4.5:1) on every surface they sit on.
  */
 export const Paper = '#FAF9F5';
 export const Ink = '#1C1D19';
@@ -38,14 +42,15 @@ export const Colors = {
     backgroundSelected: '#ECEAE3',
     /** Shadow Grey — 5.5:1 on paper, 4.8:1 on light stone. */
     textSecondary: '#65665D',
-    /** Aged Concrete White ("stone"): hairlines and dividers only (decorative). */
-    border: '#D6D1C4',
+    /** Hairlines and dividers only (decorative): Material outline variant. */
+    border: '#C7C7BF',
     /** The edge of a control you must see to use (text fields, switches off,
-     *  time pills): 3.15:1 or more on every light surface (WCAG 1.4.11). */
-    outline: '#86837A',
+     *  time pills): Material outline, 3.7:1 or more on every light surface
+     *  (WCAG 1.4.11). */
+    outline: '#777870',
     /** The big quiet word next to a number ("25 POINTS"), unavailable days:
-     *  large text, 3.15:1 or more on every light surface. */
-    faded: '#86837A',
+     *  large text, 3.7:1 or more on every light surface. */
+    faded: '#777870',
     /** Card shadow colour. */
     shadow: 'rgba(46, 46, 43, 0.10)',
     /** Dark pill buttons and round icon buttons, paper text (12.6:1). */
@@ -67,14 +72,18 @@ export const Colors = {
     onBrand: '#2F302B',
     /** The second word on sage ("POINTS" by the number): large text, 3.5:1. */
     onBrandSoft: '#44615A',
-    /** Deep sage for the rare sage text (6.7:1 on paper). */
-    primaryText: '#2B6259',
-    /** Board cream, from the menu board: small highlights. */
-    accent: '#FBE3B0',
+    /** Deep sage for the rare sage text: Material primary (6.2:1 on paper). */
+    primaryText: '#1C6960',
+    /** Cream, the theme's secondary colour: small highlights. */
+    accent: '#F1E4B2',
     onAccent: '#2F302B',
-    /** AA (4.5:1) on paper and light stone. */
+    /** Dusty rose, the theme's third colour (tertiary container), with its
+     *  text colour (4.6:1). */
+    tertiary: '#B88F8C',
+    onTertiary: '#462928',
+    /** AA (4.5:1) on paper and light stone. Danger is Material's error. */
     success: '#21653F',
-    danger: '#A33024',
+    danger: '#BA1A1A',
     warning: '#7A5115',
   },
   dark: {
@@ -85,10 +94,10 @@ export const Colors = {
     backgroundSelected: '#34352E',
     /** 6:1 on fills. */
     textSecondary: '#B8B4A8',
-    border: '#45463F',
-    /** 3.3:1 or more on every dark surface. */
-    outline: '#86847B',
-    faded: '#86847B',
+    /** Material outline variant and outline: 3.9:1 or more on every dark surface. */
+    border: '#464741',
+    outline: '#91918A',
+    faded: '#91918A',
     shadow: inkAlpha(0),
     primary: '#ECEAE3',
     onPrimary: '#22231E',
@@ -104,10 +113,13 @@ export const Colors = {
     onBrand: '#22231E',
     onBrandSoft: '#44615A',
     primaryText: Sage,
-    accent: '#FBE3B0',
+    accent: '#F1E4B2',
     onAccent: '#22231E',
+    tertiary: '#B88F8C',
+    onTertiary: '#462928',
     success: '#3BB16F',
-    danger: '#E18278',
+    /** Material's dark error. */
+    danger: '#FFB4AB',
     warning: '#D68D24',
   },
 } as const;
@@ -140,43 +152,32 @@ export const Fonts = Platform.select({
 });
 
 /**
- * Brand typefaces. Titles, names, labels, buttons and big numbers: League
- * Spartan Black in capitals, bundled (see FONT_ASSETS) and with every
- * Vietnamese letter. Text: Helvetica (see BodyFont).
+ * Brand typefaces, from the Material theme (docs/design/theme.md): League
+ * Spartan for display and titles, Lato for body and labels. Both are
+ * bundled (see FONT_ASSETS), never loaded from a font service, and both
+ * have every Vietnamese letter.
  */
 export const FontFamily = {
   /** League Spartan Black: titles, names and big numbers, in capitals. */
   display: 'LeagueSpartan_900Black',
   /** The same face for card titles, labels and buttons. */
   heavy: 'LeagueSpartan_900Black',
+  /** Lato, for text. */
+  body: 'Lato_400Regular',
+  bodyMedium: 'Lato_500Medium',
+  bodyBold: 'Lato_700Bold',
 } as const;
 
-/** Helvetica on the web, falling back to its look-alikes. */
-const HELVETICA_WEB = '"Helvetica Neue", Helvetica, Arial, sans-serif';
-
 /**
- * Text in Helvetica. It's a licensed font, so it isn't bundled: iPhones and
- * iPads have Helvetica Neue built in and the app uses theirs. Android has
- * no Helvetica, so it uses its own Roboto; the web, Helvetica or Arial.
- * Spread a weight into a style: `{ ...BodyFont.bold, fontSize: 14 }`.
+ * Text in Lato, the same on iPhone, Android and the web. Spread a weight
+ * into a style: `{ ...BodyFont.bold, fontSize: 14 }`. Each weight is its
+ * own font file, so don't add a fontWeight.
  */
-export const BodyFont = Platform.select({
-  ios: {
-    regular: { fontFamily: 'HelveticaNeue' },
-    medium: { fontFamily: 'HelveticaNeue-Medium' },
-    bold: { fontFamily: 'HelveticaNeue-Bold' },
-  },
-  android: {
-    regular: { fontFamily: 'sans-serif' },
-    medium: { fontFamily: 'sans-serif-medium' },
-    bold: { fontFamily: 'sans-serif', fontWeight: '700' as const },
-  },
-  default: {
-    regular: { fontFamily: HELVETICA_WEB, fontWeight: '400' as const },
-    medium: { fontFamily: HELVETICA_WEB, fontWeight: '500' as const },
-    bold: { fontFamily: HELVETICA_WEB, fontWeight: '700' as const },
-  },
-});
+export const BodyFont = {
+  regular: { fontFamily: FontFamily.body },
+  medium: { fontFamily: FontFamily.bodyMedium },
+  bold: { fontFamily: FontFamily.bodyBold },
+} as const;
 
 /**
  * Corner radii. Round things sit on the page (pill buttons, chips, fields);

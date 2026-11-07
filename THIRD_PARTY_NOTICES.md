@@ -10,7 +10,7 @@ end up inside the app; they are listed anyway. Don't edit this file by hand.
 ## Fonts
 
 - **League Spartan** (titles), bundled, used under the SIL Open Font License 1.1 (full text below): Copyright 2020 The League Spartan Project Authors (https://github.com/theleagueof/league-spartan)
-- **Helvetica Neue** (text) is not bundled: on Apple devices the app uses the copy built into the system, under Apple's terms. Android shows its own system font (Roboto) and the web Helvetica or Arial from the browser.
+- **Lato** (text), bundled from Google Fonts' repository (assets/fonts), used under the SIL Open Font License 1.1 (full text below): Copyright (c) 2010-2014 by tyPoland Lukasz Dziedzic (team@latofonts.com) with Reserved Font Name "Lato"
 
 ## Icons, maps and data
 
@@ -438,6 +438,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | expo-modules-macros | 0.29.0 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-notifications | 58.1.8 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-router | 58.0.30 | MIT | 650 Industries, Inc. |
+| expo-secure-store | 58.0.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-sensors | 58.0.4 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-server | 58.0.6 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-splash-screen | 58.0.13 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
@@ -446,7 +447,6 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | expo-system-ui | 58.0.7 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-task-manager | 58.0.13 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-updates-interface | 58.0.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
-| expo-web-browser | 58.0.7 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | exponential-backoff | 3.1.3 | Apache-2.0 | copyright notice that is included in or attached to the work; copyright license to reproduce, prepare Derivative Works of, |
 | fast-json-stable-stringify | 2.1.0 | MIT | Copyright (c) 2017 Evgeny Poberezkin; Copyright (c) 2013 James Halliday |
 | fb-dotslash | 0.5.8 | (MIT OR Apache-2.0) | See https://github.com/facebook/dotslash |
