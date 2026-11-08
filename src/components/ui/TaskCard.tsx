@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'rea
 
 import { ThemedText } from '@/components/ThemedText';
 import { Icon, type IconName } from '@/components/ui/Icon';
-import { CardShadow } from '@/constants/theme';
+import { CardShadow, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { nameFromContent } from '@/utils/a11y';
@@ -34,9 +34,9 @@ export type TaskCardProps = {
 };
 
 /**
- * The design's task card: a square icon block on the left, an uppercase
- * title and a grey line, and a square on the right edge. Challenges,
- * notifications, rewards, services, history.
+ * The task card: a rounded tile with an icon or sticker on the left, a
+ * title and a grey line, and a round button or value on the right.
+ * Challenges, notifications, rewards, services, history.
  */
 export function TaskCard({
   icon,
@@ -125,44 +125,50 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 76,
+    minHeight: 80,
+    borderRadius: Radius.card,
+    overflow: 'hidden',
+    paddingRight: 12,
   },
+  // A rounded tile inside the card, with the icon or sticker on it.
   iconBlock: {
-    width: 76,
-    alignSelf: 'stretch',
-    minHeight: 76,
+    width: 60,
+    height: 60,
+    margin: 10,
+    borderRadius: Radius.large,
     alignItems: 'center',
     justifyContent: 'center',
   },
   image: {
-    width: 64,
-    height: 64,
+    width: 56,
+    height: 56,
   },
   texts: {
     flex: 1,
     minWidth: 0,
     gap: 2,
-    paddingLeft: 12,
+    paddingLeft: 4,
     paddingRight: 8,
     paddingVertical: 10,
   },
   box: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
+    borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // A word ("Redeem") widens the square instead of breaking across lines.
+  // A word ("Redeem") widens the circle into a pill instead of breaking.
   valueBox: {
     width: 'auto',
-    minWidth: 48,
-    paddingHorizontal: 10,
+    minWidth: 44,
+    paddingHorizontal: 14,
   },
   arrowBox: {
-    width: 44,
-    height: 44,
+    width: 40,
+    height: 40,
   },
   plain: {
-    paddingRight: 14,
+    paddingRight: 2,
   },
 });

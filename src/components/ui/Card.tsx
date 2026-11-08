@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from 'react';
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { CardShadow, Spacing } from '@/constants/theme';
+import { CardShadow, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { ripple } from '@/components/ui/ripple';
@@ -17,7 +17,7 @@ export type CardProps = PropsWithChildren<{
   style?: StyleProp<ViewStyle>;
 }>;
 
-/** The app's main surface: a square near-white card with a soft shadow. */
+/** The app's main surface: a rounded near-white card with a soft shadow, or a colour tile. */
 export function Card({
   children,
   onPress,
@@ -70,5 +70,7 @@ const styles = StyleSheet.create({
   card: {
     padding: Spacing.three,
     gap: Spacing.two,
+    borderRadius: Radius.card,
+    overflow: 'hidden',
   },
 });

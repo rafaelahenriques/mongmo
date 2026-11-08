@@ -12,7 +12,8 @@ import { BlockButton } from '@/components/ui/BlockButton';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { Segmented } from '@/components/ui/Segmented';
-import { CardShadow, PageInset } from '@/constants/theme';
+import { CardShadow, PageInset, Radius } from '@/constants/theme';
+import { ripple } from '@/components/ui/ripple';
 import { useMenu } from '@/hooks/useMenu';
 import { useMyOrders } from '@/hooks/useMyOrders';
 import { usePickupPlace } from '@/hooks/usePickupPlace';
@@ -97,7 +98,10 @@ export default function MenuScreen() {
           }}
           accessibilityRole="button"
           {...nameFromContent(`Pick up at ${place?.name ?? ''}, ${when}. Change.`)}
-          style={({ pressed }) => [styles.pickup, { borderColor: theme.border, opacity: pressed ? 0.7 : 1 }]}
+          style={({ pressed }) => [
+            styles.pickup,
+            { backgroundColor: theme.backgroundSelected, opacity: pressed ? 0.8 : 1 },
+          ]}
         >
           <Icon name="pin" size={24} color={theme.text} />
           <View style={styles.flex}>
@@ -140,28 +144,39 @@ export default function MenuScreen() {
           </ThemedText>
         ) : (
           <View style={styles.sections}>
-            {sections.map((section) => {
+            {sections.map((section, index) => {
               const from = Math.min(...section.items.map((item) => item.priceCents));
+              const tone = sectionTone(theme, index);
               return (
                 <Pressable
                   key={section.name}
+                  android_ripple={ripple(tone.ink)}
                   onPress={() => {
                     haptics.tap();
                     router.push({ pathname: '/(orders)/order/category/[name]', params: { name: section.name } });
                   }}
                   accessibilityRole="button"
                   {...nameFromContent(`${section.name}, from ${formatCents(from)} euro`)}
-                  style={({ pressed }) => [styles.section, { opacity: pressed ? 0.6 : 1 }]}
+                  style={({ pressed }) => [
+                    styles.section,
+                    { backgroundColor: tone.background, transform: [{ scale: pressed ? 0.98 : 1 }] },
+                  ]}
                 >
-                  <View style={styles.icon}>
-                    <CategoryIcon section={section.name} size={30} />
+                  <View style={styles.sectionText}>
+                    {/* The number is decoration: the name and price say it all. */}
+                    <ThemedText type="label" aria-hidden style={{ color: tone.ink }}>
+                      {String(index + 1).padStart(2, '0')}
+                    </ThemedText>
+                    <ThemedText type="title" style={{ color: tone.ink }}>
+                      {section.name}
+                    </ThemedText>
+                    <ThemedText type="captionBold" style={{ color: tone.ink }}>
+                      {`From ${formatCents(from)}`}
+                    </ThemedText>
                   </View>
-                  <ThemedText type="subtitle" style={styles.name}>
-                    {section.name}
-                  </ThemedText>
-                  <ThemedText type="captionBold" themeColor="textSecondary">
-                    {formatCents(from)}
-                  </ThemedText>
+                  <View style={styles.sectionArt}>
+                    <CategoryIcon section={section.name} size={96} />
+                  </View>
                 </Pressable>
               );
             })}
@@ -180,6 +195,17 @@ export default function MenuScreen() {
       ) : null}
     </View>
   );
+}
+
+/** The sections' colours, in turn: sage, cream, rose, stone. Each with its text colour (AA). */
+function sectionTone(theme: ReturnType<typeof useTheme>, index: number) {
+  const tones = [
+    { background: theme.brandFill, ink: theme.onBrand },
+    { background: theme.accent, ink: theme.onAccent },
+    { background: theme.tertiary, ink: theme.onTertiary },
+    { background: theme.backgroundSelected, ink: theme.text },
+  ];
+  return tones[index % tones.length];
 }
 
 /** Past orders, newest first, each one tap from the cart again. */
@@ -260,8 +286,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    borderBottomWidth: 1,
-    paddingBottom: 16,
+    padding: 16,
+    borderRadius: Radius.card,
   },
   loader: {
     marginVertical: 24,
@@ -271,24 +297,33 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   sections: {
-    gap: 4,
+    gap: 12,
   },
+  // A colour tile per section: its number, name and price on the left, its sticker on the right.
   section: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
-    minHeight: 56,
-    paddingVertical: 6,
+    minHeight: 132,
+    borderRadius: Radius.tile,
+    paddingLeft: 20,
+    paddingRight: 12,
+    paddingVertical: 16,
+    overflow: 'hidden',
   },
-  icon: {
-    width: 34,
-    alignItems: 'center',
+  sectionText: {
+    flex: 1,
+    minWidth: 0,
+    gap: 4,
+  },
+  sectionArt: {
+    transform: [{ rotate: '-6deg' }],
   },
   orders: {
     gap: 10,
   },
   order: {
     overflow: 'hidden',
+    borderRadius: Radius.card,
   },
   orderBody: {
     gap: 3,

@@ -43,7 +43,7 @@ export function SquareIconButton({
         {
           width: size,
           height: size,
-          borderRadius: dark ? 0 : size / 2,
+          borderRadius: size / 2,
           backgroundColor: dark ? theme.surfaceDark : 'rgba(26, 26, 23, 0.5)',
           opacity: pressed ? 0.8 : 1,
         },
