@@ -50,8 +50,11 @@ the release workflow publishes that section as the GitHub release notes.
 - A new look, photo first: Home opens on a kitchen photo with your name,
   points and Order ahead over it; pop-ups are tall photo posters with
   Check in and Directions on them; the menu's sections are dish photos;
-  the café's page is a photo card. Rounder cards, pill buttons and a
-  floating tab bar. Same fonts, colours and features.
+  the café's page is a photo card; the cart and checkout show where you
+  pick up as a photo. Sections are numbered (01, 02, …) on Home, the
+  Wallet, the cart and checkout, and rewards are a clean list. Rounder
+  cards, pill buttons and a floating tab bar. Same fonts, colours and
+  features.
 - A pop-up's page shows when and where side by side, and how busy it is
   as a sage bar.
 - On an item's page, the price drops under the name when text is large.

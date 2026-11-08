@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'rea
 
 import { ThemedText } from '@/components/ThemedText';
 import { Icon, type IconName } from '@/components/ui/Icon';
-import { CardShadow, Spacing } from '@/constants/theme';
+import { CardShadow, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 
@@ -25,8 +25,8 @@ export type SegmentOption<T extends string> = {
  *   (Weekly · All-time, Today · This week · All).
  * - `switch`: a compact track for a setting or a floating view toggle
  *   (Map | List, System · Light · Dark).
- * - `blocks`: square segments, sage and ringed when picked, for a choice in
- *   a form (Bakery | Live pop-up, Mango | Peanut).
+ * - `blocks`: a full-width stone track of pills, the picked one sage and
+ *   ringed, for a choice in a form (Bakery | Live pop-up, Mango | Peanut).
  */
 export function Segmented<T extends string>({
   options,
@@ -56,7 +56,7 @@ export function Segmented<T extends string>({
         look === 'tabs' && [styles.tabs, { borderBottomColor: theme.border }],
         look === 'chips' && styles.chips,
         look === 'switch' && [styles.switch, { backgroundColor: theme.background, boxShadow: CardShadow }],
-        look === 'blocks' && styles.blocks,
+        look === 'blocks' && [styles.blocks, { backgroundColor: theme.backgroundSelected }],
         style,
       ]}
       // Tabs and the view switch change what the screen shows; chips and
@@ -138,14 +138,14 @@ export function Segmented<T extends string>({
               style={[
                 styles.block,
                 {
-                  backgroundColor: selected ? theme.brandFill : theme.backgroundSelected,
+                  backgroundColor: selected ? theme.brandFill : 'transparent',
                   // An ink ring, so the choice doesn't rest on sage vs stone alone.
                   borderColor: selected ? theme.text : 'transparent',
                 },
               ]}
             >
               <ThemedText
-                type="label"
+                type="button"
                 numberOfLines={1}
                 adjustsFontSizeToFit
                 minimumFontScale={0.8}
@@ -213,15 +213,19 @@ const styles = StyleSheet.create({
   blocks: {
     flexDirection: 'row',
     alignSelf: 'stretch',
-    gap: 2,
+    gap: 4,
+    padding: 4,
+    borderRadius: Radius.pill,
   },
   block: {
     flex: 1,
     minWidth: 0,
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 10,
-    paddingVertical: 11,
+    paddingVertical: 8,
     borderWidth: 2,
+    borderRadius: Radius.pill,
   },
 });
