@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { IconBadge } from '@/components/ui/IconBadge';
 import type { IconName } from '@/components/ui/Icon';
+import { Stickers, type StickerName } from '@/constants/stickers';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { Sticker } from '@/components/ui/Sticker';
 
 /**
  * The states every screen that loads data shows the same way: loading,
@@ -52,12 +54,15 @@ export function ErrorState({
 /** Nothing here yet: what will appear, and optionally the way to get it. */
 export function EmptyState({
   icon,
+  sticker,
   text,
   actionLabel,
   onAction,
   style,
 }: {
   icon: IconName;
+  /** One of Mongmo's stickers instead of the icon. Decorative: the text says it. */
+  sticker?: StickerName;
   text: string;
   actionLabel?: string;
   onAction?: () => void;
@@ -66,7 +71,11 @@ export function EmptyState({
   return (
     <Card tone="muted" style={[styles.box, style]}>
       <View accessible accessibilityRole="text" accessibilityLabel={text} style={styles.inner}>
-        <IconBadge name={icon} tone="card" size={52} />
+        {sticker ? (
+          <Sticker source={Stickers[sticker]} style={styles.sticker} />
+        ) : (
+          <IconBadge name={icon} tone="card" size={52} />
+        )}
         <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
           {text}
         </ThemedText>
@@ -99,5 +108,9 @@ const styles = StyleSheet.create({
   center: {
     textAlign: 'center',
     maxWidth: 320,
+  },
+  sticker: {
+    width: 96,
+    height: 96,
   },
 });

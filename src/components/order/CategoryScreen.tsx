@@ -52,7 +52,11 @@ export default function CategoryScreen({ name }: { name: string }) {
         ) : menu.isError ? (
           <ErrorState message="Couldn’t load the menu." onRetry={() => void menu.refetch()} />
         ) : !section ? (
-          <EmptyState icon="food" text="Nothing in this section right now. Have a look at the rest of the menu." />
+          <EmptyState
+            icon="food"
+            sticker="chillies"
+            text="Nothing in this section right now. Have a look at the rest of the menu."
+          />
         ) : (
           <View style={styles.grid}>
             {section.items.map((item) => (

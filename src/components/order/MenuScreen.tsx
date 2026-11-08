@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 import { useQuery } from '@tanstack/react-query';
 import { formatInTimeZone } from 'date-fns-tz';
 
@@ -11,8 +12,11 @@ import { AppHeader } from '@/components/ui/AppHeader';
 import { BlockButton } from '@/components/ui/BlockButton';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
+import { glass, onPhoto, onPhotoSoft, PhotoShade } from '@/components/ui/PhotoShade';
 import { Segmented } from '@/components/ui/Segmented';
-import { CardShadow, PageInset } from '@/constants/theme';
+import { PRODUCT_PHOTO_POSITION, sectionPhoto } from '@/constants/productPhotos';
+import { CardShadow, PageInset, Radius } from '@/constants/theme';
+import { ripple } from '@/components/ui/ripple';
 import { useMenu } from '@/hooks/useMenu';
 import { useMyOrders } from '@/hooks/useMyOrders';
 import { usePickupPlace } from '@/hooks/usePickupPlace';
@@ -97,7 +101,10 @@ export default function MenuScreen() {
           }}
           accessibilityRole="button"
           {...nameFromContent(`Pick up at ${place?.name ?? ''}, ${when}. Change.`)}
-          style={({ pressed }) => [styles.pickup, { borderColor: theme.border, opacity: pressed ? 0.7 : 1 }]}
+          style={({ pressed }) => [
+            styles.pickup,
+            { backgroundColor: theme.backgroundSelected, opacity: pressed ? 0.8 : 1 },
+          ]}
         >
           <Icon name="pin" size={24} color={theme.text} />
           <View style={styles.flex}>
@@ -140,28 +147,59 @@ export default function MenuScreen() {
           </ThemedText>
         ) : (
           <View style={styles.sections}>
-            {sections.map((section) => {
+            {sections.map((section, index) => {
               const from = Math.min(...section.items.map((item) => item.priceCents));
+              const photo = sectionPhoto(section.name);
               return (
                 <Pressable
                   key={section.name}
+                  android_ripple={ripple(theme.text)}
                   onPress={() => {
                     haptics.tap();
                     router.push({ pathname: '/(orders)/order/category/[name]', params: { name: section.name } });
                   }}
                   accessibilityRole="button"
                   {...nameFromContent(`${section.name}, from ${formatCents(from)} euro`)}
-                  style={({ pressed }) => [styles.section, { opacity: pressed ? 0.6 : 1 }]}
+                  style={({ pressed }) => [
+                    styles.section,
+                    { backgroundColor: theme.surfaceDark, transform: [{ scale: pressed ? 0.99 : 1 }] },
+                  ]}
                 >
-                  <View style={styles.icon}>
-                    <CategoryIcon section={section.name} size={30} />
+                  {/* One of the section's dishes, its name over it; the sticker until there's a photo. */}
+                  {photo ? (
+                    <>
+                      <Image
+                        accessible={false}
+                        accessibilityLabel=""
+                        source={photo}
+                        style={StyleSheet.absoluteFill}
+                        contentFit="cover"
+                        contentPosition={PRODUCT_PHOTO_POSITION}
+                      />
+                      <PhotoShade from={0} to={0.72} />
+                    </>
+                  ) : (
+                    <View style={styles.sectionSticker}>
+                      <CategoryIcon section={section.name} size={110} />
+                    </View>
+                  )}
+                  <View style={styles.sectionRow}>
+                    <View style={styles.sectionText}>
+                      {/* The number is decoration: the name and price say it all. */}
+                      <ThemedText type="label" aria-hidden style={onPhotoSoft}>
+                        {String(index + 1).padStart(2, '0')}
+                      </ThemedText>
+                      <ThemedText type="title" style={onPhoto}>
+                        {section.name}
+                      </ThemedText>
+                      <ThemedText type="small" style={onPhotoSoft}>
+                        {`From ${formatCents(from)}`}
+                      </ThemedText>
+                    </View>
+                    <View style={[styles.roundGo, glass]}>
+                      <Icon name="arrowRight" size={18} color={onPhoto.color} weight="bold" />
+                    </View>
                   </View>
-                  <ThemedText type="subtitle" style={styles.name}>
-                    {section.name}
-                  </ThemedText>
-                  <ThemedText type="captionBold" themeColor="textSecondary">
-                    {formatCents(from)}
-                  </ThemedText>
                 </Pressable>
               );
             })}
@@ -260,8 +298,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    borderBottomWidth: 1,
-    paddingBottom: 16,
+    padding: 16,
+    borderRadius: Radius.card,
   },
   loader: {
     marginVertical: 24,
@@ -271,24 +309,45 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   sections: {
-    gap: 4,
+    gap: 16,
   },
+  // A photo card per section: the dish, and over its bottom the number, name and price.
   section: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    minHeight: 56,
-    paddingVertical: 6,
+    borderRadius: Radius.tile,
+    overflow: 'hidden',
+    minHeight: 220,
+    justifyContent: 'flex-end',
   },
-  icon: {
-    width: 34,
+  sectionSticker: {
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 60,
+  },
+  sectionRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 12,
+    padding: 20,
+  },
+  sectionText: {
+    flex: 1,
+    minWidth: 0,
+    gap: 2,
+  },
+  roundGo: {
+    width: 44,
+    height: 44,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   orders: {
     gap: 10,
   },
   order: {
     overflow: 'hidden',
+    borderRadius: Radius.card,
   },
   orderBody: {
     gap: 3,

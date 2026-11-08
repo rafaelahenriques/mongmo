@@ -11,6 +11,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { BlockButton } from '@/components/ui/BlockButton';
 import { ListRow } from '@/components/ui/ListRow';
 import { Segmented } from '@/components/ui/Segmented';
+import { Chapter } from '@/components/ui/Chapter';
 import { TextField } from '@/components/ui/TextField';
 import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
@@ -152,7 +153,7 @@ export default function CheckoutScreen() {
       <PickupHeader place={place?.name ?? ''} image={place?.image} onBack={back} />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.group}>
-          <ThemedText type="smallBold">Where</ThemedText>
+          <Chapter number="01" title="Where" />
           {livePopUp || location.type === 'event' ? (
             <Segmented
               look="blocks"
@@ -172,7 +173,7 @@ export default function CheckoutScreen() {
         </View>
 
         <View style={styles.group}>
-          <ThemedText type="smallBold">When</ThemedText>
+          <Chapter number="02" title="When" />
           {/* The café: a calendar of the next two weeks. A pop-up only on its own night(s). */}
           {chosenDay && (place?.kind === 'store' || openDays.length > 1) ? (
             <PickupCalendar
@@ -201,7 +202,7 @@ export default function CheckoutScreen() {
 
         {needsName ? (
           <View style={styles.group}>
-            <ThemedText type="smallBold">Your details</ThemedText>
+            <Chapter number="03" title="Your details" />
             <TextField
               label="Name"
               hideLabel
@@ -244,11 +245,11 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: PageInset,
-    paddingTop: 16,
+    paddingTop: 18,
     paddingBottom: 24,
-    gap: 20,
+    gap: 26,
   },
   group: {
-    gap: 8,
+    gap: 10,
   },
 });

@@ -3,7 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Icon } from '@/components/ui/Icon';
-import { PageInset } from '@/constants/theme';
+import { PageInset, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { nameFromContent } from '@/utils/a11y';
@@ -29,9 +29,9 @@ export type BlockButtonProps = {
 };
 
 /**
- * The design's square action block: an uppercase label, an optional value
- * and an arrow, attached to the bottom of the screen ("ADD TO ORDER 5,00 →")
- * or to the edge of a card ("CHECK IN →").
+ * The main action: a pill floating over the bottom of the screen ("ADD TO
+ * ORDER 5,00 →"), or a compact block on the edge of a card ("CHECK IN →").
+ * An uppercase label, an optional value and an arrow.
  */
 export function BlockButton({
   label,
@@ -68,12 +68,14 @@ export function BlockButton({
       aria-busy={loading}
       style={({ pressed }) => [
         { backgroundColor: background, opacity: pressed && !inactive ? 0.85 : 1 },
-        bottomInset && { paddingBottom: insets.bottom },
+        // The bar floats as a pill above the bottom edge; the compact block
+        // stays square, flush with the card it belongs to.
+        size === 'bar' && [styles.bar, { marginBottom: bottomInset ? insets.bottom + 8 : 12 }],
         style,
       ]}
     >
       <View style={[styles.row, size === 'compact' && styles.compact]}>
-        <ThemedText type="label" numberOfLines={1} style={[styles.label, { color }]}>
+        <ThemedText type="button" numberOfLines={1} style={[styles.label, { color }]}>
           {label}
         </ThemedText>
         {loading ? (
@@ -81,7 +83,7 @@ export function BlockButton({
         ) : (
           <View style={styles.right}>
             {value ? (
-              <ThemedText type="label" style={{ color }}>
+              <ThemedText type="button" style={{ color }}>
                 {value}
               </ThemedText>
             ) : null}
@@ -94,6 +96,12 @@ export function BlockButton({
 }
 
 const styles = StyleSheet.create({
+  bar: {
+    marginHorizontal: 16,
+    marginTop: 8,
+    borderRadius: Radius.pill,
+    overflow: 'hidden',
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

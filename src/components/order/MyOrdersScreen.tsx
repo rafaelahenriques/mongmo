@@ -85,7 +85,7 @@ export default function MyOrdersScreen() {
         ) : orders.isError ? (
           <ErrorState message="Couldn’t load your orders." onRetry={() => void orders.refetch()} />
         ) : past.length === 0 ? (
-          <EmptyState icon="receipt" text="No past orders yet. Your first one will show up here." />
+          <EmptyState icon="receipt" sticker="banhMi" text="No past orders yet. Your first one will show up here." />
         ) : (
           past.map((order) => (
             <TaskCard
