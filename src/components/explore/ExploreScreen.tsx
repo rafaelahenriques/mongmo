@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { LayoutAnimation, PanResponder, Pressable, StyleSheet, View } from 'react-native';
+import { LayoutAnimation, PanResponder, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { formatInTimeZone } from 'date-fns-tz';
 
 import FilterBar from '@/components/map/FilterBar';
@@ -23,6 +23,7 @@ import { haptics } from '@/services/haptics';
 import { useBusyStore } from '@/state/busyStore';
 import { useFilterStore } from '@/state/filterStore';
 import { useLocationStore } from '@/state/locationStore';
+import { nameFromContent } from '@/utils/a11y';
 import { getEventPhase } from '@/utils/dateTime';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import type { PopUpEvent } from '@/types';
@@ -140,7 +141,7 @@ export default function ExploreScreen() {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <AppHeader title="Pop-ups" />
-      <View style={styles.flex}>
+      <View style={styles.map}>
         <MapMode
           store={store}
           storeLoading={storeQuery.isPending && !store}
@@ -183,7 +184,8 @@ export default function ExploreScreen() {
           </Pressable>
         )}
         {panelOpen ? (
-          <>
+          // Scrolls when large text makes it taller than its share of the screen.
+          <ScrollView style={styles.panelScroll} contentContainerStyle={styles.panelContent}>
             <FilterBar value={filter} onChange={setFilter} />
             <View style={[styles.rule, { backgroundColor: theme.text }]} />
             {eventsQuery.isError ? (
@@ -207,7 +209,7 @@ export default function ExploreScreen() {
                 <NextUp event={next} onOpen={onSelectEvent} />
               </>
             ) : null}
-          </>
+          </ScrollView>
         ) : null}
       </View>
 
@@ -235,7 +237,7 @@ function LiveNow({
       <Pressable
         onPress={() => onOpen(event.id)}
         accessibilityRole="button"
-        accessibilityLabel={`${event.title}. Open.`}
+        {...nameFromContent(`${event.title}. Open.`)}
       >
         <ThemedText type="title" numberOfLines={2}>
           {event.title}
@@ -277,7 +279,7 @@ function NextUp({ event, onOpen }: { event: PopUpEvent; onOpen: (id: string) => 
         onOpen(event.id);
       }}
       accessibilityRole="button"
-      accessibilityLabel={`Next up: ${event.title}, ${when}`}
+      {...nameFromContent(`Next up: ${event.title}, ${when}`)}
     >
       <ColumnRow label="Next up">
         <View style={styles.nextRow}>
@@ -321,8 +323,19 @@ const styles = StyleSheet.create({
   listTitle: {
     marginTop: 18,
   },
+  map: {
+    flex: 1,
+    minHeight: 180,
+  },
   panel: {
     paddingHorizontal: PageInset,
+    gap: 10,
+    maxHeight: '60%',
+  },
+  panelScroll: {
+    flexGrow: 0,
+  },
+  panelContent: {
     gap: 10,
   },
   handle: {

@@ -1,4 +1,4 @@
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import { CategoryIcon } from '@/components/order/CategoryIcon';
@@ -13,6 +13,7 @@ import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { cartItemCount, cartSubtotalCents, useCartStore } from '@/state/cartStore';
 import { formatCents } from '@/utils/orderFormat';
+import { EmptyState, ErrorState, LoadingState, useRefreshControl } from '@/components/ui/LoadState';
 
 /**
  * One section of the menu ("Bánh mì"): its products as cards, two by two.
@@ -29,13 +30,17 @@ export default function CategoryScreen({ name }: { name: string }) {
     (candidate) => candidate.name.toLowerCase() === name.toLowerCase(),
   );
   const count = cartItemCount(items);
+  const refreshControl = useRefreshControl();
 
   const back = () => (router.canGoBack() ? router.back() : router.replace('/(orders)'));
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <TopBar title="Menu" onBack={back} />
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: (count ? 88 : 24) + tabBarInset }]}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: (count ? 88 : 24) + tabBarInset }]}
+        refreshControl={refreshControl}
+      >
         <View style={styles.head}>
           <CategoryIcon section={name} size={34} />
           <ThemedText type="title" accessibilityRole="header" style={styles.flex}>
@@ -43,11 +48,11 @@ export default function CategoryScreen({ name }: { name: string }) {
           </ThemedText>
         </View>
         {menu.isPending ? (
-          <ActivityIndicator color={theme.text} style={styles.loader} />
+          <LoadingState />
+        ) : menu.isError ? (
+          <ErrorState message="Couldn’t load the menu." onRetry={() => void menu.refetch()} />
         ) : !section ? (
-          <ThemedText type="caption" themeColor="textSecondary">
-            Nothing here right now.
-          </ThemedText>
+          <EmptyState icon="food" text="Nothing in this section right now. Have a look at the rest of the menu." />
         ) : (
           <View style={styles.grid}>
             {section.items.map((item) => (

@@ -19,6 +19,8 @@ import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useOwnerEvents } from '@/hooks/useOwnerEvents';
 import { useTheme } from '@/hooks/useTheme';
 import { formatEventWindow } from '@/utils/dateTime';
+import { nameFromContent } from '@/utils/a11y';
+import { EmptyState, ErrorState, useRefreshControl } from '@/components/ui/LoadState';
 
 const GROUP_ORDER: OwnerEventGroup[] = ['live', 'upcoming', 'past', 'cancelled'];
 
@@ -51,11 +53,19 @@ export default function OwnerEventsScreen() {
     [router],
   );
   const openNew = useCallback(() => router.push('/(profile)/owner/event/new'), [router]);
+  const refreshControl = useRefreshControl();
 
   if (eventsQuery.isPending) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.text} />
+        <ActivityIndicator accessibilityLabel="Loading" size="large" color={theme.text} />
+      </View>
+    );
+  }
+  if (eventsQuery.isError) {
+    return (
+      <View style={[styles.state, styles.statePad, { backgroundColor: theme.background }]}>
+        <ErrorState message="Couldn’t load your pop-ups." onRetry={() => void eventsQuery.refetch()} />
       </View>
     );
   }
@@ -67,6 +77,7 @@ export default function OwnerEventsScreen() {
       sections={sections}
       keyExtractor={(item) => item.id}
       stickySectionHeadersEnabled={false}
+      refreshControl={refreshControl}
       ListHeaderComponent={
         <Button
           label="Create new pop-up"
@@ -77,9 +88,7 @@ export default function OwnerEventsScreen() {
         />
       }
       ListEmptyComponent={
-        <ThemedText type="small" themeColor="textSecondary" style={styles.empty}>
-          No pop-ups yet — create your first one above.
-        </ThemedText>
+        <EmptyState icon="calendar" text="No pop-ups yet. Create your first one above." style={styles.empty} />
       }
       renderSectionHeader={({ section }) => (
         <ThemedText type="section" style={styles.sectionTitle} accessibilityRole="header">
@@ -107,8 +116,11 @@ function OwnerEventRow({
   return (
     <Card
       onPress={onPress}
-      accessibilityLabel={`${event.title}, ${OWNER_GROUP_LABEL[group]}`}
-      style={[styles.row, muted && styles.muted]}
+      {...nameFromContent(`${event.title}, ${OWNER_GROUP_LABEL[group]}`)}
+      // Past and cancelled sit on stone instead of fading: faded text would
+      // fall below AA contrast.
+      tone={muted ? 'muted' : 'default'}
+      style={styles.row}
     >
       <View style={styles.rowTexts}>
         <Chip label={OWNER_GROUP_LABEL[group]} tone={OWNER_GROUP_TONE[group]} />
@@ -133,6 +145,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  statePad: {
+    padding: Spacing.three + Spacing.one,
+    alignItems: 'stretch',
+  },
   content: {
     padding: Spacing.three + Spacing.one,
     gap: Spacing.two,
@@ -146,9 +162,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.three,
     marginBottom: Spacing.two + Spacing.one,
-  },
-  muted: {
-    opacity: 0.7,
   },
   rowTexts: {
     flex: 1,

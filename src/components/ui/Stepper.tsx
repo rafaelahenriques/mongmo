@@ -47,7 +47,7 @@ export function Stepper({
           disabled={!canDecrease}
           accessibilityRole="button"
           accessibilityLabel={`Decrease ${label}`}
-          accessibilityState={{ disabled: !canDecrease }}
+          aria-disabled={!canDecrease}
           hitSlop={8}
           style={styles.pillButton}
         >
@@ -68,7 +68,7 @@ export function Stepper({
           disabled={!canIncrease}
           accessibilityRole="button"
           accessibilityLabel={`Increase ${label}`}
-          accessibilityState={{ disabled: !canIncrease }}
+          aria-disabled={!canIncrease}
           hitSlop={8}
           style={styles.pillButton}
         >

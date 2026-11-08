@@ -78,7 +78,8 @@ export function Button({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled: inactive, busy: loading }}
+      aria-disabled={inactive}
+      aria-busy={loading}
       style={({ pressed }) => [
         styles.button,
         {
@@ -95,7 +96,7 @@ export function Button({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={colors.foreground} />
+        <ActivityIndicator accessibilityLabel="Loading" color={colors.foreground} />
       ) : (
         <View style={[styles.content, arrow && styles.spread]}>
           <View style={styles.labelRow}>

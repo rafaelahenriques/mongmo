@@ -1,0 +1,32 @@
+name: Local Supabase
+description: >-
+  Starts a throwaway local Supabase with this repository's migrations and
+  data (base.sql, then the demo seed.sql), and puts SUPABASE_URL, SUPABASE_ANON_KEY and
+  SUPABASE_SERVICE_ROLE_KEY in the job's environment.
+runs:
+  using: composite
+  steps:
+    - uses: supabase/setup-cli@689adcfb80d947100a1eab127289b97d1fb07b13 # v3.2.0
+      with:
+        version: latest
+    - name: Start Supabase with every migration and the seed
+      shell: bash
+      run: |
+        mkdir -p "$RUNNER_TEMP/db" && cd "$RUNNER_TEMP/db"
+        supabase init
+        cp -r "$GITHUB_WORKSPACE/supabase/migrations" supabase/
+        # The café's data, then the demo pop-ups that use it.
+        cat "$GITHUB_WORKSPACE/supabase/base.sql" "$GITHUB_WORKSPACE/supabase/seed.sql" > supabase/seed.sql
+        supabase start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta
+        supabase status -o json > status.json
+        for key in API_URL ANON_KEY SERVICE_ROLE_KEY; do
+          if [ "$(jq -r ".$key // empty" status.json)" = "" ]; then
+            echo "::error::supabase status has no $key (it has: $(jq -r 'keys | join(", ")' status.json))"
+            exit 1
+          fi
+        done
+        {
+          echo "SUPABASE_URL=$(jq -r .API_URL status.json)"
+          echo "SUPABASE_ANON_KEY=$(jq -r .ANON_KEY status.json)"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(jq -r .SERVICE_ROLE_KEY status.json)"
+        } >> "$GITHUB_ENV"

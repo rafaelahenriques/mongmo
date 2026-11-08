@@ -41,7 +41,8 @@ export function Toggle({
       }}
       accessibilityRole="switch"
       accessibilityLabel={accessibilityLabel}
-      accessibilityState={{ checked: value, disabled }}
+      aria-checked={value}
+      aria-disabled={disabled}
       disabled={disabled}
       hitSlop={8}
       style={[styles.track, { backgroundColor: value ? theme.brandFill : theme.outline, opacity: disabled ? 0.5 : 1 }]}

@@ -1,13 +1,5 @@
 import type { Database } from '@/types/database';
-import type {
-  BadgeDefinition,
-  MenuItem,
-  PopUpEvent,
-  ProfileStats,
-  Reward,
-  Store,
-  UserProfile,
-} from '@/types';
+import type { BadgeDefinition, MenuItem, PopUpEvent, ProfileStats, Reward, Store, UserProfile } from '@/types';
 
 type StoreRow = Database['public']['Tables']['stores']['Row'];
 type EventRow = Database['public']['Tables']['events']['Row'];
@@ -66,7 +58,6 @@ export function profileRowToUserProfile(row: ProfileRow): UserProfile {
     id: row.id,
     role: row.role,
     name: row.name,
-    bio: row.bio,
     avatarUrl: row.avatar_url ?? '',
     homeCity: row.home_city ?? '',
     leaderboardVisible: row.leaderboard_visible,

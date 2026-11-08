@@ -1,7 +1,7 @@
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatInTimeZone } from 'date-fns-tz';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { getOrderPoints } from '@/api/endpoints';
 import { ThemedText } from '@/components/ThemedText';
@@ -20,7 +20,12 @@ import { useTheme } from '@/hooks/useTheme';
 import { openDirections } from '@/services/directions';
 import { haptics } from '@/services/haptics';
 import { orderAgain } from '@/services/orderAgain';
+import { nameFromContent } from '@/utils/a11y';
 import { formatCents, ORDER_STATUS_TITLE, ORDER_STEP, ORDER_STEPS, pickupCode } from '@/utils/orderFormat';
+import { ErrorState, useRefreshControl } from '@/components/ui/LoadState';
+import { cancelMyOrder } from '@/api/orders';
+import { Button } from '@/components/ui/Button';
+import { confirm, showError } from '@/services/confirm';
 
 /**
  * O-05 Order status: the pickup code big with the faded word, how far it
@@ -32,6 +37,25 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
   const router = useRouter();
   const tabBarInset = useTabBarInset();
   const { order, items } = useOrder(orderId);
+  const queryClient = useQueryClient();
+  const cancel = useMutation({
+    mutationFn: () => cancelMyOrder(orderId),
+    onSuccess: () => {
+      haptics.success();
+      // The order, the order lists, and the reward that came back.
+      void queryClient.invalidateQueries();
+    },
+    onError: (error) => showError('Couldn’t cancel it', error),
+  });
+  const onCancel = async () => {
+    const yes = await confirm(
+      'Cancel this order?',
+      'The café hasn’t started on it yet. A reward you used comes back to your Wallet.',
+      'Cancel order',
+      { cancelLabel: 'Keep it', destructive: true },
+    );
+    if (yes) cancel.mutate();
+  };
   const data = order.data;
   const level = useLevel();
   const awarded = useQuery({
@@ -50,6 +74,7 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
   );
 
   const back = () => (router.canGoBack() ? router.back() : router.replace('/(orders)'));
+  const refreshControl = useRefreshControl();
 
   if (!data) {
     return (
@@ -57,7 +82,13 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
         <TopBar title="Your order" onBack={back} />
         <View style={styles.state}>
           {order.isPending ? (
-            <ActivityIndicator color={theme.text} />
+            <ActivityIndicator accessibilityLabel="Loading" color={theme.text} />
+          ) : order.isError ? (
+            <ErrorState
+              message="Couldn’t load your order."
+              onRetry={() => void order.refetch()}
+              style={styles.stateBox}
+            />
           ) : (
             <ThemedText type="caption" themeColor="textSecondary">
               Couldn’t find this order.
@@ -89,7 +120,10 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <TopBar title="Your order" onBack={back} />
-      <ScrollView contentContainerStyle={{ paddingBottom: (done ? 24 : 32) + tabBarInset }}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: (done ? 24 : 32) + tabBarInset }}
+        refreshControl={refreshControl}
+      >
         <View style={styles.code}>
           <View accessible accessibilityLabel={`Pickup code ${code.split('').join(' ')}`} style={styles.center}>
             <ThemedText type="display" style={styles.codeText}>
@@ -126,7 +160,7 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
               subtitle={`${place.openLabel} · Directions`}
               state="arrow"
               onPress={() => openDirections(place.coordinates, `${place.name}, ${place.address}`)}
-              accessibilityLabel={`${place.name}, ${place.openLabel}. Directions.`}
+              {...nameFromContent(`${place.name}, ${place.openLabel}. Directions.`)}
             />
           ) : null}
 
@@ -150,6 +184,16 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
               />
             ) : null}
           </View>
+          {/* Ordered by mistake: possible until the café accepts it. */}
+          {data.status === 'placed' ? (
+            <Button
+              label="Cancel order"
+              variant="danger"
+              onPress={() => void onCancel()}
+              loading={cancel.isPending}
+              style={styles.cancel}
+            />
+          ) : null}
         </View>
       </ScrollView>
       {done ? <BlockButton label="Order again" onPress={() => void onOrderAgain()} /> : null}
@@ -158,6 +202,9 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
 }
 
 const styles = StyleSheet.create({
+  cancel: {
+    marginTop: 24,
+  },
   screen: {
     flex: 1,
   },
@@ -165,6 +212,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  stateBox: {
+    alignSelf: 'stretch',
+    marginHorizontal: 20,
   },
   code: {
     alignItems: 'center',

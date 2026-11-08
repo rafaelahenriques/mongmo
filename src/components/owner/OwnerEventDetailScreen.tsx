@@ -23,6 +23,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { confirm } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import { formatEventWindow } from '@/utils/dateTime';
+import { ErrorState, useRefreshControl } from '@/components/ui/LoadState';
 
 export type OwnerEventDetailScreenProps = {
   eventId: string;
@@ -34,6 +35,7 @@ export type OwnerEventDetailScreenProps = {
  */
 export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScreenProps) {
   const theme = useTheme();
+  const refreshControl = useRefreshControl();
   const router = useRouter();
   const tabBarInset = useTabBarInset();
   const eventQuery = useOwnerEvent(eventId);
@@ -44,7 +46,7 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
   if (eventQuery.isPending) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.text} />
+        <ActivityIndicator accessibilityLabel="Loading" size="large" color={theme.text} />
       </View>
     );
   }
@@ -52,8 +54,14 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
   if (!eventQuery.data) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <IconBadge name="alert" size={48} />
-        <ThemedText type="section">Pop-up not found</ThemedText>
+        {eventQuery.isError ? (
+          <ErrorState message="Couldn’t load this pop-up." onRetry={() => void eventQuery.refetch()} />
+        ) : (
+          <>
+            <IconBadge name="alert" size={48} />
+            <ThemedText type="section">Pop-up not found</ThemedText>
+          </>
+        )}
       </View>
     );
   }
@@ -93,6 +101,7 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
     <ScrollView
       style={[styles.scroll, { backgroundColor: theme.background }]}
       contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + Spacing.five }]}
+      refreshControl={refreshControl}
       keyboardShouldPersistTaps="handled"
     >
       <Card style={styles.hero}>

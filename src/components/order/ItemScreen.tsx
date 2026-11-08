@@ -20,6 +20,7 @@ import type { OrderMenuItem } from '@/api/orders';
 import { useCartStore, type CartOption } from '@/state/cartStore';
 import { formatCents, shortItemName } from '@/utils/orderFormat';
 import { useMotion } from '@/constants/motion';
+import { ErrorState } from '@/components/ui/LoadState';
 
 /**
  * O-02 Item: the photo, the name big in uppercase with its price, what's
@@ -46,7 +47,9 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
         {menu.isPending ? (
-          <ActivityIndicator color={theme.text} />
+          <ActivityIndicator accessibilityLabel="Loading" color={theme.text} />
+        ) : menu.isError ? (
+          <ErrorState message="Couldn’t load the menu." onRetry={() => void menu.refetch()} style={styles.stateBox} />
         ) : (
           <>
             <ThemedText type="section">This isn’t on the menu</ThemedText>
@@ -230,6 +233,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
+  },
+  stateBox: {
+    alignSelf: 'stretch',
+    marginHorizontal: 20,
   },
   scroll: {
     paddingBottom: 32,

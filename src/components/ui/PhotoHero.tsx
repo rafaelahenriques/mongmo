@@ -15,7 +15,7 @@ import { useMotion } from '@/constants/motion';
  * so paper text stays readable on any photo.
  */
 export function PhotoHero({
-  imageUrl,
+  image,
   title,
   live = false,
   meta,
@@ -25,7 +25,8 @@ export function PhotoHero({
   accessibilityLabel,
   headingLevel,
 }: {
-  imageUrl?: string;
+  /** A remote URL or a bundled image (`require`). */
+  image?: string | number;
   title: string;
   /** Shows the sage "Live now" chip above the name. */
   live?: boolean;
@@ -44,11 +45,11 @@ export function PhotoHero({
   const motion = useMotion();
   return (
     <View style={[styles.hero, { minHeight: height, backgroundColor: theme.surfaceDark }]}>
-      {imageUrl ? (
+      {image ? (
         <Image
           accessible={false}
           accessibilityLabel=""
-          source={{ uri: imageUrl }}
+          source={image}
           style={StyleSheet.absoluteFill}
           contentFit="cover"
           transition={motion.imageFadeMs}

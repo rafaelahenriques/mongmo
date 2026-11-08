@@ -19,16 +19,20 @@ Postgres so the client can only ever *ask*, never *decide*.
    Since CLI 3, `db push` targets the local stack unless you pass `--remote`
    (without it you get `connect ECONNREFUSED 127.0.0.1:54322`).
    For local development, `npx supabase db reset` applies every migration
-   **and** `supabase/seed.sql` in one step.
-3. **Seed a hosted project.** `db push` only runs migrations — it never
-   touches `seed.sql`, so a freshly pushed project has no store, menu,
-   pop-ups, badges or rewards, and every screen comes up empty ("Couldn't
-   load the store", "Nothing on right now", "No pop-up menus"). Open the
-   dashboard → **SQL Editor** → New query, paste the whole of
-   `supabase/seed.sql`, and **Run**. It's idempotent, and its pop-up dates
-   are relative to "now" — re-run it whenever you want a live pop-up again
-   (it refreshes the seven demo pop-ups, from two days ago to two weeks out,
-   their challenges, and how busy they are).
+   and the data below, once `supabase/config.toml` lists both files under
+   `[db.seed]`: `sql_paths = ["./base.sql", "./seed.sql"]`.
+3. **Add the data to a hosted project.** `db push` only runs migrations, so
+   a freshly pushed project has no café, menu, badges or rewards, and every
+   screen comes up empty ("Couldn't load the store"). Two files, each pasted
+   whole into the dashboard → **SQL Editor** → New query → **Run**:
+   - `supabase/base.sql`, on **every** project, production included: the
+     menu, the Kortrijk café, the badges and the rewards. Run it once; after
+     launch, change the menu in the app or the dashboard, because running it
+     again resets the menu and rewards to the file.
+   - `supabase/seed.sql`, on **local and staging only, never production**:
+     seven demo pop-ups and their challenges, dated relative to "now".
+     Re-run it whenever you want a live pop-up again (it refreshes their
+     dates, challenges and how busy they are).
 4. Copy `.env.example` to `.env` and fill in the project URL and anon key
    (Supabase dashboard → Project Settings → API, or the values `supabase
    start` prints for a local project).
@@ -46,7 +50,7 @@ left, per "no hardcoded/mock data."
 | `0001_schema.sql` | Every table in AGENTS.md: profiles, stores, events, menus/menu_items/event_menus, challenges, check_ins, challenge_completions, photos, badges/user_badges, point_events, rewards/user_rewards, orders/order_items. |
 | `0002_functions.sql` | The server-authoritative logic: the profile-creation trigger, the points ledger triggers, badge evaluation (`evaluate_badges`), and the RPCs below. |
 | `0003_rls.sql` | Row Level Security for every table. Per-user tables (`check_ins`, `challenge_completions`, `user_badges`, `point_events`, `user_rewards`, `orders`) have **no client-facing write policy at all** — they're only ever written by the SECURITY DEFINER functions in 0002, which run as the table owner and bypass RLS. |
-| `0004_storage.sql` | The `challenge-photos` storage bucket (public read, write restricted to the uploader's own folder). |
+| `0004_storage.sql` | The `challenge-photos` storage bucket (write restricted to the uploader's own folder; private since 0023). |
 | `0005_realtime.sql` | Adds `stores`/`events` to the `supabase_realtime` publication so the app's live "how busy" numbers work via `postgres_changes`, not a bespoke socket server. |
 | `0006_qr_token_hardening.sql` | Revokes `events.qr_token` from ordinary reads (column-level, not row-level) so "scan the QR" actually verifies something — see below. |
 | `0007_explicit_grants.sql` | Grants `authenticated`/`service_role` table access explicitly instead of relying on the project's default privileges (a project setting, not part of the schema), then re-applies 0006's column list for `events`. |
@@ -65,6 +69,16 @@ left, per "no hardcoded/mock data."
 | `0020_delete_account_photos.sql` | Deleting an account deletes the photo files too: people may delete their own `challenge-photos/<id>/` files (the app removes them first), and `delete_my_account()` refuses while any remain. Everything else cascades from the login (see the function's comment). |
 | `0021_levels.sql` | Levels from lifetime points (everything ever earned, so redeeming never lowers it): Dough 0, Rising 500 (+10% points on orders), Golden 1,500 (+25%), Crisp 4,000 (+50%), named after the bánh mì's bake. A first collected order earns double. Three rewards only a level can redeem (tote bag, stew, 2 bánh mì); `redeem_reward` checks the level. The app reads `levels` and `my_loyalty()`. |
 | `0022_level_names.sql` | Renames the levels from 0021's first names (Rice, Bamboo, Lotus, Jade) to Dough, Rising, Golden, Crisp on a database that already has them; nothing on a fresh one. |
+| `0023_security_hardening.sql` | **Security:** signed-out visitors can call no function (they could read the leaderboard); trigger functions can't be called at all; new functions start with no access. The `challenge-photos` bucket is private (the app uses one-hour signed links) and `photos.url` is gone. Length and format limits on profile links and staff-entered texts. |
+| `0024_challenge_photo_count.sql` | Photo challenges record how many photos there were, not their links (0023 removed `photos.url`). |
+| `0025_retention.sql` | Automatic deletion after each retention period (`docs/privacy/retention.md`): `apply_retention()` and the photo list it needs, run nightly by `.github/workflows/retention.yml`. Service role only. |
+| `0026_export_my_data.sql` | `export_my_data()`: everything held about the signed-in person, as JSON, for Settings → Your data → Download a copy. |
+| `0027_drop_profile_bio.sql` | Drops `profiles.bio`, and every bio written: nobody but its author ever saw it. |
+| `0028_privacy_cleanup.sql` | Check-in challenges record `withinRadius`, not the distance (old distances cleared); old photo links in results become a count; the leaderboard is opt-in for new accounts; the demo pop-ups' Unsplash pictures are cleared. |
+| `0029_photos_of_the_week.sql` | Challenge photos (records and files) are private to the person and staff. `set_photo_shared()` shares one in Photos of the week for 7 days; `photos_of_the_week()` lists them without names; `report_photo()` takes one down at once and records it in `photo_reports` for staff. |
+| `0030_review_reported_photos.sql` | Staff decide on reported photos (Owner tools → Reported photos): `reported_photos()`, `review_reported_photo()` (put it back or keep it down), `delete_reported_photo()` (after the app removes the file; staff may delete only taken-down files). Reports are deleted once decided; the photo keeps the outcome, which the export shows. |
+| `0031_pay_at_pickup.sql` | Pay at pickup: the status `paid` becomes `placed` (no money changed hands), `place_order()` replaces the test payment, and orders record `payment` (`at_pickup`) and `paid_at`, set when staff mark them collected. |
+| `0032_cancel_my_order.sql` | `cancel_my_order()`: customers cancel their own order until staff accept it. A reward used on a cancelled order (by the customer or staff) comes back unused. |
 
 ### Points ledger, not a running total
 
@@ -83,7 +97,7 @@ data.
 | `complete_challenge(challenge_id, data)` | Requires an existing check-in for that challenge's event first. |
 | `redeem_reward(reward_id)` | Validates balance + expiry, then spends points atomically. |
 | `create_order(store_id, event_id, items, pickup_at, user_reward_id?)` | The client sends only item ids/quantities; prices, reward validation and totals are computed here. Snapshots `name`/`price_cents` onto `order_items` at insert time. |
-| `confirm_mock_payment(order_id)` | Stand-in for a real Stripe charge later (Edge Function). Moves `draft → paid`; nothing else can. |
+| `place_order(order_id)` | Places your own draft order (`draft → placed`); it's paid at the counter on pickup. Replaced `confirm_mock_payment` in 0031. |
 | `advance_order_status(order_id, status)` | Owner-only: `preparing`/`ready`/`collected`/`cancelled`. |
 | `leaderboard(period)` | `'weekly' | 'all'`, aggregated across every visible profile. |
 | `my_points_balance()`, `my_stats()` | The signed-in user's own numbers (points; events attended, cities visited, challenges completed, orders placed). |
@@ -199,8 +213,8 @@ for `auth.users`/`auth.uid()`/`auth.role()` and the `storage` schema (not
 committed — this was a throwaway local check, not part of the app). That
 confirmed, end to end: check-in verification (wrong token, out-of-range,
 success, duplicate), the full badge ladder, the points ledger, reward
-redemption (including insufficient-balance), order pricing + the mock
-payment step, RLS isolation between two users, the qr_token column
+redemption (including insufficient-balance), order pricing + the (then)
+mock payment step, RLS isolation between two users, the qr_token column
 hardening, and the leaderboard aggregation — both with and without the
 project-level default grants (0007), and with an account that predates the
 profile trigger (0008). It does **not** replace testing

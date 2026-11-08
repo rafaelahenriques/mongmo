@@ -106,7 +106,7 @@ export default function PhotoCapture({
             </ThemedText>
           </View>
         ) : !complete && shots.length === 0 && capturing ? (
-          <ActivityIndicator color={Paper} />
+          <ActivityIndicator accessibilityLabel="Loading" color={Paper} />
         ) : null}
       </View>
 

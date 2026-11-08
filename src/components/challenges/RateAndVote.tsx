@@ -66,7 +66,7 @@ export default function RateAndVote(props: RateAndVoteProps) {
                   setChoice(option);
                 }}
                 accessibilityRole="radio"
-                accessibilityState={{ checked: selected }}
+                aria-checked={selected}
                 accessibilityLabel={option}
                 style={({ pressed }) => [
                   styles.tile,
@@ -106,7 +106,7 @@ export default function RateAndVote(props: RateAndVoteProps) {
                 hitSlop={6}
                 accessibilityRole="button"
                 accessibilityLabel={`${value} out of 5`}
-                accessibilityState={{ selected: value === rating }}
+                aria-selected={value === rating}
               >
                 <OMark
                   height={44}

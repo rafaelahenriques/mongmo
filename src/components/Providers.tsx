@@ -58,9 +58,7 @@ export function Providers({ children, session }: ProvidersProps) {
         client={queryClient}
         persistOptions={{ persister, maxAge: PERSIST_MAX_AGE_MS, buster: PERSIST_BUSTER }}
       >
-        <ErrorBoundary>
-          {session ? <AppServices>{children}</AppServices> : children}
-        </ErrorBoundary>
+        <ErrorBoundary>{session ? <AppServices>{children}</AppServices> : children}</ErrorBoundary>
       </PersistQueryClientProvider>
     </GestureHandlerRootView>
   );

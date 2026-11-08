@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
+import { Platform, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { BodyFont, Radius, Spacing } from '@/constants/theme';
@@ -16,6 +16,15 @@ export type TextFieldProps = Omit<TextInputProps, 'style'> & {
   hideLabel?: boolean;
 };
 
+/**
+ * React Native's names for password autofill, as the HTML ones browsers and
+ * password managers understand ("password" alone isn't a valid HTML value).
+ */
+const WEB_AUTOCOMPLETE: Partial<Record<string, string>> = {
+  password: 'current-password',
+  'password-new': 'new-password',
+};
+
 /** Labelled, outlined text input with an optional hint underneath. */
 export function TextField({
   label,
@@ -24,9 +33,11 @@ export function TextField({
   half = false,
   hideLabel = false,
   multiline,
+  autoComplete,
   ...input
 }: TextFieldProps) {
   const theme = useTheme();
+  const webAutoComplete = Platform.OS === 'web' && autoComplete ? WEB_AUTOCOMPLETE[autoComplete] : undefined;
   return (
     <View style={[styles.field, half && styles.half]}>
       {hideLabel ? null : <ThemedText type="captionBold">{label}</ThemedText>}
@@ -35,6 +46,7 @@ export function TextField({
         accessibilityLabel={label}
         accessibilityHint={hint}
         multiline={multiline}
+        autoComplete={(webAutoComplete ?? autoComplete) as TextInputProps['autoComplete']}
         {...input}
         style={[
           styles.input,

@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Icon } from '@/components/ui/Icon';
 import { Segmented } from '@/components/ui/Segmented';
@@ -14,6 +15,9 @@ export type LeaderboardListProps = {
   hidden: boolean;
   period: LeaderboardPeriod;
   onChangePeriod: (period: LeaderboardPeriod) => void;
+  /** Puts the person on the leaderboard (it's opt-in). */
+  onJoin: () => void;
+  joining?: boolean;
 };
 
 const PERIODS: { value: LeaderboardPeriod; label: string }[] = [
@@ -22,7 +26,14 @@ const PERIODS: { value: LeaderboardPeriod; label: string }[] = [
 ];
 
 /** Weekly / all-time leaderboard; the podium ranks in red, your row marked. */
-export default function LeaderboardList({ rows, hidden, period, onChangePeriod }: LeaderboardListProps) {
+export default function LeaderboardList({
+  rows,
+  hidden,
+  period,
+  onChangePeriod,
+  onJoin,
+  joining = false,
+}: LeaderboardListProps) {
   const theme = useTheme();
 
   return (
@@ -36,20 +47,15 @@ export default function LeaderboardList({ rows, hidden, period, onChangePeriod }
       />
 
       {hidden ? (
-        <Card
-          tone="muted"
-          style={styles.hiddenNote}
-        >
-          <Icon name="eye" size={18} color={theme.textSecondary} />
-          <ThemedText
-            type="small"
-            themeColor="textSecondary"
-            style={styles.flex}
-            accessibilityLabel="You are hidden from the leaderboard by your privacy setting."
-          >
-            You’re hidden from the leaderboard (Profile → Settings). Your points still count for badges and
-            rewards.
-          </ThemedText>
+        <Card tone="muted" style={styles.hiddenNote}>
+          <View style={styles.hiddenText}>
+            <Icon name="eye" size={18} color={theme.textSecondary} />
+            <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
+              You’re not on the leaderboard. Join to show your name and points to other members; leave any time in
+              Settings. Your points count for badges and rewards either way.
+            </ThemedText>
+          </View>
+          <Button label="Join the leaderboard" variant="secondary" onPress={onJoin} loading={joining} />
         </Card>
       ) : null}
 
@@ -95,6 +101,9 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   hiddenNote: {
+    gap: Spacing.three,
+  },
+  hiddenText: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.two,

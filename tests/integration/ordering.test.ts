@@ -1,6 +1,6 @@
 import { orderPoints } from '@/constants/points';
 
-import { admin, deleteAccount, placeOrder, SEED, signUp, signUpOwner, type Customer } from './helpers';
+import { admin, deleteAccount, givePoints, placeOrder, SEED, signUp, signUpOwner, type Customer } from './helpers';
 
 let customer: Customer;
 let owner: Customer;
@@ -30,12 +30,13 @@ async function orderPointsEarned(orderId: string): Promise<number> {
 }
 
 describe('placing an order', () => {
-  it('prices it on the server from the menu, options included, and confirms the payment', async () => {
+  it('prices it on the server from the menu, options included, and places it to pay at pickup', async () => {
     const order = await placeOrder(customer, [
       { menu_item_id: SEED.banhMiPork, quantity: 2, options: [SEED.extraProtein] },
       { menu_item_id: SEED.springrollsTofu, quantity: 1, options: [SEED.mangoDip] },
     ]);
-    expect(order.status).toBe('paid');
+    expect(order.status).toBe('placed');
+    expect(order).toMatchObject({ payment: 'at_pickup', paid_at: null });
     expect(order.total_cents).toBe((1050 + 100) * 2 + (500 + 0));
 
     const { data: lines } = await customer.client.from('order_items').select('*').eq('order_id', order.id);
@@ -62,6 +63,46 @@ describe('placing an order', () => {
       p_status: 'collected',
     });
     expect(error?.message).toBe('Only an owner can update order status');
+  });
+
+  it('is paid when staff hand it over, not before', async () => {
+    const order = await placeOrder(customer, [{ menu_item_id: SEED.banhMiPork, quantity: 1 }]);
+    const step = async (status: 'preparing' | 'ready' | 'collected') =>
+      (await owner.client.rpc('advance_order_status', { p_order_id: order.id, p_status: status })).data;
+    expect((await step('ready'))?.paid_at).toBeNull();
+    const collected = await step('collected');
+    expect(collected?.status).toBe('collected');
+    expect(collected?.paid_at).not.toBeNull();
+  });
+});
+
+describe('cancelling an order', () => {
+  const cancel = (who: Customer, orderId: string) =>
+    who.client.rpc('cancel_my_order' as never, { p_order_id: orderId } as never);
+  const rewardUsedAt = async (id: string) =>
+    (await admin.from('user_rewards').select('used_at').eq('id', id).single()).data?.used_at ?? null;
+
+  it('lets the customer cancel until the café starts, and gives a used reward back', async () => {
+    await givePoints(customer.userId, 400);
+    const { data: redeemed, error } = await customer.client.rpc('redeem_reward', {
+      p_reward_id: SEED.discountReward,
+    });
+    expect(error).toBeNull();
+    const rewardId = (redeemed as { id: string }).id;
+    const order = await placeOrder(customer, [{ menu_item_id: SEED.banhMiPork, quantity: 1 }], rewardId);
+    expect(await rewardUsedAt(rewardId)).not.toBeNull();
+
+    const { data: cancelled, error: cancelError } = await cancel(customer, order.id);
+    expect(cancelError).toBeNull();
+    expect((cancelled as unknown as { status: string }).status).toBe('cancelled');
+    expect(await rewardUsedAt(rewardId)).toBeNull();
+  });
+
+  it("won't cancel once staff have accepted it, or someone else's", async () => {
+    const order = await placeOrder(customer, [{ menu_item_id: SEED.banhMiPork, quantity: 1 }]);
+    expect((await cancel(owner, order.id)).error).not.toBeNull();
+    await owner.client.rpc('advance_order_status', { p_order_id: order.id, p_status: 'preparing' });
+    expect((await cancel(customer, order.id)).error?.message).toMatch(/started on it/);
   });
 });
 

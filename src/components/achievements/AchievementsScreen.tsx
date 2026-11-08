@@ -13,10 +13,12 @@ import { TopBar } from '@/components/ui/TopBar';
 import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
+import { useSetLeaderboardVisible } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import type { LeaderboardPeriod } from '@/types';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
+import { useRefreshControl } from '@/components/ui/LoadState';
 
 /**
  * M-06 Achievements (the trophy in the top bar): every badge as a coin,
@@ -25,6 +27,7 @@ import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
  */
 export default function AchievementsScreen() {
   const theme = useTheme();
+  const refreshControl = useRefreshControl();
   const router = useRouter();
   const tabBarInset = useTabBarInset();
   const { query, summary, progress } = useAchievements();
@@ -33,6 +36,7 @@ export default function AchievementsScreen() {
   const [view, setView] = useState<'badges' | 'leaderboard'>('badges');
   const [period, setPeriod] = useState<LeaderboardPeriod>('weekly');
   const leaderboard = useLeaderboard(period);
+  const joinLeaderboard = useSetLeaderboardVisible();
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
@@ -54,16 +58,23 @@ export default function AchievementsScreen() {
         />
       </View>
       {view === 'leaderboard' ? (
-        <ScrollView contentContainerStyle={[styles.list, { paddingBottom: tabBarInset + 32 }]}>
+        <ScrollView
+          tabIndex={0}
+          aria-label="Leaderboard"
+          contentContainerStyle={[styles.list, { paddingBottom: tabBarInset + 32 }]}
+          refreshControl={refreshControl}
+        >
           <LeaderboardList
             rows={leaderboard.rows}
             hidden={leaderboard.hidden}
             period={period}
             onChangePeriod={setPeriod}
+            onJoin={() => joinLeaderboard.mutate(true)}
+            joining={joinLeaderboard.isPending}
           />
         </ScrollView>
       ) : query.isPending ? (
-        <ActivityIndicator color={theme.text} style={styles.loader} />
+        <ActivityIndicator accessibilityLabel="Loading" color={theme.text} style={styles.loader} />
       ) : query.isError ? (
         <View style={styles.message}>
           <ThemedText type="caption" themeColor="textSecondary">
@@ -72,7 +83,12 @@ export default function AchievementsScreen() {
           <Button label="Try again" variant="ghost" size="small" onPress={() => query.refetch()} />
         </View>
       ) : (
-        <ScrollView contentContainerStyle={[styles.list, { paddingBottom: tabBarInset + 32 }]}>
+        <ScrollView
+          tabIndex={0}
+          aria-label="Badges"
+          contentContainerStyle={[styles.list, { paddingBottom: tabBarInset + 32 }]}
+          refreshControl={refreshControl}
+        >
           {badges.map((badge) => {
             const got = earned.get(badge.id);
             const step = progress[badge.key];

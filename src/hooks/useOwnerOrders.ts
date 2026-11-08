@@ -35,6 +35,9 @@ export function useOwnerOrders() {
     /** Who ordered and the lines, by order id. */
     info: info.data ?? {},
     isLoading: query.isPending,
+    /** Couldn't load (and nothing cached to show). */
+    isError: query.isError && !query.data,
+    refetch: query.refetch,
     advance: advance.mutate,
     advancing: advance.isPending,
   };

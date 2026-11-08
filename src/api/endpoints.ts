@@ -125,7 +125,6 @@ export async function ensureProfile(): Promise<void> {
 
 export type ProfileEdit = {
   name: string;
-  bio: string;
   homeCity: string;
 };
 
@@ -138,7 +137,7 @@ export async function updateProfile(edit: ProfileEdit): Promise<void> {
   const userId = await getCurrentUserId();
   const { error } = await supabase
     .from('profiles')
-    .update({ name: edit.name.trim(), bio: edit.bio.trim(), home_city: edit.homeCity.trim() || null })
+    .update({ name: edit.name.trim(), home_city: edit.homeCity.trim() || null })
     .eq('id', userId);
   if (error) {
     // 23514 = a check constraint: something empty or too long slipped past the form.
@@ -151,10 +150,7 @@ export async function updateProfile(edit: ProfileEdit): Promise<void> {
 /** Updates the leaderboard-visibility privacy toggle (Settings → Privacy). */
 export async function setLeaderboardVisible(visible: boolean): Promise<void> {
   const userId = await getCurrentUserId();
-  const { error } = await supabase
-    .from('profiles')
-    .update({ leaderboard_visible: visible })
-    .eq('id', userId);
+  const { error } = await supabase.from('profiles').update({ leaderboard_visible: visible }).eq('id', userId);
   if (error) throw toApiError(error);
 }
 
@@ -206,9 +202,7 @@ type ExpiringUserRewardRow = {
 };
 
 /** Unused, unexpired redeemed rewards, for the expiry-reminder notification. */
-export async function getExpiringUserRewards(): Promise<
-  { userRewardId: string; title: string; expiresAt: string }[]
-> {
+export async function getExpiringUserRewards(): Promise<{ userRewardId: string; title: string; expiresAt: string }[]> {
   const { data, error } = await supabase
     .from('user_rewards')
     .select('id, rewards(title, expires_at)')
@@ -217,8 +211,9 @@ export async function getExpiringUserRewards(): Promise<
   if (error) throw toApiError(error);
 
   return data
-    .filter((row): row is ExpiringUserRewardRow & { rewards: { title: string; expires_at: string } } =>
-      row.rewards !== null && row.rewards.expires_at !== null,
+    .filter(
+      (row): row is ExpiringUserRewardRow & { rewards: { title: string; expires_at: string } } =>
+        row.rewards !== null && row.rewards.expires_at !== null,
     )
     .map((row) => ({
       userRewardId: row.id,
@@ -303,7 +298,10 @@ export async function getPointsHistory(limit = 50): Promise<PointsHistoryEntry[]
     rows.filter((row) => row.source === source && row.source_id).map((row) => row.source_id as string);
 
   const [completions, badges, rewards, orders] = await Promise.all([
-    supabase.from('challenge_completions').select('id, challenges(title, type, events(title))').in('id', idsFor('challenge_completion')),
+    supabase
+      .from('challenge_completions')
+      .select('id, challenges(title, type, events(title))')
+      .in('id', idsFor('challenge_completion')),
     supabase.from('user_badges').select('id, badges(title)').in('id', idsFor('badge')),
     supabase.from('user_rewards').select('id, rewards(title)').in('id', idsFor('reward_redeemed')),
     supabase.from('orders').select('id, events(title), stores(name)').in('id', idsFor('order')),
@@ -314,7 +312,10 @@ export async function getPointsHistory(limit = 50): Promise<PointsHistoryEntry[]
     ((completions.data ?? []) as unknown as CompletionTitleRow[]).map((row) => [row.id, row.challenges]),
   );
   const badgeById = new Map(
-    ((badges.data ?? []) as unknown as { id: string; badges: { title: string } | null }[]).map((row) => [row.id, row.badges]),
+    ((badges.data ?? []) as unknown as { id: string; badges: { title: string } | null }[]).map((row) => [
+      row.id,
+      row.badges,
+    ]),
   );
   const orderPlaceById = new Map(
     (
@@ -326,7 +327,10 @@ export async function getPointsHistory(limit = 50): Promise<PointsHistoryEntry[]
     ).map((row) => [row.id, row.events?.title ?? row.stores?.name ?? null]),
   );
   const rewardById = new Map(
-    ((rewards.data ?? []) as unknown as { id: string; rewards: { title: string } | null }[]).map((row) => [row.id, row.rewards]),
+    ((rewards.data ?? []) as unknown as { id: string; rewards: { title: string } | null }[]).map((row) => [
+      row.id,
+      row.rewards,
+    ]),
   );
 
   return rows.map((row) => {

@@ -4,7 +4,7 @@ import { placeOrder } from '@/api/orders';
 import { useCartStore } from '@/state/cartStore';
 import type { CartLocation } from '@/state/cartStore';
 
-/** Places the order, confirms the mock payment, and clears the cart. */
+/** Places the order (paid at pickup) and clears the cart. */
 export function usePlaceOrder() {
   const queryClient = useQueryClient();
 

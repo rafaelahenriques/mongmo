@@ -95,7 +95,6 @@ export type UserProfile = {
   id: string;
   role: 'customer' | 'owner';
   name: string;
-  bio: string;
   avatarUrl: string;
   homeCity: string;
   /** Whether this user appears in other people's leaderboard views. */

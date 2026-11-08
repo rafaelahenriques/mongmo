@@ -12,9 +12,11 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { useBusyStore } from '@/state/busyStore';
 import { useLocationStore } from '@/state/locationStore';
+import { nameFromContent } from '@/utils/a11y';
 import { formatEventWindow } from '@/utils/dateTime';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import type { PopUpEvent } from '@/types';
+import { popUpImage } from '@/constants/brandPhotos';
 
 /**
  * A pop-up in the list (P-02): a little street map with its pin, the name
@@ -32,7 +34,7 @@ function PopupRowComponent({ event, index, onPress }: { event: PopUpEvent; index
         onPress();
       }}
       accessibilityRole="button"
-      accessibilityLabel={[event.title, when, event.city, distance].filter(Boolean).join(', ')}
+      {...nameFromContent([event.title, when, event.city, distance].filter(Boolean).join(', '))}
       style={({ pressed }) => [
         styles.row,
         { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.85 : 1 },
@@ -83,18 +85,16 @@ export function LiveCard({
       <Pressable
         onPress={onOpen}
         accessibilityRole="button"
-        accessibilityLabel={`${event.title}, live now. ${busy.occupancy} of ${busy.capacity} busy. Open the pop-up.`}
+        {...nameFromContent(`${event.title}, live now. ${busy.occupancy} of ${busy.capacity} busy. Open the pop-up.`)}
       >
         <View style={[styles.photo, { backgroundColor: theme.surfaceDark }]}>
-          {event.imageUrl ? (
-            <Image
-              accessible={false}
-              accessibilityLabel=""
-              source={{ uri: event.imageUrl }}
-              style={StyleSheet.absoluteFill}
-              contentFit="cover"
-            />
-          ) : null}
+          <Image
+            accessible={false}
+            accessibilityLabel=""
+            source={popUpImage(event)}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+          />
           <View style={[styles.liveTag, { backgroundColor: theme.brandFill }]}>
             <ThemedText type="label" style={{ color: theme.onBrand }}>
               Live now

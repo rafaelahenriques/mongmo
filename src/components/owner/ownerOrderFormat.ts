@@ -1,6 +1,6 @@
 import type { OrderStatus } from '@/types/database';
 
-/** The board's columns. New = paid orders nobody has started yet. */
+/** The board's columns. New = placed orders nobody has started yet. */
 export type OwnerColumn = 'new' | 'preparing' | 'ready' | 'collected';
 
 export const COLUMN_LABEL: Record<OwnerColumn, string> = {
@@ -11,7 +11,7 @@ export const COLUMN_LABEL: Record<OwnerColumn, string> = {
 };
 
 export function columnFor(status: OrderStatus): OwnerColumn | null {
-  if (status === 'paid') return 'new';
+  if (status === 'placed') return 'new';
   if (status === 'preparing' || status === 'ready' || status === 'collected') return status;
   return null;
 }
@@ -20,7 +20,8 @@ export function columnFor(status: OrderStatus): OwnerColumn | null {
 export const NEXT_STEP: Partial<Record<OwnerColumn, { status: 'preparing' | 'ready' | 'collected'; label: string }>> = {
   new: { status: 'preparing', label: 'Accept' },
   preparing: { status: 'ready', label: 'Mark as ready' },
-  ready: { status: 'collected', label: 'Collected' },
+  // Handing it over is when the customer pays.
+  ready: { status: 'collected', label: 'Paid & collected' },
 };
 
 /** "In 18 min", "Now", "As soon as possible". */

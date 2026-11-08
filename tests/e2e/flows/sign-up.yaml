@@ -1,0 +1,19 @@
+# A new customer signs up and reaches Home.
+appId: ${APP_ID}
+name: sign-up
+tags: [smoke]
+---
+- launchApp:
+    clearState: true
+- tapOn: 'Get started'
+- tapOn:
+    id: email
+- inputRandomEmail
+- tapOn:
+    id: password
+- inputText: 'e2e-password-1'
+- hideKeyboard
+- tapOn: 'Create account'
+# The permissions screen: skip it; the OS prompts are covered by hand.
+- tapOn: 'Not now'
+- assertVisible: 'Home'

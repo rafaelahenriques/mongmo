@@ -1,0 +1,17 @@
+# Orders a bánh mì at the café and sees the order status.
+# Needs the seed data (supabase/seed.sql) on the environment under test.
+appId: ${APP_ID}
+name: order
+tags: [smoke]
+---
+- launchApp
+- tapOn: 'Order'
+- tapOn: '(?i)bánh mì.*'
+- tapOn: '.*\d+,\d\d'
+- tapOn: '.*to cart.*'
+- tapOn: 'View cart.*'
+- tapOn: 'Checkout.*'
+- scrollUntilVisible:
+    element: 'Place order.*'
+- tapOn: 'Place order.*'
+- assertVisible: 'Confirmed'

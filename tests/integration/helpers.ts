@@ -21,6 +21,8 @@ export const SEED = {
   springrollsTofu: '00000000-0000-0000-0000-0000000000d8',
   extraProtein: '00000000-0000-0000-0000-0000000000da',
   mangoDip: '00000000-0000-0000-0000-0000000000db',
+  /** €2 off an order, 400 points. */
+  discountReward: '00000000-0000-0000-0000-0000000000a2',
   toteReward: '00000000-0000-0000-0000-0000000000a5',
   stewReward: '00000000-0000-0000-0000-0000000000a6',
 };
@@ -69,7 +71,7 @@ export async function placeOrder(
     p_user_reward_id: userRewardId,
   });
   if (error) throw error;
-  const { data: paid, error: payError } = await customer.client.rpc('confirm_mock_payment', { p_order_id: order.id });
+  const { data: paid, error: payError } = await customer.client.rpc('place_order', { p_order_id: order.id });
   if (payError) throw payError;
   return paid;
 }

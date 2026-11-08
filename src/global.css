@@ -1,9 +1,8 @@
 :root {
   --font-display:
-    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
-    Segoe UI Symbol, Noto Color Emoji;
-  --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
+    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
+    Noto Color Emoji;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
   --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
 }
@@ -24,7 +23,11 @@
 /* Keyboard focus: whatever has focus from the keyboard gets an ink ring
    with a paper halo, so it shows on light, sage and dark surfaces alike.
    Mouse and touch clicks don't show it (:focus-visible). */
-:focus-visible {
+:focus-visible,
+/* A date or time field keeps focus on one of its parts (day, month, year),
+   which :focus-visible doesn't reach; ring the whole field instead. */
+input[type='date']:focus-within,
+input[type='time']:focus-within {
   outline: 3px solid #1c1d19 !important;
   outline-offset: 0 !important;
   box-shadow: 0 0 0 6px #faf9f5 !important;

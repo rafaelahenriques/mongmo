@@ -1,0 +1,38 @@
+name: Data retention
+
+# Every night: deletes personal data past its retention period (the schedule
+# is in supabase/migrations/0025_retention.sql and docs/privacy/retention.md).
+# Off until the repository variable RETENTION_ENABLED is "true"; the
+# "retention" GitHub environment holds SUPABASE_URL and
+# SUPABASE_SERVICE_ROLE_KEY for the production project.
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Only count what would be deleted
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  retention:
+    if: vars.RETENTION_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: retention
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Delete expired data
+        run: node scripts/retention.mjs ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) && '--dry-run' || '' }}

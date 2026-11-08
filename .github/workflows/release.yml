@@ -1,0 +1,60 @@
+name: Release
+
+# Pushing a version tag (v1.2.0) releases it: checks the tag matches the
+# app's version, creates the GitHub release from that version's section of
+# CHANGELOG.md, then deploys to production (waiting for an approval on the
+# "production" environment) and, when STORE_SUBMIT is "true", sends the
+# builds to TestFlight and Google Play internal testing.
+# How to cut a release: docs/release-process.md.
+on:
+  push:
+    tags: ['v*.*.*']
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  github-release:
+    name: GitHub release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - name: The tag matches package.json
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME doesn't match package.json version $version. Use npm version (docs/release-process.md)."
+            exit 1
+          fi
+      - name: Release notes from CHANGELOG.md
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="$version" '
+            $0 ~ "^## \\[" v "\\]" { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+          if [ ! -s "$RUNNER_TEMP/notes.md" ]; then
+            echo "::error::CHANGELOG.md has no section for [$version]."
+            exit 1
+          fi
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/notes.md" --verify-tag
+
+  production:
+    needs: github-release
+    uses: ./.github/workflows/deploy.yml
+    with:
+      target: production
+      ship: database and app
+      submit: ${{ vars.STORE_SUBMIT == 'true' }}
+    secrets: inherit

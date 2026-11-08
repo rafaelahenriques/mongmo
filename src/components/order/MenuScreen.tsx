@@ -22,9 +22,11 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { orderAgain } from '@/services/orderAgain';
 import { cartItemCount, cartSubtotalCents, useCartStore } from '@/state/cartStore';
+import { nameFromContent } from '@/utils/a11y';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 import { formatCents } from '@/utils/orderFormat';
 import { pickupSlots } from '@/utils/pickupSlots';
+import { useRefreshControl } from '@/components/ui/LoadState';
 
 type Section = { name: string; items: OrderMenuItem[] };
 
@@ -48,6 +50,7 @@ export function sectionsOf(items: OrderMenuItem[]): Section[] {
  */
 export default function MenuScreen() {
   const theme = useTheme();
+  const refreshControl = useRefreshControl();
   const router = useRouter();
   const tabBarInset = useTabBarInset();
   const location = useCartStore((state) => state.location);
@@ -83,14 +86,17 @@ export default function MenuScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <AppHeader title="Order" />
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: (count ? 88 : 24) + tabBarInset }]}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: (count ? 88 : 24) + tabBarInset }]}
+        refreshControl={refreshControl}
+      >
         <Pressable
           onPress={() => {
             haptics.tap();
             router.push('/(orders)/order/location');
           }}
           accessibilityRole="button"
-          accessibilityLabel={`Pick up at ${place?.name ?? ''}, ${when}. Change.`}
+          {...nameFromContent(`Pick up at ${place?.name ?? ''}, ${when}. Change.`)}
           style={({ pressed }) => [styles.pickup, { borderColor: theme.border, opacity: pressed ? 0.7 : 1 }]}
         >
           <Icon name="pin" size={24} color={theme.text} />
@@ -120,7 +126,7 @@ export default function MenuScreen() {
         {view === 'reorder' ? (
           <Reorder placeName={place?.name} onDone={() => router.push('/(orders)/order/cart')} />
         ) : menu.isPending && location ? (
-          <ActivityIndicator color={theme.text} style={styles.loader} />
+          <ActivityIndicator accessibilityLabel="Loading" color={theme.text} style={styles.loader} />
         ) : menu.isError ? (
           <View style={styles.message}>
             <ThemedText type="caption" themeColor="textSecondary">
@@ -144,7 +150,7 @@ export default function MenuScreen() {
                     router.push({ pathname: '/(orders)/order/category/[name]', params: { name: section.name } });
                   }}
                   accessibilityRole="button"
-                  accessibilityLabel={`${section.name}, from ${formatCents(from)} euro`}
+                  {...nameFromContent(`${section.name}, from ${formatCents(from)} euro`)}
                   style={({ pressed }) => [styles.section, { opacity: pressed ? 0.6 : 1 }]}
                 >
                   <View style={styles.icon}>
@@ -195,7 +201,8 @@ function Reorder({ placeName, onDone }: { placeName?: string; onDone: () => void
     if (added) onDone();
   };
 
-  if (orders.isPending) return <ActivityIndicator color={theme.text} style={styles.loader} />;
+  if (orders.isPending)
+    return <ActivityIndicator accessibilityLabel="Loading" color={theme.text} style={styles.loader} />;
   if (past.length === 0) {
     return (
       <ThemedText type="caption" themeColor="textSecondary" style={styles.message}>

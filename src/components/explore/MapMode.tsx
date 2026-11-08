@@ -17,10 +17,7 @@ const KORTRIJK_CENTER: Coordinates = { latitude: 50.8276, longitude: 3.2662 };
 
 /** Fit the camera around the store + visible events (or Kortrijk if empty). */
 function computeInitialRegion(store: Store | null, events: PopUpEvent[]): Region {
-  const points: Coordinates[] = [
-    ...events.map((event) => event.coordinates),
-    ...(store ? [store.coordinates] : []),
-  ];
+  const points: Coordinates[] = [...events.map((event) => event.coordinates), ...(store ? [store.coordinates] : [])];
 
   if (points.length === 0) {
     return {
@@ -112,7 +109,7 @@ export default function MapMode({
           <Card style={styles.centerCard}>
             {storeLoading ? (
               <>
-                <ActivityIndicator size="small" color={theme.text} />
+                <ActivityIndicator accessibilityLabel="Loading" size="small" color={theme.text} />
                 <ThemedText type="caption" themeColor="textSecondary" style={styles.centerText}>
                   Loading the map…
                 </ThemedText>
@@ -125,7 +122,12 @@ export default function MapMode({
                 <ThemedText type="caption" themeColor="textSecondary" style={styles.centerText}>
                   Check your connection and try again.
                 </ThemedText>
-                <Button label="Retry" accessibilityLabel="Retry loading the café" size="medium" onPress={onRetryStore} />
+                <Button
+                  label="Retry"
+                  accessibilityLabel="Retry loading the café"
+                  size="medium"
+                  onPress={onRetryStore}
+                />
               </>
             )}
           </Card>

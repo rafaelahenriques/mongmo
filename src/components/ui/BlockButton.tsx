@@ -6,6 +6,7 @@ import { Icon } from '@/components/ui/Icon';
 import { PageInset } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
+import { nameFromContent } from '@/utils/a11y';
 
 export type BlockButtonProps = {
   label: string;
@@ -59,9 +60,10 @@ export function BlockButton({
       }}
       disabled={inactive}
       accessibilityRole="button"
-      accessibilityLabel={[label, value].filter(Boolean).join(', ')}
+      {...nameFromContent([label, value].filter(Boolean).join(', '))}
       accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled: inactive, busy: loading }}
+      aria-disabled={inactive}
+      aria-busy={loading}
       style={({ pressed }) => [
         { backgroundColor: background, opacity: pressed && !inactive ? 0.85 : 1 },
         bottomInset && { paddingBottom: insets.bottom },
@@ -73,7 +75,7 @@ export function BlockButton({
           {label}
         </ThemedText>
         {loading ? (
-          <ActivityIndicator color={color} />
+          <ActivityIndicator accessibilityLabel="Loading" color={color} />
         ) : (
           <View style={styles.right}>
             {value ? (

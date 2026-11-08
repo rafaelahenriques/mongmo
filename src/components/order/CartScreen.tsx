@@ -129,7 +129,7 @@ export default function CartScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
-      <PickupHeader place={place?.name ?? ''} image={place?.imageUrl} onBack={back} />
+      <PickupHeader place={place?.name ?? ''} image={place?.image} onBack={back} />
       {removed ? (
         <View
           style={[styles.undo, { backgroundColor: theme.surfaceDark }]}
@@ -227,7 +227,7 @@ export default function CartScreen() {
                       <Pressable
                         onPress={() => step(line, 1)}
                         accessibilityRole="button"
-                        accessibilityLabel={`One more ${line.name}`}
+                        accessibilityLabel={`+1: one more ${line.name}`}
                         hitSlop={10}
                         style={styles.lineButton}
                       >

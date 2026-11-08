@@ -22,19 +22,12 @@ export type OrderItemRow = Database['public']['Tables']['order_items']['Row'];
 /** The café and pop-up menus are the same shape; only the source id differs. */
 async function menuIdsForLocation(location: CartLocation): Promise<string[]> {
   if (location.type === 'store') {
-    const { data, error } = await supabase
-      .from('stores')
-      .select('menu_id')
-      .eq('id', location.storeId)
-      .single();
+    const { data, error } = await supabase.from('stores').select('menu_id').eq('id', location.storeId).single();
     if (error) throw toApiError(error);
     return data.menu_id ? [data.menu_id] : [];
   }
 
-  const { data, error } = await supabase
-    .from('event_menus')
-    .select('menu_id')
-    .eq('event_id', location.eventId);
+  const { data, error } = await supabase.from('event_menus').select('menu_id').eq('event_id', location.eventId);
   if (error) throw toApiError(error);
   return data.map((row) => row.menu_id);
 }
@@ -64,9 +57,9 @@ export async function getMenuItems(location: CartLocation): Promise<OrderMenuIte
 }
 
 /**
- * Creates the order server-side (prices/totals computed from item ids only)
- * and immediately confirms the mock payment — see AGENTS.md: "Use a
- * mock/test payment clearly labelled as prototype."
+ * Creates the order server-side (prices and totals computed from item ids
+ * only), then places it. The customer pays at the counter when they pick
+ * it up: the app takes no payment.
  */
 export async function placeOrder(
   location: CartLocation,
@@ -91,11 +84,19 @@ export async function placeOrder(
   });
   if (error) throw toApiError(error);
 
-  const { data: paid, error: payError } = await supabase.rpc('confirm_mock_payment', {
-    p_order_id: order.id,
-  });
-  if (payError) throw toApiError(payError);
-  return paid;
+  const { data: placed, error: placeError } = await supabase.rpc('place_order', { p_order_id: order.id });
+  if (placeError) throw toApiError(placeError);
+  return placed;
+}
+
+/**
+ * Cancels your own order while the café hasn't started on it; a reward
+ * used on it comes back. Refused once staff have accepted it.
+ */
+export async function cancelMyOrder(orderId: string): Promise<OrderRow> {
+  const { data, error } = await supabase.rpc('cancel_my_order', { p_order_id: orderId });
+  if (error) throw toApiError(error);
+  return data;
 }
 
 export async function getOrder(orderId: string): Promise<OrderRow> {

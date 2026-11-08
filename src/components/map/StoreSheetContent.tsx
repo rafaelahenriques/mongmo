@@ -11,13 +11,7 @@ import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { openDirections } from '@/services/directions';
 import { switchPickup } from '@/services/switchPickup';
-import {
-  WEEKDAY_LABELS,
-  WEEKDAY_ORDER,
-  formatHoursRange,
-  getCurrentWeekday,
-  getStoreStatus,
-} from '@/utils/dateTime';
+import { WEEKDAY_LABELS, WEEKDAY_ORDER, formatHoursRange, getCurrentWeekday, getStoreStatus } from '@/utils/dateTime';
 import type { BusyState, Store } from '@/types';
 
 export type StoreSheetContentProps = {
@@ -87,10 +81,7 @@ export default function StoreSheetContent({ store, busy, onClose }: StoreSheetCo
           {WEEKDAY_ORDER.map((weekday) => {
             const isToday = weekday === today;
             return (
-              <View
-                key={weekday}
-                style={[styles.hoursRow, isToday && { backgroundColor: theme.backgroundElement }]}
-              >
+              <View key={weekday} style={[styles.hoursRow, isToday && { backgroundColor: theme.backgroundElement }]}>
                 <ThemedText type={isToday ? 'smallBold' : 'small'} style={styles.flex}>
                   {WEEKDAY_LABELS[weekday]}
                   {isToday ? ' · today' : ''}

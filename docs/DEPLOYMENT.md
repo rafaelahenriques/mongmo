@@ -10,7 +10,7 @@ its own Supabase project, so testing never touches real customers' data.
 | Supabase | Local (`supabase start`) or a dev project | Its own project | Its own project |
 | EAS build profile | `development` | `staging` | `production` |
 | EAS environment (variables) | `development` | `preview` | `production` |
-| Crash reporting | Off | On (if a DSN is set) | On |
+| Crash reporting | Off | After the person says yes (if a DSN is set) | After the person says yes |
 | Logs printed | Everything | Warnings and errors | Warnings and errors |
 
 `EXPO_PUBLIC_APP_ENV` picks the environment. `eas.json` sets it for each
@@ -45,6 +45,12 @@ Settings → Environments), `staging` and `production`, each with:
 
 Give `production` **required reviewers**, so a deploy waits for an approval.
 
+The nightly retention job has its own environment, `retention`
+([`privacy/retention.md`](privacy/retention.md)). Repository variables
+switch the automations on once their environments are ready:
+`STAGING_AUTO_DEPLOY`, `STORE_SUBMIT`, `RETENTION_ENABLED`
+([`github-setup.md`](github-setup.md)).
+
 ### One-time setup
 
 1. Create two Supabase projects, `mongmo-staging` and `mongmo-production`.
@@ -65,26 +71,22 @@ audit, web build, and the integration tests against a fresh database). Only
 deploy a commit whose CI is green.
 
 1. **Merge to `main`** with CI green.
-2. **Deploy to staging.** On GitHub: Actions → Deploy → Run workflow →
-   target `staging`, ship `database and app`. This runs every CI check
-   again, applies new migrations to the staging database (it shows them
-   first, and never runs the seed), then starts the iOS and Android builds
-   on EAS. EAS runs the unit tests once more before building, and fails the
-   build if any fail.
+2. **Staging deploys itself** (with `STAGING_AUTO_DEPLOY` on; otherwise
+   Actions → Deploy → Run workflow → target `staging`). It runs every CI
+   check again, applies new migrations to the staging database (it shows
+   them first, and never runs the seed), then starts the iOS and Android
+   builds on EAS. EAS runs the unit tests once more before building, and
+   fails the build if any fail.
 3. **Test staging on a phone.** Install the staging build from the EAS
    link. Then check: sign up, order at the café, mark it collected from the
-   owner screens, see the points and level, redeem a reward, delete the
-   account. Check Sentry for new staging errors.
-4. **Deploy to production.** Run the same workflow with target
-   `production`. It waits for a reviewer to approve it.
-5. **Submit to the stores**: `eas submit --profile production --platform all`
-   (or from expo.dev). Release with **phased release** on the App Store and
-   a **staged rollout** (start at 10%) on Google Play, so a bad release can
-   be stopped before it reaches everyone.
-6. **Tag the release**: `git tag v1.2.0 && git push origin v1.2.0`. The tag
-   is what you roll back to.
-7. **Watch for 48 hours**: Sentry's crash-free sessions, and new issues in
-   `production`.
+   owner screens, see the points and level, redeem a reward, Your data →
+   download, delete the account. Check Sentry for new staging errors.
+4. **Release to production** by tagging a version: the full steps, store
+   submission, phased release and staged rollout are in
+   [`release-process.md`](release-process.md). The tag is also what you
+   roll back to.
+5. **Watch for 48 hours**: Sentry's crash-free sessions, and new issues in
+   `production` ([`monitoring.md`](monitoring.md)).
 
 **Database changes must work with the app already on phones.** People update
 slowly, so for a while old and new app versions run against the same
@@ -164,8 +166,11 @@ Development prints everything. Staging and production print warnings and
 errors only. Warnings become breadcrumbs on the next crash report, and
 errors are reported.
 
-Crash reporting (`src/lib/crashReporting.ts`) is Sentry, on when
-`EXPO_PUBLIC_SENTRY_DSN` is set. Its configuration:
+Crash reporting (`src/lib/crashReporting.ts`) is Sentry. It needs
+`EXPO_PUBLIC_SENTRY_DSN` in the build **and** the person's yes: the app
+asks once ("Help us fix crashes?", with Don't send and Send reports as
+equal buttons), nothing is sent before the answer, and Settings → Crash
+reports turns it off again (Sentry is closed at once). Its configuration:
 
 ```ts
 Sentry.init({
