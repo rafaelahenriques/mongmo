@@ -104,23 +104,23 @@ export default function WalletScreen() {
             </View>
           </View>
 
-          {/* Next reward: what it is, the card toward it, how far off, on cream. */}
-          <View style={[styles.stamps, { backgroundColor: theme.accent }]}>
-            <ThemedText type="label" style={{ color: theme.onAccent }}>
+          {/* Next reward: what it is, the card toward it, how far off. */}
+          <View style={[styles.stamps, { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }]}>
+            <ThemedText type="label" style={{ color: theme.primaryText }}>
               {goal ? 'Next reward' : 'Your stamp card'}
             </ThemedText>
-            <ThemedText type="subtitle" accessibilityRole="header" style={{ color: theme.onAccent }}>
+            <ThemedText type="subtitle" accessibilityRole="header">
               {goal ? goal.title : rewards.length ? 'Full: redeem a reward below' : 'Earn points at every pop-up'}
             </ThemedText>
             <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
             {goal ? (
-              <ThemedText type="smallBold" style={{ color: theme.onAccent }}>
+              <ThemedText type="smallBold" themeColor="textSecondary">
                 {`${stamps.earned} of ${stampsLabel(stamps.total)} · ${goal.costPoints - points} points to go`}
               </ThemedText>
             ) : null}
           </View>
 
-          {/* Your level: where you are, how far to the next, and what it brings, on ink. */}
+          {/* Your level: where you are, how far to the next, and what it brings. */}
           <Pressable
             onPress={() => router.push('/(wallet)/levels')}
             accessibilityRole="button"
@@ -129,17 +129,19 @@ export default function WalletScreen() {
             } See the levels.`}
             style={({ pressed }) => [
               styles.levelCard,
-              { backgroundColor: theme.surfaceDark, transform: [{ scale: pressed ? 0.99 : 1 }] },
+              {
+                backgroundColor: theme.backgroundElement,
+                boxShadow: CardShadow,
+                transform: [{ scale: pressed ? 0.99 : 1 }],
+              },
             ]}
           >
             <View style={styles.levelHead}>
               <View style={styles.flex}>
-                <ThemedText type="label" style={{ color: theme.onSurfaceDarkMuted }}>
+                <ThemedText type="label" style={{ color: theme.primaryText }}>
                   Your level
                 </ThemedText>
-                <ThemedText type="title" style={{ color: theme.onSurfaceDark }}>
-                  {level.current.name}
-                </ThemedText>
+                <ThemedText type="title">{level.current.name}</ThemedText>
               </View>
               {levelSticker(level.current.key) ? (
                 <Sticker source={Stickers[levelSticker(level.current.key)!]} style={styles.levelSticker} />
@@ -147,27 +149,25 @@ export default function WalletScreen() {
             </View>
             {level.next ? (
               <>
-                <View style={[styles.levelTrack, { backgroundColor: inkTrack }]}>
+                <View style={[styles.levelTrack, { backgroundColor: theme.backgroundSelected }]}>
                   <View
                     style={[
                       styles.levelFill,
-                      { width: `${Math.round(level.progress * 100)}%`, backgroundColor: theme.brandFill },
+                      { width: `${Math.round(level.progress * 100)}%`, backgroundColor: theme.primaryText },
                     ]}
                   />
                 </View>
-                <ThemedText type="small" style={{ color: theme.onSurfaceDarkMuted }}>
+                <ThemedText type="small" themeColor="textSecondary">
                   {`${level.toNext} points to ${level.next.name}: ${level.next.perk.charAt(0).toLowerCase()}${level.next.perk.slice(1)}`}
                 </ThemedText>
               </>
             ) : (
-              <ThemedText type="small" style={{ color: theme.onSurfaceDarkMuted }}>
+              <ThemedText type="small" themeColor="textSecondary">
                 {level.current.perk}
               </ThemedText>
             )}
             <View style={styles.levelLink}>
-              <ThemedText type="label" style={{ color: theme.onSurfaceDark }}>
-                Levels
-              </ThemedText>
+              <ThemedText type="label">Levels</ThemedText>
               <View style={[styles.roundGo, { backgroundColor: theme.brandFill }]}>
                 <Icon name="arrowRight" size={16} color={theme.onBrand} weight="bold" />
               </View>
@@ -262,9 +262,6 @@ function numberSize(points: number) {
   if (digits <= 3) return null;
   return digits === 4 ? { fontSize: 72, lineHeight: 76 } : { fontSize: 58, lineHeight: 62 };
 }
-
-/** The level bar's empty part on the ink card. */
-const inkTrack = 'rgba(250, 249, 245, 0.18)';
 
 const styles = StyleSheet.create({
   screen: {

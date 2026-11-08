@@ -14,7 +14,7 @@ import { usePullToRefresh } from '@/components/ui/Screen';
 import { ripple } from '@/components/ui/ripple';
 import { StampRow } from '@/components/ui/Stamps';
 import { StepBar } from '@/components/ui/StepBar';
-import { productPhoto } from '@/constants/productPhotos';
+import { productPhoto, sectionPhoto } from '@/constants/productPhotos';
 import { levelSticker, rewardSticker, Stickers, type StickerName } from '@/constants/stickers';
 import { CardShadow, PageInset, Radius } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
@@ -140,12 +140,16 @@ export default function HomeScreen() {
             } Open Wallet.`}
             style={({ pressed }) => [
               styles.pointsCard,
-              { backgroundColor: theme.brandFill, transform: [{ scale: pressed ? 0.99 : 1 }] },
+              {
+                backgroundColor: theme.backgroundElement,
+                boxShadow: CardShadow,
+                transform: [{ scale: pressed ? 0.99 : 1 }],
+              },
             ]}
           >
             <View style={styles.pointsTop}>
-              <View style={[styles.levelChip, { backgroundColor: theme.surfaceDark }]}>
-                <ThemedText type="captionBold" style={{ color: theme.onSurfaceDark }}>
+              <View style={[styles.levelChip, { backgroundColor: theme.brandFill }]}>
+                <ThemedText type="captionBold" style={{ color: theme.onBrand }}>
                   {level.current.name}
                 </ThemedText>
               </View>
@@ -154,20 +158,15 @@ export default function HomeScreen() {
               </View>
             </View>
             <View style={styles.pointsRow}>
-              <ThemedText
-                type="display"
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                style={[styles.pointsNumber, { color: theme.onBrand }]}
-              >
+              <ThemedText type="display" numberOfLines={1} adjustsFontSizeToFit style={styles.pointsNumber}>
                 {summary.points}
               </ThemedText>
-              <ThemedText type="subtitle" style={{ color: theme.onBrand }}>
+              <ThemedText type="subtitle" themeColor="textSecondary">
                 points
               </ThemedText>
             </View>
-            <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} onBrand />
-            <ThemedText type="small" style={{ color: theme.onBrand }}>
+            <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
+            <ThemedText type="small" themeColor="textSecondary">
               {goal
                 ? `${goal.costPoints - summary.points} points to ${goal.title.charAt(0).toLowerCase()}${goal.title.slice(1)}`
                 : 'Your points cover a reward: redeem it in Wallet'}
@@ -185,15 +184,24 @@ export default function HomeScreen() {
               accessibilityLabel="Order ahead"
               style={({ pressed }) => [
                 styles.tile,
-                { backgroundColor: theme.accent, transform: [{ scale: pressed ? 0.98 : 1 }] },
+                styles.photoTile,
+                {
+                  backgroundColor: theme.backgroundElement,
+                  boxShadow: CardShadow,
+                  transform: [{ scale: pressed ? 0.98 : 1 }],
+                },
               ]}
             >
-              <Sticker source={Stickers.openBanhMi} style={styles.tileSticker} />
-              <View>
-                <ThemedText type="section" style={{ color: theme.onAccent }}>
-                  Order ahead
-                </ThemedText>
-                <ThemedText type="caption" style={{ color: theme.onAccent }}>
+              <Image
+                accessible={false}
+                accessibilityLabel=""
+                source={ORDER_PHOTO}
+                style={styles.tilePhoto}
+                contentFit="cover"
+              />
+              <View style={styles.tileWords}>
+                <ThemedText type="section">Order ahead</ThemedText>
+                <ThemedText type="caption" themeColor="textSecondary">
                   Skip the queue
                 </ThemedText>
               </View>
@@ -204,17 +212,19 @@ export default function HomeScreen() {
               accessibilityLabel="My card: show my membership QR code"
               style={({ pressed }) => [
                 styles.tile,
-                { backgroundColor: theme.surfaceDark, transform: [{ scale: pressed ? 0.98 : 1 }] },
+                {
+                  backgroundColor: theme.backgroundElement,
+                  boxShadow: CardShadow,
+                  transform: [{ scale: pressed ? 0.98 : 1 }],
+                },
               ]}
             >
-              <View style={[styles.qrDisc, { backgroundColor: theme.onSurfaceDark }]}>
-                <Icon name="qrcode" size={30} color={theme.surfaceDark} />
+              <View style={[styles.qrDisc, { backgroundColor: theme.brandFill }]}>
+                <Icon name="qrcode" size={30} color={theme.onBrand} />
               </View>
               <View>
-                <ThemedText type="section" style={{ color: theme.onSurfaceDark }}>
-                  My card
-                </ThemedText>
-                <ThemedText type="caption" style={{ color: theme.onSurfaceDarkMuted }}>
+                <ThemedText type="section">My card</ThemedText>
+                <ThemedText type="caption" themeColor="textSecondary">
                   Scan at the counter
                 </ThemedText>
               </View>
@@ -223,7 +233,7 @@ export default function HomeScreen() {
 
           {newLevel ? (
             <Card
-              tone="brand"
+              eyebrow="NEW LEVEL"
               title={`Welcome to ${newLevel.name}!`}
               icon="trophy"
               image={stickerImage(levelSticker(newLevel.key))}
@@ -238,7 +248,7 @@ export default function HomeScreen() {
 
           {claimable ? (
             <Card
-              tone="rose"
+              eyebrow="REWARD"
               title="A reward is yours"
               icon="gift"
               image={stickerImage(rewardSticker(claimable.title))}
@@ -282,7 +292,7 @@ export default function HomeScreen() {
               contentContainerStyle={styles.picks}
               style={styles.picksScroller}
             >
-              {picks.map(({ item, photo }, index) => (
+              {picks.map(({ item, photo }) => (
                 <Pressable
                   key={item.id}
                   onPress={() => openItem(item.id)}
@@ -290,7 +300,7 @@ export default function HomeScreen() {
                   {...nameFromContent(item.name)}
                   style={({ pressed }) => [
                     styles.pick,
-                    { backgroundColor: PICK_TONES[index % PICK_TONES.length](theme), opacity: pressed ? 0.9 : 1 },
+                    { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.9 : 1 },
                   ]}
                 >
                   <Image
@@ -338,13 +348,6 @@ export default function HomeScreen() {
     </View>
   );
 }
-
-/** The menu picks' backgrounds, in turn: stone, cream, sage. */
-const PICK_TONES: ((theme: ReturnType<typeof useTheme>) => string)[] = [
-  (theme) => theme.backgroundSelected,
-  (theme) => theme.backgroundElement,
-  (theme) => theme.backgroundSelected,
-];
 
 /** A section's title, with its one link at the right ("MENU", "SEE ALL"). */
 function SectionHead({ title, link, onPress }: { title: string; link: string; onPress: () => void }) {
@@ -578,6 +581,9 @@ function menuPicks(items: OrderMenuItem[], count = 3): { item: OrderMenuItem; ph
   return picks;
 }
 
+/** "Order ahead": a bánh mì. */
+const ORDER_PHOTO = sectionPhoto('Bánh mì');
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
@@ -619,7 +625,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   pointsNumber: {
-    fontSize: 72,
+    fontSize: 64,
     // Never below the font size: iOS cuts the top off the glyphs.
     lineHeight: 76,
     flexShrink: 1,
@@ -643,11 +649,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     overflow: 'hidden',
   },
-  tileSticker: {
-    width: 104,
-    height: 70,
-    alignSelf: 'flex-end',
-    transform: [{ rotate: '-8deg' }],
+  // The photo fills the top, the words sit under it on the card.
+  photoTile: {
+    padding: 0,
+  },
+  tilePhoto: {
+    flex: 1,
+    minHeight: 96,
+  },
+  tileWords: {
+    padding: 14,
+    paddingTop: 10,
   },
   qrDisc: {
     width: 56,
