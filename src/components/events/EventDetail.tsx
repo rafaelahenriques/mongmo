@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/Card';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { IconBadge } from '@/components/ui/IconBadge';
 import { PhotoHero } from '@/components/ui/PhotoHero';
+import { GlassButton } from '@/components/ui/PhotoShade';
 import { ScreenReaderTitle } from '@/components/ui/ScreenReaderTitle';
 import { usePullToRefresh } from '@/components/ui/Screen';
 import { SquareIconButton } from '@/components/ui/SquareIconButton';
@@ -17,7 +18,7 @@ import { TextLink } from '@/components/ui/TextLink';
 import { ThemedText } from '@/components/ThemedText';
 import { ApiError } from '@/api/errors';
 import { EVENTS_PAGE_URL } from '@/constants/config';
-import { PageInset, Spacing } from '@/constants/theme';
+import { PageInset, Radius, Spacing } from '@/constants/theme';
 import { useCheckIn } from '@/hooks/useCheckIn';
 import { useEvent } from '@/hooks/useEvent';
 import { useNow } from '@/hooks/useNow';
@@ -162,28 +163,28 @@ export default function EventDetail({ eventId }: EventDetailProps) {
         headingLevel={1}
         top={
           <View style={[styles.heroTop, { top: insets.top + 10 }]}>
-            <SquareIconButton icon="chevronLeft" onPress={back} accessibilityLabel="Back" size={44} />
-            <SquareIconButton icon="share" onPress={onShare} accessibilityLabel="Share this pop-up" size={44} />
+            <GlassButton icon="chevronLeft" onPress={back} label="Back" />
+            <GlassButton icon="share" onPress={onShare} label="Share this pop-up" />
           </View>
         }
       />
 
       <View style={styles.page}>
-        {/* The facts, one per line, all the same size: when, where, and
-            (before it starts) when check-in opens. */}
-        <View style={styles.facts}>
-          <Fact icon="calendar" title={timeLabel} />
-          <Fact icon="pin" title={event.venue} subtitle={event.city} />
-          {phase === 'upcoming' ? (
-            <Fact
-              icon="clock"
-              title={`Check-in opens ${opensAt}`}
-              subtitle="Check in, order and do the challenges once it starts."
-            />
-          ) : phase === 'ended' ? (
-            <Fact icon="clock" title="This pop-up has ended" subtitle="Keep an eye on Pop-ups for the next one." />
-          ) : null}
+        {/* When and where side by side, like a ticket; under it, before it
+            starts or once it's over, what that means for you. */}
+        <View style={[styles.ticket, { backgroundColor: theme.backgroundSelected }]}>
+          <TicketCell label="When" value={timeLabel} />
+          <TicketCell label="Where" value={event.venue} sub={event.city} />
         </View>
+        {phase === 'upcoming' ? (
+          <Fact
+            icon="clock"
+            title={`Check-in opens ${opensAt}`}
+            subtitle="Check in, order and do the challenges once it starts."
+          />
+        ) : phase === 'ended' ? (
+          <Fact icon="clock" title="This pop-up has ended" subtitle="Keep an eye on Pop-ups for the next one." />
+        ) : null}
 
         {phase === 'live' ? (
           <View style={styles.busy} accessible accessibilityLabel={`How busy: ${busy.occupancy} of ${busy.capacity}`}>
@@ -195,8 +196,13 @@ export default function EventDetail({ eventId }: EventDetailProps) {
                 {busy.occupancy} of {busy.capacity}
               </ThemedText>
             </View>
-            <View style={[styles.busyTrack, { backgroundColor: theme.border }]}>
-              <View style={[styles.busyFill, { width: `${busyShare * 100}%`, backgroundColor: theme.text }]} />
+            <View style={[styles.busyTrack, { backgroundColor: theme.backgroundSelected }]}>
+              <View
+                style={[
+                  styles.busyFill,
+                  { width: `${Math.max(busyShare, 0.03) * 100}%`, backgroundColor: theme.brand },
+                ]}
+              />
             </View>
           </View>
         ) : null}
@@ -234,7 +240,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
 
         {event.description ? (
           <View style={styles.about}>
-            <ThemedText type="section" accessibilityRole="header">
+            <ThemedText type="subtitle" accessibilityRole="header">
               About
             </ThemedText>
             <ThemedText type="default">{event.description}</ThemedText>
@@ -292,11 +298,8 @@ const styles = StyleSheet.create({
   },
   page: {
     paddingHorizontal: PageInset,
-    paddingTop: 18,
-    gap: 16,
-  },
-  facts: {
-    gap: 14,
+    paddingTop: 20,
+    gap: 20,
   },
   fact: {
     flexDirection: 'row',
@@ -314,10 +317,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   busyTrack: {
-    height: 3,
+    height: 8,
+    borderRadius: 4,
+    overflow: 'hidden',
   },
   busyFill: {
-    height: 3,
+    height: 8,
+    borderRadius: 4,
+  },
+  ticket: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 16,
+    padding: 18,
+    borderRadius: Radius.card,
+  },
+  cell: {
+    flexGrow: 1,
+    flexBasis: 130,
+    gap: 4,
   },
   actions: {
     flexDirection: 'row',
@@ -357,6 +375,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+/** One half of the ticket: a small label ("When"), the answer, and maybe a quieter line. */
+function TicketCell({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <View style={styles.cell} accessible>
+      <ThemedText type="label" themeColor="textSecondary">
+        {label}
+      </ThemedText>
+      <ThemedText type="smallBold">{value}</ThemedText>
+      {sub ? (
+        <ThemedText type="small" themeColor="textSecondary">
+          {sub}
+        </ThemedText>
+      ) : null}
+    </View>
+  );
+}
 
 /** One fact about the pop-up: an icon, a line, and maybe a quieter line under it. */
 function Fact({ icon, title, subtitle }: { icon: IconName; title: string; subtitle?: string }) {

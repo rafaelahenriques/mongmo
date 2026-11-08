@@ -3,15 +3,14 @@ import { useRouter } from 'expo-router';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
-import { formatInTimeZone } from 'date-fns-tz';
 
 import type { OrderMenuItem } from '@/api/orders';
 import { shortName } from '@/components/achievements/LeaderboardList';
 import { ThemedText } from '@/components/ThemedText';
 import { Wordmark } from '@/components/brand/Wordmark';
-import { glass, onPhoto, onPhotoSoft, PhotoShade } from '@/components/ui/PhotoShade';
+import { GlassButton, glass, onPhoto, onPhotoSoft, PhotoPill, PhotoShade } from '@/components/ui/PhotoShade';
+import { PopUpPoster, PopupRow } from '@/components/explore/PopupRow';
 import { ScreenReaderTitle } from '@/components/ui/ScreenReaderTitle';
-import Chip from '@/components/ui/Chip';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { usePullToRefresh } from '@/components/ui/Screen';
 import { ripple } from '@/components/ui/ripple';
@@ -30,14 +29,12 @@ import { useProfile } from '@/hooks/useProfile';
 import { useStore } from '@/hooks/useStore';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
-import { haptics } from '@/services/haptics';
 import { switchPickup } from '@/services/switchPickup';
 import { useCartStore, type CartLocation } from '@/state/cartStore';
 import { useLocationStore } from '@/state/locationStore';
 import { useSettingsStore } from '@/state/settingsStore';
 import { nameFromContent } from '@/utils/a11y';
-import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
-import { distanceInMeters, formatDistance } from '@/utils/distance';
+import { getEventPhase } from '@/utils/dateTime';
 import {
   formatCents,
   ORDER_STEP,
@@ -201,7 +198,7 @@ export default function HomeScreen() {
             <ThemedText type="label" style={styles.onPhotoSoft}>
               Hello
             </ThemedText>
-            <ThemedText type="name" accessibilityRole="header" style={styles.onPhoto}>
+            <ThemedText type="name" style={styles.onPhoto}>
               {firstName || 'there'}
             </ThemedText>
             <Pressable
@@ -216,34 +213,13 @@ export default function HomeScreen() {
               </ThemedText>
             </Pressable>
             <View style={styles.heroPills}>
-              <Pressable
-                onPress={() => {
-                  haptics.tap();
-                  openOrder();
-                }}
-                accessibilityRole="button"
-                accessibilityLabel="Order ahead"
-                style={({ pressed }) => [
-                  styles.pill,
-                  { backgroundColor: theme.brandFill, opacity: pressed ? 0.85 : 1 },
-                ]}
-              >
-                <ThemedText type="button" style={{ color: theme.onBrand }}>
-                  Order ahead
-                </ThemedText>
-                <Icon name="arrowRight" size={16} color={theme.onBrand} weight="bold" />
-              </Pressable>
-              <Pressable
-                onPress={() => router.push('/(wallet)/card')}
-                accessibilityRole="button"
+              <PhotoPill label="Order ahead" tone="brand" onPress={openOrder} />
+              <PhotoPill
+                label="My card"
+                icon="qrcode"
                 accessibilityLabel="My card: show my membership QR code"
-                style={({ pressed }) => [styles.pill, styles.glass, { opacity: pressed ? 0.8 : 1 }]}
-              >
-                <Icon name="qrcode" size={16} color={Paper} />
-                <ThemedText type="button" style={styles.onPhoto}>
-                  My card
-                </ThemedText>
-              </Pressable>
+                onPress={() => router.push('/(wallet)/card')}
+              />
             </View>
           </View>
         </View>
@@ -254,12 +230,27 @@ export default function HomeScreen() {
         {featured ? (
           <View style={styles.section}>
             <Chapter number="01" title={liveNow(featured) ? 'On right now' : 'Up next'} />
-            <PopUpCard
+            <PopUpPoster
+              tall
               event={featured}
-              distance={coordinates ? formatDistance(distanceInMeters(coordinates, featured.coordinates)) : null}
-              onCheckIn={() => router.push({ pathname: '/(popups)/check-in/[id]', params: { id: featured.id } })}
               onOpen={() => openEvent(featured.id)}
-              onOrder={() => orderAt(featured)}
+              actions={
+                <>
+                  {liveNow(featured) ? (
+                    <PhotoPill
+                      label="Check in"
+                      tone="brand"
+                      onPress={() => router.push({ pathname: '/(popups)/check-in/[id]', params: { id: featured.id } })}
+                    />
+                  ) : (
+                    <PhotoPill label="Details" tone="brand" onPress={() => openEvent(featured.id)} />
+                  )}
+                  <PhotoPill
+                    label={liveNow(featured) ? 'Order here' : 'Order ahead'}
+                    onPress={() => orderAt(featured)}
+                  />
+                </>
+              }
             />
           </View>
         ) : null}
@@ -336,7 +327,7 @@ export default function HomeScreen() {
           )}
           <View>
             {upcoming.map((event, index) => (
-              <PopUpRow
+              <PopupRow
                 key={event.id}
                 event={event}
                 last={index === upcoming.length - 1}
@@ -356,36 +347,6 @@ const PICK_WIDTH = 200;
 
 function liveNow(event: PopUpEvent) {
   return getEventPhase(event.startsAt, event.endsAt) === 'live';
-}
-
-/** A round see-through button over a photo. */
-function GlassButton({
-  icon,
-  label,
-  dot = false,
-  onPress,
-}: {
-  icon: IconName;
-  label: string;
-  dot?: boolean;
-  onPress: () => void;
-}) {
-  const theme = useTheme();
-  return (
-    <Pressable
-      onPress={() => {
-        haptics.tap();
-        onPress();
-      }}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      hitSlop={4}
-      style={({ pressed }) => [styles.glass, styles.glassButton, { opacity: pressed ? 0.75 : 1 }]}
-    >
-      <Icon name={icon} size={20} color={Paper} />
-      {dot ? <View style={[styles.dot, { backgroundColor: theme.brandFill }]} /> : null}
-    </Pressable>
-  );
 }
 
 /** A section's heading: its number, the title, and one link on the right ("MENU", "SEE ALL"). */
@@ -483,132 +444,6 @@ function stickerImage(name: StickerName | null): number | undefined {
   return name ? Stickers[name] : undefined;
 }
 
-/**
- * The pop-up that's on (or next), tall like a poster: its photo, a glass
- * panel at the bottom with the name, when and where, and two pills: order
- * here, and check in when it's live (details before).
- */
-function PopUpCard({
-  event,
-  distance,
-  onCheckIn,
-  onOpen,
-  onOrder,
-}: {
-  event: PopUpEvent;
-  distance: string | null;
-  onCheckIn: () => void;
-  onOpen: () => void;
-  onOrder: () => void;
-}) {
-  const theme = useTheme();
-  const live = liveNow(event);
-  return (
-    <View style={[styles.popCard, { backgroundColor: theme.surfaceDark }]}>
-      <Image
-        accessible={false}
-        accessibilityLabel=""
-        source={popUpImage(event)}
-        style={StyleSheet.absoluteFill}
-        contentFit="cover"
-      />
-      <PhotoShade from={0} to={0.85} />
-      <Pressable
-        onPress={onOpen}
-        accessibilityRole="button"
-        {...nameFromContent(`${live ? 'Live now' : 'Coming up'}: ${event.title}. Open the pop-up.`)}
-        style={styles.popText}
-      >
-        {live ? (
-          <Chip label="Live now" tone="live" />
-        ) : (
-          <ThemedText type="label" style={styles.onPhotoSoft}>
-            Coming up
-          </ThemedText>
-        )}
-        <ThemedText type="title" numberOfLines={3} style={styles.onPhoto}>
-          {event.title}
-        </ThemedText>
-        <ThemedText type="small" style={styles.onPhotoSoft}>
-          {[event.venue, formatEventWindow(event.startsAt, event.endsAt, event.timeZone), distance]
-            .filter(Boolean)
-            .join(' · ')}
-        </ThemedText>
-      </Pressable>
-      <View style={styles.popPills}>
-        <Pressable
-          onPress={live ? onCheckIn : onOpen}
-          accessibilityRole="button"
-          style={({ pressed }) => [styles.pill, { backgroundColor: theme.brandFill, opacity: pressed ? 0.85 : 1 }]}
-        >
-          <ThemedText type="button" style={{ color: theme.onBrand }}>
-            {live ? 'Check in' : 'Details'}
-          </ThemedText>
-          <Icon name="arrowRight" size={16} color={theme.onBrand} weight="bold" />
-        </Pressable>
-        <Pressable
-          onPress={onOrder}
-          accessibilityRole="button"
-          style={({ pressed }) => [styles.pill, styles.glass, { opacity: pressed ? 0.8 : 1 }]}
-        >
-          <ThemedText type="button" style={styles.onPhoto}>
-            {live ? 'Order here' : 'Order ahead'}
-          </ThemedText>
-        </Pressable>
-      </View>
-    </View>
-  );
-}
-
-/** A pop-up coming up, as a line in a programme: the date big, the name, where and when, an arrow. */
-function PopUpRow({ event, last, onPress }: { event: PopUpEvent; last: boolean; onPress: () => void }) {
-  const theme = useTheme();
-  const start = new Date(event.startsAt);
-  const day = formatInTimeZone(start, event.timeZone, 'dd');
-  const month = formatInTimeZone(start, event.timeZone, 'MMM');
-  const when = `${formatInTimeZone(start, event.timeZone, 'EEE HH:mm')} · ${event.city}`;
-  return (
-    <Pressable
-      android_ripple={ripple(theme.text)}
-      onPress={onPress}
-      accessibilityRole="button"
-      {...nameFromContent(
-        `${event.title}, ${formatInTimeZone(start, event.timeZone, 'EEE d MMM, HH:mm')}, ${event.city}`,
-      )}
-      style={({ pressed }) => [
-        styles.row,
-        !last && { borderBottomWidth: 1, borderBottomColor: theme.border },
-        { opacity: pressed ? 0.7 : 1 },
-      ]}
-    >
-      <View style={styles.date}>
-        <ThemedText type="subtitle">{day}</ThemedText>
-        <ThemedText type="label" themeColor="textSecondary">
-          {month}
-        </ThemedText>
-      </View>
-      <View style={[styles.rowPhoto, { backgroundColor: theme.backgroundSelected }]}>
-        <Image
-          accessible={false}
-          accessibilityLabel=""
-          source={popUpImage(event)}
-          style={StyleSheet.absoluteFill}
-          contentFit="cover"
-        />
-      </View>
-      <View style={styles.rowTexts}>
-        <ThemedText type="card" numberOfLines={2}>
-          {event.title}
-        </ThemedText>
-        <ThemedText type="caption" themeColor="textSecondary" numberOfLines={1}>
-          {when}
-        </ThemedText>
-      </View>
-      <Icon name="chevronRight" size={18} color={theme.textSecondary} />
-    </Pressable>
-  );
-}
-
 type Photo = NonNullable<ReturnType<typeof productPhoto>>;
 
 /** A few things to start an order with: main items, not options, each with a photo no other pick has. */
@@ -658,21 +493,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   glass,
-  glassButton: {
-    width: 44,
-    height: 44,
-    borderRadius: Radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dot: {
-    position: 'absolute',
-    top: 9,
-    right: 10,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
   pointsChip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -687,14 +507,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 10,
     marginTop: 12,
-  },
-  pill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    minHeight: 48,
-    paddingHorizontal: 20,
-    borderRadius: Radius.pill,
   },
   notices: {
     paddingHorizontal: PageInset,
@@ -739,25 +551,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
-  popCard: {
-    borderRadius: Radius.tile,
-    overflow: 'hidden',
-    aspectRatio: 0.82,
-    justifyContent: 'flex-end',
-  },
-  popText: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    gap: 6,
-    alignItems: 'flex-start',
-  },
-  popPills: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    padding: 20,
-    paddingTop: 14,
-  },
   picksScroller: {
     marginHorizontal: -PageInset,
   },
@@ -789,26 +582,5 @@ const styles = StyleSheet.create({
   },
   stampRow: {
     paddingVertical: 4,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    paddingVertical: 14,
-  },
-  date: {
-    width: 44,
-    alignItems: 'center',
-  },
-  rowPhoto: {
-    width: 56,
-    height: 56,
-    borderRadius: Radius.large,
-    overflow: 'hidden',
-  },
-  rowTexts: {
-    flex: 1,
-    minWidth: 0,
-    gap: 2,
   },
 });
