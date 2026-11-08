@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatInTimeZone } from 'date-fns-tz';
 
@@ -16,6 +16,7 @@ import { haptics } from '@/services/haptics';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 import { formatCents, pickupCode } from '@/utils/orderFormat';
 import { nameFromContent } from '@/utils/a11y';
+import { EmptyState, ErrorState, LoadingState, useRefreshControl } from '@/components/ui/LoadState';
 
 /**
  * A-02 Orders board: New, Being made, Ready as underlined words with
@@ -27,7 +28,8 @@ export default function OwnerOrdersScreen() {
   const router = useRouter();
   const tabBarInset = useTabBarInset();
   const now = useNow(30_000).getTime();
-  const { orders, info, isLoading, advance } = useOwnerOrders();
+  const { orders, info, isLoading, isError, refetch, advance } = useOwnerOrders();
+  const refreshControl = useRefreshControl();
   const [column, setColumn] = useState<OwnerColumn>('new');
 
   const count = (target: OwnerColumn) => orders.filter((order) => columnFor(order.status) === target).length;
@@ -41,6 +43,7 @@ export default function OwnerOrdersScreen() {
     <ScrollView
       style={{ flex: 1, backgroundColor: theme.background }}
       contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + 32 }]}
+      refreshControl={refreshControl}
     >
       <Segmented
         options={(Object.keys(COLUMN_LABEL) as OwnerColumn[]).map((value) => ({
@@ -55,11 +58,18 @@ export default function OwnerOrdersScreen() {
       />
 
       {isLoading ? (
-        <ActivityIndicator accessibilityLabel="Loading" color={theme.text} style={styles.loader} />
+        <LoadingState />
+      ) : isError ? (
+        <ErrorState message="Couldn’t load the orders." onRetry={() => void refetch()} />
       ) : shown.length === 0 ? (
-        <ThemedText type="caption" themeColor="textSecondary" style={styles.empty}>
-          No {COLUMN_LABEL[column].toLowerCase()} orders.
-        </ThemedText>
+        <EmptyState
+          icon="receipt"
+          text={
+            column === 'new'
+              ? 'No new orders. They show up here as customers place them.'
+              : `No ${COLUMN_LABEL[column].toLowerCase()} orders right now.`
+          }
+        />
       ) : (
         shown.map((order) => {
           const about = info[order.id];

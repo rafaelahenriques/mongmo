@@ -12,6 +12,7 @@ import { useOwnerOrders } from '@/hooks/useOwnerOrders';
 import { useReportedPhotos } from '@/hooks/usePhotos';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
+import { useRefreshControl } from '@/components/ui/LoadState';
 
 /**
  * A-01 Owner tools: today's orders as three big numbers (new ones are the
@@ -20,6 +21,7 @@ import { useTheme } from '@/hooks/useTheme';
  */
 export default function OwnerHomeScreen() {
   const theme = useTheme();
+  const refreshControl = useRefreshControl();
   const router = useRouter();
   const tabBarInset = useTabBarInset();
   const { orders } = useOwnerOrders();
@@ -47,6 +49,7 @@ export default function OwnerHomeScreen() {
     <ScrollView
       style={{ flex: 1, backgroundColor: theme.background }}
       contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + 32 }]}
+      refreshControl={refreshControl}
     >
       <View style={[styles.card, { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }]}>
         <View

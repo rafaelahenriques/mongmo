@@ -14,6 +14,7 @@ import { confirmDeleteAccount } from '@/services/auth';
 import { errorMessage } from '@/services/confirm';
 import { downloadMyData } from '@/services/dataExport';
 import { haptics } from '@/services/haptics';
+import { useRefreshControl } from '@/components/ui/LoadState';
 
 /** How many of each kind of record there are, for the summary. */
 function count(data: Record<string, unknown> | undefined, key: string): string {
@@ -27,6 +28,7 @@ function count(data: Record<string, unknown> | undefined, key: string): string {
  */
 export default function YourDataScreen() {
   const theme = useTheme();
+  const refreshControl = useRefreshControl();
   const router = useRouter();
   const tabBarInset = useTabBarInset();
   const data = useQuery({ queryKey: ['my-data'], queryFn: exportMyData, staleTime: 0, gcTime: 0 });
@@ -53,6 +55,7 @@ export default function YourDataScreen() {
     <ScrollView
       style={{ flex: 1, backgroundColor: theme.background }}
       contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + 32 }]}
+      refreshControl={refreshControl}
     >
       <ThemedText>
         Everything Mongmo keeps about you. Your location, notifications and cart stay on your phone and aren’t listed

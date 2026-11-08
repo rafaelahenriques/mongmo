@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider } from 'expo-router';
@@ -43,10 +44,16 @@ function RootLayout() {
           resolved scheme as the screens, settings override included. */}
       <ThemeProvider value={navTheme}>
         <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-        {ready ? <FirstScreen signedIn={Boolean(session)} permissionsAsked={permissionsAsked} /> : null}
+        {/* On a tablet or a wide browser window the app keeps a phone-like
+            column instead of stretching edge to edge. */}
+        <View style={[styles.page, { backgroundColor: navTheme.colors.background }]}>
+          <View style={styles.column}>
+            {ready ? <FirstScreen signedIn={Boolean(session)} permissionsAsked={permissionsAsked} /> : null}
+            {introDone ? <ConsentPrompt /> : null}
+          </View>
+        </View>
         {/* The logo animation plays over the app while it reads the cached
             session and loads fonts, then fades out to reveal it. */}
-        {introDone ? <ConsentPrompt /> : null}
         {!introDone && <SplashIntro ready={ready} onDone={finishIntro} />}
       </ThemeProvider>
     </Providers>
@@ -59,5 +66,20 @@ function FirstScreen({ signedIn, permissionsAsked }: { signedIn: boolean; permis
   if (!permissionsAsked) return <PermissionsScreen />;
   return <AppTabs />;
 }
+
+/** Wider than this, the app sits in a centred column. */
+const MAX_APP_WIDTH = 720;
+
+const styles = StyleSheet.create({
+  page: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  column: {
+    flex: 1,
+    width: '100%',
+    maxWidth: MAX_APP_WIDTH,
+  },
+});
 
 export default withCrashReporting(RootLayout);

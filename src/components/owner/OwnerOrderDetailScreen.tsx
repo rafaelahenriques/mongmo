@@ -17,6 +17,7 @@ import { confirm } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 import { formatCents, ORDER_STATUS_TITLE, pickupCode } from '@/utils/orderFormat';
+import { ErrorState } from '@/components/ui/LoadState';
 
 const STEPS = ['New', 'Being made', 'Ready'];
 const STEP_INDEX = { new: 0, preparing: 1, ready: 2, collected: 2 } as const;
@@ -29,7 +30,7 @@ export default function OwnerOrderDetailScreen({ orderId }: { orderId: string })
   const theme = useTheme();
   const router = useRouter();
   const now = useNow(30_000).getTime();
-  const { orders, info, isLoading, advance, advancing } = useOwnerOrders();
+  const { orders, info, isLoading, isError, refetch, advance, advancing } = useOwnerOrders();
   const order = orders.find((candidate) => candidate.id === orderId);
   const back = () => (router.canGoBack() ? router.back() : router.replace('/(profile)/owner/orders'));
 
@@ -40,6 +41,8 @@ export default function OwnerOrderDetailScreen({ orderId }: { orderId: string })
         <View style={styles.state}>
           {isLoading ? (
             <ActivityIndicator accessibilityLabel="Loading" color={theme.text} />
+          ) : isError ? (
+            <ErrorState message="Couldn’t load the orders." onRetry={() => void refetch()} style={styles.stateBox} />
           ) : (
             <ThemedText type="caption" themeColor="textSecondary">
               This order isn’t on the board.
@@ -126,6 +129,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  stateBox: {
+    alignSelf: 'stretch',
+    marginHorizontal: 20,
   },
   scroll: {
     paddingBottom: 24,

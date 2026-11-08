@@ -33,8 +33,15 @@ the release workflow publishes that section as the GitHub release notes.
 - Owner tools → Reported photos: staff put a reported photo back, keep it
   down, or delete it for good. Reports are deleted once decided.
 
+- Cancel an order you placed by mistake, until the café starts on it; a
+  reward you used comes back.
+- Every screen that loads something says when it couldn't, with Try
+  again, and lists refresh when you pull down.
+
 ### Changed
 
+- On a tablet or a wide browser window, the app keeps a centred column
+  instead of stretching edge to edge.
 - You pay at the counter when you pick up your order; the app takes no
   payment. Staff see what to take and mark it paid as they hand it over.
 - The leaderboard is opt-in: join it from Achievements, leave it in

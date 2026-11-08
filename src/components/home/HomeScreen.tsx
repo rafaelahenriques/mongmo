@@ -40,6 +40,7 @@ import { stampCard } from '@/utils/stamps';
 import type { PopUpEvent } from '@/types';
 import { popUpImage } from '@/constants/brandPhotos';
 import PhotosOfTheWeek from '@/components/home/PhotosOfTheWeek';
+import { ErrorState } from '@/components/ui/LoadState';
 
 /**
  * H-01 Home, laid out like a magazine (after Joe & The Juice's home): your
@@ -291,11 +292,16 @@ export default function HomeScreen() {
         <PhotosOfTheWeek style={styles.section} />
 
         <View style={styles.section}>
-          <SectionHead
-            title={upcoming.length ? 'Pop-ups coming up' : 'Nothing else planned yet'}
-            link="SEE ALL"
-            onPress={() => router.navigate('/(popups)')}
-          />
+          {eventsQuery.isError && !eventsQuery.data ? (
+            // Not "nothing planned": we couldn't find out.
+            <ErrorState message="Couldn’t load the pop-ups." onRetry={() => void eventsQuery.refetch()} />
+          ) : (
+            <SectionHead
+              title={upcoming.length ? 'Pop-ups coming up' : 'Nothing else planned yet'}
+              link="SEE ALL"
+              onPress={() => router.navigate('/(popups)')}
+            />
+          )}
           {upcoming.map((event) => (
             <PopUpRow key={event.id} event={event} onPress={() => openEvent(event.id)} />
           ))}

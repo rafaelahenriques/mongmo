@@ -78,6 +78,7 @@ left, per "no hardcoded/mock data."
 | `0029_photos_of_the_week.sql` | Challenge photos (records and files) are private to the person and staff. `set_photo_shared()` shares one in Photos of the week for 7 days; `photos_of_the_week()` lists them without names; `report_photo()` takes one down at once and records it in `photo_reports` for staff. |
 | `0030_review_reported_photos.sql` | Staff decide on reported photos (Owner tools → Reported photos): `reported_photos()`, `review_reported_photo()` (put it back or keep it down), `delete_reported_photo()` (after the app removes the file; staff may delete only taken-down files). Reports are deleted once decided; the photo keeps the outcome, which the export shows. |
 | `0031_pay_at_pickup.sql` | Pay at pickup: the status `paid` becomes `placed` (no money changed hands), `place_order()` replaces the test payment, and orders record `payment` (`at_pickup`) and `paid_at`, set when staff mark them collected. |
+| `0032_cancel_my_order.sql` | `cancel_my_order()`: customers cancel their own order until staff accept it. A reward used on a cancelled order (by the customer or staff) comes back unused. |
 
 ### Points ledger, not a running total
 

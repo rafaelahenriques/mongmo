@@ -1,8 +1,7 @@
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { formatInTimeZone } from 'date-fns-tz';
 
 import { CHALLENGE_TYPES } from '@/components/challenges/challengeTypes';
-import { ThemedText } from '@/components/ThemedText';
 import { BigNumber } from '@/components/ui/BigNumber';
 import type { IconName } from '@/components/ui/Icon';
 import { TaskCard } from '@/components/ui/TaskCard';
@@ -14,6 +13,7 @@ import { useTheme } from '@/hooks/useTheme';
 import type { PointsHistoryEntry } from '@/api/endpoints';
 import type { ChallengeType } from '@/types/database';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
+import { EmptyState, ErrorState, LoadingState, useRefreshControl } from '@/components/ui/LoadState';
 
 function iconFor(entry: PointsHistoryEntry): IconName {
   if (entry.source === 'reward_redeemed') return 'gift';
@@ -31,23 +31,24 @@ export default function PointsHistoryScreen() {
   const tabBarInset = useTabBarInset();
   const { summary } = useAchievements();
   const history = usePointsHistory();
+  const refreshControl = useRefreshControl();
 
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: theme.background }}
       contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + 32 }]}
+      refreshControl={refreshControl}
     >
       <BigNumber value={summary.points} word="Points" size={46} />
       {history.isPending ? (
-        <ActivityIndicator accessibilityLabel="Loading" color={theme.text} style={styles.loader} />
+        <LoadingState />
       ) : history.isError ? (
-        <ThemedText type="caption" themeColor="textSecondary">
-          Couldn’t load your points. Pull down to try again.
-        </ThemedText>
+        <ErrorState message="Couldn’t load your points." onRetry={() => void history.refetch()} />
       ) : history.data.length === 0 ? (
-        <ThemedText type="caption" themeColor="textSecondary">
-          Nothing yet. Orders earn points when you pick them up, and so do a pop-up’s challenges.
-        </ThemedText>
+        <EmptyState
+          icon="star"
+          text="Nothing yet. Orders earn points when you pick them up, and so do a pop-up’s challenges."
+        />
       ) : (
         <View style={styles.list}>
           {history.data.map((entry) => (
