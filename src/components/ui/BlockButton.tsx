@@ -75,7 +75,7 @@ export function BlockButton({
       ]}
     >
       <View style={[styles.row, size === 'compact' && styles.compact]}>
-        <ThemedText type="label" numberOfLines={1} style={[styles.label, { color }]}>
+        <ThemedText type="button" numberOfLines={1} style={[styles.label, { color }]}>
           {label}
         </ThemedText>
         {loading ? (
@@ -83,7 +83,7 @@ export function BlockButton({
         ) : (
           <View style={styles.right}>
             {value ? (
-              <ThemedText type="label" style={{ color }}>
+              <ThemedText type="button" style={{ color }}>
                 {value}
               </ThemedText>
             ) : null}

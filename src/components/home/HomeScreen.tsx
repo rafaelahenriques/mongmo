@@ -8,6 +8,7 @@ import type { OrderMenuItem } from '@/api/orders';
 import { shortName } from '@/components/achievements/LeaderboardList';
 import { ThemedText } from '@/components/ThemedText';
 import { Wordmark } from '@/components/brand/Wordmark';
+import { Chapter } from '@/components/ui/Chapter';
 import { GlassButton, glass, onPhoto, onPhotoSoft, PhotoPill, PhotoShade } from '@/components/ui/PhotoShade';
 import { PopUpPoster, PopupRow } from '@/components/explore/PopupRow';
 import { ScreenReaderTitle } from '@/components/ui/ScreenReaderTitle';
@@ -349,38 +350,6 @@ function liveNow(event: PopUpEvent) {
   return getEventPhase(event.startsAt, event.endsAt) === 'live';
 }
 
-/** A section's heading: its number, the title, and one link on the right ("MENU", "SEE ALL"). */
-function Chapter({
-  number,
-  title,
-  link,
-  onPress,
-}: {
-  number: string;
-  title: string;
-  link?: string;
-  onPress?: () => void;
-}) {
-  const theme = useTheme();
-  return (
-    <View style={styles.chapter}>
-      <ThemedText type="label" aria-hidden style={{ color: theme.primaryText }}>
-        {number}
-      </ThemedText>
-      <ThemedText type="subtitle" accessibilityRole="header" style={styles.flex}>
-        {title}
-      </ThemedText>
-      {link && onPress ? (
-        <Pressable onPress={onPress} accessibilityRole="link" hitSlop={10} style={styles.target}>
-          <ThemedText type="label" style={{ color: theme.primaryText }}>
-            {link}
-          </ThemedText>
-        </Pressable>
-      ) : null}
-    </View>
-  );
-}
-
 /** Something that needs you now: a small picture, what it is, and a round arrow. */
 function Notice({
   eyebrow,
@@ -467,11 +436,6 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  /** A text-only control, 44pt tall so it's easy to hit. */
-  target: {
-    minHeight: 44,
-    justifyContent: 'center',
-  },
   onPhoto,
   onPhotoSoft,
   hero: {
@@ -545,11 +509,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: PageInset,
     paddingTop: 36,
     gap: 14,
-  },
-  chapter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
   },
   picksScroller: {
     marginHorizontal: -PageInset,

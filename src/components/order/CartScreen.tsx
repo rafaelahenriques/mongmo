@@ -10,12 +10,13 @@ import { ProductCard } from '@/components/order/ProductCard';
 import { ThemedText } from '@/components/ThemedText';
 import { BlockButton } from '@/components/ui/BlockButton';
 import { Button } from '@/components/ui/Button';
+import { Chapter } from '@/components/ui/Chapter';
 import { Icon } from '@/components/ui/Icon';
 import { Toggle } from '@/components/ui/Toggle';
 import { orderPoints } from '@/constants/points';
 import { PRODUCT_PHOTO_POSITION, productPhoto } from '@/constants/productPhotos';
 import { Stickers } from '@/constants/stickers';
-import { PageInset } from '@/constants/theme';
+import { PageInset, Radius } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useLevel } from '@/hooks/useLevel';
 import { useMenu } from '@/hooks/useMenu';
@@ -163,6 +164,7 @@ export default function CartScreen() {
       ) : (
         <>
           <ScrollView contentContainerStyle={styles.content}>
+            <Chapter number="01" title="Your order" />
             {items.map((line) => {
               const item = byId.get(line.menuItemId);
               const photo = item ? productPhoto(item) : undefined;
@@ -245,7 +247,7 @@ export default function CartScreen() {
             })}
 
             {discount || offer ? (
-              <View style={[styles.reward, { borderColor: theme.border }]}>
+              <View style={[styles.reward, { backgroundColor: theme.backgroundSelected }]}>
                 {discount || affordable ? null : <Icon name="lock" size={20} color={theme.textSecondary} />}
                 <View style={styles.flex}>
                   <ThemedText type="smallBold" themeColor={discount || affordable ? 'text' : 'textSecondary'}>
@@ -292,9 +294,7 @@ export default function CartScreen() {
 
             {suggestions.length ? (
               <View style={styles.more}>
-                <ThemedText type="subtitle" accessibilityRole="header">
-                  You may also like
-                </ThemedText>
+                <Chapter number="02" title="You may also like" />
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -340,8 +340,10 @@ const styles = StyleSheet.create({
     gap: 12,
     marginHorizontal: 12,
     marginTop: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingLeft: 18,
+    paddingRight: 8,
+    paddingVertical: 4,
+    borderRadius: Radius.pill,
   },
   empty: {
     flex: 1,
@@ -355,9 +357,9 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: PageInset,
-    paddingTop: 12,
+    paddingTop: 18,
     paddingBottom: 24,
-    gap: 14,
+    gap: 16,
   },
   line: {
     flexDirection: 'row',
@@ -366,10 +368,11 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     borderBottomWidth: 1,
   },
-  // Square, like the rest of the app's photos.
+  // A rounded photo, like the programme lines on Home and Pop-ups.
   round: {
-    width: 64,
-    height: 64,
+    width: 72,
+    height: 72,
+    borderRadius: Radius.large,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
@@ -397,8 +400,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    borderBottomWidth: 1,
-    paddingBottom: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: Radius.card,
   },
   earn: {
     flexDirection: 'row',
