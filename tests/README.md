@@ -23,7 +23,7 @@ database.
 ```bash
 # A throwaway local Supabase around the repo's migrations and seed
 mkdir -p /tmp/mongmo-db && cd /tmp/mongmo-db && npx supabase init
-cp -r ~/mongmo/supabase/migrations supabase/ && cp ~/mongmo/supabase/seed.sql supabase/
+cp -r ~/mongmo/supabase/migrations supabase/ && cat ~/mongmo/supabase/base.sql ~/mongmo/supabase/seed.sql > supabase/seed.sql
 npx supabase start
 npx supabase status -o env   # shows API_URL, ANON_KEY, SERVICE_ROLE_KEY
 

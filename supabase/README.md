@@ -19,16 +19,20 @@ Postgres so the client can only ever *ask*, never *decide*.
    Since CLI 3, `db push` targets the local stack unless you pass `--remote`
    (without it you get `connect ECONNREFUSED 127.0.0.1:54322`).
    For local development, `npx supabase db reset` applies every migration
-   **and** `supabase/seed.sql` in one step.
-3. **Seed a hosted project.** `db push` only runs migrations — it never
-   touches `seed.sql`, so a freshly pushed project has no store, menu,
-   pop-ups, badges or rewards, and every screen comes up empty ("Couldn't
-   load the store", "Nothing on right now", "No pop-up menus"). Open the
-   dashboard → **SQL Editor** → New query, paste the whole of
-   `supabase/seed.sql`, and **Run**. It's idempotent, and its pop-up dates
-   are relative to "now" — re-run it whenever you want a live pop-up again
-   (it refreshes the seven demo pop-ups, from two days ago to two weeks out,
-   their challenges, and how busy they are).
+   and the data below, once `supabase/config.toml` lists both files under
+   `[db.seed]`: `sql_paths = ["./base.sql", "./seed.sql"]`.
+3. **Add the data to a hosted project.** `db push` only runs migrations, so
+   a freshly pushed project has no café, menu, badges or rewards, and every
+   screen comes up empty ("Couldn't load the store"). Two files, each pasted
+   whole into the dashboard → **SQL Editor** → New query → **Run**:
+   - `supabase/base.sql`, on **every** project, production included: the
+     menu, the Kortrijk café, the badges and the rewards. Run it once; after
+     launch, change the menu in the app or the dashboard, because running it
+     again resets the menu and rewards to the file.
+   - `supabase/seed.sql`, on **local and staging only, never production**:
+     seven demo pop-ups and their challenges, dated relative to "now".
+     Re-run it whenever you want a live pop-up again (it refreshes their
+     dates, challenges and how busy they are).
 4. Copy `.env.example` to `.env` and fill in the project URL and anon key
    (Supabase dashboard → Project Settings → API, or the values `supabase
    start` prints for a local project).
