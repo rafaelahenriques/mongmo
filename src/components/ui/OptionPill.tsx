@@ -5,6 +5,7 @@ import { Icon, type IconName } from '@/components/ui/Icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
+import { ripple } from '@/components/ui/ripple';
 
 /**
  * Outlined option chip, sage when picked. With `checked` it's a radio in a
@@ -33,6 +34,7 @@ export function OptionPill({
   const color = selected ? theme.onBrand : theme.text;
   return (
     <Pressable
+      android_ripple={ripple(color)}
       onPress={() => {
         haptics.select();
         onPress();

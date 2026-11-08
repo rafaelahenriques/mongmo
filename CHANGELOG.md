@@ -48,6 +48,12 @@ the release workflow publishes that section as the GitHub release notes.
   payment. Staff see what to take and mark it paid as they hand it over.
 - The leaderboard is opt-in: join it from Achievements, leave it in
   Settings.
+- Android: notifications come in five kinds (your orders, pop-ups near
+  you, badges, rewards, cart reminders), each with its own switch in
+  Android's settings. Order updates pop up on screen; cart reminders
+  arrive quietly. They show the Mongmo mark in the status bar.
+- Android: buttons, rows and cards ripple when you touch them, as
+  elsewhere on Android.
 
 ### Fixed
 

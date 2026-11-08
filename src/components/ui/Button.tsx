@@ -5,6 +5,7 @@ import { Icon, type IconName } from '@/components/ui/Icon';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
+import { ripple } from '@/components/ui/ripple';
 
 export type ButtonProps = {
   label: string;
@@ -70,6 +71,7 @@ export function Button({
 
   return (
     <Pressable
+      android_ripple={ripple(colors.foreground)}
       onPress={() => {
         if (haptic !== 'none') haptics[haptic]();
         onPress();

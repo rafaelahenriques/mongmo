@@ -7,6 +7,7 @@ import { PageInset } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { nameFromContent } from '@/utils/a11y';
+import { ripple } from '@/components/ui/ripple';
 
 export type BlockButtonProps = {
   label: string;
@@ -54,6 +55,7 @@ export function BlockButton({
 
   return (
     <Pressable
+      android_ripple={ripple(color)}
       onPress={() => {
         haptics[haptic]();
         onPress();

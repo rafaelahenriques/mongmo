@@ -3,6 +3,7 @@ import { AppState, Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 
 import { orderPoints } from '@/constants/points';
+import type { NotificationChannel } from '@/services/notifications';
 import { cartItemCount, cartSubtotalCents, useCartStore } from '@/state/cartStore';
 import { useSettingsStore } from '@/state/settingsStore';
 
@@ -42,7 +43,11 @@ export function useCartReminder(): void {
           data: { url: '/(orders)/order/cart' },
           sound: true,
         },
-        trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: new Date(Date.now() + AFTER_MS) },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: new Date(Date.now() + AFTER_MS),
+          channelId: 'reminders' satisfies NotificationChannel,
+        },
       }).catch(() => undefined);
     });
 
