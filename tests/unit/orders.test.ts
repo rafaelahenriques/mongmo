@@ -6,7 +6,7 @@ jest.mock('@/lib/supabase', () => ({ supabase: { rpc: jest.fn() }, getCurrentUse
 const rpc = jest.mocked(supabase.rpc) as unknown as jest.Mock;
 
 const ORDER = { id: 'order-1', status: 'draft' };
-const PAID = { id: 'order-1', status: 'paid' };
+const PLACED = { id: 'order-1', status: 'placed' };
 
 /** Answers each RPC by name, like the server would. */
 function serverAnswers(answers: Record<string, { data?: unknown; error?: { message: string; code?: string } }>) {
@@ -17,7 +17,7 @@ beforeEach(() => rpc.mockReset());
 
 describe('placeOrder', () => {
   it('makes sure the profile exists, creates the order from item ids only, then pays', async () => {
-    serverAnswers({ create_order: { data: ORDER }, confirm_mock_payment: { data: PAID } });
+    serverAnswers({ create_order: { data: ORDER }, place_order: { data: PLACED } });
     const paid = await placeOrder(
       { type: 'store', storeId: 'cafe' },
       [
@@ -27,8 +27,8 @@ describe('placeOrder', () => {
       '2026-11-05T12:30:00.000Z',
       'reward-1',
     );
-    expect(paid).toEqual(PAID);
-    expect(rpc.mock.calls.map(([name]) => name)).toEqual(['ensure_profile', 'create_order', 'confirm_mock_payment']);
+    expect(paid).toEqual(PLACED);
+    expect(rpc.mock.calls.map(([name]) => name)).toEqual(['ensure_profile', 'create_order', 'place_order']);
     expect(rpc).toHaveBeenCalledWith('create_order', {
       p_store_id: 'cafe',
       p_event_id: null,
@@ -39,11 +39,11 @@ describe('placeOrder', () => {
       p_pickup_at: '2026-11-05T12:30:00.000Z',
       p_user_reward_id: 'reward-1',
     });
-    expect(rpc).toHaveBeenCalledWith('confirm_mock_payment', { p_order_id: 'order-1' });
+    expect(rpc).toHaveBeenCalledWith('place_order', { p_order_id: 'order-1' });
   });
 
   it('orders from a pop-up by its event id', async () => {
-    serverAnswers({ create_order: { data: ORDER }, confirm_mock_payment: { data: PAID } });
+    serverAnswers({ create_order: { data: ORDER }, place_order: { data: PLACED } });
     await placeOrder({ type: 'event', eventId: 'night-market', eventTitle: 'Night market' }, [], null);
     expect(rpc).toHaveBeenCalledWith(
       'create_order',
@@ -54,7 +54,7 @@ describe('placeOrder', () => {
   it("never pays for an order the server didn't create", async () => {
     serverAnswers({ create_order: { error: { message: 'Item is not available', code: 'P0001' } } });
     await expect(placeOrder({ type: 'store', storeId: 'cafe' }, [], null)).rejects.toThrow('Item is not available');
-    expect(rpc).not.toHaveBeenCalledWith('confirm_mock_payment', expect.anything());
+    expect(rpc).not.toHaveBeenCalledWith('place_order', expect.anything());
   });
 
   it("stops when the profile can't be made", async () => {

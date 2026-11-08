@@ -77,6 +77,7 @@ left, per "no hardcoded/mock data."
 | `0028_privacy_cleanup.sql` | Check-in challenges record `withinRadius`, not the distance (old distances cleared); old photo links in results become a count; the leaderboard is opt-in for new accounts; the demo pop-ups' Unsplash pictures are cleared. |
 | `0029_photos_of_the_week.sql` | Challenge photos (records and files) are private to the person and staff. `set_photo_shared()` shares one in Photos of the week for 7 days; `photos_of_the_week()` lists them without names; `report_photo()` takes one down at once and records it in `photo_reports` for staff. |
 | `0030_review_reported_photos.sql` | Staff decide on reported photos (Owner tools → Reported photos): `reported_photos()`, `review_reported_photo()` (put it back or keep it down), `delete_reported_photo()` (after the app removes the file; staff may delete only taken-down files). Reports are deleted once decided; the photo keeps the outcome, which the export shows. |
+| `0031_pay_at_pickup.sql` | Pay at pickup: the status `paid` becomes `placed` (no money changed hands), `place_order()` replaces the test payment, and orders record `payment` (`at_pickup`) and `paid_at`, set when staff mark them collected. |
 
 ### Points ledger, not a running total
 
@@ -95,7 +96,7 @@ data.
 | `complete_challenge(challenge_id, data)` | Requires an existing check-in for that challenge's event first. |
 | `redeem_reward(reward_id)` | Validates balance + expiry, then spends points atomically. |
 | `create_order(store_id, event_id, items, pickup_at, user_reward_id?)` | The client sends only item ids/quantities; prices, reward validation and totals are computed here. Snapshots `name`/`price_cents` onto `order_items` at insert time. |
-| `confirm_mock_payment(order_id)` | Stand-in for a real Stripe charge later (Edge Function). Moves `draft → paid`; nothing else can. |
+| `place_order(order_id)` | Places your own draft order (`draft → placed`); it's paid at the counter on pickup. Replaced `confirm_mock_payment` in 0031. |
 | `advance_order_status(order_id, status)` | Owner-only: `preparing`/`ready`/`collected`/`cancelled`. |
 | `leaderboard(period)` | `'weekly' | 'all'`, aggregated across every visible profile. |
 | `my_points_balance()`, `my_stats()` | The signed-in user's own numbers (points; events attended, cities visited, challenges completed, orders placed). |
@@ -211,8 +212,8 @@ for `auth.users`/`auth.uid()`/`auth.role()` and the `storage` schema (not
 committed — this was a throwaway local check, not part of the app). That
 confirmed, end to end: check-in verification (wrong token, out-of-range,
 success, duplicate), the full badge ladder, the points ledger, reward
-redemption (including insufficient-balance), order pricing + the mock
-payment step, RLS isolation between two users, the qr_token column
+redemption (including insufficient-balance), order pricing + the (then)
+mock payment step, RLS isolation between two users, the qr_token column
 hardening, and the leaderboard aggregation — both with and without the
 project-level default grants (0007), and with an account that predates the
 profile trigger (0008). It does **not** replace testing

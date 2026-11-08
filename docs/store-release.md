@@ -6,10 +6,10 @@ changes, change these answers in both consoles too.
 
 ## Before the first submission: blockers
 
-- [ ] **Payment.** Checkout uses a test payment. Before going live: a real
-      payment provider (physical goods may use Stripe and the like, not
-      in-app purchase) or "pay at pickup". App Review rejects a test
-      payment.
+- [x] **Payment.** Customers pay at the counter when they pick up (no
+      payment in the app, so no in-app purchase rules apply). If online
+      payment comes later, food is a physical good: a provider like Stripe,
+      not Apple's or Google's in-app purchase.
 - [ ] **A reviewer account**: an email and password with some points and an
       order, written in App Store Connect → App Review Information and in
       Play Console → App access.

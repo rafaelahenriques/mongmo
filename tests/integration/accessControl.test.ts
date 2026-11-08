@@ -28,7 +28,7 @@ describe('a visitor who is not signed in', () => {
   const calls: [string, Record<string, unknown>][] = [
     ['leaderboard', { p_period: 'all' }],
     ['create_order', { p_store_id: SEED.storeId, p_event_id: null, p_items: [], p_pickup_at: null }],
-    ['confirm_mock_payment', { p_order_id: '00000000-0000-0000-0000-000000000000' }],
+    ['place_order', { p_order_id: '00000000-0000-0000-0000-000000000000' }],
     ['redeem_reward', { p_reward_id: SEED.toteReward }],
     ['my_stats', {}],
     ['my_points_balance', {}],
@@ -74,7 +74,7 @@ describe("one customer and another's data", () => {
     const before = await orderStatus(aliceOrderId);
     await bob.client.from('orders').update({ status: 'cancelled' }).eq('id', aliceOrderId);
     await bob.client.from('orders').delete().eq('id', aliceOrderId);
-    const pay = await bob.client.rpc('confirm_mock_payment', { p_order_id: aliceOrderId });
+    const pay = await bob.client.rpc('place_order', { p_order_id: aliceOrderId });
     expect(pay.error).not.toBeNull();
     expect(await orderStatus(aliceOrderId)).toEqual(before);
   });

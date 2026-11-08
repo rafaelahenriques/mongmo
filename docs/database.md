@@ -10,7 +10,7 @@ applied in order. Per-migration notes: [`supabase/README.md`](../supabase/README
 | People | `profiles` (name, role, leaderboard choice) | The person (some columns), functions |
 | Places | `stores`, `events` (pop-ups) | Staff |
 | Food | `menus`, `menu_items`, `event_menus` | Staff |
-| Orders | `orders`, `order_items` | Functions only (`create_order`, `confirm_mock_payment`, `advance_order_status`) |
+| Orders | `orders`, `order_items` | Functions only (`create_order`, `place_order`, `advance_order_status`). Paid at pickup: `paid_at` is set when staff mark an order collected |
 | Programme | `challenges`; `check_ins`, `challenge_completions`, `photos`, `photo_reports` | Staff; functions only; the person (photos, private; shared through `set_photo_shared`) |
 | Loyalty | `point_events`, `badges`, `user_badges`, `rewards`, `user_rewards`, `levels` | Functions only (rewards and badges: staff) |
 

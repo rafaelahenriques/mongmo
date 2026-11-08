@@ -30,7 +30,8 @@ export type ChallengeType =
   | 'community'
   | 'motion';
 
-export type OrderStatus = 'draft' | 'paid' | 'preparing' | 'ready' | 'collected' | 'cancelled';
+/** `placed`: ordered, to pay at pickup (0031). */
+export type OrderStatus = 'draft' | 'placed' | 'preparing' | 'ready' | 'collected' | 'cancelled';
 
 type Table<Row extends Record<string, unknown>> = {
   Row: Row;
@@ -223,6 +224,10 @@ type OrderRow = {
   pickup_at: string | null;
   user_reward_id: string | null;
   created_at: string;
+  /** How it's paid: at the counter on pickup (the only way for now). */
+  payment: 'at_pickup';
+  /** When staff took the payment: set as they mark it collected. */
+  paid_at: string | null;
 };
 
 type OrderItemRow = {
@@ -339,7 +344,7 @@ export type Database = {
         };
         Returns: OrderRow;
       };
-      confirm_mock_payment: {
+      place_order: {
         Args: { p_order_id: string };
         Returns: OrderRow;
       };

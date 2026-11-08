@@ -16,7 +16,7 @@ import { nameFromContent } from '@/utils/a11y';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 import { formatCents, ORDER_STATUS_TITLE, pickupCode } from '@/utils/orderFormat';
 
-const ACTIVE = ['paid', 'preparing', 'ready'];
+const ACTIVE = ['placed', 'preparing', 'ready'];
 
 /**
  * O-06 My orders: the one on its way in a stone block, then the history.
