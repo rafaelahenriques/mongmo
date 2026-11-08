@@ -126,6 +126,97 @@ export const Colors = {
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
+/** A full set of colour tokens for one scheme at one contrast level. */
+export type Palette = { [K in ThemeColor]: string };
+
+/**
+ * Contrast levels, from the Material theme's medium- and high-contrast
+ * schemes (docs/design/material-theme.json): darker text and edges on light,
+ * lighter on dark, the brand colours kept with stronger text on them.
+ * Material's pure white and black stay Paper and Ink. Main and quiet text
+ * reach 9:1 or more at medium and about 11:1 at high (tests/unit/contrast).
+ */
+export type ContrastLevel = 'standard' | 'medium' | 'high';
+
+const CONTRAST_OVERRIDES: Record<Exclude<ContrastLevel, 'standard'>, Record<'light' | 'dark', Partial<Palette>>> = {
+  medium: {
+    light: {
+      text: Ink,
+      textSecondary: '#353731',
+      outline: '#52534D',
+      faded: '#52534D',
+      border: '#6D6E67',
+      primary: Ink,
+      primaryText: '#003E38',
+      onBrand: Ink,
+      onBrandSoft: Ink,
+      onAccent: Ink,
+      tertiary: '#896461',
+      onTertiary: Paper,
+      success: '#17502F',
+      danger: '#740006',
+      warning: '#5C3D0F',
+    },
+    dark: {
+      text: Paper,
+      textSecondary: '#DDDDD4',
+      outline: '#B2B2AA',
+      faded: '#B2B2AA',
+      border: '#909189',
+      onSurfaceDarkMuted: '#DDDDD4',
+      primaryText: '#A2EADE',
+      onTertiary: '#140202',
+      success: '#7FDCA4',
+      danger: '#FFD2CC',
+      warning: '#F2B65E',
+    },
+  },
+  high: {
+    light: {
+      text: Ink,
+      textSecondary: '#2B2D27',
+      outline: '#2B2D27',
+      faded: '#2B2D27',
+      border: '#494A43',
+      primary: Ink,
+      primaryText: '#00332D',
+      onBrand: Ink,
+      onBrandSoft: Ink,
+      onAccent: Ink,
+      tertiary: '#61413F',
+      onTertiary: Paper,
+      success: '#123F25',
+      danger: '#600004',
+      warning: '#4A3109',
+    },
+    dark: {
+      text: Paper,
+      textSecondary: '#F1F0E8',
+      outline: '#F1F0E8',
+      faded: '#F1F0E8',
+      border: '#C3C3BB',
+      onSurfaceDarkMuted: '#F1F0E8',
+      primaryText: '#B5FEF2',
+      tertiary: '#E5B8B5',
+      onTertiary: '#1A0505',
+      success: '#B5F0CB',
+      danger: '#FFECE9',
+      warning: '#FBD9A6',
+    },
+  },
+};
+
+const palette = (scheme: 'light' | 'dark', level: ContrastLevel): Palette => ({
+  ...Colors[scheme],
+  ...(level === 'standard' ? {} : CONTRAST_OVERRIDES[level][scheme]),
+});
+
+/** Every scheme at every contrast level, built once. */
+export const Palettes: Record<'light' | 'dark', Record<ContrastLevel, Palette>> = {
+  light: { standard: palette('light', 'standard'), medium: palette('light', 'medium'), high: palette('light', 'high') },
+  dark: { standard: palette('dark', 'standard'), medium: palette('dark', 'medium'), high: palette('dark', 'high') },
+};
+
 export const Fonts = Platform.select({
   ios: {
     /** iOS `UIFontDescriptorSystemDesignDefault` */

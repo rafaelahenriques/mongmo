@@ -33,6 +33,8 @@ the release workflow publishes that section as the GitHub release notes.
 - Owner tools → Reported photos: staff put a reported photo back, keep it
   down, or delete it for good. Reports are deleted once decided.
 
+- Settings → Contrast: medium and high contrast colours, from the
+  Material theme. System follows your phone's Increase Contrast setting.
 - Cancel an order you placed by mistake, until the café starts on it; a
   reward you used comes back.
 - Every screen that loads something says when it couldn't, with Try

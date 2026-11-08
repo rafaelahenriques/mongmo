@@ -28,6 +28,8 @@ Name `main`, enforcement **Active**, target the default branch:
   - `Integration tests (local Supabase)`
   - `Accessibility, light mode (every screen, axe)`
   - `Accessibility, dark mode (every screen, axe)`
+  - `Accessibility, light mode, high contrast (every screen, axe)`
+  - `Accessibility, dark mode, high contrast (every screen, axe)`
   - `Conventional Commit title`
 - [x] Require linear history
 

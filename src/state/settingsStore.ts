@@ -4,6 +4,8 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 /** Appearance preference; 'system' follows the device setting. */
 export type ThemeMode = 'system' | 'light' | 'dark';
+/** 'system' follows the phone's Increase Contrast / high contrast setting. */
+export type ContrastMode = 'system' | 'standard' | 'medium' | 'high';
 
 /** Opt-in, per-type push notification toggles (AGENTS.md). */
 export type NotificationPrefs = {
@@ -32,6 +34,7 @@ type SettingsState = {
   levelSeen: string | null;
   /** Crash reports: nothing is sent until the person says yes ('on'). */
   crashReports: CrashReportsChoice;
+  contrast: ContrastMode;
   setNotificationPref: (key: keyof NotificationPrefs, enabled: boolean) => void;
   setThemeMode: (mode: ThemeMode) => void;
   markNotificationsSeen: () => void;
@@ -39,6 +42,7 @@ type SettingsState = {
   markPermissionsAsked: () => void;
   markLevelSeen: (key: string) => void;
   setCrashReports: (choice: 'on' | 'off') => void;
+  setContrast: (mode: ContrastMode) => void;
 };
 
 /** 'unasked' until the person answers the crash reports question. */
@@ -58,6 +62,7 @@ const DEFAULTS = {
   permissionsAsked: false,
   levelSeen: null as string | null,
   crashReports: 'unasked' as CrashReportsChoice,
+  contrast: 'system' as ContrastMode,
 };
 
 /**
@@ -77,6 +82,7 @@ export const useSettingsStore = create<SettingsState>()(
       markPermissionsAsked: () => set({ permissionsAsked: true }),
       markLevelSeen: (key) => set({ levelSeen: key }),
       setCrashReports: (choice) => set({ crashReports: choice }),
+      setContrast: (mode) => set({ contrast: mode }),
     }),
     {
       name: 'mongmo-settings',
@@ -86,7 +92,8 @@ export const useSettingsStore = create<SettingsState>()(
       // keep their choice instead of silently reverting to the defaults.
       // v3 added `achievements`, v4 `cartReminder` (both on by default).
       // v5 added `crashReports`, unasked: everyone is asked once.
-      version: 5,
+      // v6 added `contrast`, following the phone.
+      version: 6,
       migrate: (persisted, version) => {
         if (!persisted || typeof persisted !== 'object') return persisted as SettingsState;
         let state = persisted as Partial<SettingsState> & { notificationsEnabled?: boolean };
@@ -110,6 +117,7 @@ export const useSettingsStore = create<SettingsState>()(
           state = { ...state, notifications: { ...state.notifications, cartReminder: true } };
         }
         if (version < 5) state = { ...state, crashReports: 'unasked' };
+        if (version < 6) state = { ...state, contrast: 'system' };
         return state as SettingsState;
       },
     },

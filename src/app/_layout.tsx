@@ -13,6 +13,7 @@ import { SplashIntro } from '@/components/SplashIntro';
 import { FONT_ASSETS } from '@/constants/fonts';
 import { applyCrashReportsChoice, withCrashReporting } from '@/lib/crashReporting';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { useWatchSystemContrast } from '@/hooks/useWatchSystemContrast';
 import { useNavigationTheme } from '@/hooks/useNavigationTheme';
 import { useSession } from '@/hooks/useSession';
 import { useResolvedScheme } from '@/hooks/useTheme';
@@ -27,6 +28,7 @@ useSettingsStore.subscribe((state, previous) => {
 
 function RootLayout() {
   useDocumentTitle();
+  useWatchSystemContrast();
   const navTheme = useNavigationTheme();
   const scheme = useResolvedScheme();
   const session = useSession();
