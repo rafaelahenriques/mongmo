@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 import { useQuery } from '@tanstack/react-query';
 import { formatInTimeZone } from 'date-fns-tz';
 
@@ -12,6 +13,7 @@ import { BlockButton } from '@/components/ui/BlockButton';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { Segmented } from '@/components/ui/Segmented';
+import { PRODUCT_PHOTO_POSITION, sectionPhoto } from '@/constants/productPhotos';
 import { CardShadow, PageInset, Radius } from '@/constants/theme';
 import { ripple } from '@/components/ui/ripple';
 import { useMenu } from '@/hooks/useMenu';
@@ -146,11 +148,11 @@ export default function MenuScreen() {
           <View style={styles.sections}>
             {sections.map((section, index) => {
               const from = Math.min(...section.items.map((item) => item.priceCents));
-              const tone = sectionTone(theme, index);
+              const photo = sectionPhoto(section.name);
               return (
                 <Pressable
                   key={section.name}
-                  android_ripple={ripple(tone.ink)}
+                  android_ripple={ripple(theme.text)}
                   onPress={() => {
                     haptics.tap();
                     router.push({ pathname: '/(orders)/order/category/[name]', params: { name: section.name } });
@@ -159,23 +161,42 @@ export default function MenuScreen() {
                   {...nameFromContent(`${section.name}, from ${formatCents(from)} euro`)}
                   style={({ pressed }) => [
                     styles.section,
-                    { backgroundColor: tone.background, transform: [{ scale: pressed ? 0.98 : 1 }] },
+                    {
+                      backgroundColor: theme.backgroundElement,
+                      boxShadow: CardShadow,
+                      transform: [{ scale: pressed ? 0.99 : 1 }],
+                    },
                   ]}
                 >
-                  <View style={styles.sectionText}>
-                    {/* The number is decoration: the name and price say it all. */}
-                    <ThemedText type="label" aria-hidden style={{ color: tone.ink }}>
-                      {String(index + 1).padStart(2, '0')}
-                    </ThemedText>
-                    <ThemedText type="title" style={{ color: tone.ink }}>
-                      {section.name}
-                    </ThemedText>
-                    <ThemedText type="captionBold" style={{ color: tone.ink }}>
-                      {`From ${formatCents(from)}`}
-                    </ThemedText>
+                  {/* One of the section's dishes; its sticker until there's a photo. */}
+                  <View style={[styles.sectionPhoto, { backgroundColor: theme.backgroundSelected }]}>
+                    {photo ? (
+                      <Image
+                        accessible={false}
+                        accessibilityLabel=""
+                        source={photo}
+                        style={StyleSheet.absoluteFill}
+                        contentFit="cover"
+                        contentPosition={PRODUCT_PHOTO_POSITION}
+                      />
+                    ) : (
+                      <CategoryIcon section={section.name} size={96} />
+                    )}
                   </View>
-                  <View style={styles.sectionArt}>
-                    <CategoryIcon section={section.name} size={96} />
+                  <View style={styles.sectionRow}>
+                    <View style={styles.sectionText}>
+                      {/* The number is decoration: the name and price say it all. */}
+                      <ThemedText type="label" aria-hidden style={{ color: theme.primaryText }}>
+                        {String(index + 1).padStart(2, '0')}
+                      </ThemedText>
+                      <ThemedText type="subtitle">{section.name}</ThemedText>
+                      <ThemedText type="small" themeColor="textSecondary">
+                        {`From ${formatCents(from)}`}
+                      </ThemedText>
+                    </View>
+                    <View style={[styles.roundGo, { backgroundColor: theme.brandFill }]}>
+                      <Icon name="arrowRight" size={18} color={theme.onBrand} weight="bold" />
+                    </View>
                   </View>
                 </Pressable>
               );
@@ -195,17 +216,6 @@ export default function MenuScreen() {
       ) : null}
     </View>
   );
-}
-
-/** The sections' colours, in turn: sage, cream, rose, stone. Each with its text colour (AA). */
-function sectionTone(theme: ReturnType<typeof useTheme>, index: number) {
-  const tones = [
-    { background: theme.brandFill, ink: theme.onBrand },
-    { background: theme.accent, ink: theme.onAccent },
-    { background: theme.tertiary, ink: theme.onTertiary },
-    { background: theme.backgroundSelected, ink: theme.text },
-  ];
-  return tones[index % tones.length];
 }
 
 /** Past orders, newest first, each one tap from the cart again. */
@@ -297,26 +307,40 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   sections: {
-    gap: 12,
+    gap: 16,
   },
-  // A colour tile per section: its number, name and price on the left, its sticker on the right.
+  // A card per section: a dish's photo on top, the number, name and price under it.
   section: {
+    borderRadius: Radius.tile,
+    padding: 8,
+    overflow: 'hidden',
+  },
+  sectionPhoto: {
+    height: 168,
+    borderRadius: Radius.large,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sectionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 132,
-    borderRadius: Radius.tile,
-    paddingLeft: 20,
-    paddingRight: 12,
-    paddingVertical: 16,
-    overflow: 'hidden',
+    gap: 12,
+    paddingHorizontal: 12,
+    paddingTop: 12,
+    paddingBottom: 8,
   },
   sectionText: {
     flex: 1,
     minWidth: 0,
-    gap: 4,
+    gap: 2,
   },
-  sectionArt: {
-    transform: [{ rotate: '-6deg' }],
+  roundGo: {
+    width: 44,
+    height: 44,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   orders: {
     gap: 10,
