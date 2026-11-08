@@ -67,10 +67,15 @@ jobs:
         run: npm run test:integration -- --ci
 
   a11y:
-    name: Accessibility (every screen, axe)
+    name: Accessibility, ${{ matrix.scheme }} mode (every screen, axe)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        scheme: [light, dark]
     env:
+      A11Y_COLOR_SCHEME: ${{ matrix.scheme }}
       # A throwaway owner on the throwaway database, for the owner screens.
       OWNER_EMAIL: owner-a11y@mongmo.test
       OWNER_PASSWORD: owner-a11y-ci-1
