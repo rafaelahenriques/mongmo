@@ -18,9 +18,9 @@ need an iOS simulator or Android emulator with a build installed.
 
    ```bash
    # iOS (development build)
-   maestro test -e APP_ID=com.rafaela-hnrqs.react-challenge.dev tests/e2e
+   maestro test -e APP_ID=com.mongmostore.app.dev tests/e2e
    # Android (development build)
-   maestro test -e APP_ID=com.rafaelahnrqs.reactchallenge.dev tests/e2e
+   maestro test -e APP_ID=com.mongmostore.app.dev tests/e2e
    ```
 
    Staging builds end in `.staging` instead of `.dev`.

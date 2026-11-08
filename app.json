@@ -1,20 +1,20 @@
 {
   "expo": {
     "name": "Mongmo",
-    "slug": "react-challenge",
+    "slug": "mongmo",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "reactchallenge",
+    "scheme": "mongmo",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/mongmo.icon",
-      "bundleIdentifier": "com.rafaela-hnrqs.react-challenge",
+      "bundleIdentifier": "com.mongmostore.app",
       "config": {
         "usesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.rafaelahnrqs.reactchallenge",
+      "package": "com.mongmostore.app",
       "adaptiveIcon": {
         "backgroundColor": "#80C7BC",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
