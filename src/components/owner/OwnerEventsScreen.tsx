@@ -76,6 +76,10 @@ export default function OwnerEventsScreen() {
       contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + Spacing.five }]}
       sections={sections}
       keyExtractor={(item) => item.id}
+      // An owner has a few dozen pop-ups at most: draw them all at once, so
+      // every row is there to Tab to (and for a screen reader) as soon as the
+      // screen opens, not a batch later.
+      initialNumToRender={60}
       stickySectionHeadersEnabled={false}
       refreshControl={refreshControl}
       ListHeaderComponent={
