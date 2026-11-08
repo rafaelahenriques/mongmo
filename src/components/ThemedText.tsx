@@ -87,7 +87,6 @@ const styles = StyleSheet.create({
     fontSize: 46,
     lineHeight: 52,
     letterSpacing: tracking(46, -1),
-    textTransform: 'uppercase',
   },
   /** Screen headings ("Being made", "Next up"). */
   title: {
@@ -95,14 +94,12 @@ const styles = StyleSheet.create({
     fontSize: 30,
     lineHeight: 36,
     letterSpacing: tracking(30, -1),
-    textTransform: 'uppercase',
   },
   subtitle: {
     fontFamily: FontFamily.display,
     fontSize: 24,
     lineHeight: 30,
     letterSpacing: 0,
-    textTransform: 'uppercase',
   },
   /** Section headings ("Challenges", "Today", "Keep earning"). */
   section: {
@@ -110,14 +107,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: 26,
     letterSpacing: 0,
-    textTransform: 'uppercase',
   },
-  /** Uppercase titles on cards and rows ("RATE THE BEST DISH"). */
+  /** Titles on cards and rows ("Rate the best dish"). */
   card: {
     fontFamily: FontFamily.heavy,
     fontSize: 15,
     lineHeight: 20,
-    textTransform: 'uppercase',
   },
   /** Uppercase labels: the tab bar, top bars, block buttons, segments. */
   label: {
@@ -133,15 +128,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     lineHeight: 30,
     letterSpacing: 0,
-    textTransform: 'uppercase',
   },
-  /** Button labels: heavy and uppercase, like the block buttons they sit on. */
+  /** Button labels: heavy, in normal case, on pill buttons. */
   button: {
     fontFamily: FontFamily.heavy,
     fontSize: 15,
     lineHeight: 20,
-    letterSpacing: tracking(15, 1),
-    textTransform: 'uppercase',
+    letterSpacing: 0,
   },
   default: {
     ...BodyFont.regular,

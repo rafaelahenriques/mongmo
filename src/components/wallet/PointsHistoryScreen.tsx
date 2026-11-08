@@ -47,6 +47,7 @@ export default function PointsHistoryScreen() {
       ) : history.data.length === 0 ? (
         <EmptyState
           icon="star"
+          sticker="coriander"
           text="Nothing yet. Orders earn points when you pick them up, and so do a pop-up’s challenges."
         />
       ) : (

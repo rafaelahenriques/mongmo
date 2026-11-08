@@ -1,20 +1,25 @@
 import { useMemo, type ReactNode } from 'react';
 import { useRouter } from 'expo-router';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
-import { formatInTimeZone } from 'date-fns-tz';
 
 import type { OrderMenuItem } from '@/api/orders';
 import { shortName } from '@/components/achievements/LeaderboardList';
 import { ThemedText } from '@/components/ThemedText';
-import { AppHeader } from '@/components/ui/AppHeader';
-import Chip from '@/components/ui/Chip';
+import { Wordmark } from '@/components/brand/Wordmark';
+import { Chapter } from '@/components/ui/Chapter';
+import { GlassButton, glass, onPhoto, onPhotoSoft, PhotoPill, PhotoShade } from '@/components/ui/PhotoShade';
+import { PopUpPoster, PopupRow } from '@/components/explore/PopupRow';
+import { ScreenReaderTitle } from '@/components/ui/ScreenReaderTitle';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { usePullToRefresh } from '@/components/ui/Screen';
+import { ripple } from '@/components/ui/ripple';
 import { StampRow } from '@/components/ui/Stamps';
 import { StepBar } from '@/components/ui/StepBar';
 import { productPhoto } from '@/constants/productPhotos';
-import { CardShadow, PageInset } from '@/constants/theme';
+import { levelSticker, rewardSticker, Stickers, type StickerName } from '@/constants/stickers';
+import { CardShadow, PageInset, Paper, Radius } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveOrder } from '@/hooks/useActiveOrder';
 import { useEvents } from '@/hooks/useEvents';
@@ -25,22 +30,28 @@ import { useProfile } from '@/hooks/useProfile';
 import { useStore } from '@/hooks/useStore';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
-import { haptics } from '@/services/haptics';
 import { switchPickup } from '@/services/switchPickup';
 import { useCartStore, type CartLocation } from '@/state/cartStore';
 import { useLocationStore } from '@/state/locationStore';
 import { useSettingsStore } from '@/state/settingsStore';
 import { nameFromContent } from '@/utils/a11y';
-import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
-import { distanceInMeters, formatDistance } from '@/utils/distance';
-import { ORDER_STEP, ORDER_STEPS, ORDER_STATUS_TITLE, pickupCode, shortItemName } from '@/utils/orderFormat';
+import { getEventPhase } from '@/utils/dateTime';
+import {
+  formatCents,
+  ORDER_STEP,
+  ORDER_STEPS,
+  ORDER_STATUS_TITLE,
+  pickupCode,
+  shortItemName,
+} from '@/utils/orderFormat';
 import { featuredPopUps } from '@/utils/popUps';
 import { bestClaimableReward, nextReward } from '@/utils/rewards';
 import { stampCard } from '@/utils/stamps';
 import type { PopUpEvent } from '@/types';
-import { popUpImage } from '@/constants/brandPhotos';
+import { BrandPhotos, popUpImage } from '@/constants/brandPhotos';
 import PhotosOfTheWeek from '@/components/home/PhotosOfTheWeek';
 import { ErrorState } from '@/components/ui/LoadState';
+import { Sticker } from '@/components/ui/Sticker';
 
 /**
  * H-01 Home, laid out like a magazine (after Joe & The Juice's home): your
@@ -62,6 +73,8 @@ export default function HomeScreen() {
   const coordinates = useLocationStore((state) => state.coordinates);
   const cartLocation = useCartStore((state) => state.location);
   const tabBarInset = useTabBarInset();
+  const insets = useSafeAreaInsets();
+  const { height } = useWindowDimensions();
 
   // The menu shown on Home: where you're ordering from, else the café's.
   const menuLocation: CartLocation | null =
@@ -102,404 +115,308 @@ export default function HomeScreen() {
     if (await switchPickup({ type: 'event', eventId: event.id, eventTitle: event.title })) openOrder();
   };
 
+  // The kitchen photo, unless the pop-up card below already shows it.
+  const heroPhoto =
+    featured && popUpImage(featured) === BrandPhotos.opening ? BrandPhotos.welcome : BrandPhotos.opening;
+
+  const notices = [
+    order ? (
+      <Notice
+        key="order"
+        eyebrow="YOUR ORDER"
+        title={ORDER_STATUS_TITLE[order.status]}
+        text={`${pickupCode(order.id)}${
+          order.pickup_at ? ` · Pick up at ${new Date(order.pickup_at).toTimeString().slice(0, 5)}` : ''
+        }`}
+        icon="bag"
+        onPress={() => router.push({ pathname: '/(orders)/order/status/[id]', params: { id: order.id } })}
+      >
+        <StepBar steps={ORDER_STEPS} reached={ORDER_STEP[order.status] ?? 0} />
+      </Notice>
+    ) : null,
+    claimable ? (
+      <Notice
+        key="reward"
+        eyebrow="A REWARD IS YOURS"
+        title={claimable.title}
+        text="Redeem it in Wallet"
+        icon="gift"
+        image={stickerImage(rewardSticker(claimable.title))}
+        onPress={() => router.navigate('/(wallet)')}
+      />
+    ) : null,
+    newLevel ? (
+      <Notice
+        key="level"
+        eyebrow="NEW LEVEL"
+        title={`Welcome to ${newLevel.name}`}
+        text={`${newLevel.perk.charAt(0).toUpperCase()}${newLevel.perk.slice(1)}`}
+        icon="trophy"
+        image={stickerImage(levelSticker(newLevel.key))}
+        onPress={() => {
+          markLevelSeen(newLevel.key);
+          router.push('/(wallet)/levels');
+        }}
+      />
+    ) : null,
+  ].filter(Boolean);
+
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
-      <AppHeader title="Home" />
       <ScrollView
         style={styles.screen}
-        contentContainerStyle={{ paddingBottom: tabBarInset + 32 }}
+        contentContainerStyle={{ paddingBottom: tabBarInset + 40 }}
         refreshControl={<RefreshControl refreshing={refresh.refreshing} onRefresh={refresh.onRefresh} />}
       >
-        {/* Your points: the number big on sage, the next reward beside it, the stamps under. */}
-        <Pressable
-          onPress={() => router.navigate('/(wallet)')}
-          accessibilityRole="button"
-          accessibilityLabel={`${summary.points} points, ${level.current.name} level. ${
-            goal ? `${goal.costPoints - summary.points} more to ${goal.title}.` : ''
-          } Open Wallet.`}
-          style={styles.hero}
-        >
-          <View style={[styles.heroBlock, { backgroundColor: theme.brandFill }]}>
-            <ThemedText
-              type="display"
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              style={[styles.heroNumber, { color: theme.onBrand }]}
+        {/* The hero: a photo from the kitchen, edge to edge, hello and the two ways in over it. */}
+        <View style={[styles.hero, { minHeight: Math.min(560, height * 0.64), backgroundColor: theme.surfaceDark }]}>
+          <Image
+            accessible={false}
+            accessibilityLabel=""
+            source={heroPhoto}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+          />
+          <PhotoShade />
+          <View style={[styles.heroBar, { paddingTop: insets.top + 8 }]}>
+            <Wordmark height={26} color={Paper} />
+            <ScreenReaderTitle>Home</ScreenReaderTitle>
+            <View style={styles.flex} />
+            <GlassButton
+              icon="bell"
+              label={`Notifications${feed.unseen ? `, ${feed.unseen} new` : ''}`}
+              dot={feed.unseen > 0}
+              onPress={() => router.push('/(home)/notifications')}
+            />
+            <GlassButton
+              icon="trophy"
+              label="Achievements"
+              onPress={() => router.push('/(achievements)/achievements')}
+            />
+            <GlassButton icon="person" label="Account" onPress={() => router.push('/(profile)')} />
+          </View>
+          <View style={styles.heroText}>
+            <ThemedText type="label" style={styles.onPhotoSoft}>
+              Hello
+            </ThemedText>
+            <ThemedText type="name" style={styles.onPhoto}>
+              {firstName || 'there'}
+            </ThemedText>
+            <Pressable
+              onPress={() => router.navigate('/(wallet)')}
+              accessibilityRole="button"
+              accessibilityLabel={`${summary.points} points, ${level.current.name} level. Open Wallet.`}
+              style={({ pressed }) => [styles.glass, styles.pointsChip, { opacity: pressed ? 0.8 : 1 }]}
             >
-              {summary.points}
-            </ThemedText>
-            {/* The level under the number, like a membership tier. */}
-            <ThemedText type="title" numberOfLines={1} style={{ color: theme.onBrandSoft }}>
-              {level.current.name}
-            </ThemedText>
-          </View>
-          <View style={styles.heroSide}>
-            <ThemedText type="label" themeColor="textSecondary">
-              {goal ? 'NEXT REWARD' : 'REWARDS'}
-            </ThemedText>
-            <ThemedText type="section" numberOfLines={3}>
-              {goal ? goal.title : 'Your points cover one'}
-            </ThemedText>
-            <ThemedText type="caption" themeColor="textSecondary">
-              {goal ? `${goal.costPoints - summary.points} points to go` : 'Redeem it in Wallet'}
-            </ThemedText>
-          </View>
-        </Pressable>
-        <View style={styles.page}>
-          <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
-
-          {/* Hello, and the one big way in: order. */}
-          <View style={styles.helloRow}>
-            <View style={styles.flex}>
-              <ThemedText type="item" accessibilityRole="header">
-                {firstName ? `HEY ${firstName.toUpperCase()}!` : 'HEY THERE!'}
+              <Icon name="star" size={14} color={Paper} weight="bold" />
+              <ThemedText type="captionBold" style={styles.onPhoto}>
+                {`${summary.points} points · ${level.current.name}`}
               </ThemedText>
-              <Pressable
-                onPress={() => router.push('/(home)/notifications')}
-                accessibilityRole="button"
-                accessibilityLabel={`Notifications${feed.unseen ? `, ${feed.unseen} new` : ''}`}
-                style={styles.target}
-              >
-                <ThemedText type="caption" themeColor="textSecondary">
-                  {feed.unseen ? `${feed.unseen} new for you` : 'Bánh mì, pop-ups and good company.'}
-                </ThemedText>
-              </Pressable>
+            </Pressable>
+            <View style={styles.heroPills}>
+              <PhotoPill label="Order ahead" tone="brand" onPress={openOrder} />
+              <PhotoPill
+                label="My card"
+                icon="qrcode"
+                accessibilityLabel="My card: show my membership QR code"
+                onPress={() => router.push('/(wallet)/card')}
+              />
             </View>
           </View>
-          <View style={styles.orderRow}>
-            <Pressable
-              onPress={() => router.push('/(wallet)/card')}
-              accessibilityRole="button"
-              accessibilityLabel="Show my membership QR code"
-              style={({ pressed }) => [
-                styles.square,
-                { backgroundColor: theme.surfaceDark, opacity: pressed ? 0.8 : 1 },
-              ]}
-            >
-              <Icon name="qrcode" size={26} color={theme.onSurfaceDark} />
-            </Pressable>
-            <Pressable
-              onPress={() => {
-                haptics.tap();
-                openOrder();
-              }}
-              accessibilityRole="button"
-              accessibilityLabel="Order"
-              // One sage block, the word on it: the block says "tap me", no
-              // arrow or icon needed on top.
-              style={({ pressed }) => [
-                styles.orderBlock,
-                { backgroundColor: theme.brandFill, opacity: pressed ? 0.85 : 1 },
-              ]}
-            >
-              <ThemedText type="item" style={{ color: theme.onBrand }}>
-                ORDER
-              </ThemedText>
-            </Pressable>
-          </View>
         </View>
 
-        <View style={styles.cards}>
-          {newLevel ? (
-            <Card
-              tone="brand"
-              title={`WELCOME TO ${newLevel.name.toUpperCase()}!`}
-              icon="trophy"
-              body={`You've reached a new level: ${newLevel.perk.charAt(0).toLowerCase()}${newLevel.perk.slice(1)}.`}
-              link="SEE LEVELS"
-              onPress={() => {
-                markLevelSeen(newLevel.key);
-                router.push('/(wallet)/levels');
-              }}
-            />
-          ) : null}
+        {/* What needs you now (an order, a reward, a level), over the photo's edge. */}
+        {notices.length ? <View style={styles.notices}>{notices}</View> : null}
 
-          {claimable ? (
-            <Card
-              tone="brand"
-              title="YOU CAN CLAIM A REWARD"
-              icon="gift"
-              body={`Your points cover: ${claimable.title}. Redeem it in Wallet.`}
-              link="CLAIM"
-              onPress={() => router.navigate('/(wallet)')}
-            />
-          ) : null}
-
-          {order ? (
-            <Card
-              title={ORDER_STATUS_TITLE[order.status].toUpperCase()}
-              eyebrow="YOUR ORDER"
-              body={`${pickupCode(order.id)}${
-                order.pickup_at ? ` · Pick up at ${new Date(order.pickup_at).toTimeString().slice(0, 5)}` : ''
-              }`}
-              link="VIEW ORDER"
-              onPress={() => router.push({ pathname: '/(orders)/order/status/[id]', params: { id: order.id } })}
-            >
-              <StepBar steps={ORDER_STEPS} reached={ORDER_STEP[order.status] ?? 0} />
-            </Card>
-          ) : null}
-
-          {featured ? (
-            <PopUpCard
+        {featured ? (
+          <View style={styles.section}>
+            <Chapter number="01" title={liveNow(featured) ? 'On right now' : 'Up next'} />
+            <PopUpPoster
+              tall
               event={featured}
-              distance={coordinates ? formatDistance(distanceInMeters(coordinates, featured.coordinates)) : null}
-              onCheckIn={() => router.push({ pathname: '/(popups)/check-in/[id]', params: { id: featured.id } })}
               onOpen={() => openEvent(featured.id)}
-              onOrder={() => orderAt(featured)}
+              actions={
+                <>
+                  {liveNow(featured) ? (
+                    <PhotoPill
+                      label="Check in"
+                      tone="brand"
+                      onPress={() => router.push({ pathname: '/(popups)/check-in/[id]', params: { id: featured.id } })}
+                    />
+                  ) : (
+                    <PhotoPill label="Details" tone="brand" onPress={() => openEvent(featured.id)} />
+                  )}
+                  <PhotoPill
+                    label={liveNow(featured) ? 'Order here' : 'Order ahead'}
+                    onPress={() => orderAt(featured)}
+                  />
+                </>
+              }
             />
-          ) : null}
-        </View>
+          </View>
+        ) : null}
 
         {picks.length ? (
           <View style={styles.section}>
-            <SectionHead title="Hungry? Start here" link="MENU" onPress={openOrder} />
-            <View style={styles.tiles}>
+            <Chapter number="02" title="From the menu" link="MENU" onPress={openOrder} />
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              snapToInterval={PICK_WIDTH + 14}
+              decelerationRate="fast"
+              contentContainerStyle={styles.picks}
+              style={styles.picksScroller}
+            >
               {picks.map(({ item, photo }) => (
                 <Pressable
                   key={item.id}
                   onPress={() => openItem(item.id)}
                   accessibilityRole="button"
-                  {...nameFromContent(item.name)}
-                  style={({ pressed }) => [
-                    styles.tile,
-                    { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.85 : 1 },
-                  ]}
+                  {...nameFromContent(`${item.name}, ${formatCents(item.priceCents)} euro`)}
+                  style={({ pressed }) => [styles.pick, { opacity: pressed ? 0.9 : 1 }]}
                 >
-                  <Image
-                    accessible={false}
-                    accessibilityLabel=""
-                    source={photo}
-                    style={styles.tilePhoto}
-                    contentFit="cover"
-                  />
-                  {/* The section in caps ("BÁNH MÌ"), the filling under it. */}
-                  <View style={styles.tileName}>
-                    <ThemedText type="label" numberOfLines={1} style={styles.tileSection}>
-                      {item.category ?? item.name}
-                    </ThemedText>
-                    {item.category ? (
-                      <ThemedText type="caption" themeColor="textSecondary" numberOfLines={2}>
-                        {shortItemName(item.name, item.category)}
-                      </ThemedText>
-                    ) : null}
+                  <View style={[styles.pickPhoto, { backgroundColor: theme.backgroundSelected }]}>
+                    <Image
+                      accessible={false}
+                      accessibilityLabel=""
+                      source={photo}
+                      style={StyleSheet.absoluteFill}
+                      contentFit="cover"
+                    />
                   </View>
+                  {/* "Add", over the photo's corner: the whole card is the button. */}
+                  <View style={[styles.pickAdd, { backgroundColor: theme.brandFill, borderColor: theme.background }]}>
+                    <Icon name="add" size={18} color={theme.onBrand} weight="bold" />
+                  </View>
+                  <ThemedText type="card" numberOfLines={1}>
+                    {item.category ?? item.name}
+                  </ThemedText>
+                  <ThemedText type="caption" themeColor="textSecondary" numberOfLines={1}>
+                    {item.category ? shortItemName(item.name, item.category) : ' '}
+                  </ThemedText>
+                  <ThemedText type="smallBold">{formatCents(item.priceCents)}</ThemedText>
                 </Pressable>
               ))}
-            </View>
+            </ScrollView>
           </View>
         ) : null}
 
-        <PhotosOfTheWeek style={styles.section} />
+        {/* Your stamp card: the stamps, how far to the next reward. */}
+        <View style={styles.section}>
+          <Chapter number="03" title="Your stamp card" link="WALLET" onPress={() => router.navigate('/(wallet)')} />
+          <View style={styles.stampRow}>
+            <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
+          </View>
+          <ThemedText type="small" themeColor="textSecondary">
+            {goal
+              ? `${stamps.earned} of ${stamps.total} stamps · ${goal.costPoints - summary.points} points to ${goal.title.charAt(0).toLowerCase()}${goal.title.slice(1)}`
+              : 'Your points cover a reward: redeem it in Wallet.'}
+          </ThemedText>
+        </View>
 
         <View style={styles.section}>
           {eventsQuery.isError && !eventsQuery.data ? (
             // Not "nothing planned": we couldn't find out.
             <ErrorState message="Couldn’t load the pop-ups." onRetry={() => void eventsQuery.refetch()} />
           ) : (
-            <SectionHead
+            <Chapter
+              number="04"
               title={upcoming.length ? 'Pop-ups coming up' : 'Nothing else planned yet'}
               link="SEE ALL"
               onPress={() => router.navigate('/(popups)')}
             />
           )}
-          {upcoming.map((event) => (
-            <PopUpRow key={event.id} event={event} onPress={() => openEvent(event.id)} />
-          ))}
+          <View>
+            {upcoming.map((event, index) => (
+              <PopupRow
+                key={event.id}
+                event={event}
+                last={index === upcoming.length - 1}
+                onPress={() => openEvent(event.id)}
+              />
+            ))}
+          </View>
         </View>
+
+        <PhotosOfTheWeek style={styles.section} />
       </ScrollView>
     </View>
   );
 }
 
-/** A section's title, with its one link at the right ("MENU", "SEE ALL"). */
-function SectionHead({ title, link, onPress }: { title: string; link: string; onPress: () => void }) {
-  const theme = useTheme();
-  return (
-    <View style={styles.sectionHead}>
-      <ThemedText type="section" accessibilityRole="header" style={styles.flex}>
-        {title}
-      </ThemedText>
-      <Pressable onPress={onPress} accessibilityRole="link" hitSlop={10} style={styles.target}>
-        <ThemedText type="label" style={{ color: theme.primaryText }}>
-          {link}
-        </ThemedText>
-      </Pressable>
-    </View>
-  );
+const PICK_WIDTH = 200;
+
+function liveNow(event: PopUpEvent) {
+  return getEventPhase(event.startsAt, event.endsAt) === 'live';
 }
 
-/**
- * A card with one job: an uppercase headline, a line or two, and its link
- * with an arrow at the bottom right. `brand` puts the headline on sage.
- */
-function Card({
-  title,
+/** Something that needs you now: a small picture, what it is, and a round arrow. */
+function Notice({
   eyebrow,
+  title,
+  text,
   icon,
-  body,
-  link,
+  image,
   onPress,
-  tone = 'plain',
   children,
 }: {
+  eyebrow: string;
   title: string;
-  eyebrow?: string;
-  icon?: IconName;
-  body: string;
-  link: string;
+  text: string;
+  icon: IconName;
+  image?: number;
   onPress: () => void;
-  tone?: 'plain' | 'brand';
   children?: ReactNode;
 }) {
   const theme = useTheme();
-  const brand = tone === 'brand';
   return (
     <Pressable
+      android_ripple={ripple(theme.text)}
       onPress={onPress}
       accessibilityRole="button"
-      {...nameFromContent(`${eyebrow ? `${eyebrow}: ` : ''}${title}. ${body}`)}
+      {...nameFromContent(`${eyebrow}: ${title}. ${text}`)}
       style={({ pressed }) => [
-        styles.card,
-        { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.9 : 1 },
+        styles.notice,
+        { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, transform: [{ scale: pressed ? 0.99 : 1 }] },
       ]}
     >
-      <View style={[styles.cardTop, brand && { backgroundColor: theme.brandFill }]}>
+      <View style={styles.noticeRow}>
+        <View style={[styles.noticeArt, { backgroundColor: theme.backgroundSelected }]}>
+          {image ? (
+            <Sticker source={image} style={styles.noticeSticker} />
+          ) : (
+            <Icon name={icon} size={22} color={theme.text} />
+          )}
+        </View>
         <View style={styles.flex}>
-          {eyebrow ? (
-            <ThemedText type="label" themeColor="textSecondary">
-              {eyebrow}
-            </ThemedText>
-          ) : null}
-          <ThemedText type="item" style={{ color: brand ? theme.onBrand : theme.text }}>
+          <ThemedText type="label" style={{ color: theme.primaryText }}>
+            {eyebrow}
+          </ThemedText>
+          <ThemedText type="card" numberOfLines={2}>
             {title}
           </ThemedText>
+          <ThemedText type="caption" themeColor="textSecondary" numberOfLines={2}>
+            {text}
+          </ThemedText>
         </View>
-        {icon ? <Icon name={icon} size={40} color={brand ? theme.onBrand : theme.text} /> : null}
-      </View>
-      <View style={styles.cardBody}>
-        {children}
-        <ThemedText type="small" themeColor="textSecondary">
-          {body}
-        </ThemedText>
-        <View style={styles.cardLink}>
-          <ThemedText type="label">{link}</ThemedText>
-          <Icon name="arrowRight" size={16} color={theme.text} weight="bold" />
+        <View style={[styles.roundGo, { backgroundColor: theme.brandFill }]}>
+          <Icon name="arrowRight" size={16} color={theme.onBrand} weight="bold" />
         </View>
       </View>
+      {children}
     </Pressable>
   );
 }
 
-/**
- * The pop-up that's on (or next): its photo with the name across it, when
- * and where under it, and one link: check in when it's live, details before.
- */
-function PopUpCard({
-  event,
-  distance,
-  onCheckIn,
-  onOpen,
-  onOrder,
-}: {
-  event: PopUpEvent;
-  distance: string | null;
-  onCheckIn: () => void;
-  onOpen: () => void;
-  onOrder: () => void;
-}) {
-  const theme = useTheme();
-  const live = getEventPhase(event.startsAt, event.endsAt) === 'live';
-  return (
-    <View style={[styles.card, { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }]}>
-      <Pressable
-        onPress={onOpen}
-        accessibilityRole="button"
-        {...nameFromContent(`${live ? 'Live now: ' : 'Coming up: '}${event.title}. Open the pop-up.`)}
-        style={[styles.popPhoto, { backgroundColor: theme.surfaceDark }]}
-      >
-        <Image
-          accessible={false}
-          accessibilityLabel=""
-          source={popUpImage(event)}
-          style={StyleSheet.absoluteFill}
-          contentFit="cover"
-        />
-        <View style={styles.popShade} />
-        {live ? <Chip label="Live now" tone="live" /> : null}
-        <ThemedText type="item" numberOfLines={2} style={{ color: theme.onSurfaceDark }}>
-          {event.title.toUpperCase()}
-        </ThemedText>
-      </Pressable>
-      <View style={styles.cardBody}>
-        <ThemedText type="smallBold">{event.venue}</ThemedText>
-        <ThemedText type="small" themeColor="textSecondary">
-          {[formatEventWindow(event.startsAt, event.endsAt, event.timeZone), distance].filter(Boolean).join(' · ')}
-        </ThemedText>
-        <View style={styles.cardFoot}>
-          {/* Ordering here is the second thing: a quieter link on the left. */}
-          <Pressable onPress={onOrder} accessibilityRole="button" hitSlop={8} style={styles.target}>
-            <ThemedText type="label" themeColor="textSecondary">
-              {live ? 'ORDER HERE' : 'ORDER AHEAD'}
-            </ThemedText>
-          </Pressable>
-          <Pressable
-            onPress={live ? onCheckIn : onOpen}
-            accessibilityRole="button"
-            hitSlop={8}
-            style={[styles.cardLink, styles.target]}
-          >
-            <ThemedText type="label">{live ? 'CHECK IN' : 'DETAILS'}</ThemedText>
-            <Icon name="arrowRight" size={16} color={theme.text} weight="bold" />
-          </Pressable>
-        </View>
-      </View>
-    </View>
-  );
-}
-
-/** A pop-up coming up: its photo, name, when and where, and a sage square to open it. */
-function PopUpRow({ event, onPress }: { event: PopUpEvent; onPress: () => void }) {
-  const theme = useTheme();
-  const start = new Date(event.startsAt);
-  const when = `${formatInTimeZone(start, event.timeZone, 'EEE d MMM, HH:mm')} · ${event.city}`;
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      {...nameFromContent(`${event.title}, ${when}`)}
-      style={({ pressed }) => [
-        styles.row,
-        { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.9 : 1 },
-      ]}
-    >
-      <View style={[styles.rowPhoto, { backgroundColor: theme.backgroundSelected }]}>
-        <Image
-          accessible={false}
-          accessibilityLabel=""
-          source={popUpImage(event)}
-          style={StyleSheet.absoluteFill}
-          contentFit="cover"
-        />
-      </View>
-      <View style={styles.rowTexts}>
-        <ThemedText type="card" numberOfLines={2}>
-          {event.title}
-        </ThemedText>
-        <ThemedText type="caption" themeColor="textSecondary" numberOfLines={2}>
-          {when}
-        </ThemedText>
-      </View>
-      <View style={[styles.rowGo, { backgroundColor: theme.brandFill }]}>
-        <Icon name="chevronRight" size={18} color={theme.onBrand} weight="bold" />
-      </View>
-    </Pressable>
-  );
+/** A sticker's picture, or nothing (the notice keeps its icon). */
+function stickerImage(name: StickerName | null): number | undefined {
+  return name ? Stickers[name] : undefined;
 }
 
 type Photo = NonNullable<ReturnType<typeof productPhoto>>;
 
 /** A few things to start an order with: main items, not options, each with a photo no other pick has. */
-function menuPicks(items: OrderMenuItem[], count = 3): { item: OrderMenuItem; photo: Photo }[] {
+function menuPicks(items: OrderMenuItem[], count = 6): { item: OrderMenuItem; photo: Photo }[] {
   const seen = new Set<Photo>();
   const picks: { item: OrderMenuItem; photo: Photo }[] = [];
   for (const item of items) {
@@ -519,163 +436,110 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  /** A text-only control, 44pt tall so it's easy to hit. */
-  target: {
-    minHeight: 44,
-    justifyContent: 'center',
-  },
-  page: {
-    paddingHorizontal: PageInset,
-  },
+  onPhoto,
+  onPhotoSoft,
   hero: {
-    flexDirection: 'row',
-    minHeight: 190,
-    marginBottom: 14,
-  },
-  heroBlock: {
-    width: '56%',
-    minHeight: 190,
-    paddingHorizontal: PageInset,
-    paddingTop: 18,
-    paddingBottom: 16,
-    justifyContent: 'flex-end',
-  },
-  heroNumber: {
-    fontSize: 64,
-    // Never below the font size: iOS cuts the top off the glyphs.
-    lineHeight: 68,
-  },
-  heroSide: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    gap: 4,
-  },
-  helloRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    marginTop: 20,
-  },
-  orderRow: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-    gap: 8,
-    marginTop: 8,
-    marginBottom: 24,
-  },
-  orderBlock: {
-    flex: 1,
-    minHeight: 56,
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  square: {
-    width: 56,
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cards: {
-    paddingHorizontal: PageInset,
-    gap: 16,
-  },
-  card: {
+    justifyContent: 'space-between',
+    borderBottomLeftRadius: Radius.tile + 8,
+    borderBottomRightRadius: Radius.tile + 8,
     overflow: 'hidden',
   },
-  cardTop: {
+  heroBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: PageInset,
+  },
+  heroText: {
+    paddingHorizontal: PageInset,
+    paddingBottom: 28,
+    gap: 6,
+    alignItems: 'flex-start',
+  },
+  glass,
+  pointsChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    minHeight: 36,
+    paddingHorizontal: 14,
+    borderRadius: Radius.pill,
+    marginTop: 2,
+  },
+  heroPills: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 12,
+  },
+  notices: {
+    paddingHorizontal: PageInset,
+    marginTop: -18,
+    gap: 10,
+  },
+  notice: {
+    borderRadius: Radius.card,
+    padding: 12,
+    gap: 10,
+  },
+  noticeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    paddingHorizontal: 18,
-    paddingTop: 18,
-    paddingBottom: 14,
   },
-  cardBody: {
-    paddingHorizontal: 18,
-    paddingTop: 12,
-    paddingBottom: 6,
-    gap: 6,
-  },
-  cardFoot: {
-    flexDirection: 'row',
+  noticeArt: {
+    width: 52,
+    height: 52,
+    borderRadius: Radius.large,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    columnGap: 12,
+    justifyContent: 'center',
   },
-  cardLink: {
-    flexDirection: 'row',
+  noticeSticker: {
+    width: 46,
+    height: 46,
+  },
+  roundGo: {
+    width: 40,
+    height: 40,
+    borderRadius: Radius.pill,
     alignItems: 'center',
-    alignSelf: 'flex-end',
-    gap: 6,
-    minHeight: 44,
-  },
-  popPhoto: {
-    minHeight: 180,
-    padding: 18,
-    gap: 8,
-    justifyContent: 'flex-end',
-    alignItems: 'flex-start',
-  },
-  popShade: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(26, 26, 23, 0.35)',
+    justifyContent: 'center',
   },
   section: {
     paddingHorizontal: PageInset,
-    paddingTop: 28,
-    gap: 10,
+    paddingTop: 36,
+    gap: 14,
   },
-  sectionHead: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+  picksScroller: {
+    marginHorizontal: -PageInset,
   },
-  tiles: {
-    flexDirection: 'row',
-    gap: 10,
+  picks: {
+    paddingHorizontal: PageInset,
+    gap: 14,
   },
-  tile: {
-    flex: 1,
-    minWidth: 0,
-  },
-  tilePhoto: {
-    aspectRatio: 1,
-  },
-  tileName: {
-    paddingHorizontal: 10,
-    paddingVertical: 10,
+  pick: {
+    width: PICK_WIDTH,
     gap: 2,
   },
-  // Small enough that "SPRINGROLLS" fits a third of a phone.
-  tileSection: {
-    fontSize: 12,
-    lineHeight: 16,
-    letterSpacing: 0.4,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingRight: 12,
-    minHeight: 84,
-  },
-  rowPhoto: {
-    width: 84,
-    alignSelf: 'stretch',
+  pickPhoto: {
+    width: '100%',
+    aspectRatio: 0.8,
+    borderRadius: Radius.card,
     overflow: 'hidden',
+    marginBottom: 10,
   },
-  rowTexts: {
-    flex: 1,
-    minWidth: 0,
-    paddingVertical: 12,
-    gap: 2,
-  },
-  rowGo: {
-    width: 36,
-    height: 36,
+  pickAdd: {
+    position: 'absolute',
+    right: 10,
+    top: PICK_WIDTH / 0.8 - 22,
+    width: 42,
+    height: 42,
+    borderRadius: Radius.pill,
+    borderWidth: 3,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  stampRow: {
+    paddingVertical: 4,
   },
 });

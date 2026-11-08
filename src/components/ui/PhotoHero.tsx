@@ -5,7 +5,7 @@ import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { ThemedText } from '@/components/ThemedText';
 import Chip from '@/components/ui/Chip';
-import { PageInset } from '@/constants/theme';
+import { PageInset, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useMotion } from '@/constants/motion';
 
@@ -115,10 +115,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     justifyContent: 'flex-end',
     paddingTop: 120,
+    borderBottomLeftRadius: Radius.tile + 8,
+    borderBottomRightRadius: Radius.tile + 8,
   },
   bottom: {
     paddingHorizontal: PageInset,
-    paddingBottom: 18,
+    paddingBottom: 26,
     gap: 10,
   },
   nameRow: {

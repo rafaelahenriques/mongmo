@@ -64,6 +64,7 @@ export default function OwnerOrdersScreen() {
       ) : shown.length === 0 ? (
         <EmptyState
           icon="receipt"
+          sticker="stool"
           text={
             column === 'new'
               ? 'No new orders. They show up here as customers place them.'

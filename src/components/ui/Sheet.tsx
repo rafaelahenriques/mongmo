@@ -75,8 +75,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(28, 29, 25, 0.45)',
   },
   sheet: {
-    borderTopLeftRadius: Radius.large + 4,
-    borderTopRightRadius: Radius.large + 4,
+    borderTopLeftRadius: Radius.tile,
+    borderTopRightRadius: Radius.tile,
     paddingHorizontal: Spacing.three + Spacing.one,
     paddingTop: Spacing.two,
     gap: Spacing.three,

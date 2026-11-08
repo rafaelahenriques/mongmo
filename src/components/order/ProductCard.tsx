@@ -4,17 +4,18 @@ import { Image } from 'expo-image';
 import type { OrderMenuItem } from '@/api/orders';
 import { CategoryIcon } from '@/components/order/CategoryIcon';
 import { ThemedText } from '@/components/ThemedText';
+import { Icon } from '@/components/ui/Icon';
 import { PRODUCT_PHOTO_POSITION, productPhoto } from '@/constants/productPhotos';
-import { CardShadow } from '@/constants/theme';
+import { CardShadow, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { nameFromContent } from '@/utils/a11y';
 import { formatCents, shortItemName } from '@/utils/orderFormat';
 
 /**
- * A product as a card: its photo round on a pale square (or the section's
- * drawing until there's a photo), the name in uppercase, what's in it and
- * the price. The section grid and "You may also like".
+ * A product as a rounded card: its photo in a rounded frame (or the
+ * section's sticker until there's a photo), the name, what's in it, and the
+ * price big beside a round sage "+". The section grid and "You may also like".
  */
 export function ProductCard({
   item,
@@ -61,14 +62,14 @@ export function ProductCard({
           />
         ) : (
           <View style={[styles.plate, { backgroundColor: theme.backgroundElement }]}>
-            <CategoryIcon section={item.category ?? item.name} size={46} />
+            <CategoryIcon section={item.category ?? item.name} size={72} />
           </View>
         )}
       </View>
       <View style={styles.texts}>
         {section ? (
-          <ThemedText type="micro" themeColor="textSecondary">
-            {section.toUpperCase()}
+          <ThemedText type="label" themeColor="textSecondary">
+            {section}
           </ThemedText>
         ) : null}
         <ThemedText type="card" numberOfLines={2}>
@@ -79,9 +80,13 @@ export function ProductCard({
             {item.description}
           </ThemedText>
         ) : null}
-        <ThemedText type="captionBold" style={styles.price}>
-          {formatCents(item.priceCents)}
-        </ThemedText>
+        <View style={styles.foot}>
+          <ThemedText type="section">{formatCents(item.priceCents)}</ThemedText>
+          {/* Says "add": the whole card is the button. */}
+          <View style={[styles.add, { backgroundColor: theme.brandFill }]}>
+            <Icon name="add" size={18} color={theme.onBrand} weight="bold" />
+          </View>
+        </View>
       </View>
     </Pressable>
   );
@@ -90,14 +95,18 @@ export function ProductCard({
 const styles = StyleSheet.create({
   card: {
     overflow: 'hidden',
+    borderRadius: Radius.card,
+    padding: 8,
   },
   photoBox: {
     aspectRatio: 1.15,
+    borderRadius: Radius.large,
+    overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
   },
   plate: {
-    width: '62%',
+    width: '70%',
     aspectRatio: 1,
     borderRadius: 999,
     overflow: 'hidden',
@@ -107,12 +116,23 @@ const styles = StyleSheet.create({
   texts: {
     flex: 1,
     gap: 4,
-    paddingHorizontal: 12,
-    paddingTop: 12,
-    paddingBottom: 14,
+    paddingHorizontal: 6,
+    paddingTop: 10,
+    paddingBottom: 4,
   },
-  price: {
+  foot: {
     marginTop: 'auto',
-    paddingTop: 4,
+    paddingTop: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  add: {
+    width: 36,
+    height: 36,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

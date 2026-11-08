@@ -40,8 +40,24 @@ the release workflow publishes that section as the GitHub release notes.
 - Every screen that loads something says when it couldn't, with Try
   again, and lists refresh when you pull down.
 
+- Mongmo's own stickers in the app: on rewards, levels, the menu's
+  sections, Home's reward and level cards, and empty screens.
+
 ### Changed
 
+- The stamp card shows stamps: an Ô sticker for each one earned, a dashed
+  circle for each to go, and the next one's ring filling with your points.
+- A new look, photo first: Home opens on a kitchen photo with your name,
+  points and Order ahead over it; pop-ups are tall photo posters with
+  Check in and Directions on them; the menu's sections are dish photos;
+  the café's page is a photo card; the cart and checkout show where you
+  pick up as a photo. Sections are numbered (01, 02, …) on Home, the
+  Wallet, the cart and checkout, and rewards are a clean list. Rounder
+  cards, pill buttons and a floating tab bar. Same fonts, colours and
+  features.
+- A pop-up's page shows when and where side by side, and how busy it is
+  as a sage bar.
+- On an item's page, the price drops under the name when text is large.
 - On a tablet or a wide browser window, the app keeps a centred column
   instead of stretching edge to edge.
 - You pay at the counter when you pick up your order; the app takes no
@@ -56,6 +72,10 @@ the release workflow publishes that section as the GitHub release notes.
   elsewhere on Android.
 
 ### Fixed
+
+- Wallet: "Redeem" no longer breaks across two lines.
+- Settings: the Contrast options sit under their explanation instead of
+  squeezing it into a narrow column.
 
 - On Android, opening Pop-ups no longer closes the app. The map needs a
   Google Maps key in the build; until it has one, Android shows a drawn

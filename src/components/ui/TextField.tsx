@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   },
   input: {
     minHeight: 46,
-    borderRadius: Radius.small,
+    borderRadius: Radius.medium + 2,
     borderWidth: 1,
     paddingHorizontal: 14,
     ...BodyFont.regular,

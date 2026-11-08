@@ -3,14 +3,17 @@ import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'rea
 
 import { ThemedText } from '@/components/ThemedText';
 import { Icon, type IconName } from '@/components/ui/Icon';
-import { CardShadow } from '@/constants/theme';
+import { CardShadow, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { nameFromContent } from '@/utils/a11y';
 import { ripple } from '@/components/ui/ripple';
+import { Sticker } from '@/components/ui/Sticker';
 
 export type TaskCardProps = {
   icon: IconName;
+  /** A picture (a sticker) instead of the icon. Decorative: the title says what it is. */
+  image?: number;
   title: string;
   subtitle?: string;
   /**
@@ -31,12 +34,13 @@ export type TaskCardProps = {
 };
 
 /**
- * The design's task card: a square icon block on the left, an uppercase
- * title and a grey line, and a square on the right edge. Challenges,
- * notifications, rewards, services, history.
+ * The task card: a rounded tile with an icon or sticker on the left, a
+ * title and a grey line, and a round button or value on the right.
+ * Challenges, notifications, rewards, services, history.
  */
 export function TaskCard({
   icon,
+  image,
   title,
   subtitle,
   state = 'value',
@@ -53,7 +57,11 @@ export function TaskCard({
   const content = (
     <>
       <View style={[styles.iconBlock, { backgroundColor: done ? theme.brandFill : theme.backgroundSelected }]}>
-        <Icon name={icon} size={24} color={done ? theme.onBrand : theme.text} />
+        {image ? (
+          <Sticker source={image} style={styles.image} />
+        ) : (
+          <Icon name={icon} size={24} color={done ? theme.onBrand : theme.text} />
+        )}
       </View>
       <View style={styles.texts}>
         <ThemedText type="card" numberOfLines={2}>
@@ -67,8 +75,8 @@ export function TaskCard({
         {extra}
       </View>
       {state === 'value' ? (
-        <View style={[styles.box, { backgroundColor: theme.brandFill }]}>
-          <ThemedText type="label" style={{ color: theme.onBrand }}>
+        <View style={[styles.box, styles.valueBox, { backgroundColor: theme.brandFill }]}>
+          <ThemedText type="label" numberOfLines={1} style={{ color: theme.onBrand }}>
             {value}
           </ThemedText>
         </View>
@@ -117,34 +125,50 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 76,
+    minHeight: 80,
+    borderRadius: Radius.card,
+    overflow: 'hidden',
+    paddingRight: 12,
   },
+  // A rounded tile inside the card, with the icon or sticker on it.
   iconBlock: {
-    width: 76,
-    alignSelf: 'stretch',
-    minHeight: 76,
+    width: 60,
+    height: 60,
+    margin: 10,
+    borderRadius: Radius.large,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  image: {
+    width: 56,
+    height: 56,
   },
   texts: {
     flex: 1,
     minWidth: 0,
     gap: 2,
-    paddingLeft: 12,
+    paddingLeft: 4,
     paddingRight: 8,
     paddingVertical: 10,
   },
   box: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
+    borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // A word ("Redeem") widens the circle into a pill instead of breaking.
+  valueBox: {
+    width: 'auto',
+    minWidth: 44,
+    paddingHorizontal: 14,
+  },
   arrowBox: {
-    width: 44,
-    height: 44,
+    width: 40,
+    height: 40,
   },
   plain: {
-    paddingRight: 14,
+    paddingRight: 2,
   },
 });
