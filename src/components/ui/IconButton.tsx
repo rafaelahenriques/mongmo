@@ -4,6 +4,7 @@ import { Icon, type IconName } from '@/components/ui/Icon';
 import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
+import { ripple } from '@/components/ui/ripple';
 
 /**
  * Circular icon-only button (share, close, add…). Needs an accessibility
@@ -41,6 +42,7 @@ export function IconButton({
 
   return (
     <Pressable
+      android_ripple={ripple(foreground)}
       onPress={() => {
         haptics[haptic]();
         onPress();

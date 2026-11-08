@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'rea
 import { CardShadow, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
+import { ripple } from '@/components/ui/ripple';
 
 export type CardProps = PropsWithChildren<{
   /** Makes the whole card a button (with a gentle press and a tap haptic). */
@@ -48,6 +49,7 @@ export function Card({
 
   return (
     <Pressable
+      android_ripple={ripple(theme.text)}
       onPress={() => {
         haptics.tap();
         onPress();

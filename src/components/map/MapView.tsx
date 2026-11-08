@@ -3,8 +3,10 @@ import { StyleSheet } from 'react-native';
 import RNMapView, { Polyline, type Region } from 'react-native-maps';
 
 import EventPin from '@/components/map/EventPin';
+import { MapFallback } from '@/components/map/MapFallback';
 import StorePin from '@/components/map/StorePin';
 import { Colors } from '@/constants/theme';
+import { LIVE_MAP } from '@/lib/liveMap';
 import type { Coordinates, PopUpEvent, Store } from '@/types';
 
 /** Imperative handle the recenter button uses to animate the camera. */
@@ -26,11 +28,15 @@ export type MapViewProps = {
 /**
  * Full-screen native map. Pins live here (not in the screen) so the
  * react-native-maps import never reaches the web bundle — see MapView.web.tsx.
+ * An Android build without a Google Maps key shows the drawn stand-in.
  */
 const MapView = forwardRef<MapHandle, MapViewProps>(function MapView(
   { initialRegion, showsUserLocation, store, events, route, onSelectEvent, onSelectStore },
   ref,
 ) {
+  if (!LIVE_MAP) {
+    return <MapFallback route={Boolean(route)} note="The live map isn't in this version of the app." />;
+  }
   return (
     <RNMapView
       ref={ref}

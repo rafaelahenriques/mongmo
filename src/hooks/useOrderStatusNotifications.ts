@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 
 import { getCurrentUserId, supabase } from '@/lib/supabase';
+import type { NotificationChannel } from '@/services/notifications';
 import { useSettingsStore } from '@/state/settingsStore';
 import { ORDER_STATUS_LABEL } from '@/utils/orderFormat';
 import type { OrderStatus } from '@/types/database';
@@ -58,7 +59,7 @@ export function useOrderStatusNotifications(): void {
                 data: { url: `/(orders)/order/status/${next.id}` },
                 sound: true,
               },
-              trigger: null,
+              trigger: { channelId: 'orders' satisfies NotificationChannel },
             }).catch(() => undefined);
 
             queryClient.invalidateQueries({ queryKey: ['order', next.id] });
