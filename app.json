@@ -2,6 +2,7 @@
   "expo": {
     "name": "Mongmo",
     "slug": "mongmo",
+    "owner": "mongmo",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "mongmo",
