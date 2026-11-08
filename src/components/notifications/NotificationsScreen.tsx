@@ -38,7 +38,8 @@ export default function NotificationsScreen() {
 
   const open = (item: FeedItem) => {
     const target = item.target;
-    if (target.tab === 'orders') router.push({ pathname: '/(orders)/order/status/[id]', params: { id: target.orderId } });
+    if (target.tab === 'orders')
+      router.push({ pathname: '/(orders)/order/status/[id]', params: { id: target.orderId } });
     else if (target.tab === 'event') router.push({ pathname: '/(popups)/event/[id]', params: { id: target.eventId } });
     else router.push('/(wallet)');
   };
@@ -48,7 +49,7 @@ export default function NotificationsScreen() {
 
   return (
     <ScreenScroll contentStyle={styles.content}>
-      {isPending ? <ActivityIndicator color={theme.text} /> : null}
+      {isPending ? <ActivityIndicator accessibilityLabel="Loading" color={theme.text} /> : null}
       {!isPending && items.length === 0 ? (
         <ThemedText type="caption" themeColor="textSecondary">
           Nothing yet. Orders, pop-ups near you and points you earn show up here.

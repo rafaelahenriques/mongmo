@@ -1,7 +1,9 @@
 // Accessibility pass over every screen of the web build.
 //
 //   APP_URL=http://localhost:8081 node tests/a11y/run.mjs
-//   (owner screens too: OWNER_EMAIL=… OWNER_PASSWORD=… on an owner account)
+//   (dark mode: A11Y_COLOR_SCHEME=dark; high contrast: A11Y_CONTRAST=more)
+//   (owner screens too: OWNER_EMAIL=… OWNER_PASSWORD=… on an owner account;
+//   tests/a11y/seed-owner.mjs makes one on a local database)
 //
 // It signs up a fresh account through the app (the Supabase project must let
 // new accounts in without confirming their email), then walks every screen
@@ -17,22 +19,27 @@
 //   text-200       with every font at twice its size (the phone's largest
 //                  text settings; display sizes the app caps at 1.3× stay
 //                  capped), no text is cut off and nothing scrolls sideways
-//   axe            axe-core's own rules, when axe-core is installed
-// It prints what it found per screen and exits 1 if anything failed.
+//   axe            axe-core's rules for WCAG 2.0, 2.1 and 2.2, levels A and AA
+//   csp            nothing the page loads is blocked by the security headers
+//                  (serve the build with scripts/serve-web.mjs to apply them)
+// It prints what it found per screen and exits 1 if anything failed or a
+// screen couldn't be reached.
 
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
-let axeSource = null;
-try {
-  axeSource = require('fs').readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
-} catch {
-  // axe-core isn't installed: the checks below still run.
-}
+const axeSource = require('fs').readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
+/** What the Content-Security-Policy blocked since the last screen was checked. */
+let cspBlocked = [];
 
 const APP = process.env.APP_URL ?? 'http://localhost:8081';
 const WAIT = Number(process.env.A11Y_WAIT_MS ?? 2500);
+/** light or dark: the app follows the browser's colour scheme. */
+const SCHEME = process.env.A11Y_COLOR_SCHEME === 'dark' ? 'dark' : 'light';
+/** more: the browser asks for more contrast, so the app uses its high-contrast colours. */
+const CONTRAST = process.env.A11Y_CONTRAST === 'more' ? 'more' : 'no-preference';
+const MODE = `${SCHEME} mode${CONTRAST === 'more' ? ', high contrast' : ''}`;
 const results = [];
 
 /** Runs in the page: the static checks. */
@@ -144,6 +151,8 @@ async function keyboardChecks(page) {
       const ring = (style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) > 0) || style.boxShadow !== 'none';
       return {
         id: el.dataset.a11yId,
+        // A date or time field takes a Tab per part (day, month, year…).
+        parts: el.tagName === 'INPUT' && /^(date|time|datetime-local|month|week)$/.test(el.type) ? 6 : 1,
         ring,
         label: (el.getAttribute('aria-label') || el.innerText || '').trim().slice(0, 40),
       };
@@ -153,12 +162,17 @@ async function keyboardChecks(page) {
       continue;
     }
     if (!info.ring) out.push({ rule: 'focus-visible', target: `"${info.label}"` });
-    if (info.id === last) same += 1;
-    else same = 0;
-    if (same >= 3) {
-      out.push({ rule: 'keyboard', target: `focus stuck on "${info.label}"` });
-      break;
+    if (info.id === last) {
+      // Tab moves through a date or time field's parts (day, month, year)
+      // without leaving it; more than that is a trap.
+      same += 1;
+      if (same >= info.parts + 2) {
+        out.push({ rule: 'keyboard', target: `focus stuck on "${info.label}"` });
+        break;
+      }
+      continue;
     }
+    same = 0;
     if (reached.has(info.id) && reached.size > 1) break; // wrapped around
     reached.add(info.id);
     last = info.id;
@@ -249,8 +263,9 @@ async function reflowCheck(page) {
 }
 
 async function axeChecks(page) {
-  if (!axeSource) return [];
-  await page.addScriptTag({ content: axeSource });
+  // As an argument, not a <script> tag: the security headers don't allow
+  // scripts added to the page.
+  await page.evaluate(axeSource);
   const result = await page.evaluate(async () =>
     // eslint-disable-next-line no-undef
     axe.run(document, {
@@ -260,12 +275,25 @@ async function axeChecks(page) {
       },
     }),
   );
-  return result.violations.flatMap((violation) =>
+  const found = result.violations.flatMap((violation) =>
     violation.nodes.map((node) => ({
       rule: `axe:${violation.id}`,
       target: node.target.join(' '),
     })),
   );
+  // A11Y_DETAIL=1: each element's name and visible text, to see what differs.
+  if (process.env.A11Y_DETAIL) {
+    for (const item of found) {
+      const detail = await page
+        .evaluate((selector) => {
+          const el = document.querySelector(selector);
+          return el ? `name="${el.getAttribute('aria-label')}" text="${el.innerText.replace(/\s+/g, ' ').trim()}"` : '';
+        }, item.target)
+        .catch(() => '');
+      item.target = `${item.target} ${detail}`;
+    }
+  }
+  return found;
 }
 
 async function audit(page, screen) {
@@ -289,6 +317,7 @@ async function audit(page, screen) {
     ...(await reflowCheck(page)),
     ...(await textScaleCheck(page)),
     ...(await axeChecks(page)),
+    ...cspBlocked.splice(0).map((blocked) => ({ rule: 'csp', target: blocked })),
   ];
   results.push({ screen, controls, violations: all });
   console.log(`${all.length ? '✗' : '✓'} ${screen} (${controls} controls)`);
@@ -333,15 +362,30 @@ const back = async (page) => {
 
 const browser = await chromium.launch();
 const context = await browser.newContext({
+  colorScheme: SCHEME,
+  contrast: CONTRAST,
   viewport: { width: 390, height: 844 },
   geolocation: { latitude: 50.8279, longitude: 3.2649 },
   permissions: ['geolocation'],
 });
 const page = await context.newPage();
 page.on('dialog', (dialog) => dialog.accept());
+await context.exposeFunction('reportCspBlock', (blocked) => cspBlocked.push(blocked));
+await context.addInitScript(() =>
+  document.addEventListener('securitypolicyviolation', (event) =>
+    // eslint-disable-next-line no-undef
+    reportCspBlock(`${event.violatedDirective} blocked ${event.blockedURI || 'inline'}`),
+  ),
+);
 
 await step(page, 'Opening', () => page.goto(APP, { waitUntil: 'load' }));
 await step(page, 'Join us', () => button(page, 'Get started').click());
+await step(page, 'Sign in', () => button(page, /^Already have an account/).click());
+await step(page, 'Reset password', () => button(page, 'Forgot your password?').click());
+await step(page, 'Join us again', async () => {
+  await button(page, 'Back to sign in').click();
+  await button(page, /^New to Mongmo/).click();
+});
 const email = `a11y-${Date.now()}@mongmo.test`;
 await step(page, 'Permissions', async () => {
   await page.getByPlaceholder('Email').fill(email);
@@ -359,7 +403,8 @@ await step(page, 'Pop-up page', async () => {
   await tab(page, 'Home').click();
   await back(page);
   await page.waitForTimeout(2500);
-  const hero = button(page, /Open the pop-up/);
+  // On the web a card's name is its visible text: "Live now Mongmo Nights…".
+  const hero = button(page, /^(live now|coming up)/i);
   if (await hero.count()) await hero.click();
   else await button(page, /pop-up in /).click();
 });
@@ -374,9 +419,9 @@ await step(page, 'Challenges', () =>
 await step(page, 'Order: menu', async () => {
   await tab(page, 'Order').click();
 });
-// A section reads "Bánh mì, from 10,50 euro" (the pickup row also says "from").
-await step(page, 'Order: section', () => button(page, /, from [\d.,]+ euro/).click());
-await step(page, 'Order: product', () => button(page, / euro/).click());
+// A section reads "Bánh mì 10,50", a product "Chicken lemongrass … 10,50".
+await step(page, 'Order: section', () => button(page, /^bánh mì\s+\d+,\d\d$/i).click());
+await step(page, 'Order: product', () => button(page, /\d+,\d\d$/).click());
 await step(page, 'Cart', async () => {
   await button(page, /to cart/).click();
   await page.waitForTimeout(800);
@@ -421,29 +466,50 @@ await step(page, 'Settings', async () => {
   await button(page, 'Settings').click();
 });
 await step(page, 'Change password', () => button(page, 'Change password').click());
+await step(page, 'Your data', async () => {
+  await page.goBack();
+  await page.waitForTimeout(1200);
+  await button(page, /^Your data/).click();
+});
+await step(page, 'Privacy policy', () => button(page, 'Read the privacy policy').click());
 
 if (process.env.OWNER_EMAIL && process.env.OWNER_PASSWORD) {
-  const owner = await (await browser.newContext({ viewport: { width: 390, height: 844 } })).newPage();
+  const owner = await (
+    await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: SCHEME, contrast: CONTRAST })
+  ).newPage();
   owner.on('dialog', (dialog) => dialog.accept());
   await owner.goto(APP, { waitUntil: 'load' });
   await owner.waitForTimeout(WAIT);
-  await button(owner, 'I already have an account').click();
+  await button(owner, 'Get started').click();
+  await button(owner, /^Already have an account/).click();
   await owner.getByPlaceholder('Email').fill(process.env.OWNER_EMAIL);
   await owner.getByPlaceholder('Password').fill(process.env.OWNER_PASSWORD);
   await button(owner, 'Sign in').click();
   await owner.waitForTimeout(WAIT);
+  const ownerTools = async () => {
+    await owner.goBack();
+    await owner.waitForTimeout(1200);
+  };
   await step(owner, 'Owner tools', async () => {
+    const notNow = button(owner, 'Not now');
+    if (await notNow.count()) await notNow.click();
     await button(owner, 'Account').click();
     await owner.waitForTimeout(1200);
     await button(owner, /^Owner tools/).click();
   });
-  await step(owner, 'Owner: orders', () => button(owner, /^Orders/).click());
+  await step(owner, 'Owner: orders', () => button(owner, /Manage orders/).click());
   await step(owner, 'Owner: pop-ups', async () => {
-    await owner.goBack();
-    await owner.waitForTimeout(1200);
-    await button(owner, /pop-ups/i).click();
+    await ownerTools();
+    await button(owner, /^Manage pop-ups/).click();
   });
-  await step(owner, 'Owner: new pop-up', () => button(owner, /New pop-up/).click());
+  await step(owner, 'Owner: new pop-up', async () => {
+    await ownerTools();
+    await button(owner, /^New pop-up/).click();
+  });
+  await step(owner, 'Owner: reported photos', async () => {
+    await ownerTools();
+    await button(owner, /^Reported photos/).click();
+  });
 }
 
 await browser.close();
@@ -451,6 +517,6 @@ await browser.close();
 const failed = results.filter((result) => result.violations.length);
 const skipped = results.filter((result) => result.skipped);
 console.log(
-  `\n${results.length} screens: ${results.length - failed.length - skipped.length} clean, ${failed.length} with problems, ${skipped.length} skipped.${axeSource ? '' : ' (axe-core not installed: its rules were not run.)'}`,
+  `\n${results.length} screens (${MODE}): ${results.length - failed.length - skipped.length} clean, ${failed.length} with problems, ${skipped.length} skipped.`,
 );
-process.exit(failed.length ? 1 : 0);
+process.exit(failed.length || skipped.length ? 1 : 0);

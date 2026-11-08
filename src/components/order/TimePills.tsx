@@ -50,7 +50,7 @@ export function TimePills({
               onChange(i);
             }}
             accessibilityRole="radio"
-            accessibilityState={{ checked: on }}
+            aria-checked={on}
             accessibilityLabel={`Pick up at ${time}`}
             style={({ pressed }) => [
               styles.pill,

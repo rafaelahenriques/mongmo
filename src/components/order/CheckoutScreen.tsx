@@ -109,7 +109,6 @@ export default function CheckoutScreen() {
       // Staff call the order by name; a guest's profile is "Mongmo fan".
       await updateProfile({
         name: name.trim(),
-        bio: profile.data?.bio ?? '',
         homeCity: profile.data?.homeCity ?? '',
       }).catch(() => undefined);
     }
@@ -141,7 +140,7 @@ export default function CheckoutScreen() {
   if (!location || items.length === 0) {
     return (
       <View style={[styles.screen, { backgroundColor: theme.background }]}>
-        <PickupHeader place={place?.name ?? ''} image={place?.imageUrl} onBack={back} />
+        <PickupHeader place={place?.name ?? ''} image={place?.image} onBack={back} />
       </View>
     );
   }
@@ -150,7 +149,7 @@ export default function CheckoutScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
-      <PickupHeader place={place?.name ?? ''} image={place?.imageUrl} onBack={back} />
+      <PickupHeader place={place?.name ?? ''} image={place?.image} onBack={back} />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.group}>
           <ThemedText type="smallBold">Where</ThemedText>

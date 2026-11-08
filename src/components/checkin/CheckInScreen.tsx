@@ -28,6 +28,7 @@ import { useLocationStore } from '@/state/locationStore';
 import { getEventPhase } from '@/utils/dateTime';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import type { PopUpEvent } from '@/types';
+import { popUpImage } from '@/constants/brandPhotos';
 
 /** Why a check-in can't go through, each with its own message on K-04. */
 type Failure = 'far' | 'closed' | 'code' | 'location' | 'other';
@@ -88,7 +89,7 @@ export default function CheckInScreen({ eventId }: { eventId: string }) {
   if (!event) {
     return (
       <View style={[styles.center, { backgroundColor: theme.surfaceDark }]}>
-        <ActivityIndicator color={theme.onSurfaceDark} />
+        <ActivityIndicator accessibilityLabel="Loading" color={theme.onSurfaceDark} />
       </View>
     );
   }
@@ -186,7 +187,7 @@ function Scan({
           <Corners color={theme.brand} />
           {pending ? (
             <View style={[StyleSheet.absoluteFill, styles.center]}>
-              <ActivityIndicator color={theme.onSurfaceDark} size="large" />
+              <ActivityIndicator accessibilityLabel="Loading" color={theme.onSurfaceDark} size="large" />
             </View>
           ) : null}
         </View>
@@ -238,17 +239,13 @@ function CheckedIn({ event, at }: { event: PopUpEvent; at: Date }) {
       <ThemedText type="display" style={[styles.doneTitle, { color: theme.onBrand }]} accessibilityRole="header">
         You&apos;re in.
       </ThemedText>
-      {event.imageUrl ? (
-        <Image
-          accessible={false}
-          accessibilityLabel=""
-          source={{ uri: event.imageUrl }}
-          style={styles.donePhoto}
-          contentFit="cover"
-        />
-      ) : (
-        <View style={[styles.donePhoto, { backgroundColor: theme.onBrand, opacity: 0.12 }]} />
-      )}
+      <Image
+        accessible={false}
+        accessibilityLabel=""
+        source={popUpImage(event)}
+        style={styles.donePhoto}
+        contentFit="cover"
+      />
       <ThemedText type="smallBold" style={[styles.doneText, { color: theme.onBrand }]}>
         {event.title}, checked in at {time}.{points ? ` You earned ${points} points.` : ''}
       </ThemedText>

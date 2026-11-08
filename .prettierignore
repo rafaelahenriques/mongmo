@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+.expo/
+ios/
+android/
+package-lock.json
+THIRD_PARTY_NOTICES.md
+assets/
+supabase/
+*.md
+public/privacy.html
+docs/design/material-theme.json

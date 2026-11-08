@@ -30,6 +30,7 @@ import { switchPickup } from '@/services/switchPickup';
 import { useCartStore, type CartLocation } from '@/state/cartStore';
 import { useLocationStore } from '@/state/locationStore';
 import { useSettingsStore } from '@/state/settingsStore';
+import { nameFromContent } from '@/utils/a11y';
 import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import { ORDER_STEP, ORDER_STEPS, ORDER_STATUS_TITLE, pickupCode, shortItemName } from '@/utils/orderFormat';
@@ -37,6 +38,9 @@ import { featuredPopUps } from '@/utils/popUps';
 import { bestClaimableReward, nextReward } from '@/utils/rewards';
 import { stampCard } from '@/utils/stamps';
 import type { PopUpEvent } from '@/types';
+import { popUpImage } from '@/constants/brandPhotos';
+import PhotosOfTheWeek from '@/components/home/PhotosOfTheWeek';
+import { ErrorState } from '@/components/ui/LoadState';
 
 /**
  * H-01 Home, laid out like a magazine (after Joe & The Juice's home): your
@@ -255,7 +259,7 @@ export default function HomeScreen() {
                   key={item.id}
                   onPress={() => openItem(item.id)}
                   accessibilityRole="button"
-                  accessibilityLabel={item.name}
+                  {...nameFromContent(item.name)}
                   style={({ pressed }) => [
                     styles.tile,
                     { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.85 : 1 },
@@ -285,12 +289,19 @@ export default function HomeScreen() {
           </View>
         ) : null}
 
+        <PhotosOfTheWeek style={styles.section} />
+
         <View style={styles.section}>
-          <SectionHead
-            title={upcoming.length ? 'Pop-ups coming up' : 'Nothing else planned yet'}
-            link="SEE ALL"
-            onPress={() => router.navigate('/(popups)')}
-          />
+          {eventsQuery.isError && !eventsQuery.data ? (
+            // Not "nothing planned": we couldn't find out.
+            <ErrorState message="Couldn’t load the pop-ups." onRetry={() => void eventsQuery.refetch()} />
+          ) : (
+            <SectionHead
+              title={upcoming.length ? 'Pop-ups coming up' : 'Nothing else planned yet'}
+              link="SEE ALL"
+              onPress={() => router.navigate('/(popups)')}
+            />
+          )}
           {upcoming.map((event) => (
             <PopUpRow key={event.id} event={event} onPress={() => openEvent(event.id)} />
           ))}
@@ -346,7 +357,7 @@ function Card({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${eyebrow ? `${eyebrow}: ` : ''}${title}. ${body}`}
+      {...nameFromContent(`${eyebrow ? `${eyebrow}: ` : ''}${title}. ${body}`)}
       style={({ pressed }) => [
         styles.card,
         { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.9 : 1 },
@@ -403,18 +414,16 @@ function PopUpCard({
       <Pressable
         onPress={onOpen}
         accessibilityRole="button"
-        accessibilityLabel={`${live ? 'Live now: ' : 'Coming up: '}${event.title}. Open the pop-up.`}
+        {...nameFromContent(`${live ? 'Live now: ' : 'Coming up: '}${event.title}. Open the pop-up.`)}
         style={[styles.popPhoto, { backgroundColor: theme.surfaceDark }]}
       >
-        {event.imageUrl ? (
-          <Image
-            accessible={false}
-            accessibilityLabel=""
-            source={{ uri: event.imageUrl }}
-            style={StyleSheet.absoluteFill}
-            contentFit="cover"
-          />
-        ) : null}
+        <Image
+          accessible={false}
+          accessibilityLabel=""
+          source={popUpImage(event)}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+        />
         <View style={styles.popShade} />
         {live ? <Chip label="Live now" tone="live" /> : null}
         <ThemedText type="item" numberOfLines={2} style={{ color: theme.onSurfaceDark }}>
@@ -457,22 +466,20 @@ function PopUpRow({ event, onPress }: { event: PopUpEvent; onPress: () => void }
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${event.title}, ${when}`}
+      {...nameFromContent(`${event.title}, ${when}`)}
       style={({ pressed }) => [
         styles.row,
         { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.9 : 1 },
       ]}
     >
       <View style={[styles.rowPhoto, { backgroundColor: theme.backgroundSelected }]}>
-        {event.imageUrl ? (
-          <Image
-            accessible={false}
-            accessibilityLabel=""
-            source={{ uri: event.imageUrl }}
-            style={StyleSheet.absoluteFill}
-            contentFit="cover"
-          />
-        ) : null}
+        <Image
+          accessible={false}
+          accessibilityLabel=""
+          source={popUpImage(event)}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+        />
       </View>
       <View style={styles.rowTexts}>
         <ThemedText type="card" numberOfLines={2}>

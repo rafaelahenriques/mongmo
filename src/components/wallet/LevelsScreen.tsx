@@ -21,6 +21,9 @@ export default function LevelsScreen() {
 
   return (
     <ScrollView
+      // Reachable by keyboard, so it can be scrolled without a mouse.
+      tabIndex={0}
+      aria-label="Your level and the levels"
       style={{ flex: 1, backgroundColor: theme.background }}
       contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + 32 }]}
     >
@@ -44,10 +47,7 @@ export default function LevelsScreen() {
           <>
             <View style={[styles.track, { backgroundColor: Paper }]}>
               <View
-                style={[
-                  styles.fill,
-                  { width: `${Math.round(level.progress * 100)}%`, backgroundColor: theme.onBrand },
-                ]}
+                style={[styles.fill, { width: `${Math.round(level.progress * 100)}%`, backgroundColor: theme.onBrand }]}
               />
             </View>
             <ThemedText type="small" style={{ color: theme.onBrand }}>
@@ -79,17 +79,15 @@ export default function LevelsScreen() {
             key={step.key}
             step={step}
             number={index + 1}
-            state={
-              step.key === level.current.key ? 'current' : level.lifetime >= step.minPoints ? 'reached' : 'locked'
-            }
+            state={step.key === level.current.key ? 'current' : level.lifetime >= step.minPoints ? 'reached' : 'locked'}
             toGo={Math.max(0, step.minPoints - level.lifetime)}
           />
         ))}
       </View>
 
       <ThemedText type="small" themeColor="textSecondary">
-        Your level counts every point you&apos;ve ever earned: orders, challenges and badges. Redeeming a reward
-        spends points but never takes you down a level.
+        Your level counts every point you&apos;ve ever earned: orders, challenges and badges. Redeeming a reward spends
+        points but never takes you down a level.
       </ThemedText>
     </ScrollView>
   );

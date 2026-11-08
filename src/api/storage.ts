@@ -25,23 +25,42 @@ const EXTENSION: Record<string, string> = {
   'image/heic': 'heic',
 };
 
+/** The storage buckets: event photos are public, guests' challenge photos private. */
+export type Bucket = 'challenge-photos' | 'event-images';
+
+/** How long a link to a private photo works: an hour, then the app asks for a new one. */
+export const SIGNED_URL_SECONDS = 60 * 60;
+
 /**
- * Uploads an image to a public bucket at `folder/<random>.<ext>` and returns
- * its public URL. The bucket's policies decide who may write where.
+ * Uploads an image to `folder/<random>.<ext>` in a bucket and returns its
+ * path. The bucket's policies decide who may write where.
  */
-export async function uploadPublicImage(params: {
-  bucket: 'challenge-photos' | 'event-images';
+export async function uploadImage(params: {
+  bucket: Bucket;
   folder: string;
   uri: string;
   mimeType?: string | null;
-}): Promise<{ path: string; publicUrl: string }> {
+}): Promise<string> {
   const contentType = imageContentType(params.mimeType);
   const path = `${params.folder}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${EXTENSION[contentType]}`;
   const bytes = await readImageBytes(params.uri);
 
   const { error } = await supabase.storage.from(params.bucket).upload(path, bytes, { contentType });
   if (error) throw toApiError(error);
+  return path;
+}
 
-  const { data } = supabase.storage.from(params.bucket).getPublicUrl(path);
-  return { path, publicUrl: data.publicUrl };
+/** A link anyone can open, for an image in the public bucket. */
+export function publicImageUrl(path: string): string {
+  return supabase.storage.from('event-images').getPublicUrl(path).data.publicUrl;
+}
+
+/** Short-lived links to private challenge photos, by path. Paths it couldn't sign are left out. */
+export async function signedPhotoUrls(paths: string[]): Promise<Map<string, string>> {
+  if (paths.length === 0) return new Map();
+  const { data, error } = await supabase.storage.from('challenge-photos').createSignedUrls(paths, SIGNED_URL_SECONDS);
+  if (error) throw toApiError(error);
+  const urls = new Map<string, string>();
+  for (const entry of data) if (entry.path && entry.signedUrl) urls.set(entry.path, entry.signedUrl);
+  return urls;
 }

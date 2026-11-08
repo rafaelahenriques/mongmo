@@ -83,11 +83,22 @@ const packages = new Map();
   }
 })(productionTree().dependencies);
 
-const sorted = [...packages.values()].sort((a, b) => a.name.localeCompare(b.name) || a.version.localeCompare(b.version));
+const sorted = [...packages.values()].sort(
+  (a, b) => a.name.localeCompare(b.name) || a.version.localeCompare(b.version),
+);
 const cell = (value) => String(value).replace(/\|/g, '\\|').replace(/\s+/g, ' ');
 
 // One full text per licence: the first package whose licence is exactly it.
-const atomicIds = [...new Set(sorted.flatMap((p) => p.license.split(/\s+(?:AND|OR)\s+|[()]/).map((id) => id.trim()).filter(Boolean)))];
+const atomicIds = [
+  ...new Set(
+    sorted.flatMap((p) =>
+      p.license
+        .split(/\s+(?:AND|OR)\s+|[()]/)
+        .map((id) => id.trim())
+        .filter(Boolean),
+    ),
+  ),
+];
 const texts = atomicIds
   .filter((id) => id !== 'OFL-1.1') // the fonts' own text is added below
   .map((id) => [id, sorted.find((p) => p.license === id && p.text)?.text])
@@ -96,6 +107,7 @@ const texts = atomicIds
 const fontLicense = (pkg) => readFileSync(join(ROOT, 'node_modules/@expo-google-fonts', pkg, 'LICENSE_FONT'), 'utf8');
 const ofl = fontLicense('league-spartan');
 const fontCopyright = (pkg) => fontLicense(pkg).split('\n')[0].replace(/,\s*$/, '');
+const latoCopyright = readFileSync(join(ROOT, 'assets/fonts/Lato-OFL.txt'), 'utf8').split('\n')[0].trim();
 
 const out = `# Third-party notices
 
@@ -109,7 +121,7 @@ end up inside the app; they are listed anyway. Don't edit this file by hand.
 ## Fonts
 
 - **League Spartan** (titles), bundled, used under the SIL Open Font License 1.1 (full text below): ${fontCopyright('league-spartan')}
-- **Helvetica Neue** (text) is not bundled: on Apple devices the app uses the copy built into the system, under Apple's terms. Android shows its own system font (Roboto) and the web Helvetica or Arial from the browser.
+- **Lato** (text), bundled from Google Fonts' repository (assets/fonts), used under the SIL Open Font License 1.1 (full text below): ${latoCopyright}
 
 ## Icons, maps and data
 

@@ -43,7 +43,7 @@ export default function ProfileScreen() {
   if (profile.isPending) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.text} />
+        <ActivityIndicator accessibilityLabel="Loading" size="large" color={theme.text} />
         <ThemedText type="small" themeColor="textSecondary">
           Loading your profile…
         </ThemedText>
@@ -73,7 +73,7 @@ export default function ProfileScreen() {
   const user = profile.data;
   const memberSince = formatInTimeZone(new Date(user.memberSince), DISPLAY_TIME_ZONE, 'MMM yyyy');
   const badgeCount = achievements.query.data?.badges.length ?? 0;
-  const current = (orders.data ?? []).filter((order) => ['paid', 'preparing', 'ready'].includes(order.status));
+  const current = (orders.data ?? []).filter((order) => ['placed', 'preparing', 'ready'].includes(order.status));
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
@@ -118,6 +118,7 @@ export default function ProfileScreen() {
 
         <SectionHeader title="Your photos" />
         <PhotoGallery
+          own
           photos={photos.data ?? []}
           emptyText="Photos you take for challenges show up here. Check in at a pop-up and try a photo challenge."
         />

@@ -56,7 +56,9 @@ export function PlaceSearchField({ onPick, onSubmitText, searching = false }: Pl
           onSubmitEditing={submit}
           accessibilityHint="Suggestions appear below as you type."
         />
-        {loading || searching ? <ActivityIndicator style={styles.spinner} color={theme.textSecondary} /> : null}
+        {loading || searching ? (
+          <ActivityIndicator accessibilityLabel="Loading" style={styles.spinner} color={theme.textSecondary} />
+        ) : null}
       </View>
 
       {suggestions.length > 0 ? (

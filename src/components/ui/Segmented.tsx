@@ -71,7 +71,8 @@ export function Segmented<T extends string>({
         const common = {
           onPress: () => select(option),
           accessibilityRole: asTab ? ('tab' as const) : ('radio' as const),
-          accessibilityState: asTab ? { selected } : { checked: selected },
+          'aria-selected': asTab ? selected : undefined,
+          'aria-checked': asTab ? undefined : selected,
           accessibilityLabel: option.accessibilityLabel ?? label,
         };
 

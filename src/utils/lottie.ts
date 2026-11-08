@@ -214,7 +214,10 @@ function collectPaths(items: LottieShape[], parent: Matrix, paths: LottiePath[],
   const transform = items.find((item) => item.ty === 'tr');
   const rotation = typeof transform?.r === 'object' ? transform.r.k : 0;
   const matrix = transform
-    ? multiply(parent, transformMatrix(transform.a?.k ?? [0, 0], transform.p?.k ?? [0, 0], transform.s?.k ?? [100, 100], rotation))
+    ? multiply(
+        parent,
+        transformMatrix(transform.a?.k ?? [0, 0], transform.p?.k ?? [0, 0], transform.s?.k ?? [100, 100], rotation),
+      )
     : parent;
   const fill = items.find((item) => item.ty === 'fl');
   const shapes = items.filter((item) => item.ty === 'sh' && item.ks).map((item) => pathData(item.ks!.k, matrix));
@@ -330,11 +333,7 @@ export function sampleTrack(track: Track, frame: number): Vector {
 }
 
 type TransformStep =
-  | { translateX: number }
-  | { translateY: number }
-  | { rotate: string }
-  | { scaleX: number }
-  | { scaleY: number };
+  { translateX: number } | { translateY: number } | { rotate: string } | { scaleX: number } | { scaleY: number };
 
 /**
  * React Native transform list placing a layer at comp `frame`, for a

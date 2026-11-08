@@ -30,7 +30,8 @@ export type ChallengeType =
   | 'community'
   | 'motion';
 
-export type OrderStatus = 'draft' | 'paid' | 'preparing' | 'ready' | 'collected' | 'cancelled';
+/** `placed`: ordered, to pay at pickup (0031). */
+export type OrderStatus = 'draft' | 'placed' | 'preparing' | 'ready' | 'collected' | 'cancelled';
 
 type Table<Row extends Record<string, unknown>> = {
   Row: Row;
@@ -43,7 +44,6 @@ type ProfileRow = {
   id: string;
   role: 'customer' | 'owner';
   name: string;
-  bio: string;
   avatar_url: string | null;
   home_city: string | null;
   leaderboard_visible: boolean;
@@ -149,8 +149,14 @@ type PhotoRow = {
   event_id: string;
   challenge_id: string | null;
   storage_path: string;
-  url: string;
   created_at: string;
+  /** Shared in Photos of the week since (0029); null while private. */
+  shared_at: string | null;
+  /** Taken down after a report; it can't be shared again unless staff put it back. */
+  removed_at: string | null;
+  /** When staff decided on a report (0030), and what. */
+  reviewed_at: string | null;
+  review_outcome: 'restored' | 'kept_down' | null;
 };
 
 type BadgeRow = {
@@ -218,6 +224,10 @@ type OrderRow = {
   pickup_at: string | null;
   user_reward_id: string | null;
   created_at: string;
+  /** How it's paid: at the counter on pickup (the only way for now). */
+  payment: 'at_pickup';
+  /** When staff took the payment: set as they mark it collected. */
+  paid_at: string | null;
 };
 
 type OrderItemRow = {
@@ -260,6 +270,33 @@ export type Database = {
       my_loyalty: {
         Args: Record<string, never>;
         Returns: { lifetime_points: number; first_order_bonus: boolean }[];
+      };
+      export_my_data: { Args: Record<string, never>; Returns: Record<string, unknown> };
+      set_photo_shared: { Args: { p_photo_id: string; p_shared: boolean }; Returns: undefined };
+      report_photo: { Args: { p_photo_id: string }; Returns: undefined };
+      reported_photos: {
+        Args: Record<string, never>;
+        Returns: {
+          id: string;
+          storage_path: string;
+          event_title: string;
+          taken_at: string;
+          removed_at: string;
+          reports: number;
+        }[];
+      };
+      review_reported_photo: { Args: { p_photo_id: string; p_restore: boolean }; Returns: undefined };
+      delete_reported_photo: { Args: { p_photo_id: string }; Returns: undefined };
+      photos_of_the_week: {
+        Args: Record<string, never>;
+        Returns: {
+          id: string;
+          storage_path: string;
+          event_id: string;
+          event_title: string;
+          shared_at: string;
+          mine: boolean;
+        }[];
       };
       delete_my_account: { Args: Record<string, never>; Returns: undefined };
       ensure_profile: { Args: Record<string, never>; Returns: undefined };
@@ -307,7 +344,11 @@ export type Database = {
         };
         Returns: OrderRow;
       };
-      confirm_mock_payment: {
+      place_order: {
+        Args: { p_order_id: string };
+        Returns: OrderRow;
+      };
+      cancel_my_order: {
         Args: { p_order_id: string };
         Returns: OrderRow;
       };

@@ -46,8 +46,7 @@ function ErrorFallback({ onRetry }: { onRetry: () => void }) {
         Something went wrong
       </ThemedText>
       <ThemedText themeColor="textSecondary" style={styles.body}>
-        The app hit an unexpected error. Try again, or restart it if the problem keeps
-        happening.
+        The app hit an unexpected error. Try again, or restart it if the problem keeps happening.
       </ThemedText>
       <Button
         label="Try again"

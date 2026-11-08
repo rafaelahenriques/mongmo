@@ -20,7 +20,11 @@ const MapViewWeb = forwardRef<MapHandle, MapViewProps>(function MapViewWeb({ rou
   return (
     <View style={styles.fill}>
       <MapSketch route={Boolean(route)} style={styles.fill} />
-      <ThemedText type="caption" themeColor="textSecondary" style={[styles.note, { backgroundColor: theme.background }]}>
+      <ThemedText
+        type="caption"
+        themeColor="textSecondary"
+        style={[styles.note, { backgroundColor: theme.background }]}
+      >
         The live map is in the iOS and Android app.
       </ThemedText>
     </View>

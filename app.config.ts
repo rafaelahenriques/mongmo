@@ -1,5 +1,7 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
+import packageJson from './package.json';
+
 /**
  * app.json, adjusted for the environment being built: development,
  * staging or production. EXPO_PUBLIC_APP_ENV picks it: eas.json sets it per
@@ -31,7 +33,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   return {
     ...config,
     name,
-    slug: config.slug ?? 'react-challenge',
+    slug: config.slug ?? 'mongmo',
+    // One version number: package.json's, which `npm version` bumps and
+    // tags (docs/release-process.md). Build numbers are EAS's (remote).
+    version: packageJson.version,
     ios: { ...config.ios, bundleIdentifier: `${config.ios?.bundleIdentifier}${idSuffix}` },
     android: { ...config.android, package: `${config.android?.package}${idSuffix}` },
     plugins: [

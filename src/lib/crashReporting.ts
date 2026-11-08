@@ -80,8 +80,16 @@ function reportLogEntry(entry: LogEntry): void {
 }
 
 let started = false;
+let stopLogSink: (() => void) | null = null;
 
-/** Starts crash reporting once, if this build has a DSN. Resolves whether it's on. */
+/** Whether this build can report crashes at all (it has a DSN), so the question is worth asking. */
+export const crashReportingAvailable = Boolean(env.sentryDsn);
+
+/**
+ * Starts crash reporting once, if this build has a DSN. Only call it after
+ * the person said yes (applyCrashReportsChoice): before that, nothing loads
+ * and nothing is sent. Resolves whether it's on.
+ */
 export function initCrashReporting(): boolean {
   if (started || !env.sentryDsn) return started;
   Sentry.init({
@@ -102,9 +110,24 @@ export function initCrashReporting(): boolean {
     beforeBreadcrumb: scrubBreadcrumb,
     beforeSend: scrubEvent,
   });
-  addLogSink(reportLogEntry);
+  stopLogSink = addLogSink(reportLogEntry);
   started = true;
   return true;
+}
+
+/** Stops crash reporting and drops anything not sent yet: the person said no, or changed their mind. */
+export async function stopCrashReporting(): Promise<void> {
+  if (!started) return;
+  stopLogSink?.();
+  stopLogSink = null;
+  started = false;
+  await Sentry.close();
+}
+
+/** Follows the person's answer: on starts reporting, off (or no answer yet) keeps it stopped. */
+export function applyCrashReportsChoice(choice: 'unasked' | 'on' | 'off'): void {
+  if (choice === 'on') initCrashReporting();
+  else void stopCrashReporting();
 }
 
 /** The root layout, wrapped so touches leave breadcrumbs: component names only, never their text. */

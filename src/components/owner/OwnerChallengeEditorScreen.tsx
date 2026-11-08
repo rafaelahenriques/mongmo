@@ -26,6 +26,7 @@ import {
   defaultChallengeRules,
   parseChallengeRules,
 } from '@/utils/challengeConfig';
+import { ErrorState } from '@/components/ui/LoadState';
 
 export type OwnerChallengeEditorScreenProps = {
   eventId: string;
@@ -45,7 +46,7 @@ export default function OwnerChallengeEditorScreen({ eventId, challengeId }: Own
   if (eventQuery.isPending || isLoading) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <ActivityIndicator size="large" color={theme.text} />
+        <ActivityIndicator accessibilityLabel="Loading" size="large" color={theme.text} />
       </View>
     );
   }
@@ -53,8 +54,14 @@ export default function OwnerChallengeEditorScreen({ eventId, challengeId }: Own
   if (!eventQuery.data || (challengeId && !existing)) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <IconBadge name="alert" size={48} />
-        <ThemedText type="section">{challengeId ? 'Challenge not found' : 'Pop-up not found'}</ThemedText>
+        {eventQuery.isError ? (
+          <ErrorState message="Couldn’t load this pop-up." onRetry={() => void eventQuery.refetch()} />
+        ) : (
+          <>
+            <IconBadge name="alert" size={48} />
+            <ThemedText type="section">{challengeId ? 'Challenge not found' : 'Pop-up not found'}</ThemedText>
+          </>
+        )}
       </View>
     );
   }
@@ -125,10 +132,15 @@ function ChallengeForm({
   const onDelete = async () => {
     if (!existing) return;
     haptics.warning();
-    const yes = await confirm('Delete this challenge?', 'People who already completed it keep their points.', 'Delete', {
-      cancelLabel: 'Keep it',
-      destructive: true,
-    });
+    const yes = await confirm(
+      'Delete this challenge?',
+      'People who already completed it keep their points.',
+      'Delete',
+      {
+        cancelLabel: 'Keep it',
+        destructive: true,
+      },
+    );
     if (yes) remove.mutate(existing.id, { onSuccess: () => router.back() });
   };
 
@@ -194,7 +206,7 @@ function ChallengeForm({
           </View>
         </Card>
 
-        {problem ?? serverError ? (
+        {(problem ?? serverError) ? (
           <ThemedText type="smallBold" themeColor="danger" accessibilityRole="alert">
             {problem ?? serverError}
           </ThemedText>

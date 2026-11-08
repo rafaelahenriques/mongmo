@@ -6,6 +6,7 @@ import { Icon, type IconName } from '@/components/ui/Icon';
 import { IconBadge, type IconBadgeProps } from '@/components/ui/IconBadge';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
+import { nameFromContent } from '@/utils/a11y';
 
 export type ListRowProps = {
   title: string;
@@ -59,7 +60,11 @@ export function ListRow({
           </ThemedText>
         ) : null}
       </View>
-      {value ? <ThemedText type="captionBold">{value}</ThemedText> : null}
+      {value ? (
+        <ThemedText type="captionBold" style={styles.value}>
+          {value}
+        </ThemedText>
+      ) : null}
       {trailing}
       {onPress && chevron ? <Icon name="chevronRight" size={16} color={theme.text} /> : null}
     </>
@@ -75,7 +80,7 @@ export function ListRow({
         onPress();
       }}
       accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? [title, value].filter(Boolean).join(', ')}
+      {...nameFromContent(accessibilityLabel ?? [title, value].filter(Boolean).join(', '))}
       style={({ pressed }) => [rowStyle, { opacity: pressed ? 0.6 : 1 }]}
     >
       {content}
@@ -99,5 +104,9 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     flexBasis: 120,
     gap: 2,
+  },
+  // A long value (an email) wraps rather than being cut off.
+  value: {
+    flexShrink: 1,
   },
 });

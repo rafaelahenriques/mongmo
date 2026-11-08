@@ -95,7 +95,7 @@ export function LocationPicker(props: LocationPickerProps) {
       <Pressable
         onPress={() => setShowCoordinates((shown) => !shown)}
         accessibilityRole="button"
-        accessibilityState={{ expanded: showCoordinates }}
+        aria-expanded={showCoordinates}
         style={styles.coordinatesToggle}
         hitSlop={8}
       >

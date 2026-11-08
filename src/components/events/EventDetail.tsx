@@ -33,6 +33,7 @@ import { useBusyStore } from '@/state/busyStore';
 import { useLocationStore } from '@/state/locationStore';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
+import { popUpImage } from '@/constants/brandPhotos';
 
 export type EventDetailProps = {
   eventId: string;
@@ -112,7 +113,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
     return (
       <View style={[styles.stateContainer, { backgroundColor: theme.background }]} accessibilityLabel="Loading">
         <ScreenReaderTitle>Pop-up</ScreenReaderTitle>
-        <ActivityIndicator size="large" color={theme.text} />
+        <ActivityIndicator accessibilityLabel="Loading" size="large" color={theme.text} />
         <ThemedText type="caption" themeColor="textSecondary">
           Loading the pop-up…
         </ThemedText>
@@ -153,7 +154,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
       }
     >
       <PhotoHero
-        imageUrl={event.imageUrl}
+        image={popUpImage(event)}
         title={event.title}
         live={phase === 'live'}
         meta={distance !== null ? formatDistance(distance) : undefined}
@@ -185,11 +186,7 @@ export default function EventDetail({ eventId }: EventDetailProps) {
         </View>
 
         {phase === 'live' ? (
-          <View
-            style={styles.busy}
-            accessible
-            accessibilityLabel={`How busy: ${busy.occupancy} of ${busy.capacity}`}
-          >
+          <View style={styles.busy} accessible accessibilityLabel={`How busy: ${busy.occupancy} of ${busy.capacity}`}>
             <View style={styles.busyRow}>
               <ThemedText type="caption" themeColor="textSecondary">
                 How busy

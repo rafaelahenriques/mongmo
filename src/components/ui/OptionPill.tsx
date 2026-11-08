@@ -38,7 +38,7 @@ export function OptionPill({
         onPress();
       }}
       accessibilityRole={checked === undefined ? 'button' : toggle ? 'checkbox' : 'radio'}
-      accessibilityState={checked === undefined ? undefined : { checked }}
+      aria-checked={checked}
       accessibilityLabel={accessibilityLabel ?? label}
       style={({ pressed }) => [
         styles.pill,

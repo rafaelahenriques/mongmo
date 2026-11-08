@@ -1,5 +1,6 @@
 import { useCallback, useState, type ReactNode } from 'react';
 import { Linking, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import Constants from 'expo-constants';
 import { useFocusEffect, useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -12,6 +13,8 @@ import { useAuthUser } from '@/hooks/useAuthUser';
 import { useProfile, useSetLeaderboardVisible } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
+import { crashReportingAvailable } from '@/lib/crashReporting';
+import { env } from '@/lib/env';
 import { confirmDeleteAccount, confirmLogOut } from '@/services/auth';
 import {
   ensureNotificationPermission,
@@ -19,14 +22,29 @@ import {
   sendTestNotification,
   type NotificationPermission,
 } from '@/services/notifications';
-import { useSettingsStore, type NotificationPrefs, type ThemeMode } from '@/state/settingsStore';
+import { useSettingsStore, type ContrastMode, type NotificationPrefs, type ThemeMode } from '@/state/settingsStore';
 
 const HELP_EMAIL = 'hello@mongmo-store.com';
+
+/** "Version 1.2.0", plus the environment on test builds: what a bug report asks for. */
+const VERSION_LABEL = [
+  `Version ${Constants.expoConfig?.version ?? '?'}`,
+  env.appEnv === 'production' ? null : env.appEnv,
+]
+  .filter(Boolean)
+  .join(' · ');
 
 const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
   { value: 'system', label: 'System' },
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },
+];
+
+const CONTRAST_OPTIONS: { value: ContrastMode; label: string }[] = [
+  { value: 'system', label: 'System' },
+  { value: 'standard', label: 'Standard' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
 ];
 
 const NOTIFICATION_OPTIONS: { key: keyof NotificationPrefs; label: string; hint: string }[] = [
@@ -59,8 +77,12 @@ export default function SettingsScreen() {
   const tabBarInset = useTabBarInset();
   const notifications = useSettingsStore((state) => state.notifications);
   const themeMode = useSettingsStore((state) => state.themeMode);
+  const contrast = useSettingsStore((state) => state.contrast);
+  const setContrast = useSettingsStore((state) => state.setContrast);
   const setNotificationPref = useSettingsStore((state) => state.setNotificationPref);
   const setThemeMode = useSettingsStore((state) => state.setThemeMode);
+  const crashReports = useSettingsStore((state) => state.crashReports);
+  const setCrashReports = useSettingsStore((state) => state.setCrashReports);
   const profile = useProfile();
   const setLeaderboardVisible = useSetLeaderboardVisible();
   const account = useAuthUser();
@@ -148,11 +170,24 @@ export default function SettingsScreen() {
           }
         />
         <ListRow
+          title="Contrast"
+          subtitle="System follows your phone's Increase Contrast setting"
+          trailing={
+            <Segmented
+              options={CONTRAST_OPTIONS}
+              value={contrast}
+              onChange={setContrast}
+              accessibilityLabel="Contrast"
+              look="switch"
+            />
+          }
+        />
+        <ListRow
           title="Show me on the leaderboard"
           subtitle="Off keeps your points private"
           trailing={
             <Toggle
-              value={profile.data?.leaderboardVisible ?? true}
+              value={profile.data?.leaderboardVisible ?? false}
               onValueChange={(value) => setLeaderboardVisible.mutate(value)}
               accessibilityLabel="Show me on the leaderboard"
             />
@@ -161,6 +196,28 @@ export default function SettingsScreen() {
         {Platform.OS !== 'web' ? (
           <ListRow title="Location" value="Phone settings" onPress={() => void Linking.openSettings()} last />
         ) : null}
+      </Group>
+
+      <Group title="Privacy">
+        <ListRow
+          title="Your data"
+          subtitle="See it, download it, delete it"
+          onPress={() => router.push('/(profile)/your-data')}
+        />
+        {crashReportingAvailable ? (
+          <ListRow
+            title="Crash reports"
+            subtitle="Send a report when the app crashes. Nothing personal."
+            trailing={
+              <Toggle
+                value={crashReports === 'on'}
+                onValueChange={(on) => setCrashReports(on ? 'on' : 'off')}
+                accessibilityLabel="Crash reports"
+              />
+            }
+          />
+        ) : null}
+        <ListRow title="Privacy policy" onPress={() => router.push('/(profile)/privacy')} last />
       </Group>
 
       <Group title="Account">
@@ -174,6 +231,10 @@ export default function SettingsScreen() {
         <ListRow title="Log out" onPress={confirmLogOut} chevron={false} />
         <ListRow title="Delete account" onPress={() => void confirmDeleteAccount()} chevron={false} danger last />
       </Group>
+
+      <ThemedText type="small" style={{ color: theme.textSecondary }}>
+        {VERSION_LABEL}
+      </ThemedText>
     </ScrollView>
   );
 }

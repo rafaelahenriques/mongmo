@@ -1,0 +1,32 @@
+name: Preview
+
+# Every merge to main goes to staging: new migrations to the staging database,
+# then internal iOS and Android builds testers install from the EAS link.
+# Label a pull request "preview" to get staging builds of it before merging
+# (the app only; its migrations wait for main).
+#
+# Off until the repository variable STAGING_AUTO_DEPLOY is "true" (once the
+# "staging" environment has its secrets: docs/DEPLOYMENT.md).
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [labeled, synchronize]
+
+concurrency:
+  group: preview-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  staging:
+    if: >-
+      vars.STAGING_AUTO_DEPLOY == 'true' &&
+      (github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'preview'))
+    uses: ./.github/workflows/deploy.yml
+    with:
+      target: staging
+      ship: ${{ github.event_name == 'push' && 'database and app' || 'app only' }}
+    secrets: inherit

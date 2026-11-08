@@ -1,9 +1,9 @@
 import type { OrderStatus } from '@/types/database';
 
-/** Client-facing status labels (AGENTS.md keeps `draft`/`paid` internal). */
+/** Client-facing status labels (`draft` and `placed` stay internal). */
 export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
   draft: 'Draft',
-  paid: 'Confirmed',
+  placed: 'Confirmed',
   preparing: 'Preparing',
   ready: 'Ready for pickup',
   collected: 'Collected',
@@ -23,7 +23,7 @@ export function priceParts(cents: number): { euros: string; cents: string } {
 /** What the order is doing, as the status screen's heading. */
 export const ORDER_STATUS_TITLE: Record<OrderStatus, string> = {
   draft: 'Not placed',
-  paid: 'Confirmed',
+  placed: 'Confirmed',
   preparing: 'Being made',
   ready: 'Ready',
   collected: 'Collected',
@@ -32,7 +32,7 @@ export const ORDER_STATUS_TITLE: Record<OrderStatus, string> = {
 
 /** Confirmed → Being made → Ready, and the step an order has reached (for StepBar). */
 export const ORDER_STEPS = ['Confirmed', 'Being made', 'Ready'];
-export const ORDER_STEP: Partial<Record<OrderStatus, number>> = { paid: 0, preparing: 1, ready: 2, collected: 2 };
+export const ORDER_STEP: Partial<Record<OrderStatus, number>> = { placed: 0, preparing: 1, ready: 2, collected: 2 };
 
 /** Short human pickup code shown at the counter — the order id needs no separate token. */
 export function pickupCode(orderId: string): string {

@@ -1,15 +1,20 @@
 name: CI
 
-# On every push and pull request: lint, types, unit tests, a dependency
-# audit and the web build, plus the integration tests against a fresh local
-# Supabase. Any error, or any lint warning, fails the run.
+# On every push and pull request: lint, formatting, types, unit tests, a
+# dependency audit and the web build; the integration tests against a fresh
+# local Supabase; and the accessibility walk-through of every screen. Any
+# error, or any lint warning, fails the run.
+#
+# Actions are pinned to a commit, with the version in a comment; Dependabot
+# keeps them current.
 on:
   push:
   pull_request:
   workflow_call:
 
 concurrency:
-  group: ci-${{ github.event_name }}-${{ github.ref }}
+  # github.workflow keeps a CI run called by Deploy apart from the push's own.
+  group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -17,18 +22,22 @@ permissions:
 
 jobs:
   app:
-    name: Lint, types, unit tests, build
+    name: Lint, format, types, unit tests, build
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
       - name: Lint (warnings fail too)
         run: npm run lint
+      - name: Formatting
+        run: npm run format:check
+      - name: Privacy policy web page matches the app's text
+        run: npm run privacy:page -- --check
       - name: Type check
         run: npm run typecheck
       - name: Unit tests
@@ -47,34 +56,52 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - uses: supabase/setup-cli@v3
-        with:
-          version: latest
-      - name: Start Supabase with every migration and the seed
-        run: |
-          # A throwaway local project around this repo's migrations and seed.
-          mkdir -p "$RUNNER_TEMP/db" && cd "$RUNNER_TEMP/db"
-          supabase init
-          cp -r "$GITHUB_WORKSPACE/supabase/migrations" supabase/
-          cp "$GITHUB_WORKSPACE/supabase/seed.sql" supabase/seed.sql
-          supabase start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta
-          supabase status -o json > status.json
-          for key in API_URL ANON_KEY SERVICE_ROLE_KEY; do
-            if [ "$(jq -r ".$key // empty" status.json)" = "" ]; then
-              echo "::error::supabase status has no $key (it has: $(jq -r 'keys | join(", ")' status.json))"
-              exit 1
-            fi
-          done
-          {
-            echo "SUPABASE_URL=$(jq -r .API_URL status.json)"
-            echo "SUPABASE_ANON_KEY=$(jq -r .ANON_KEY status.json)"
-            echo "SUPABASE_SERVICE_ROLE_KEY=$(jq -r .SERVICE_ROLE_KEY status.json)"
-          } >> "$GITHUB_ENV"
+      - uses: ./.github/actions/local-supabase
       - name: Integration tests
         run: npm run test:integration -- --ci
+
+  a11y:
+    name: Accessibility, ${{ matrix.label }} (every screen, axe)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { scheme: light, contrast: no-preference, label: light mode }
+          - { scheme: dark, contrast: no-preference, label: dark mode }
+          - { scheme: light, contrast: more, label: 'light mode, high contrast' }
+          - { scheme: dark, contrast: more, label: 'dark mode, high contrast' }
+    env:
+      A11Y_COLOR_SCHEME: ${{ matrix.scheme }}
+      A11Y_CONTRAST: ${{ matrix.contrast }}
+      # A throwaway owner on the throwaway database, for the owner screens.
+      OWNER_EMAIL: owner-a11y@mongmo.test
+      OWNER_PASSWORD: owner-a11y-ci-1
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - uses: ./.github/actions/local-supabase
+      - name: Build the web app against the local Supabase
+        run: |
+          EXPO_PUBLIC_SUPABASE_URL="$SUPABASE_URL" EXPO_PUBLIC_SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
+            npx expo export --platform web --output-dir dist
+      - name: An owner account, and a reported photo for it to review
+        run: node tests/a11y/seed-owner.mjs
+      - name: Install the browser
+        run: npx playwright install --with-deps chromium
+      - name: Walk every screen under the security headers
+        run: |
+          npm run serve:web -- dist 8090 "$SUPABASE_URL" &
+          for i in $(seq 1 30); do curl -sf http://localhost:8090 > /dev/null && break; sleep 1; done
+          APP_URL=http://localhost:8090 A11Y_WAIT_MS=1500 npm run test:a11y

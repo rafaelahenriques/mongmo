@@ -11,10 +11,11 @@ import { useAuthUser } from '@/hooks/useAuthUser';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { changePassword } from '@/services/auth';
+import { MIN_PASSWORD_LENGTH } from '@/services/authMessages';
 import { haptics } from '@/services/haptics';
 
 /** Same rule as signing up. */
-const MIN_LENGTH = 6;
+const MIN_LENGTH = MIN_PASSWORD_LENGTH;
 
 /**
  * Settings → Change password: the current password (checked first), then

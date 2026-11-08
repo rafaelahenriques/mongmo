@@ -81,9 +81,7 @@ export function toSuggestions(features: PhotonFeature[]): PlaceSuggestion[] {
     // A named place on a street reads "Mongmo, Jan Palfijnstraat 26".
     const venue = place.name && address && place.name !== address ? `${place.name}, ${address}` : title;
     const town = [place.postcode, city !== title ? city : null].filter(Boolean).join(' ');
-    const subtitle = [address !== title && place.name ? address : null, town, place.state]
-      .filter(Boolean)
-      .join(', ');
+    const subtitle = [address !== title && place.name ? address : null, town, place.state].filter(Boolean).join(', ');
 
     // Long streets come back as several segments with the same name.
     const key = `${title}|${subtitle}`.toLowerCase();
