@@ -2,7 +2,6 @@ import { useMemo, type ReactNode } from 'react';
 import { useRouter } from 'expo-router';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { Image } from 'expo-image';
 import { formatInTimeZone } from 'date-fns-tz';
 
@@ -10,6 +9,7 @@ import type { OrderMenuItem } from '@/api/orders';
 import { shortName } from '@/components/achievements/LeaderboardList';
 import { ThemedText } from '@/components/ThemedText';
 import { Wordmark } from '@/components/brand/Wordmark';
+import { glass, onPhoto, onPhotoSoft, PhotoShade } from '@/components/ui/PhotoShade';
 import { ScreenReaderTitle } from '@/components/ui/ScreenReaderTitle';
 import Chip from '@/components/ui/Chip';
 import { Icon, type IconName } from '@/components/ui/Icon';
@@ -179,7 +179,7 @@ export default function HomeScreen() {
             style={StyleSheet.absoluteFill}
             contentFit="cover"
           />
-          <Shade />
+          <PhotoShade />
           <View style={[styles.heroBar, { paddingTop: insets.top + 8 }]}>
             <Wordmark height={26} color={Paper} />
             <ScreenReaderTitle>Home</ScreenReaderTitle>
@@ -199,7 +199,7 @@ export default function HomeScreen() {
           </View>
           <View style={styles.heroText}>
             <ThemedText type="label" style={styles.onPhotoSoft}>
-              Xin chào
+              Hello
             </ThemedText>
             <ThemedText type="name" accessibilityRole="header" style={styles.onPhoto}>
               {firstName || 'there'}
@@ -253,7 +253,7 @@ export default function HomeScreen() {
 
         {featured ? (
           <View style={styles.section}>
-            <Chapter number="01" vi="Hôm nay" en={liveNow(featured) ? 'On right now' : 'Up next'} />
+            <Chapter number="01" title={liveNow(featured) ? 'On right now' : 'Up next'} />
             <PopUpCard
               event={featured}
               distance={coordinates ? formatDistance(distanceInMeters(coordinates, featured.coordinates)) : null}
@@ -266,7 +266,7 @@ export default function HomeScreen() {
 
         {picks.length ? (
           <View style={styles.section}>
-            <Chapter number="02" vi="Thực đơn" en="From the menu" link="MENU" onPress={openOrder} />
+            <Chapter number="02" title="From the menu" link="MENU" onPress={openOrder} />
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -311,13 +311,7 @@ export default function HomeScreen() {
 
         {/* Your stamp card: the stamps, how far to the next reward. */}
         <View style={styles.section}>
-          <Chapter
-            number="03"
-            vi="Thẻ tích điểm"
-            en="Your stamp card"
-            link="WALLET"
-            onPress={() => router.navigate('/(wallet)')}
-          />
+          <Chapter number="03" title="Your stamp card" link="WALLET" onPress={() => router.navigate('/(wallet)')} />
           <View style={styles.stampRow}>
             <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
           </View>
@@ -335,8 +329,7 @@ export default function HomeScreen() {
           ) : (
             <Chapter
               number="04"
-              vi="Sắp tới"
-              en={upcoming.length ? 'Pop-ups coming up' : 'Nothing else planned yet'}
+              title={upcoming.length ? 'Pop-ups coming up' : 'Nothing else planned yet'}
               link="SEE ALL"
               onPress={() => router.navigate('/(popups)')}
             />
@@ -363,22 +356,6 @@ const PICK_WIDTH = 200;
 
 function liveNow(event: PopUpEvent) {
   return getEventPhase(event.startsAt, event.endsAt) === 'live';
-}
-
-/** Darkens a photo toward its bottom, so the words over it read. */
-function Shade({ from = 0.05, to = 0.78 }: { from?: number; to?: number }) {
-  return (
-    <Svg width="100%" height="100%" style={StyleSheet.absoluteFill} preserveAspectRatio="none" viewBox="0 0 1 1">
-      <Defs>
-        <LinearGradient id="shade" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#1C1D19" stopOpacity={from + 0.25} />
-          <Stop offset="0.35" stopColor="#1C1D19" stopOpacity={from} />
-          <Stop offset="1" stopColor="#1C1D19" stopOpacity={to} />
-        </LinearGradient>
-      </Defs>
-      <Rect x="0" y="0" width="1" height="1" fill="url(#shade)" />
-    </Svg>
-  );
 }
 
 /** A round see-through button over a photo. */
@@ -411,37 +388,27 @@ function GlassButton({
   );
 }
 
-/**
- * A section's heading: its number, the Vietnamese word big, the English
- * under it, and one link on the right ("MENU", "SEE ALL").
- */
+/** A section's heading: its number, the title, and one link on the right ("MENU", "SEE ALL"). */
 function Chapter({
   number,
-  vi,
-  en,
+  title,
   link,
   onPress,
 }: {
   number: string;
-  vi: string;
-  en: string;
+  title: string;
   link?: string;
   onPress?: () => void;
 }) {
   const theme = useTheme();
   return (
     <View style={styles.chapter}>
-      <ThemedText type="label" aria-hidden style={[styles.chapterNumber, { color: theme.primaryText }]}>
+      <ThemedText type="label" aria-hidden style={{ color: theme.primaryText }}>
         {number}
       </ThemedText>
-      <View style={styles.flex}>
-        <ThemedText type="subtitle" accessibilityRole="header" lang="vi">
-          {vi}
-        </ThemedText>
-        <ThemedText type="caption" themeColor="textSecondary">
-          {en}
-        </ThemedText>
-      </View>
+      <ThemedText type="subtitle" accessibilityRole="header" style={styles.flex}>
+        {title}
+      </ThemedText>
       {link && onPress ? (
         <Pressable onPress={onPress} accessibilityRole="link" hitSlop={10} style={styles.target}>
           <ThemedText type="label" style={{ color: theme.primaryText }}>
@@ -545,7 +512,7 @@ function PopUpCard({
         style={StyleSheet.absoluteFill}
         contentFit="cover"
       />
-      <Shade from={0} to={0.85} />
+      <PhotoShade from={0} to={0.85} />
       <Pressable
         onPress={onOpen}
         accessibilityRole="button"
@@ -658,12 +625,6 @@ function menuPicks(items: OrderMenuItem[], count = 6): { item: OrderMenuItem; ph
   return picks;
 }
 
-const glass = {
-  backgroundColor: 'rgba(250, 249, 245, 0.16)',
-  borderWidth: 1,
-  borderColor: 'rgba(250, 249, 245, 0.42)',
-};
-
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
@@ -676,12 +637,8 @@ const styles = StyleSheet.create({
     minHeight: 44,
     justifyContent: 'center',
   },
-  onPhoto: {
-    color: Paper,
-  },
-  onPhotoSoft: {
-    color: 'rgba(250, 249, 245, 0.86)',
-  },
+  onPhoto,
+  onPhotoSoft,
   hero: {
     justifyContent: 'space-between',
     borderBottomLeftRadius: Radius.tile + 8,
@@ -779,11 +736,8 @@ const styles = StyleSheet.create({
   },
   chapter: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: 12,
-  },
-  chapterNumber: {
-    paddingTop: 7,
   },
   popCard: {
     borderRadius: Radius.tile,
