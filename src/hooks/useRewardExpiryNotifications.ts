@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
 
 import { getExpiringUserRewards } from '@/api/endpoints';
+import type { NotificationChannel } from '@/services/notifications';
 import { useSettingsStore } from '@/state/settingsStore';
 
 const REMINDER_LEAD_MS = 24 * 60 * 60 * 1000;
@@ -47,7 +48,11 @@ export function useRewardExpiryNotifications(): void {
             data: { url: '/(wallet)' },
             sound: true,
           },
-          trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: new Date(fireAt) },
+          trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.DATE,
+            date: new Date(fireAt),
+            channelId: 'rewards' satisfies NotificationChannel,
+          },
         }).catch(() => undefined);
       }
     })();

@@ -30,10 +30,39 @@ EAS environment, or locally with
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Plain text | The **anon / publishable** key only. The app refuses to start with the service_role key. |
 | `EXPO_PUBLIC_SENTRY_DSN` | Plain text | Sentry project → Client Keys. Leave unset to keep crash reporting off. |
 | `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` | Secret | Optional. With them, builds upload source maps so crash reports show the real code. |
+| `GOOGLE_MAPS_ANDROID_API_KEY` | Sensitive | Android's map (Google Maps). Without it, Android builds show a drawn map instead of the live one; iOS uses Apple Maps and needs nothing. See below. |
 
 Never put the Supabase service_role key, a database password or any other
 secret in an `EXPO_PUBLIC_*` variable. Everything in those is readable by
 anyone who has the app.
+
+### The Android map key
+
+Android draws the map with Google Maps, which needs an API key inside the
+app. A key in an app can be read by anyone who has the app, so it's
+**restricted** to Mongmo's Android apps instead of kept secret:
+
+1. [Google Cloud console](https://console.cloud.google.com/): create a
+   project (e.g. `mongmo`), then **APIs & Services → Library → Maps SDK for
+   Android → Enable**. Google lists the Maps SDK's map loads as unlimited
+   without charge; it may still ask for a billing account.
+2. **APIs & Services → Credentials → Create credentials → API key**, then
+   edit it:
+   - **Application restrictions → Android apps → Add**, once per app: the
+     package name and its signing certificate's SHA-1.
+     - `com.mongmostore.app.dev`, `.staging` and `com.mongmostore.app`
+       built on EAS: expo.dev → project → **Credentials** → the package →
+       *SHA-1 Certificate Fingerprint*.
+     - Built on your machine (`npx expo run:android`): the debug key,
+       `keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android`.
+     - From Google Play: Play Console → **Test and release → App integrity →
+       Play app signing** → *App signing key certificate* SHA-1.
+   - **API restrictions → Restrict key → Maps SDK for Android**.
+3. expo.dev → project → **Environment variables**: `GOOGLE_MAPS_ANDROID_API_KEY`,
+   visibility **Sensitive**, in all three environments. For a build on your
+   machine, put the same line in `.env.local`.
+4. Build again: the key is built into the app, so an app built before it
+   was set keeps the drawn map.
 
 For GitHub Actions deploys, create two GitHub environments (repository
 Settings → Environments), `staging` and `production`, each with:

@@ -31,6 +31,7 @@ export function useBadgeUnlockNotifications(): void {
       void notifyNow({
         title: badge ? `Badge unlocked: ${badge.title}` : 'New badge unlocked',
         body: badge ? `${badge.description} — see it in Achievements.` : 'See it in Achievements.',
+        channel: 'badges',
         url: '/(achievements)/achievements',
       });
     }

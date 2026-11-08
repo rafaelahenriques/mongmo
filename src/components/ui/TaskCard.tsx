@@ -7,6 +7,7 @@ import { CardShadow } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { nameFromContent } from '@/utils/a11y';
+import { ripple } from '@/components/ui/ripple';
 
 export type TaskCardProps = {
   icon: IconName;
@@ -97,6 +98,7 @@ export function TaskCard({
   }
   return (
     <Pressable
+      android_ripple={ripple(theme.text)}
       onPress={() => {
         haptics.tap();
         onPress();

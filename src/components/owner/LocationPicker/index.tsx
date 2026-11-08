@@ -9,6 +9,7 @@ import { TextField } from '@/components/ui/TextField';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useMotion } from '@/constants/motion';
+import { LIVE_MAP } from '@/lib/liveMap';
 import { PlaceSearchField } from './PlaceSearchField';
 import { pinnedPoint, useLocationPicker, type LocationPickerProps } from './useLocationPicker';
 
@@ -17,14 +18,15 @@ const PIN_DELTA = 0.006;
 /**
  * iOS/Android: type an address and pick a suggestion, or use where you are,
  * then drag the pin (or tap the map) to fine-tune. The raw coordinates hide
- * behind a toggle.
+ * behind a toggle. Without a live map (an Android build with no Google Maps
+ * key), the coordinates show from the start instead.
  */
 export function LocationPicker(props: LocationPickerProps) {
   const { value, onChange } = props;
   const theme = useTheme();
   const motion = useMotion();
   const { busy, note, problem, pick, search, locate, move } = useLocationPicker(props);
-  const [showCoordinates, setShowCoordinates] = useState(false);
+  const [showCoordinates, setShowCoordinates] = useState(!LIVE_MAP);
   const mapRef = useRef<MapView>(null);
   const point = pinnedPoint(value);
 
@@ -53,7 +55,7 @@ export function LocationPicker(props: LocationPickerProps) {
         onPress={locate}
       />
 
-      {point ? (
+      {point && LIVE_MAP ? (
         <View style={[styles.mapFrame, { backgroundColor: theme.backgroundSelected }]}>
           <MapView
             ref={mapRef}
@@ -79,7 +81,7 @@ export function LocationPicker(props: LocationPickerProps) {
         </ThemedText>
       ) : note ? (
         <ThemedText type="small" themeColor="success" accessibilityLiveRegion="polite">
-          {note} {point ? 'Drag the pin to fine-tune.' : ''}
+          {note} {point && LIVE_MAP ? 'Drag the pin to fine-tune.' : ''}
         </ThemedText>
       ) : null}
 
