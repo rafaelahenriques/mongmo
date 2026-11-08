@@ -30,6 +30,12 @@ function appEnv(): AppEnv {
 export default ({ config }: ConfigContext): ExpoConfig => {
   const env = appEnv();
   const { name, idSuffix } = VARIANTS[env];
+  // Android draws the map with Google Maps, which needs this key in the app
+  // (iOS uses Apple Maps). An EAS variable, not EXPO_PUBLIC_: the code never
+  // reads it. It goes in android.config, which Expo leaves out of the config
+  // embedded in the apps and the web build (react-native-maps' own plugin
+  // option would not). Without it the build still works, with a drawn map.
+  const androidMapsKey = process.env.GOOGLE_MAPS_ANDROID_API_KEY?.trim() || undefined;
   return {
     ...config,
     name,
@@ -38,7 +44,11 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     // tags (docs/release-process.md). Build numbers are EAS's (remote).
     version: packageJson.version,
     ios: { ...config.ios, bundleIdentifier: `${config.ios?.bundleIdentifier}${idSuffix}` },
-    android: { ...config.android, package: `${config.android?.package}${idSuffix}` },
+    android: {
+      ...config.android,
+      package: `${config.android?.package}${idSuffix}`,
+      ...(androidMapsKey ? { config: { ...config.android?.config, googleMaps: { apiKey: androidMapsKey } } } : {}),
+    },
     plugins: [
       ...(config.plugins ?? []),
       // Uploads source maps to Sentry, so crash reports show the real code.
@@ -46,6 +56,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       // the build still works and crashes are still reported.
       ...(process.env.SENTRY_AUTH_TOKEN ? ['@sentry/react-native/expo'] : []),
     ],
-    extra: { ...config.extra, appEnv: env },
+    extra: { ...config.extra, appEnv: env, androidMaps: Boolean(androidMapsKey) },
   };
 };
