@@ -29,7 +29,7 @@ export default function OwnerHomeScreen() {
 
   const counts = useMemo(
     () => ({
-      new: orders.filter((order) => order.status === 'paid').length,
+      new: orders.filter((order) => order.status === 'placed').length,
       preparing: orders.filter((order) => order.status === 'preparing').length,
       ready: orders.filter((order) => order.status === 'ready').length,
     }),

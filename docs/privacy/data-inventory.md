@@ -14,7 +14,7 @@ as of 5 November 2026. Keep it current: the privacy policy
 | Home city (optional) | `ProfileEditScreen` | `profiles.home_city` | The person; staff | Planned: shown on the leaderboard | Account's life |
 | Profile picture link | Nowhere yet | `profiles.avatar_url` | The person; staff | Planned: shown on the leaderboard | Account's life |
 | Leaderboard choice | Achievements, Settings | `profiles.leaderboard_visible` (off for new accounts) | The person | Opt-in | Account's life |
-| Orders: items, options, pickup place and time, totals, reward used | Cart, checkout | `orders`, `order_items` | The person; staff | Making the order | 24 months (drafts: 1 day) |
+| Orders: items, options, pickup place and time, totals, reward used, paid at pickup and when | Cart, checkout | `orders`, `order_items` | The person; staff | Making the order | 24 months (drafts: 1 day) |
 | Points history | Server (orders, challenges, badges, rewards) | `point_events` | The person | Loyalty balance and level | Account's life |
 | Badges, rewards redeemed and used | Server | `user_badges`, `user_rewards` | The person | Loyalty | Used rewards: 24 months |
 | Check-ins (pop-up, time, by QR code) | `CheckInScreen` | `check_ins` | The person; staff | Challenges, badges | 24 months |

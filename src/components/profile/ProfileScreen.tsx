@@ -73,7 +73,7 @@ export default function ProfileScreen() {
   const user = profile.data;
   const memberSince = formatInTimeZone(new Date(user.memberSince), DISPLAY_TIME_ZONE, 'MMM yyyy');
   const badgeCount = achievements.query.data?.badges.length ?? 0;
-  const current = (orders.data ?? []).filter((order) => ['paid', 'preparing', 'ready'].includes(order.status));
+  const current = (orders.data ?? []).filter((order) => ['placed', 'preparing', 'ready'].includes(order.status));
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>

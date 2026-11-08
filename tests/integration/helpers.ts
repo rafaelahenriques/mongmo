@@ -69,7 +69,7 @@ export async function placeOrder(
     p_user_reward_id: userRewardId,
   });
   if (error) throw error;
-  const { data: paid, error: payError } = await customer.client.rpc('confirm_mock_payment', { p_order_id: order.id });
+  const { data: paid, error: payError } = await customer.client.rpc('place_order', { p_order_id: order.id });
   if (payError) throw payError;
   return paid;
 }

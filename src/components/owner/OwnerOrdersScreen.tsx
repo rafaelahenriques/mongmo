@@ -14,7 +14,7 @@ import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
-import { pickupCode } from '@/utils/orderFormat';
+import { formatCents, pickupCode } from '@/utils/orderFormat';
 import { nameFromContent } from '@/utils/a11y';
 
 /**
@@ -103,7 +103,10 @@ export default function OwnerOrdersScreen() {
               </Pressable>
               <View style={styles.ticketFoot}>
                 <ThemedText type="caption" themeColor="textSecondary" style={styles.until}>
-                  {untilPickup(order.pickup_at, now)}
+                  {/* Paid at pickup: the amount to take until it's handed over. */}
+                  {order.paid_at
+                    ? `€${formatCents(order.total_cents)} paid`
+                    : `${untilPickup(order.pickup_at, now)} · €${formatCents(order.total_cents)} to pay`}
                 </ThemedText>
                 {next ? (
                   <BlockButton

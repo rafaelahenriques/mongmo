@@ -35,6 +35,8 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Changed
 
+- You pay at the counter when you pick up your order; the app takes no
+  payment. Staff see what to take and mark it paid as they hand it over.
 - The leaderboard is opt-in: join it from Achievements, leave it in
   Settings.
 

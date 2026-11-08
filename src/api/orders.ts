@@ -57,9 +57,9 @@ export async function getMenuItems(location: CartLocation): Promise<OrderMenuIte
 }
 
 /**
- * Creates the order server-side (prices/totals computed from item ids only)
- * and immediately confirms the mock payment — see AGENTS.md: "Use a
- * mock/test payment clearly labelled as prototype."
+ * Creates the order server-side (prices and totals computed from item ids
+ * only), then places it. The customer pays at the counter when they pick
+ * it up: the app takes no payment.
  */
 export async function placeOrder(
   location: CartLocation,
@@ -84,11 +84,9 @@ export async function placeOrder(
   });
   if (error) throw toApiError(error);
 
-  const { data: paid, error: payError } = await supabase.rpc('confirm_mock_payment', {
-    p_order_id: order.id,
-  });
-  if (payError) throw toApiError(payError);
-  return paid;
+  const { data: placed, error: placeError } = await supabase.rpc('place_order', { p_order_id: order.id });
+  if (placeError) throw toApiError(placeError);
+  return placed;
 }
 
 export async function getOrder(orderId: string): Promise<OrderRow> {
