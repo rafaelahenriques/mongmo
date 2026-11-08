@@ -14,6 +14,7 @@ import { Icon } from '@/components/ui/Icon';
 import { Toggle } from '@/components/ui/Toggle';
 import { orderPoints } from '@/constants/points';
 import { PRODUCT_PHOTO_POSITION, productPhoto } from '@/constants/productPhotos';
+import { Stickers } from '@/constants/stickers';
 import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useLevel } from '@/hooks/useLevel';
@@ -26,6 +27,7 @@ import { cartSubtotalCents, cartUnitCents, useCartStore, type CartItem } from '@
 import { formatCents, shortItemName } from '@/utils/orderFormat';
 import { discountOff } from '@/utils/rewards';
 import { stampsFor, stampsLabel } from '@/utils/stamps';
+import { Sticker } from '@/components/ui/Sticker';
 
 /** How long "Product removed · UNDO" stays up. */
 const UNDO_MS = 4000;
@@ -154,6 +156,7 @@ export default function CartScreen() {
       ) : null}
       {items.length === 0 ? (
         <View style={styles.empty}>
+          <Sticker source={Stickers.openBanhMi} style={styles.emptySticker} />
           <ThemedText type="section">Your cart is empty</ThemedText>
           <Button label="Back to the menu" variant="ghost" size="medium" onPress={back} />
         </View>
@@ -345,6 +348,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 12,
+  },
+  emptySticker: {
+    width: 140,
+    height: 90,
   },
   content: {
     paddingHorizontal: PageInset,

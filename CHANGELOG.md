@@ -40,7 +40,13 @@ the release workflow publishes that section as the GitHub release notes.
 - Every screen that loads something says when it couldn't, with Try
   again, and lists refresh when you pull down.
 
+- Mongmo's own stickers in the app: on rewards, levels, the menu's
+  sections, Home's reward and level cards, and empty screens.
+
 ### Changed
+
+- The stamp card shows stamps: an Ô sticker for each one earned, a dashed
+  circle for each to go, and the next one's ring filling with your points.
 
 - On a tablet or a wide browser window, the app keeps a centred column
   instead of stretching edge to edge.
@@ -56,6 +62,10 @@ the release workflow publishes that section as the GitHub release notes.
   elsewhere on Android.
 
 ### Fixed
+
+- Wallet: "Redeem" no longer breaks across two lines.
+- Settings: the Contrast options sit under their explanation instead of
+  squeezing it into a narrow column.
 
 - On Android, opening Pop-ups no longer closes the app. The map needs a
   Google Maps key in the build; until it has one, Android shows a drawn

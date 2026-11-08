@@ -11,6 +11,7 @@ import { usePullToRefresh } from '@/components/ui/Screen';
 import { SquareIconButton } from '@/components/ui/SquareIconButton';
 import { StampRow } from '@/components/ui/Stamps';
 import { TaskCard } from '@/components/ui/TaskCard';
+import { rewardSticker, Stickers } from '@/constants/stickers';
 import { CardShadow, PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useLevel } from '@/hooks/useLevel';
@@ -180,6 +181,7 @@ export default function WalletScreen() {
                 <TaskCard
                   key={userRewardId}
                   icon="gift"
+                  image={stickerFor(reward.title)}
                   title={reward.title}
                   subtitle={
                     reward.discountCents ? 'Comes off at checkout.' : 'Show it at the counter when you pick up.'
@@ -203,6 +205,7 @@ export default function WalletScreen() {
                   <TaskCard
                     key={reward.id}
                     icon={open ? 'gift' : 'lock'}
+                    image={open ? stickerFor(reward.title) : undefined}
                     title={reward.title}
                     subtitle={
                       !open
@@ -234,6 +237,12 @@ export default function WalletScreen() {
 }
 
 /** The points number shrinks as it gets longer, so 4 or 5 digits still fit the block. */
+/** A reward's sticker, if it has one (else its card keeps the gift icon). */
+function stickerFor(title: string) {
+  const name = rewardSticker(title);
+  return name ? Stickers[name] : undefined;
+}
+
 function numberSize(points: number) {
   const digits = String(points).length;
   if (digits <= 3) return null;

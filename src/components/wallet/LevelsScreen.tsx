@@ -2,11 +2,13 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Icon, type IconName } from '@/components/ui/Icon';
+import { levelSticker, Stickers } from '@/constants/stickers';
 import { CardShadow, PageInset, Paper } from '@/constants/theme';
 import { useLevel } from '@/hooks/useLevel';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import type { Level } from '@/types';
+import { Sticker } from '@/components/ui/Sticker';
 
 /**
  * Levels (after Joe & The Juice's tiers): your level big on sage with the
@@ -113,6 +115,7 @@ function LevelRow({
         ? { icon: 'check', background: theme.surfaceDark, color: theme.onSurfaceDark }
         : { icon: 'lock', background: theme.backgroundSelected, color: theme.textSecondary };
   const status = state === 'current' ? 'Your level' : state === 'reached' ? 'Reached' : `${toGo} points to go`;
+  const sticker = levelSticker(step.key);
 
   return (
     <View
@@ -126,7 +129,17 @@ function LevelRow({
       accessibilityLabel={`Level ${number}, ${step.name}, from ${step.minPoints} points. ${step.perk}. ${status}.`}
     >
       <View style={[styles.square, { backgroundColor: square.background }]}>
-        <Icon name={square.icon} size={22} color={square.color} />
+        {sticker ? (
+          <>
+            {/* The level's sticker, faded until you reach it; the corner says where you stand. */}
+            <Sticker source={Stickers[sticker]} style={[styles.sticker, state === 'locked' && styles.stickerLocked]} />
+            <View style={[styles.corner, { backgroundColor: square.background }]}>
+              <Icon name={square.icon} size={14} color={square.color} />
+            </View>
+          </>
+        ) : (
+          <Icon name={square.icon} size={22} color={square.color} />
+        )}
       </View>
       <View style={styles.texts}>
         <ThemedText type="item">{step.name}</ThemedText>
@@ -179,7 +192,23 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   square: {
-    width: 64,
+    width: 76,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sticker: {
+    width: 58,
+    height: 58,
+  },
+  stickerLocked: {
+    opacity: 0.35,
+  },
+  corner: {
+    position: 'absolute',
+    right: 4,
+    bottom: 4,
+    width: 24,
+    height: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },

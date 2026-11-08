@@ -11,9 +11,11 @@ import { AppHeader } from '@/components/ui/AppHeader';
 import Chip from '@/components/ui/Chip';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { usePullToRefresh } from '@/components/ui/Screen';
+import { ripple } from '@/components/ui/ripple';
 import { StampRow } from '@/components/ui/Stamps';
 import { StepBar } from '@/components/ui/StepBar';
 import { productPhoto } from '@/constants/productPhotos';
+import { levelSticker, rewardSticker, Stickers, type StickerName } from '@/constants/stickers';
 import { CardShadow, PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveOrder } from '@/hooks/useActiveOrder';
@@ -41,6 +43,7 @@ import type { PopUpEvent } from '@/types';
 import { popUpImage } from '@/constants/brandPhotos';
 import PhotosOfTheWeek from '@/components/home/PhotosOfTheWeek';
 import { ErrorState } from '@/components/ui/LoadState';
+import { Sticker } from '@/components/ui/Sticker';
 
 /**
  * H-01 Home, laid out like a magazine (after Joe & The Juice's home): your
@@ -205,6 +208,7 @@ export default function HomeScreen() {
               tone="brand"
               title={`WELCOME TO ${newLevel.name.toUpperCase()}!`}
               icon="trophy"
+              image={stickerImage(levelSticker(newLevel.key))}
               body={`You've reached a new level: ${newLevel.perk.charAt(0).toLowerCase()}${newLevel.perk.slice(1)}.`}
               link="SEE LEVELS"
               onPress={() => {
@@ -219,6 +223,7 @@ export default function HomeScreen() {
               tone="brand"
               title="YOU CAN CLAIM A REWARD"
               icon="gift"
+              image={stickerImage(rewardSticker(claimable.title))}
               body={`Your points cover: ${claimable.title}. Redeem it in Wallet.`}
               link="CLAIM"
               onPress={() => router.navigate('/(wallet)')}
@@ -328,6 +333,11 @@ function SectionHead({ title, link, onPress }: { title: string; link: string; on
   );
 }
 
+/** A sticker's picture, or nothing (the card keeps its icon). */
+function stickerImage(name: StickerName | null): number | undefined {
+  return name ? Stickers[name] : undefined;
+}
+
 /**
  * A card with one job: an uppercase headline, a line or two, and its link
  * with an arrow at the bottom right. `brand` puts the headline on sage.
@@ -336,6 +346,7 @@ function Card({
   title,
   eyebrow,
   icon,
+  image,
   body,
   link,
   onPress,
@@ -345,6 +356,8 @@ function Card({
   title: string;
   eyebrow?: string;
   icon?: IconName;
+  /** A sticker instead of the icon. Decorative: the title says it. */
+  image?: number;
   body: string;
   link: string;
   onPress: () => void;
@@ -355,6 +368,7 @@ function Card({
   const brand = tone === 'brand';
   return (
     <Pressable
+      android_ripple={ripple(theme.text)}
       onPress={onPress}
       accessibilityRole="button"
       {...nameFromContent(`${eyebrow ? `${eyebrow}: ` : ''}${title}. ${body}`)}
@@ -374,7 +388,11 @@ function Card({
             {title}
           </ThemedText>
         </View>
-        {icon ? <Icon name={icon} size={40} color={brand ? theme.onBrand : theme.text} /> : null}
+        {image ? (
+          <Sticker source={image} style={styles.cardSticker} />
+        ) : icon ? (
+          <Icon name={icon} size={40} color={brand ? theme.onBrand : theme.text} />
+        ) : null}
       </View>
       <View style={styles.cardBody}>
         {children}
@@ -513,6 +531,10 @@ function menuPicks(items: OrderMenuItem[], count = 3): { item: OrderMenuItem; ph
 }
 
 const styles = StyleSheet.create({
+  cardSticker: {
+    width: 64,
+    height: 64,
+  },
   screen: {
     flex: 1,
   },

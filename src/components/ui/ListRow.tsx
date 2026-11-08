@@ -91,8 +91,8 @@ export function ListRow({
 }
 
 const styles = StyleSheet.create({
-  // With large text, a wide control (a switch of options) wraps under the
-  // title instead of running off screen.
+  // A wide control (a switch of options) wraps under the title instead of
+  // squeezing it: the title keeps at least 120 pt, then the control moves down.
   row: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -103,8 +103,9 @@ const styles = StyleSheet.create({
   },
   texts: {
     flexGrow: 1,
-    flexShrink: 1,
+    flexShrink: 0,
     flexBasis: 120,
+    maxWidth: '100%',
     gap: 2,
   },
   // A long value (an email) wraps rather than being cut off.
