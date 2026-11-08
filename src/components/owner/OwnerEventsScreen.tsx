@@ -88,7 +88,12 @@ export default function OwnerEventsScreen() {
         />
       }
       ListEmptyComponent={
-        <EmptyState icon="calendar" text="No pop-ups yet. Create your first one above." style={styles.empty} />
+        <EmptyState
+          icon="calendar"
+          sticker="popUpStall"
+          text="No pop-ups yet. Create your first one above."
+          style={styles.empty}
+        />
       }
       renderSectionHeader={({ section }) => (
         <ThemedText type="section" style={styles.sectionTitle} accessibilityRole="header">

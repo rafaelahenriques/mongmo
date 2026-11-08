@@ -8,9 +8,12 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { nameFromContent } from '@/utils/a11y';
 import { ripple } from '@/components/ui/ripple';
+import { Sticker } from '@/components/ui/Sticker';
 
 export type TaskCardProps = {
   icon: IconName;
+  /** A picture (a sticker) instead of the icon. Decorative: the title says what it is. */
+  image?: number;
   title: string;
   subtitle?: string;
   /**
@@ -37,6 +40,7 @@ export type TaskCardProps = {
  */
 export function TaskCard({
   icon,
+  image,
   title,
   subtitle,
   state = 'value',
@@ -53,7 +57,11 @@ export function TaskCard({
   const content = (
     <>
       <View style={[styles.iconBlock, { backgroundColor: done ? theme.brandFill : theme.backgroundSelected }]}>
-        <Icon name={icon} size={24} color={done ? theme.onBrand : theme.text} />
+        {image ? (
+          <Sticker source={image} style={styles.image} />
+        ) : (
+          <Icon name={icon} size={24} color={done ? theme.onBrand : theme.text} />
+        )}
       </View>
       <View style={styles.texts}>
         <ThemedText type="card" numberOfLines={2}>
@@ -67,8 +75,8 @@ export function TaskCard({
         {extra}
       </View>
       {state === 'value' ? (
-        <View style={[styles.box, { backgroundColor: theme.brandFill }]}>
-          <ThemedText type="label" style={{ color: theme.onBrand }}>
+        <View style={[styles.box, styles.valueBox, { backgroundColor: theme.brandFill }]}>
+          <ThemedText type="label" numberOfLines={1} style={{ color: theme.onBrand }}>
             {value}
           </ThemedText>
         </View>
@@ -126,6 +134,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  image: {
+    width: 64,
+    height: 64,
+  },
   texts: {
     flex: 1,
     minWidth: 0,
@@ -139,6 +151,12 @@ const styles = StyleSheet.create({
     height: 48,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  // A word ("Redeem") widens the square instead of breaking across lines.
+  valueBox: {
+    width: 'auto',
+    minWidth: 48,
+    paddingHorizontal: 10,
   },
   arrowBox: {
     width: 44,
