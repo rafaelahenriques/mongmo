@@ -4,6 +4,7 @@ import { Icon, type IconName } from '@/components/ui/Icon';
 import { Paper } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
+import { ripple } from '@/components/ui/ripple';
 
 /**
  * An icon button. Over a photo (back, share) it's round and see-through
@@ -29,6 +30,7 @@ export function SquareIconButton({
   const dark = tone === 'dark';
   return (
     <Pressable
+      android_ripple={ripple(theme.text)}
       onPress={() => {
         haptics.tap();
         onPress();

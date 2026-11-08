@@ -7,6 +7,7 @@ import { IconBadge, type IconBadgeProps } from '@/components/ui/IconBadge';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { nameFromContent } from '@/utils/a11y';
+import { ripple } from '@/components/ui/ripple';
 
 export type ListRowProps = {
   title: string;
@@ -75,6 +76,7 @@ export function ListRow({
   }
   return (
     <Pressable
+      android_ripple={ripple(theme.text)}
       onPress={() => {
         haptics.tap();
         onPress();
