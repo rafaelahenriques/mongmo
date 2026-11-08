@@ -19,8 +19,9 @@ npm ci
 
 # A local backend with every migration and the demo data:
 npx supabase init            # once; keep the generated supabase/config.toml out of commits
+# In supabase/config.toml, under [db.seed], set: sql_paths = ["./base.sql", "./seed.sql"]
 npx supabase start           # prints the API URL and anon key
-npx supabase db reset        # applies supabase/migrations and seed.sql
+npx supabase db reset        # applies the migrations, the café's data and the demo pop-ups
 
 cp .env.example .env         # then fill in the URL and anon key from `supabase start`
 npx expo run:ios             # or run:android; builds and opens the app

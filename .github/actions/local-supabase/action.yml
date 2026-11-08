@@ -1,7 +1,7 @@
 name: Local Supabase
 description: >-
   Starts a throwaway local Supabase with this repository's migrations and
-  seed, and puts SUPABASE_URL, SUPABASE_ANON_KEY and
+  data (base.sql, then the demo seed.sql), and puts SUPABASE_URL, SUPABASE_ANON_KEY and
   SUPABASE_SERVICE_ROLE_KEY in the job's environment.
 runs:
   using: composite
@@ -15,7 +15,8 @@ runs:
         mkdir -p "$RUNNER_TEMP/db" && cd "$RUNNER_TEMP/db"
         supabase init
         cp -r "$GITHUB_WORKSPACE/supabase/migrations" supabase/
-        cp "$GITHUB_WORKSPACE/supabase/seed.sql" supabase/seed.sql
+        # The café's data, then the demo pop-ups that use it.
+        cat "$GITHUB_WORKSPACE/supabase/base.sql" "$GITHUB_WORKSPACE/supabase/seed.sql" > supabase/seed.sql
         supabase start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta
         supabase status -o json > status.json
         for key in API_URL ANON_KEY SERVICE_ROLE_KEY; do
