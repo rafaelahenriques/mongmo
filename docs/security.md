@@ -15,7 +15,7 @@ and production) and in Sentry. Apply them once per project.
 | JWT expiry | JWT Keys / Sessions | 3600 seconds (1 hour) |
 | Refresh token rotation | Sessions | On, reuse interval 10 seconds |
 | Inactivity timeout (paid plans) | Sessions | 30 days |
-| Site URL and redirect URLs | URL Configuration | The production web address; `reactchallenge://` for the app |
+| Site URL and redirect URLs | URL Configuration | `https://www.mongmo-store.com` (where a confirmed email link lands); `reactchallenge://` for the app |
 | Anonymous sign-ins | Sign In / Providers | On (guests); also turn on CAPTCHA if abuse appears |
 | Multi-factor (when you add the screen) | Multi-Factor | TOTP on |
 

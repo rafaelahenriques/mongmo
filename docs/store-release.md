@@ -13,8 +13,11 @@ changes, change these answers in both consoles too.
 - [ ] **A reviewer account**: an email and password with some points and an
       order, written in App Store Connect → App Review Information and in
       Play Console → App access.
-- [ ] **Privacy policy URL**: the web app's `/privacy.html` (built from the
-      in-app policy), e.g. `https://app.mongmo-store.com/privacy.html`.
+- [ ] **Privacy policy and account deletion URLs**: a page on Mongmo's own
+      website (Odoo), e.g. `https://www.mongmo-store.com/app-privacy`, with
+      the app's policy (the text of `public/privacy.html`, built from the
+      in-app policy). Its "Your rights" section is the deletion page Google
+      Play asks for. The app's web version doesn't need to be online.
 
 ## Both stores
 
