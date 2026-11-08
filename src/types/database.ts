@@ -348,6 +348,10 @@ export type Database = {
         Args: { p_order_id: string };
         Returns: OrderRow;
       };
+      cancel_my_order: {
+        Args: { p_order_id: string };
+        Returns: OrderRow;
+      };
       advance_order_status: {
         Args: { p_order_id: string; p_status: string };
         Returns: OrderRow;

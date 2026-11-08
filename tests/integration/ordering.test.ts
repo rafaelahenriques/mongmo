@@ -1,6 +1,6 @@
 import { orderPoints } from '@/constants/points';
 
-import { admin, deleteAccount, placeOrder, SEED, signUp, signUpOwner, type Customer } from './helpers';
+import { admin, deleteAccount, givePoints, placeOrder, SEED, signUp, signUpOwner, type Customer } from './helpers';
 
 let customer: Customer;
 let owner: Customer;
@@ -73,6 +73,36 @@ describe('placing an order', () => {
     const collected = await step('collected');
     expect(collected?.status).toBe('collected');
     expect(collected?.paid_at).not.toBeNull();
+  });
+});
+
+describe('cancelling an order', () => {
+  const cancel = (who: Customer, orderId: string) =>
+    who.client.rpc('cancel_my_order' as never, { p_order_id: orderId } as never);
+  const rewardUsedAt = async (id: string) =>
+    (await admin.from('user_rewards').select('used_at').eq('id', id).single()).data?.used_at ?? null;
+
+  it('lets the customer cancel until the café starts, and gives a used reward back', async () => {
+    await givePoints(customer.userId, 400);
+    const { data: redeemed, error } = await customer.client.rpc('redeem_reward', {
+      p_reward_id: SEED.discountReward,
+    });
+    expect(error).toBeNull();
+    const rewardId = (redeemed as { id: string }).id;
+    const order = await placeOrder(customer, [{ menu_item_id: SEED.banhMiPork, quantity: 1 }], rewardId);
+    expect(await rewardUsedAt(rewardId)).not.toBeNull();
+
+    const { data: cancelled, error: cancelError } = await cancel(customer, order.id);
+    expect(cancelError).toBeNull();
+    expect((cancelled as unknown as { status: string }).status).toBe('cancelled');
+    expect(await rewardUsedAt(rewardId)).toBeNull();
+  });
+
+  it("won't cancel once staff have accepted it, or someone else's", async () => {
+    const order = await placeOrder(customer, [{ menu_item_id: SEED.banhMiPork, quantity: 1 }]);
+    expect((await cancel(owner, order.id)).error).not.toBeNull();
+    await owner.client.rpc('advance_order_status', { p_order_id: order.id, p_status: 'preparing' });
+    expect((await cancel(customer, order.id)).error?.message).toMatch(/started on it/);
   });
 });
 

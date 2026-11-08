@@ -89,6 +89,16 @@ export async function placeOrder(
   return placed;
 }
 
+/**
+ * Cancels your own order while the café hasn't started on it; a reward
+ * used on it comes back. Refused once staff have accepted it.
+ */
+export async function cancelMyOrder(orderId: string): Promise<OrderRow> {
+  const { data, error } = await supabase.rpc('cancel_my_order', { p_order_id: orderId });
+  if (error) throw toApiError(error);
+  return data;
+}
+
 export async function getOrder(orderId: string): Promise<OrderRow> {
   const { data, error } = await supabase.from('orders').select('*').eq('id', orderId).single();
   if (error) throw toApiError(error);
