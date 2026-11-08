@@ -22,7 +22,7 @@ import {
   sendTestNotification,
   type NotificationPermission,
 } from '@/services/notifications';
-import { useSettingsStore, type NotificationPrefs, type ThemeMode } from '@/state/settingsStore';
+import { useSettingsStore, type ContrastMode, type NotificationPrefs, type ThemeMode } from '@/state/settingsStore';
 
 const HELP_EMAIL = 'hello@mongmo-store.com';
 
@@ -38,6 +38,13 @@ const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
   { value: 'system', label: 'System' },
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },
+];
+
+const CONTRAST_OPTIONS: { value: ContrastMode; label: string }[] = [
+  { value: 'system', label: 'System' },
+  { value: 'standard', label: 'Standard' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
 ];
 
 const NOTIFICATION_OPTIONS: { key: keyof NotificationPrefs; label: string; hint: string }[] = [
@@ -70,6 +77,8 @@ export default function SettingsScreen() {
   const tabBarInset = useTabBarInset();
   const notifications = useSettingsStore((state) => state.notifications);
   const themeMode = useSettingsStore((state) => state.themeMode);
+  const contrast = useSettingsStore((state) => state.contrast);
+  const setContrast = useSettingsStore((state) => state.setContrast);
   const setNotificationPref = useSettingsStore((state) => state.setNotificationPref);
   const setThemeMode = useSettingsStore((state) => state.setThemeMode);
   const crashReports = useSettingsStore((state) => state.crashReports);
@@ -156,6 +165,19 @@ export default function SettingsScreen() {
               value={themeMode}
               onChange={setThemeMode}
               accessibilityLabel="Appearance"
+              look="switch"
+            />
+          }
+        />
+        <ListRow
+          title="Contrast"
+          subtitle="System follows your phone's Increase Contrast setting"
+          trailing={
+            <Segmented
+              options={CONTRAST_OPTIONS}
+              value={contrast}
+              onChange={setContrast}
+              accessibilityLabel="Contrast"
               look="switch"
             />
           }

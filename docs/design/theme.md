@@ -21,6 +21,25 @@ reference. The tokens the app uses are in `src/constants/theme.ts`.
 Both fonts are bundled (`src/constants/fonts.ts`), never loaded from a
 font service, and both have every Vietnamese letter the app uses.
 
+## Contrast levels
+
+The theme's medium- and high-contrast schemes (in `material-theme.json`)
+give each scheme two stronger versions: darker text and edges on light,
+lighter on dark, the brand colours kept with stronger text on them. Paper
+and Ink still replace pure white and black.
+
+| | Main and quiet text | Other text and status colours |
+|---|---|---|
+| Standard | 4.5:1 or more | 4.5:1 or more |
+| Medium | 9:1 or more | 6.9:1 or more |
+| High | about 11:1 | 9:1 or more |
+
+Settings → Contrast: **System** (the default) uses High when the phone asks
+for more contrast (iOS Increase Contrast, Android high contrast text, the
+browser's prefers-contrast), Standard otherwise; or pick Standard, Medium
+or High. `tests/unit/contrast.test.ts` checks every level, and the
+accessibility walk-through runs in high contrast too.
+
 ## Material roles used as they are
 
 | Role | Light | Dark | Token |

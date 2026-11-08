@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { DarkTheme, DefaultTheme } from 'expo-router';
 
-import { BodyFont, Colors } from '@/constants/theme';
-import { useResolvedScheme } from '@/hooks/useTheme';
+import { BodyFont } from '@/constants/theme';
+import { useResolvedScheme, useTheme } from '@/hooks/useTheme';
 
 /**
  * Maps the app's color tokens onto react-navigation's theme so the native
@@ -14,7 +14,7 @@ import { useResolvedScheme } from '@/hooks/useTheme';
  */
 export function useNavigationTheme() {
   const scheme = useResolvedScheme();
-  const colors = Colors[scheme];
+  const colors = useTheme();
 
   return useMemo(() => {
     const base = scheme === 'dark' ? DarkTheme : DefaultTheme;

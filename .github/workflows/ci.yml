@@ -67,15 +67,20 @@ jobs:
         run: npm run test:integration -- --ci
 
   a11y:
-    name: Accessibility, ${{ matrix.scheme }} mode (every screen, axe)
+    name: Accessibility, ${{ matrix.label }} (every screen, axe)
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        scheme: [light, dark]
+        include:
+          - { scheme: light, contrast: no-preference, label: light mode }
+          - { scheme: dark, contrast: no-preference, label: dark mode }
+          - { scheme: light, contrast: more, label: 'light mode, high contrast' }
+          - { scheme: dark, contrast: more, label: 'dark mode, high contrast' }
     env:
       A11Y_COLOR_SCHEME: ${{ matrix.scheme }}
+      A11Y_CONTRAST: ${{ matrix.contrast }}
       # A throwaway owner on the throwaway database, for the owner screens.
       OWNER_EMAIL: owner-a11y@mongmo.test
       OWNER_PASSWORD: owner-a11y-ci-1

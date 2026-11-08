@@ -1,7 +1,7 @@
 // Accessibility pass over every screen of the web build.
 //
 //   APP_URL=http://localhost:8081 node tests/a11y/run.mjs
-//   (dark mode: A11Y_COLOR_SCHEME=dark)
+//   (dark mode: A11Y_COLOR_SCHEME=dark; high contrast: A11Y_CONTRAST=more)
 //   (owner screens too: OWNER_EMAIL=… OWNER_PASSWORD=… on an owner account;
 //   tests/a11y/seed-owner.mjs makes one on a local database)
 //
@@ -37,6 +37,9 @@ const APP = process.env.APP_URL ?? 'http://localhost:8081';
 const WAIT = Number(process.env.A11Y_WAIT_MS ?? 2500);
 /** light or dark: the app follows the browser's colour scheme. */
 const SCHEME = process.env.A11Y_COLOR_SCHEME === 'dark' ? 'dark' : 'light';
+/** more: the browser asks for more contrast, so the app uses its high-contrast colours. */
+const CONTRAST = process.env.A11Y_CONTRAST === 'more' ? 'more' : 'no-preference';
+const MODE = `${SCHEME} mode${CONTRAST === 'more' ? ', high contrast' : ''}`;
 const results = [];
 
 /** Runs in the page: the static checks. */
@@ -360,6 +363,7 @@ const back = async (page) => {
 const browser = await chromium.launch();
 const context = await browser.newContext({
   colorScheme: SCHEME,
+  contrast: CONTRAST,
   viewport: { width: 390, height: 844 },
   geolocation: { latitude: 50.8279, longitude: 3.2649 },
   permissions: ['geolocation'],
@@ -471,7 +475,7 @@ await step(page, 'Privacy policy', () => button(page, 'Read the privacy policy')
 
 if (process.env.OWNER_EMAIL && process.env.OWNER_PASSWORD) {
   const owner = await (
-    await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: SCHEME })
+    await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: SCHEME, contrast: CONTRAST })
   ).newPage();
   owner.on('dialog', (dialog) => dialog.accept());
   await owner.goto(APP, { waitUntil: 'load' });
@@ -513,6 +517,6 @@ await browser.close();
 const failed = results.filter((result) => result.violations.length);
 const skipped = results.filter((result) => result.skipped);
 console.log(
-  `\n${results.length} screens (${SCHEME} mode): ${results.length - failed.length - skipped.length} clean, ${failed.length} with problems, ${skipped.length} skipped.`,
+  `\n${results.length} screens (${MODE}): ${results.length - failed.length - skipped.length} clean, ${failed.length} with problems, ${skipped.length} skipped.`,
 );
 process.exit(failed.length || skipped.length ? 1 : 0);

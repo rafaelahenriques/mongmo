@@ -7,9 +7,10 @@
  * (screens, tabs, sheets) from this single hook.
  */
 
-import { Colors } from '@/constants/theme';
+import { Palettes, type ContrastLevel } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useSettingsStore } from '@/state/settingsStore';
+import { useSystemContrastStore } from '@/state/systemContrastStore';
 
 /** Resolved scheme after the settings override (no device preference falls back to light). */
 export function useResolvedScheme(): 'light' | 'dark' {
@@ -20,6 +21,17 @@ export function useResolvedScheme(): 'light' | 'dark' {
   return scheme === 'dark' ? 'dark' : 'light';
 }
 
+/**
+ * Contrast level after the settings override: 'system' is high when the
+ * phone asks for more contrast, standard otherwise.
+ */
+export function useContrastLevel(): ContrastLevel {
+  const mode = useSettingsStore((state) => state.contrast);
+  const systemHigh = useSystemContrastStore((state) => state.high);
+  if (mode === 'system') return systemHigh ? 'high' : 'standard';
+  return mode;
+}
+
 export function useTheme() {
-  return Colors[useResolvedScheme()];
+  return Palettes[useResolvedScheme()][useContrastLevel()];
 }
