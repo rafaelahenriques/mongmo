@@ -7,7 +7,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Icon, type IconName } from '@/components/ui/Icon';
-import { CardShadow } from '@/constants/theme';
+import { CardShadow, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { isTabBarHidden } from '@/utils/tabBar';
@@ -23,13 +23,13 @@ export const TABS: readonly { name: string; label: string; icon: IconName | 'mar
   { name: '(wallet)', label: 'Wallet', icon: 'wallet' },
 ];
 
-const ICON = 26;
+const ICON = 22;
 
 /**
- * The tab bar: an icon over a small word for each tab on a light band.
- * The current one is dark with a sage block tucked behind its icon; the
- * rest are grey. Tapping the current tab again goes back to its first
- * screen.
+ * The tab bar: a dark pill floating over the bottom of the screen, an icon
+ * over a small word for each tab. The current one sits on a sage pill;
+ * the rest are light grey. Tapping the current tab again goes back to its
+ * first screen.
  */
 export function IconNav({ state, emitter, navigateToTab }: BottomTabBarProps) {
   const theme = useTheme();
@@ -39,62 +39,52 @@ export function IconNav({ state, emitter, navigateToTab }: BottomTabBarProps) {
 
   const current = state.routes[state.index]?.name;
   return (
-    <View
-      style={[
-        styles.bar,
-        { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, paddingBottom: Math.max(insets.bottom, 8) },
-      ]}
-      accessibilityRole="tablist"
-    >
-      {TABS.map((tab) => {
-        const route = state.routes.find((candidate) => candidate.name === tab.name);
-        if (!route) return null;
-        const selected = current === tab.name;
-        const color = selected ? theme.text : theme.textSecondary;
-        return (
-          <Pressable
-            key={tab.name}
-            onPress={() => {
-              // On the current tab, the press event alone takes its stack
-              // back to the first screen.
-              const event = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-              if (event.defaultPrevented) return;
-              haptics.select();
-              if (!selected) navigateToTab(route.key);
-            }}
-            accessibilityRole="tab"
-            aria-selected={selected}
-            accessibilityLabel={tab.label}
-            style={styles.tab}
-          >
-            <View style={styles.icon}>
-              {tab.icon === 'mark' ? (
-                <TabPin color={color} fill={selected ? theme.brandFill : undefined} />
-              ) : (
-                <>
-                  {selected ? <View style={[styles.fill, { backgroundColor: theme.brandFill }]} /> : null}
-                  {/* Its own layer, so the sage block stays behind the lines. */}
-                  <View>
-                    <Icon name={tab.icon} size={ICON} color={color} weight={selected ? 'medium' : 'regular'} />
-                  </View>
-                </>
-              )}
-            </View>
-            <ThemedText type={selected ? 'captionBold' : 'caption'} style={{ color }}>
-              {tab.label}
-            </ThemedText>
-          </Pressable>
-        );
-      })}
+    <View style={[styles.dock, { backgroundColor: theme.background, paddingBottom: Math.max(insets.bottom, 10) }]}>
+      <View
+        style={[styles.bar, { backgroundColor: theme.surfaceDark, boxShadow: CardShadow }]}
+        accessibilityRole="tablist"
+      >
+        {TABS.map((tab) => {
+          const route = state.routes.find((candidate) => candidate.name === tab.name);
+          if (!route) return null;
+          const selected = current === tab.name;
+          const color = selected ? theme.onBrand : theme.onSurfaceDarkMuted;
+          return (
+            <Pressable
+              key={tab.name}
+              onPress={() => {
+                // On the current tab, the press event alone takes its stack
+                // back to the first screen.
+                const event = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+                if (event.defaultPrevented) return;
+                haptics.select();
+                if (!selected) navigateToTab(route.key);
+              }}
+              accessibilityRole="tab"
+              aria-selected={selected}
+              accessibilityLabel={tab.label}
+              style={[styles.tab, selected && { backgroundColor: theme.brandFill }]}
+            >
+              <View style={styles.icon}>
+                {tab.icon === 'mark' ? (
+                  <TabPin color={color} />
+                ) : (
+                  <Icon name={tab.icon} size={ICON} color={color} weight={selected ? 'medium' : 'regular'} />
+                )}
+              </View>
+              <ThemedText type={selected ? 'captionBold' : 'caption'} style={[styles.word, { color }]}>
+                {tab.label}
+              </ThemedText>
+            </Pressable>
+          );
+        })}
+      </View>
     </View>
   );
 }
 
-/**
- * The logo's Ộ as a tab icon, drawn with the same line weight as the
- * other icons; the current tab fills its ring with sage.
- */
-function TabPin({ color, fill }: { color: string; fill?: string }) {
+/** The logo's Ộ as a tab icon, drawn with the same line weight as the other icons. */
+function TabPin({ color }: { color: string }) {
   return (
     <Svg width={(ICON * 34) / 50} height={ICON} viewBox="0 0 34 50">
       <Path
@@ -105,35 +95,39 @@ function TabPin({ color, fill }: { color: string; fill?: string }) {
         strokeLinejoin="round"
         fill="none"
       />
-      <Circle cx={17} cy={27} r={11} stroke={color} strokeWidth={3.6} fill={fill ?? 'none'} />
+      <Circle cx={17} cy={27} r={11} stroke={color} strokeWidth={3.6} fill="none" />
       <Circle cx={17} cy={45.5} r={3} fill={color} />
     </Svg>
   );
 }
 
 const styles = StyleSheet.create({
+  dock: {
+    paddingHorizontal: 16,
+    paddingTop: 6,
+  },
   bar: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingHorizontal: 8,
-    paddingTop: 10,
+    alignItems: 'stretch',
+    borderRadius: Radius.pill,
+    padding: 6,
+    gap: 4,
   },
   tab: {
     flex: 1,
+    minHeight: 54,
     alignItems: 'center',
-    gap: 4,
+    justifyContent: 'center',
+    gap: 2,
+    borderRadius: Radius.pill,
   },
   icon: {
-    width: ICON + 4,
     height: ICON,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  fill: {
-    position: 'absolute',
-    left: 7,
-    right: 7,
-    bottom: 3,
-    height: 11,
+  word: {
+    fontSize: 12,
+    lineHeight: 15,
   },
 });

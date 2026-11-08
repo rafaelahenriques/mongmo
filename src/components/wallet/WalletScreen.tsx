@@ -10,9 +10,10 @@ import { ListRow } from '@/components/ui/ListRow';
 import { usePullToRefresh } from '@/components/ui/Screen';
 import { SquareIconButton } from '@/components/ui/SquareIconButton';
 import { StampRow } from '@/components/ui/Stamps';
+import { Sticker } from '@/components/ui/Sticker';
 import { TaskCard } from '@/components/ui/TaskCard';
-import { rewardSticker, Stickers } from '@/constants/stickers';
-import { CardShadow, PageInset } from '@/constants/theme';
+import { levelSticker, rewardSticker, Stickers } from '@/constants/stickers';
+import { CardShadow, PageInset, Radius } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useLevel } from '@/hooks/useLevel';
 import { useProfile } from '@/hooks/useProfile';
@@ -67,14 +68,28 @@ export default function WalletScreen() {
         contentContainerStyle={{ paddingBottom: tabBarInset + 32 }}
         refreshControl={<RefreshControl refreshing={refresh.refreshing} onRefresh={refresh.onRefresh} />}
       >
-        <View style={styles.hero}>
-          <View style={[styles.block, { backgroundColor: theme.brandFill }]}>
-            {profile.data?.name ? (
-              <ThemedText type="captionBold" style={{ color: theme.onBrand }}>
-                {shortName(profile.data.name)}
-              </ThemedText>
-            ) : null}
-            <View accessible accessibilityLabel={`${points} points`}>
+        <View style={styles.page}>
+          {/* Your points: a big sage card, your name on it, the QR in its corner. */}
+          <View style={[styles.hero, { backgroundColor: theme.brandFill }]}>
+            <View style={styles.heroTop}>
+              {profile.data?.name ? (
+                <View style={[styles.chip, { backgroundColor: theme.surfaceDark }]}>
+                  <ThemedText type="captionBold" style={{ color: theme.onSurfaceDark }}>
+                    {shortName(profile.data.name)}
+                  </ThemedText>
+                </View>
+              ) : (
+                <View />
+              )}
+              <SquareIconButton
+                icon="qrcode"
+                tone="dark"
+                size={48}
+                onPress={() => router.push('/(wallet)/card')}
+                accessibilityLabel="Show your membership card"
+              />
+            </View>
+            <View accessible accessibilityLabel={`${points} points`} style={styles.heroNumber}>
               <ThemedText
                 type="display"
                 numberOfLines={1}
@@ -83,39 +98,29 @@ export default function WalletScreen() {
               >
                 {points}
               </ThemedText>
-              <ThemedText type="display" style={[styles.word, { color: theme.onBrandSoft }]}>
-                POINTS
+              <ThemedText type="title" style={{ color: theme.onBrand }}>
+                points
               </ThemedText>
             </View>
           </View>
-          <SquareIconButton
-            icon="qrcode"
-            tone="dark"
-            size={52}
-            onPress={() => router.push('/(wallet)/card')}
-            accessibilityLabel="Show your membership card"
-            style={styles.qr}
-          />
-        </View>
 
-        <View style={styles.page}>
-          {/* Next reward: what it is, the card toward it, how far off. */}
-          <View style={styles.stamps}>
-            <ThemedText type="label" themeColor="textSecondary">
+          {/* Next reward: what it is, the card toward it, how far off, on cream. */}
+          <View style={[styles.stamps, { backgroundColor: theme.accent }]}>
+            <ThemedText type="label" style={{ color: theme.onAccent }}>
               {goal ? 'Next reward' : 'Your stamp card'}
             </ThemedText>
-            <ThemedText type="subtitle" accessibilityRole="header">
+            <ThemedText type="subtitle" accessibilityRole="header" style={{ color: theme.onAccent }}>
               {goal ? goal.title : rewards.length ? 'Full: redeem a reward below' : 'Earn points at every pop-up'}
             </ThemedText>
             <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
             {goal ? (
-              <ThemedText type="smallBold">
+              <ThemedText type="smallBold" style={{ color: theme.onAccent }}>
                 {`${stamps.earned} of ${stampsLabel(stamps.total)} · ${goal.costPoints - points} points to go`}
               </ThemedText>
             ) : null}
           </View>
 
-          {/* Your level: where you are, how far to the next, and what it brings. */}
+          {/* Your level: where you are, how far to the next, and what it brings, on ink. */}
           <Pressable
             onPress={() => router.push('/(wallet)/levels')}
             accessibilityRole="button"
@@ -124,40 +129,49 @@ export default function WalletScreen() {
             } See the levels.`}
             style={({ pressed }) => [
               styles.levelCard,
-              { backgroundColor: theme.backgroundElement, boxShadow: CardShadow, opacity: pressed ? 0.9 : 1 },
+              { backgroundColor: theme.surfaceDark, transform: [{ scale: pressed ? 0.99 : 1 }] },
             ]}
           >
             <View style={styles.levelHead}>
               <View style={styles.flex}>
-                <ThemedText type="label" themeColor="textSecondary">
+                <ThemedText type="label" style={{ color: theme.onSurfaceDarkMuted }}>
                   Your level
                 </ThemedText>
-                <ThemedText type="subtitle">{level.current.name}</ThemedText>
+                <ThemedText type="title" style={{ color: theme.onSurfaceDark }}>
+                  {level.current.name}
+                </ThemedText>
               </View>
-              <View style={styles.levelLink}>
-                <ThemedText type="label">Levels</ThemedText>
-                <Icon name="arrowRight" size={16} color={theme.text} weight="bold" />
-              </View>
+              {levelSticker(level.current.key) ? (
+                <Sticker source={Stickers[levelSticker(level.current.key)!]} style={styles.levelSticker} />
+              ) : null}
             </View>
             {level.next ? (
               <>
-                <View style={[styles.levelTrack, { backgroundColor: theme.backgroundSelected }]}>
+                <View style={[styles.levelTrack, { backgroundColor: inkTrack }]}>
                   <View
                     style={[
                       styles.levelFill,
-                      { width: `${Math.round(level.progress * 100)}%`, backgroundColor: theme.primaryText },
+                      { width: `${Math.round(level.progress * 100)}%`, backgroundColor: theme.brandFill },
                     ]}
                   />
                 </View>
-                <ThemedText type="small" themeColor="textSecondary">
+                <ThemedText type="small" style={{ color: theme.onSurfaceDarkMuted }}>
                   {`${level.toNext} points to ${level.next.name}: ${level.next.perk.charAt(0).toLowerCase()}${level.next.perk.slice(1)}`}
                 </ThemedText>
               </>
             ) : (
-              <ThemedText type="small" themeColor="textSecondary">
+              <ThemedText type="small" style={{ color: theme.onSurfaceDarkMuted }}>
                 {level.current.perk}
               </ThemedText>
             )}
+            <View style={styles.levelLink}>
+              <ThemedText type="label" style={{ color: theme.onSurfaceDark }}>
+                Levels
+              </ThemedText>
+              <View style={[styles.roundGo, { backgroundColor: theme.brandFill }]}>
+                <Icon name="arrowRight" size={16} color={theme.onBrand} weight="bold" />
+              </View>
+            </View>
           </Pressable>
 
           {/* How points come in: three tiles, the number first, what it's for under it. */}
@@ -249,46 +263,48 @@ function numberSize(points: number) {
   return digits === 4 ? { fontSize: 72, lineHeight: 76 } : { fontSize: 58, lineHeight: 62 };
 }
 
+/** The level bar's empty part on the ink card. */
+const inkTrack = 'rgba(250, 249, 245, 0.18)';
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  // Grows with the text (large font sizes) instead of clipping it; the QR
-  // button sits in the 26pt under the block.
-  hero: {
-    minHeight: 252,
-    paddingBottom: 26,
-    marginBottom: 18,
-  },
-  block: {
-    minHeight: 226,
-    // The whole width: no photo beside it, the QR square at its corner.
-    width: '100%',
+  page: {
     paddingHorizontal: PageInset,
-    paddingTop: 26,
-    paddingBottom: 20,
+    paddingTop: 16,
+    gap: 14,
+  },
+  // Grows with the text (large font sizes) instead of clipping it.
+  hero: {
+    borderRadius: Radius.tile,
+    padding: 20,
+    minHeight: 220,
     justifyContent: 'space-between',
+    gap: 12,
+  },
+  heroTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  chip: {
+    borderRadius: Radius.pill,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+  },
+  heroNumber: {
+    gap: 0,
   },
   number: {
     fontSize: 88,
     // Never below the font size: iOS cuts the top off the glyphs.
     lineHeight: 92,
   },
-  word: {
-    fontSize: 40,
-    lineHeight: 42,
-  },
-  qr: {
-    position: 'absolute',
-    right: PageInset,
-    bottom: 0,
-  },
-  page: {
-    paddingHorizontal: PageInset,
-    gap: 24,
-  },
   stamps: {
-    gap: 8,
+    borderRadius: Radius.tile,
+    padding: 20,
+    gap: 10,
   },
   // Three across on a phone; they wrap onto more rows with large text.
   earnTiles: {
@@ -299,36 +315,54 @@ const styles = StyleSheet.create({
   earnTile: {
     flexGrow: 1,
     flexBasis: 96,
-    padding: 12,
+    padding: 14,
     gap: 4,
+    borderRadius: Radius.card,
   },
   flex: {
     flex: 1,
   },
   group: {
-    gap: 8,
+    gap: 10,
+    paddingTop: 10,
   },
   levelCard: {
-    padding: 16,
-    gap: 8,
+    borderRadius: Radius.tile,
+    padding: 20,
+    gap: 10,
   },
   levelHead: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
+  levelSticker: {
+    width: 72,
+    height: 72,
+    transform: [{ rotate: '6deg' }],
+  },
   levelLink: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    justifyContent: 'flex-end',
+    gap: 10,
     minHeight: 44,
   },
+  roundGo: {
+    width: 40,
+    height: 40,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   levelTrack: {
-    height: 8,
+    height: 10,
+    borderRadius: Radius.pill,
     overflow: 'hidden',
   },
   levelFill: {
     height: '100%',
+    borderRadius: Radius.pill,
   },
 });
 

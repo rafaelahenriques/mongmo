@@ -278,6 +278,10 @@ export const Radius = {
   small: 8,
   medium: 12,
   large: 20,
+  /** Cards and rows. */
+  card: 24,
+  /** The big colour tiles (Home, the menu's sections, the points card). */
+  tile: 28,
   pill: 999,
 } as const;
 

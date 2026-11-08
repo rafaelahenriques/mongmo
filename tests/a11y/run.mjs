@@ -419,8 +419,8 @@ await step(page, 'Challenges', () =>
 await step(page, 'Order: menu', async () => {
   await tab(page, 'Order').click();
 });
-// A section reads "Bánh mì 10,50", a product "Chicken lemongrass … 10,50".
-await step(page, 'Order: section', () => button(page, /^bánh mì\s+\d+,\d\d$/i).click());
+// A section reads "Bánh mì From 10,50", a product "Chicken lemongrass … 10,50".
+await step(page, 'Order: section', () => button(page, /^bánh mì\s+(from\s+)?\d+,\d\d$/i).click());
 await step(page, 'Order: product', () => button(page, /\d+,\d\d$/).click());
 await step(page, 'Cart', async () => {
   await button(page, /to cart/).click();
