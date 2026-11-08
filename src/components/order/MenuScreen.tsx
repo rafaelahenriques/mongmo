@@ -12,6 +12,7 @@ import { AppHeader } from '@/components/ui/AppHeader';
 import { BlockButton } from '@/components/ui/BlockButton';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
+import { glass, onPhoto, onPhotoSoft, PhotoShade } from '@/components/ui/PhotoShade';
 import { Segmented } from '@/components/ui/Segmented';
 import { PRODUCT_PHOTO_POSITION, sectionPhoto } from '@/constants/productPhotos';
 import { CardShadow, PageInset, Radius } from '@/constants/theme';
@@ -161,16 +162,12 @@ export default function MenuScreen() {
                   {...nameFromContent(`${section.name}, from ${formatCents(from)} euro`)}
                   style={({ pressed }) => [
                     styles.section,
-                    {
-                      backgroundColor: theme.backgroundElement,
-                      boxShadow: CardShadow,
-                      transform: [{ scale: pressed ? 0.99 : 1 }],
-                    },
+                    { backgroundColor: theme.surfaceDark, transform: [{ scale: pressed ? 0.99 : 1 }] },
                   ]}
                 >
-                  {/* One of the section's dishes; its sticker until there's a photo. */}
-                  <View style={[styles.sectionPhoto, { backgroundColor: theme.backgroundSelected }]}>
-                    {photo ? (
+                  {/* One of the section's dishes, its name over it; the sticker until there's a photo. */}
+                  {photo ? (
+                    <>
                       <Image
                         accessible={false}
                         accessibilityLabel=""
@@ -179,23 +176,28 @@ export default function MenuScreen() {
                         contentFit="cover"
                         contentPosition={PRODUCT_PHOTO_POSITION}
                       />
-                    ) : (
-                      <CategoryIcon section={section.name} size={96} />
-                    )}
-                  </View>
+                      <PhotoShade from={0} to={0.72} />
+                    </>
+                  ) : (
+                    <View style={styles.sectionSticker}>
+                      <CategoryIcon section={section.name} size={110} />
+                    </View>
+                  )}
                   <View style={styles.sectionRow}>
                     <View style={styles.sectionText}>
                       {/* The number is decoration: the name and price say it all. */}
-                      <ThemedText type="label" aria-hidden style={{ color: theme.primaryText }}>
+                      <ThemedText type="label" aria-hidden style={onPhotoSoft}>
                         {String(index + 1).padStart(2, '0')}
                       </ThemedText>
-                      <ThemedText type="subtitle">{section.name}</ThemedText>
-                      <ThemedText type="small" themeColor="textSecondary">
+                      <ThemedText type="title" style={onPhoto}>
+                        {section.name}
+                      </ThemedText>
+                      <ThemedText type="small" style={onPhotoSoft}>
                         {`From ${formatCents(from)}`}
                       </ThemedText>
                     </View>
-                    <View style={[styles.roundGo, { backgroundColor: theme.brandFill }]}>
-                      <Icon name="arrowRight" size={18} color={theme.onBrand} weight="bold" />
+                    <View style={[styles.roundGo, glass]}>
+                      <Icon name="arrowRight" size={18} color={onPhoto.color} weight="bold" />
                     </View>
                   </View>
                 </Pressable>
@@ -309,26 +311,24 @@ const styles = StyleSheet.create({
   sections: {
     gap: 16,
   },
-  // A card per section: a dish's photo on top, the number, name and price under it.
+  // A photo card per section: the dish, and over its bottom the number, name and price.
   section: {
     borderRadius: Radius.tile,
-    padding: 8,
     overflow: 'hidden',
+    minHeight: 220,
+    justifyContent: 'flex-end',
   },
-  sectionPhoto: {
-    height: 168,
-    borderRadius: Radius.large,
-    overflow: 'hidden',
+  sectionSticker: {
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingBottom: 60,
   },
   sectionRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     gap: 12,
-    paddingHorizontal: 12,
-    paddingTop: 12,
-    paddingBottom: 8,
+    padding: 20,
   },
   sectionText: {
     flex: 1,

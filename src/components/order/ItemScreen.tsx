@@ -12,7 +12,7 @@ import { OptionPill } from '@/components/ui/OptionPill';
 import { Segmented } from '@/components/ui/Segmented';
 import { Stepper } from '@/components/ui/Stepper';
 import { PRODUCT_PHOTO_POSITION, productPhoto } from '@/constants/productPhotos';
-import { CardShadow, PageInset } from '@/constants/theme';
+import { PageInset, Radius } from '@/constants/theme';
 import { useMenu } from '@/hooks/useMenu';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
@@ -87,7 +87,7 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <ScrollView style={styles.flex} contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]}>
-        <View style={[styles.photo, { height: 220 + insets.top, backgroundColor: theme.backgroundSelected }]}>
+        <View style={[styles.photo, { height: 340 + insets.top, backgroundColor: theme.backgroundSelected }]}>
           {photo ? (
             <Image
               accessible={false}
@@ -110,31 +110,31 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
         </View>
 
         <View style={styles.page}>
-          {/* Centred under the photo: the section small, the item big in caps,
-              what's in it under that (after Joe & The Juice's product page). */}
+          {/* Under the photo: the section small, the item big with its price
+              across from it, what's in it under that. */}
           <View style={styles.title}>
             {short !== item.name && item.category ? (
-              <ThemedText type="label" themeColor="textSecondary" style={styles.center}>
+              <ThemedText type="label" style={{ color: theme.primaryText }}>
                 {item.category}
               </ThemedText>
             ) : null}
-            <ThemedText
-              type="item"
-              accessibilityRole="header"
-              headingLevel={1}
-              accessibilityLabel={item.name}
-              style={styles.center}
-            >
-              {short.toUpperCase()}
-            </ThemedText>
+            <View style={styles.titleRow}>
+              <ThemedText
+                type="title"
+                accessibilityRole="header"
+                headingLevel={1}
+                accessibilityLabel={item.name}
+                style={styles.flex}
+              >
+                {short}
+              </ThemedText>
+              <ThemedText type="subtitle">{formatCents(item.priceCents)}</ThemedText>
+            </View>
             {item.description ? (
-              <ThemedText type="default" themeColor="textSecondary" style={styles.center}>
+              <ThemedText type="default" themeColor="textSecondary">
                 {item.description}
               </ThemedText>
             ) : null}
-            <ThemedText type="smallBold" style={styles.center}>
-              {formatCents(item.priceCents)}
-            </ThemedText>
           </View>
           {groups.map((group) =>
             group.choice ? (
@@ -183,7 +183,7 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
 
           {/* How many and add, side by side right under the choices: where
               you finish, not down at the screen's edge. */}
-          <View style={[styles.bar, { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }]}>
+          <View style={styles.bar}>
             <View style={styles.quantity}>
               <Stepper value={quantity} onChange={setQuantity} min={1} max={20} label={item.name} />
             </View>
@@ -244,26 +244,33 @@ const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    alignItems: 'stretch',
-    marginTop: 20,
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 24,
   },
   quantity: {
     justifyContent: 'center',
-    paddingHorizontal: 14,
-    minHeight: 64,
+    minHeight: 56,
   },
   // Fills the rest of the row; with very large text it drops under the stepper.
   add: {
     flexGrow: 1,
     flexBasis: 190,
+    margin: 0,
+    marginTop: 0,
+    marginBottom: 0,
+    marginHorizontal: 0,
   },
   center: {
     textAlign: 'center',
   },
+  // The dish edge to edge, its bottom corners rounded like Home's photo.
   photo: {
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+    borderBottomLeftRadius: Radius.tile + 8,
+    borderBottomRightRadius: Radius.tile + 8,
   },
   plate: {
     width: 150,
@@ -278,13 +285,17 @@ const styles = StyleSheet.create({
   },
   page: {
     paddingHorizontal: PageInset,
-    paddingTop: 18,
+    paddingTop: 24,
     gap: 10,
   },
   title: {
-    alignItems: 'center',
-    gap: 6,
+    gap: 8,
     paddingBottom: 8,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 16,
   },
   flex: {
     flex: 1,
