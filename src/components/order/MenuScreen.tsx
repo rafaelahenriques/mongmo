@@ -26,6 +26,7 @@ import { nameFromContent } from '@/utils/a11y';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 import { formatCents } from '@/utils/orderFormat';
 import { pickupSlots } from '@/utils/pickupSlots';
+import { useRefreshControl } from '@/components/ui/LoadState';
 
 type Section = { name: string; items: OrderMenuItem[] };
 
@@ -49,6 +50,7 @@ export function sectionsOf(items: OrderMenuItem[]): Section[] {
  */
 export default function MenuScreen() {
   const theme = useTheme();
+  const refreshControl = useRefreshControl();
   const router = useRouter();
   const tabBarInset = useTabBarInset();
   const location = useCartStore((state) => state.location);
@@ -84,7 +86,10 @@ export default function MenuScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <AppHeader title="Order" />
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: (count ? 88 : 24) + tabBarInset }]}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: (count ? 88 : 24) + tabBarInset }]}
+        refreshControl={refreshControl}
+      >
         <Pressable
           onPress={() => {
             haptics.tap();

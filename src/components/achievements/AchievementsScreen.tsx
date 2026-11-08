@@ -18,6 +18,7 @@ import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import type { LeaderboardPeriod } from '@/types';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
+import { useRefreshControl } from '@/components/ui/LoadState';
 
 /**
  * M-06 Achievements (the trophy in the top bar): every badge as a coin,
@@ -26,6 +27,7 @@ import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
  */
 export default function AchievementsScreen() {
   const theme = useTheme();
+  const refreshControl = useRefreshControl();
   const router = useRouter();
   const tabBarInset = useTabBarInset();
   const { query, summary, progress } = useAchievements();
@@ -60,6 +62,7 @@ export default function AchievementsScreen() {
           tabIndex={0}
           aria-label="Leaderboard"
           contentContainerStyle={[styles.list, { paddingBottom: tabBarInset + 32 }]}
+          refreshControl={refreshControl}
         >
           <LeaderboardList
             rows={leaderboard.rows}
@@ -84,6 +87,7 @@ export default function AchievementsScreen() {
           tabIndex={0}
           aria-label="Badges"
           contentContainerStyle={[styles.list, { paddingBottom: tabBarInset + 32 }]}
+          refreshControl={refreshControl}
         >
           {badges.map((badge) => {
             const got = earned.get(badge.id);

@@ -1,4 +1,4 @@
-import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { formatInTimeZone } from 'date-fns-tz';
 
@@ -7,7 +7,6 @@ import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { ButtonRow } from '@/components/ui/ButtonRow';
 import { Card } from '@/components/ui/Card';
-import { IconBadge } from '@/components/ui/IconBadge';
 import { PageInset, Radius, Spacing } from '@/constants/theme';
 import { useReportedPhotos, useReviewReportedPhoto } from '@/hooks/usePhotos';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
@@ -15,6 +14,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { confirm, showError } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
+import { EmptyState, ErrorState, LoadingState, useRefreshControl } from '@/components/ui/LoadState';
 
 type Decision = 'restore' | 'keep' | 'delete';
 
@@ -26,6 +26,7 @@ type Decision = 'restore' | 'keep' | 'delete';
  */
 export default function OwnerReportsScreen() {
   const theme = useTheme();
+  const refreshControl = useRefreshControl();
   const tabBarInset = useTabBarInset();
   const reported = useReportedPhotos();
   const review = useReviewReportedPhoto();
@@ -56,6 +57,7 @@ export default function OwnerReportsScreen() {
     <ScrollView
       style={{ flex: 1, backgroundColor: theme.background }}
       contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + 32 }]}
+      refreshControl={refreshControl}
     >
       <ThemedText type="small" themeColor="textSecondary">
         A reported photo comes down from Photos of the week straight away. Put it back if it’s fine; keep it down if it
@@ -63,21 +65,11 @@ export default function OwnerReportsScreen() {
       </ThemedText>
 
       {reported.isPending ? (
-        <ActivityIndicator accessibilityLabel="Loading" color={theme.text} style={styles.loader} />
+        <LoadingState />
       ) : reported.isError ? (
-        <Card tone="muted" style={styles.message}>
-          <ThemedText type="small">Couldn’t load the reports.</ThemedText>
-          <Button label="Try again" variant="secondary" onPress={() => void reported.refetch()} />
-        </Card>
+        <ErrorState message="Couldn’t load the reports." onRetry={() => void reported.refetch()} />
       ) : reported.data.length === 0 ? (
-        <Card tone="muted" style={styles.message}>
-          <View accessible accessibilityRole="text" style={styles.emptyInner}>
-            <IconBadge name="checkCircle" tone="card" size={52} />
-            <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
-              Nothing to review. Reported photos show up here.
-            </ThemedText>
-          </View>
-        </Card>
+        <EmptyState icon="checkCircle" text="Nothing to review. Reported photos show up here." />
       ) : (
         reported.data.map((photo) => (
           <ReportCard
@@ -140,20 +132,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: PageInset,
     paddingTop: 4,
     gap: 16,
-  },
-  loader: {
-    marginTop: 32,
-  },
-  message: {
-    padding: Spacing.four,
-    gap: Spacing.three,
-  },
-  emptyInner: {
-    alignItems: 'center',
-    gap: Spacing.three,
-  },
-  center: {
-    textAlign: 'center',
   },
   card: {
     padding: Spacing.three,

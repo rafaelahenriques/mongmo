@@ -26,6 +26,7 @@ import {
   defaultChallengeRules,
   parseChallengeRules,
 } from '@/utils/challengeConfig';
+import { ErrorState } from '@/components/ui/LoadState';
 
 export type OwnerChallengeEditorScreenProps = {
   eventId: string;
@@ -53,8 +54,14 @@ export default function OwnerChallengeEditorScreen({ eventId, challengeId }: Own
   if (!eventQuery.data || (challengeId && !existing)) {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
-        <IconBadge name="alert" size={48} />
-        <ThemedText type="section">{challengeId ? 'Challenge not found' : 'Pop-up not found'}</ThemedText>
+        {eventQuery.isError ? (
+          <ErrorState message="Couldn’t load this pop-up." onRetry={() => void eventQuery.refetch()} />
+        ) : (
+          <>
+            <IconBadge name="alert" size={48} />
+            <ThemedText type="section">{challengeId ? 'Challenge not found' : 'Pop-up not found'}</ThemedText>
+          </>
+        )}
       </View>
     );
   }

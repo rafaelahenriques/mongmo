@@ -1,4 +1,4 @@
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { formatInTimeZone } from 'date-fns-tz';
@@ -15,6 +15,7 @@ import { haptics } from '@/services/haptics';
 import { nameFromContent } from '@/utils/a11y';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 import { formatCents, ORDER_STATUS_TITLE, pickupCode } from '@/utils/orderFormat';
+import { EmptyState, ErrorState, LoadingState, useRefreshControl } from '@/components/ui/LoadState';
 
 const ACTIVE = ['placed', 'preparing', 'ready'];
 
@@ -38,11 +39,13 @@ export default function MyOrdersScreen() {
   const current = all.filter((order) => ACTIVE.includes(order.status));
   const past = all.filter((order) => !ACTIVE.includes(order.status));
   const time = (iso: string) => formatInTimeZone(iso, DISPLAY_TIME_ZONE, 'HH:mm');
+  const refreshControl = useRefreshControl();
 
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: theme.background }}
       contentContainerStyle={{ paddingBottom: tabBarInset + 32 }}
+      refreshControl={refreshControl}
     >
       {current.map((order) => (
         <Pressable
@@ -78,15 +81,11 @@ export default function MyOrdersScreen() {
           History
         </ThemedText>
         {orders.isPending ? (
-          <ActivityIndicator accessibilityLabel="Loading" color={theme.text} style={styles.loader} />
+          <LoadingState />
         ) : orders.isError ? (
-          <ThemedText type="caption" themeColor="textSecondary">
-            Couldn’t load your orders.
-          </ThemedText>
+          <ErrorState message="Couldn’t load your orders." onRetry={() => void orders.refetch()} />
         ) : past.length === 0 ? (
-          <ThemedText type="caption" themeColor="textSecondary">
-            No past orders yet. Your first one will show up here.
-          </ThemedText>
+          <EmptyState icon="receipt" text="No past orders yet. Your first one will show up here." />
         ) : (
           past.map((order) => (
             <TaskCard
