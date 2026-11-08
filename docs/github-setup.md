@@ -26,7 +26,8 @@ Name `main`, enforcement **Active**, target the default branch:
 - [x] Require status checks to pass, branches up to date:
   - `Lint, format, types, unit tests, build`
   - `Integration tests (local Supabase)`
-  - `Accessibility (every screen, axe)`
+  - `Accessibility, light mode (every screen, axe)`
+  - `Accessibility, dark mode (every screen, axe)`
   - `Conventional Commit title`
 - [x] Require linear history
 

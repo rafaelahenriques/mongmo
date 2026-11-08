@@ -55,6 +55,7 @@ EXPO_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 EXPO_PUBLIC_SUPABASE_ANON_KEY=â€
 npm run serve:web -- dist 8090 http://127.0.0.1:54321 &
 npx playwright install chromium     # once
 APP_URL=http://localhost:8090 npm run test:a11y
+A11Y_COLOR_SCHEME=dark APP_URL=http://localhost:8090 npm run test:a11y   # dark mode
 ```
 
 ### End-to-end tests
