@@ -2,19 +2,23 @@ import { useCallback, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { LayoutAnimation, PanResponder, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { formatInTimeZone } from 'date-fns-tz';
+import { Image } from 'expo-image';
 
 import FilterBar from '@/components/map/FilterBar';
 import OfflineBanner from '@/components/map/OfflineBanner';
 import StoreSheet from '@/components/map/StoreSheet';
 import ListMode from '@/components/explore/ListMode';
+import { PopupRow } from '@/components/explore/PopupRow';
 import MapMode from '@/components/explore/MapMode';
 import ModeToggle, { type ExploreMode } from '@/components/explore/ModeToggle';
 import { ThemedText } from '@/components/ThemedText';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { Button } from '@/components/ui/Button';
-import { ColumnRow } from '@/components/ui/ColumnRow';
+import Chip from '@/components/ui/Chip';
 import { Icon } from '@/components/ui/Icon';
-import { PageInset } from '@/constants/theme';
+import { ripple } from '@/components/ui/ripple';
+import { popUpImage } from '@/constants/brandPhotos';
+import { PageInset, Radius } from '@/constants/theme';
 import { useEvents } from '@/hooks/useEvents';
 import { useStore } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
@@ -115,11 +119,13 @@ export default function ExploreScreen() {
         <ListMode
           header={
             <View style={styles.listHeader}>
-              {toggle}
               <OfflineBanner />
-              <ThemedText type="title" accessibilityRole="header" style={styles.listTitle}>
-                {events.length === 1 ? '1 Mongmo nearby' : `${events.length} Mongmos nearby`}
-              </ThemedText>
+              <View style={styles.titleRow}>
+                <ThemedText type="title" accessibilityRole="header" style={styles.flex}>
+                  {events.length === 1 ? '1 Mongmo nearby' : `${events.length} Mongmos nearby`}
+                </ThemedText>
+                <ModeToggle value={mode} onChange={setMode} />
+              </View>
               <FilterBar value={filter} onChange={setFilter} />
             </View>
           }
@@ -187,7 +193,6 @@ export default function ExploreScreen() {
           // Scrolls when large text makes it taller than its share of the screen.
           <ScrollView style={styles.panelScroll} contentContainerStyle={styles.panelContent}>
             <FilterBar value={filter} onChange={setFilter} />
-            <View style={[styles.rule, { backgroundColor: theme.text }]} />
             {eventsQuery.isError ? (
               <View style={styles.message} accessibilityRole="alert">
                 <ThemedText type="caption" themeColor="textSecondary">
@@ -205,8 +210,10 @@ export default function ExploreScreen() {
             ) : null}
             {next ? (
               <>
-                {live ? <View style={[styles.hairline, { backgroundColor: theme.border }]} /> : null}
-                <NextUp event={next} onOpen={onSelectEvent} />
+                <ThemedText type="label" themeColor="textSecondary" style={styles.nextLabel}>
+                  Next up
+                </ThemedText>
+                <PopupRow event={next} last onPress={() => onSelectEvent(next.id)} />
               </>
             ) : null}
           </ScrollView>
@@ -218,7 +225,10 @@ export default function ExploreScreen() {
   );
 }
 
-/** "Right now": the nearest live pop-up, with check in and directions. */
+/**
+ * The nearest live pop-up, under the map: its photo, "Live now", the name,
+ * where, how far, the hours and how busy, then Check in and Directions.
+ */
 function LiveNow({
   event,
   onOpen,
@@ -228,26 +238,45 @@ function LiveNow({
   onOpen: (id: string) => void;
   onCheckIn: (id: string) => void;
 }) {
+  const theme = useTheme();
   const coordinates = useLocationStore((state) => state.coordinates);
   const busy = useBusyStore((state) => state.busy[event.id] ?? event.busy);
   const distance = coordinates ? formatDistance(distanceInMeters(coordinates, event.coordinates)) : null;
   const hours = `${formatInTimeZone(new Date(event.startsAt), event.timeZone, 'HH:mm')} – ${formatInTimeZone(new Date(event.endsAt), event.timeZone, 'HH:mm')}`;
   return (
-    <ColumnRow label="Right now">
+    <View style={styles.live}>
       <Pressable
-        onPress={() => onOpen(event.id)}
+        android_ripple={ripple(theme.text)}
+        onPress={() => {
+          haptics.tap();
+          onOpen(event.id);
+        }}
         accessibilityRole="button"
-        {...nameFromContent(`${event.title}. Open.`)}
+        {...nameFromContent(`Live now: ${event.title}. Open the pop-up.`)}
+        style={({ pressed }) => [styles.liveRow, { opacity: pressed ? 0.8 : 1 }]}
       >
-        <ThemedText type="title" numberOfLines={2}>
-          {event.title}
-        </ThemedText>
+        <View style={[styles.livePhoto, { backgroundColor: theme.backgroundSelected }]}>
+          <Image
+            accessible={false}
+            accessibilityLabel=""
+            source={popUpImage(event)}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+          />
+        </View>
+        <View style={styles.liveTexts}>
+          <Chip label="Live now" tone="live" />
+          <ThemedText type="card" numberOfLines={2}>
+            {event.title}
+          </ThemedText>
+          <ThemedText type="caption" themeColor="textSecondary">
+            {[event.venue, distance].filter(Boolean).join(' · ')}
+          </ThemedText>
+          <ThemedText type="caption" themeColor="textSecondary">
+            {hours} · How busy: {busy.occupancy} of {busy.capacity}
+          </ThemedText>
+        </View>
       </Pressable>
-      <ThemedText type="caption" themeColor="textSecondary">
-        {[event.venue, distance].filter(Boolean).join(' · ')}
-        {'\n'}
-        {hours} · How busy: {busy.occupancy} of {busy.capacity}
-      </ThemedText>
       <View style={styles.actions}>
         <Button label="Check in" variant="brand" onPress={() => onCheckIn(event.id)} style={styles.flex} />
         <Button
@@ -257,44 +286,7 @@ function LiveNow({
           style={styles.flex}
         />
       </View>
-    </ColumnRow>
-  );
-}
-
-/** "Next up": the next pop-up to start, one line and an arrow. */
-function NextUp({ event, onOpen }: { event: PopUpEvent; onOpen: (id: string) => void }) {
-  const theme = useTheme();
-  const coordinates = useLocationStore((state) => state.coordinates);
-  const distance = coordinates ? formatDistance(distanceInMeters(coordinates, event.coordinates)) : null;
-  const start = new Date(event.startsAt);
-  const day =
-    formatInTimeZone(start, event.timeZone, 'yyyy-MM-dd') === formatInTimeZone(new Date(), event.timeZone, 'yyyy-MM-dd')
-      ? 'Today'
-      : formatInTimeZone(start, event.timeZone, 'EEE d MMM');
-  const when = `${day}, ${formatInTimeZone(start, event.timeZone, 'HH:mm')}`;
-  return (
-    <Pressable
-      onPress={() => {
-        haptics.tap();
-        onOpen(event.id);
-      }}
-      accessibilityRole="button"
-      {...nameFromContent(`Next up: ${event.title}, ${when}`)}
-    >
-      <ColumnRow label="Next up">
-        <View style={styles.nextRow}>
-          <View style={styles.flex}>
-            <ThemedText type="smallBold" numberOfLines={1}>
-              {event.title}
-            </ThemedText>
-            <ThemedText type="caption" themeColor="textSecondary">
-              {[when, distance].filter(Boolean).join(' · ')}
-            </ThemedText>
-          </View>
-          <Icon name="arrowRight" size={20} color={theme.text} weight="bold" />
-        </View>
-      </ColumnRow>
-    </Pressable>
+    </View>
   );
 }
 
@@ -317,15 +309,21 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   listHeader: {
-    gap: 12,
-    paddingTop: 12,
+    gap: 14,
+    paddingTop: 16,
   },
-  listTitle: {
-    marginTop: 18,
+  titleRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 12,
   },
   map: {
     flex: 1,
     minHeight: 180,
+    marginHorizontal: 12,
+    borderRadius: Radius.tile,
+    overflow: 'hidden',
   },
   panel: {
     paddingHorizontal: PageInset,
@@ -354,21 +352,33 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingBottom: 12,
   },
-  rule: {
-    height: 3,
+  live: {
+    gap: 12,
+    paddingTop: 6,
   },
-  hairline: {
-    height: 1,
+  liveRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  livePhoto: {
+    width: 84,
+    height: 84,
+    borderRadius: Radius.large,
+    overflow: 'hidden',
+  },
+  liveTexts: {
+    flex: 1,
+    minWidth: 0,
+    gap: 3,
+    alignItems: 'flex-start',
   },
   actions: {
     flexDirection: 'row',
-    gap: 6,
-    paddingTop: 8,
+    gap: 8,
   },
-  nextRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+  nextLabel: {
+    paddingTop: 10,
   },
   message: {
     paddingVertical: 14,

@@ -124,11 +124,13 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
                 accessibilityRole="header"
                 headingLevel={1}
                 accessibilityLabel={item.name}
-                style={styles.flex}
+                style={styles.name}
               >
                 {short}
               </ThemedText>
-              <ThemedText type="subtitle">{formatCents(item.priceCents)}</ThemedText>
+              <ThemedText type="subtitle" style={styles.price}>
+                {formatCents(item.priceCents)}
+              </ThemedText>
             </View>
             {item.description ? (
               <ThemedText type="default" themeColor="textSecondary">
@@ -292,10 +294,22 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingBottom: 8,
   },
+  // The price sits beside the name, and drops under it when large text
+  // leaves no room.
   titleRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'flex-start',
-    gap: 16,
+    columnGap: 16,
+    rowGap: 4,
+  },
+  name: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 180,
+  },
+  price: {
+    flexShrink: 0,
   },
   flex: {
     flex: 1,
