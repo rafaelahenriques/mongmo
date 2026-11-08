@@ -33,7 +33,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   return {
     ...config,
     name,
-    slug: config.slug ?? 'react-challenge',
+    slug: config.slug ?? 'mongmo',
     // One version number: package.json's, which `npm version` bumps and
     // tags (docs/release-process.md). Build numbers are EAS's (remote).
     version: packageJson.version,
