@@ -7,6 +7,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 
 import { getOrderLines, type OrderMenuItem, type OrderRow } from '@/api/orders';
 import { CategoryIcon } from '@/components/order/CategoryIcon';
+import { CartBar } from '@/components/order/CartBar';
 import { ThemedText } from '@/components/ThemedText';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { BlockButton } from '@/components/ui/BlockButton';
@@ -116,7 +117,11 @@ export default function MenuScreen() {
               {when}
             </ThemedText>
           </View>
-          <ThemedText type="link">Change</ThemedText>
+          <View style={[styles.change, { backgroundColor: theme.backgroundElement }]}>
+            <ThemedText type="button" style={styles.changeLabel}>
+              Change
+            </ThemedText>
+          </View>
         </Pressable>
 
         <Segmented
@@ -209,11 +214,7 @@ export default function MenuScreen() {
 
       {count ? (
         <View style={[styles.footer, { bottom: tabBarInset + 12 }]}>
-          <Button
-            label={`View cart · ${count} ${count === 1 ? 'item' : 'items'} · ${formatCents(total)}`}
-            variant="brand"
-            onPress={() => router.push('/(orders)/order/cart')}
-          />
+          <CartBar count={count} totalCents={total} onPress={() => router.push('/(orders)/order/cart')} />
         </View>
       ) : null}
     </View>
@@ -279,6 +280,16 @@ function Reorder({ placeName, onDone }: { placeName?: string; onDone: () => void
 }
 
 const styles = StyleSheet.create({
+  // A soft pill on the stone card, not a link: the whole card opens the places.
+  change: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: Radius.pill,
+  },
+  changeLabel: {
+    fontSize: 14,
+    lineHeight: 18,
+  },
   screen: {
     flex: 1,
   },

@@ -4,15 +4,14 @@ import { useRouter } from 'expo-router';
 import { CategoryIcon } from '@/components/order/CategoryIcon';
 import { sectionsOf } from '@/components/order/MenuScreen';
 import { ProductCard } from '@/components/order/ProductCard';
+import { CartBar } from '@/components/order/CartBar';
 import { ThemedText } from '@/components/ThemedText';
-import { Button } from '@/components/ui/Button';
 import { TopBar } from '@/components/ui/TopBar';
 import { PageInset } from '@/constants/theme';
 import { useMenu } from '@/hooks/useMenu';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { cartItemCount, cartSubtotalCents, useCartStore } from '@/state/cartStore';
-import { formatCents } from '@/utils/orderFormat';
 import { EmptyState, ErrorState, LoadingState, useRefreshControl } from '@/components/ui/LoadState';
 
 /**
@@ -72,9 +71,9 @@ export default function CategoryScreen({ name }: { name: string }) {
       </ScrollView>
       {count ? (
         <View style={[styles.footer, { bottom: tabBarInset + 12 }]}>
-          <Button
-            label={`View cart · ${count} ${count === 1 ? 'item' : 'items'} · ${formatCents(cartSubtotalCents(items))}`}
-            variant="brand"
+          <CartBar
+            count={count}
+            totalCents={cartSubtotalCents(items)}
             onPress={() => router.push('/(orders)/order/cart')}
           />
         </View>

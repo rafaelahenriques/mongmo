@@ -1,14 +1,16 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
+import { Icon } from '@/components/ui/Icon';
 import { IconButton } from '@/components/ui/IconButton';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 
 /**
- * − 2 + control. Labels name the thing being counted. `medium` is the
- * design's small sage pill (menu rows, cart); `large` uses round buttons.
+ * − 2 + control. Labels name the thing being counted. `medium` is a soft
+ * stone pill with round − and + (item page, cart); `large` uses bigger
+ * round buttons. With `onRemove`, the − becomes a bin at the lowest count.
  */
 export function Stepper({
   value,
@@ -19,6 +21,7 @@ export function Stepper({
   label = 'quantity',
   formatValue = String,
   size = 'medium',
+  onRemove,
 }: {
   value: number;
   onChange: (value: number) => void;
@@ -30,34 +33,39 @@ export function Stepper({
   /** How the value reads, e.g. `(n) => `${n} m``. */
   formatValue?: (value: number) => string;
   size?: 'medium' | 'large';
+  /** At the lowest count, − turns into a bin that calls this ("Remove {label}"). */
+  onRemove?: () => void;
 }) {
   const theme = useTheme();
   const canDecrease = value - step >= min;
   const canIncrease = value + step <= max;
 
   if (size === 'medium') {
+    const removes = !canDecrease && Boolean(onRemove);
     const tap = (next: number) => {
       haptics.select();
       onChange(next);
     };
+    const round = (enabled: boolean) => [
+      styles.round,
+      { backgroundColor: theme.backgroundElement, opacity: enabled ? 1 : 0.45 },
+    ];
     return (
-      <View style={[styles.pill, { backgroundColor: theme.brandFill }]}>
+      <View style={[styles.pill, { backgroundColor: theme.backgroundSelected }]}>
         <Pressable
-          onPress={() => tap(Math.max(min, value - step))}
-          disabled={!canDecrease}
+          onPress={() => (removes ? onRemove?.() : tap(Math.max(min, value - step)))}
+          disabled={!canDecrease && !removes}
           accessibilityRole="button"
-          accessibilityLabel={`Decrease ${label}`}
-          aria-disabled={!canDecrease}
-          hitSlop={8}
-          style={styles.pillButton}
+          accessibilityLabel={removes ? `Remove ${label}` : `Decrease ${label}`}
+          aria-disabled={!canDecrease && !removes}
+          hitSlop={4}
+          style={round(canDecrease || removes)}
         >
-          <ThemedText type="captionBold" style={{ color: theme.onBrand, opacity: canDecrease ? 1 : 0.4 }}>
-            −
-          </ThemedText>
+          <Icon name={removes ? 'trash' : 'remove'} size={18} color={theme.text} />
         </Pressable>
         <ThemedText
-          type="captionBold"
-          style={[styles.pillValue, { color: theme.onBrand }]}
+          type="card"
+          style={styles.pillValue}
           accessibilityLabel={`${label}: ${formatValue(value)}`}
           accessibilityLiveRegion="polite"
         >
@@ -69,12 +77,10 @@ export function Stepper({
           accessibilityRole="button"
           accessibilityLabel={`Increase ${label}`}
           aria-disabled={!canIncrease}
-          hitSlop={8}
-          style={styles.pillButton}
+          hitSlop={4}
+          style={round(canIncrease)}
         >
-          <ThemedText type="captionBold" style={{ color: theme.onBrand, opacity: canIncrease ? 1 : 0.4 }}>
-            +
-          </ThemedText>
+          <Icon name="add" size={18} color={theme.text} />
         </Pressable>
       </View>
     );
@@ -124,19 +130,21 @@ const styles = StyleSheet.create({
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 40,
+    alignSelf: 'flex-start',
     borderRadius: Radius.pill,
-    paddingHorizontal: Spacing.one,
+    padding: 4,
+    gap: 4,
   },
-  // 40 × 40 at least: big enough to hit, and they grow with the text.
-  pillButton: {
-    minWidth: 40,
-    minHeight: 40,
+  // 40 × 40, and 48 to hit with the slop around it.
+  round: {
+    width: 40,
+    height: 40,
+    borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
   },
   pillValue: {
-    minWidth: 20,
+    minWidth: 28,
     textAlign: 'center',
   },
 });

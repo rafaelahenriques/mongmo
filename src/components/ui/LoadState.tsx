@@ -46,7 +46,7 @@ export function ErrorState({
           {message} Check your connection and try again.
         </ThemedText>
       </View>
-      <Button label="Try again" variant="secondary" onPress={onRetry} />
+      <Button label="Try again" variant="primary" size="medium" onPress={onRetry} />
     </Card>
   );
 }
@@ -80,7 +80,9 @@ export function EmptyState({
           {text}
         </ThemedText>
       </View>
-      {actionLabel && onAction ? <Button label={actionLabel} variant="secondary" onPress={onAction} /> : null}
+      {actionLabel && onAction ? (
+        <Button label={actionLabel} variant="primary" size="medium" onPress={onAction} />
+      ) : null}
     </Card>
   );
 }

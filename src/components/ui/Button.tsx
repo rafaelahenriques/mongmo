@@ -11,10 +11,11 @@ export type ButtonProps = {
   label: string;
   onPress: () => void;
   /**
-   * The hierarchy: one filled button per group, the rest outlined.
+   * The hierarchy: one strong button per group, the rest soft.
    * brand: sage, the main action · primary: ink, a main action on sage or
-   * where sage is already taken · secondary (and ghost): outlined in ink,
-   * a second action · danger: outlined in red, for removing things.
+   * where sage is already taken · secondary (and ghost): a soft stone pill
+   * with an ink label, a second action · danger: the same stone pill with
+   * a red label, for removing things.
    */
   variant?: 'primary' | 'brand' | 'secondary' | 'ghost' | 'danger';
   size?: 'large' | 'medium' | 'small';
@@ -32,9 +33,8 @@ export type ButtonProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-const HEIGHT = { large: 52, medium: 44, small: 32 } as const;
-const OUTLINED = new Set<ButtonProps['variant']>(['secondary', 'ghost', 'danger']);
-const PADDING = { large: 20, medium: Spacing.three, small: 14 } as const;
+const HEIGHT = { large: 52, medium: 44, small: 36 } as const;
+const PADDING = { large: 22, medium: 18, small: 14 } as const;
 
 /**
  * Pill button, its label heavy. Shrinks a touch
@@ -62,9 +62,9 @@ export function Button({
     : {
         primary: { background: theme.primary, foreground: theme.onPrimary },
         brand: { background: theme.brandFill, foreground: theme.onBrand },
-        secondary: { background: 'transparent', foreground: theme.text },
-        ghost: { background: 'transparent', foreground: theme.text },
-        danger: { background: 'transparent', foreground: theme.danger },
+        secondary: { background: theme.backgroundSelected, foreground: theme.text },
+        ghost: { background: theme.backgroundSelected, foreground: theme.text },
+        danger: { background: theme.backgroundSelected, foreground: theme.danger },
       }[variant];
   const inactive = disabled || loading;
   const iconSize = size === 'small' ? 15 : 18;
@@ -89,9 +89,6 @@ export function Button({
           paddingHorizontal: PADDING[size],
           paddingRight: arrow ? Spacing.one + 2 : undefined,
           backgroundColor: colors.background,
-          // Outlined variants keep a 1.5pt ring in their label's colour.
-          borderWidth: OUTLINED.has(variant) && !disabled ? 1.5 : 0,
-          borderColor: colors.foreground,
           transform: [{ scale: pressed && !inactive ? 0.97 : 1 }],
         },
         style,
@@ -149,8 +146,8 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   smallLabel: {
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 14,
+    lineHeight: 18,
   },
   arrow: {
     width: 32,

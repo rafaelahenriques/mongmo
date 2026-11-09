@@ -5,7 +5,7 @@ import { formatInTimeZone } from 'date-fns-tz';
 
 import { updateProfile } from '@/api/endpoints';
 import { PickupHeader } from '@/components/order/PickupHeader';
-import { PickupCalendar } from '@/components/order/PickupCalendar';
+import { DayStrip } from '@/components/order/DayStrip';
 import { TimePills } from '@/components/order/TimePills';
 import { ThemedText } from '@/components/ThemedText';
 import { BlockButton } from '@/components/ui/BlockButton';
@@ -174,9 +174,9 @@ export default function CheckoutScreen() {
 
         <View style={styles.group}>
           <Chapter number="02" title="When" />
-          {/* The café: a calendar of the next two weeks. A pop-up only on its own night(s). */}
+          {/* The café: the open days of the next two weeks. A pop-up only on its own night(s). */}
           {chosenDay && (place?.kind === 'store' || openDays.length > 1) ? (
-            <PickupCalendar
+            <DayStrip
               days={days}
               selected={chosenDay.ymd}
               today={todayYmd}
