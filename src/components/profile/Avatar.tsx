@@ -17,6 +17,7 @@ export function Avatar({
   size = 84,
   cacheKey,
   decorative = false,
+  shape = 'circle',
 }: {
   name: string;
   url: string;
@@ -24,6 +25,8 @@ export function Avatar({
   cacheKey?: string;
   /** When the name is said next to it anyway (a leaderboard row). */
   decorative?: boolean;
+  /** Round, or a rounded square (the leaderboard's photo tiles). */
+  shape?: 'circle' | 'rounded';
 }) {
   const theme = useTheme();
   const motion = useMotion();
@@ -33,12 +36,13 @@ export function Avatar({
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join('');
+  const radius = { borderRadius: shape === 'circle' ? Radius.pill : size >= 64 ? Radius.large : 14 };
 
   if (url) {
     return (
       <Image
         source={{ uri: url, cacheKey: cacheKey || undefined }}
-        style={[styles.circle, { width: size, height: size, backgroundColor: theme.backgroundSelected }]}
+        style={[radius, { width: size, height: size, backgroundColor: theme.backgroundSelected }]}
         contentFit="cover"
         transition={motion.imageFadeMs}
         {...(decorative
@@ -50,7 +54,7 @@ export function Avatar({
 
   return (
     <View
-      style={[styles.circle, styles.center, { width: size, height: size, backgroundColor: theme.accent }]}
+      style={[radius, styles.center, { width: size, height: size, backgroundColor: theme.accent }]}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
@@ -62,9 +66,6 @@ export function Avatar({
 }
 
 const styles = StyleSheet.create({
-  circle: {
-    borderRadius: Radius.pill,
-  },
   center: {
     alignItems: 'center',
     justifyContent: 'center',
