@@ -57,6 +57,14 @@ the release workflow publishes that section as the GitHub release notes.
   features.
 - A pop-up's page shows when and where side by side, and how busy it is
   as a sage bar.
+- Ordering is quicker: pick the pickup day from a row of open days
+  (Today, Tomorrow, Thu 12…) instead of a month calendar; change amounts
+  in the cart with round − and + (a bin at 1); "View cart" shows how many
+  things and the total. Your pickup code is a ticket, and your current
+  order sits at the top of My orders.
+- Softer buttons: second choices are stone pills instead of outlines,
+  extras are "+ Add" / "✓ Added" pills, and the counters have round
+  buttons that are easier to hit.
 - On an item's page, the price drops under the name when text is large.
 - On a tablet or a wide browser window, the app keeps a centred column
   instead of stretching edge to edge.

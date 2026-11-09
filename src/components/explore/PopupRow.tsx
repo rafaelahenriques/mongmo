@@ -206,8 +206,9 @@ const styles = StyleSheet.create({
     gap: 14,
     paddingVertical: 14,
   },
+  // At least 44 wide, and wider when large text needs it ("NOV" never cut).
   date: {
-    width: 44,
+    minWidth: 44,
     alignItems: 'center',
   },
   rowPhoto: {

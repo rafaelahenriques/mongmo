@@ -10,7 +10,7 @@ import { ListRow } from '@/components/ui/ListRow';
 import { StepBar } from '@/components/ui/StepBar';
 import { TaskCard } from '@/components/ui/TaskCard';
 import { TopBar } from '@/components/ui/TopBar';
-import { PageInset } from '@/constants/theme';
+import { PageInset, Radius } from '@/constants/theme';
 import { orderPoints } from '@/constants/points';
 import { useLevel } from '@/hooks/useLevel';
 import { useOrder } from '@/hooks/useOrder';
@@ -124,33 +124,48 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
         contentContainerStyle={{ paddingBottom: (done ? 24 : 32) + tabBarInset }}
         refreshControl={refreshControl}
       >
-        <View style={styles.code}>
-          <View accessible accessibilityLabel={`Pickup code ${code.split('').join(' ')}`} style={styles.center}>
-            <ThemedText type="display" style={styles.codeText}>
+        {/* The pickup code as a ticket: sage, the code big, a tear line, where. */}
+        <View style={[styles.ticket, { backgroundColor: theme.brandFill }]}>
+          <View
+            accessible
+            accessibilityLabel={`Pickup code ${code.split('').join(' ')}. Show this at the counter.`}
+            style={styles.ticketTop}
+          >
+            <ThemedText type="label" style={{ color: theme.onBrand }}>
+              Pickup code
+            </ThemedText>
+            <ThemedText
+              type="display"
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              style={[styles.codeText, { color: theme.onBrand }]}
+            >
               {code}
             </ThemedText>
-            <ThemedText type="name" style={[styles.codeWord, { color: theme.faded }]}>
-              PICKUP CODE
+            <ThemedText type="small" style={{ color: theme.onBrand }}>
+              Show this at the counter
             </ThemedText>
           </View>
-          <ThemedText type="caption" themeColor="textSecondary">
-            Show this at the counter
-          </ThemedText>
+          <View style={styles.tear} aria-hidden>
+            <View style={[styles.notch, styles.notchLeft, { backgroundColor: theme.background }]} />
+            <View style={[styles.tearLine, { borderColor: theme.onBrand }]} />
+            <View style={[styles.notch, styles.notchRight, { backgroundColor: theme.background }]} />
+          </View>
+          <View style={styles.ticketBottom}>
+            <ThemedText type="title" accessibilityRole="header" style={{ color: theme.onBrand }}>
+              {ORDER_STATUS_TITLE[data.status]}
+            </ThemedText>
+            <ThemedText type="small" style={{ color: theme.onBrand }}>
+              {data.status === 'cancelled' ? 'This order was cancelled.' : pickup}
+            </ThemedText>
+          </View>
         </View>
 
-        <View style={[styles.block, { backgroundColor: theme.backgroundSelected }]}>
-          <ThemedText type="title" accessibilityRole="header">
-            {ORDER_STATUS_TITLE[data.status]}
-          </ThemedText>
-          <ThemedText type="caption" themeColor="textSecondary">
-            {data.status === 'cancelled' ? 'This order was cancelled.' : pickup}
-          </ThemedText>
-          {data.status !== 'cancelled' ? (
-            <View style={styles.steps}>
-              <StepBar steps={ORDER_STEPS} reached={ORDER_STEP[data.status] ?? 0} />
-            </View>
-          ) : null}
-        </View>
+        {data.status !== 'cancelled' ? (
+          <View style={styles.steps}>
+            <StepBar steps={ORDER_STEPS} reached={ORDER_STEP[data.status] ?? 0} />
+          </View>
+        ) : null}
 
         <View style={styles.page}>
           {place ? (
@@ -217,31 +232,54 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     marginHorizontal: 20,
   },
-  code: {
-    alignItems: 'center',
-    gap: 6,
-    paddingTop: 12,
-    paddingBottom: 22,
+  ticket: {
+    marginHorizontal: PageInset,
+    marginTop: 8,
+    borderRadius: Radius.tile,
+    overflow: 'hidden',
   },
-  center: {
-    alignItems: 'center',
-  },
-  codeText: {
-    fontSize: 64,
-    lineHeight: 68,
-  },
-  codeWord: {
-    fontSize: 30,
-    lineHeight: 32,
-  },
-  block: {
-    paddingHorizontal: PageInset,
-    paddingTop: 16,
+  ticketTop: {
+    paddingHorizontal: 22,
+    paddingTop: 20,
     paddingBottom: 16,
     gap: 2,
   },
+  codeText: {
+    fontSize: 64,
+    lineHeight: 70,
+  },
+  // A dashed tear line with a bite out of each edge, like a ticket stub.
+  tear: {
+    height: 24,
+    justifyContent: 'center',
+  },
+  tearLine: {
+    marginHorizontal: 20,
+    borderTopWidth: 2,
+    borderStyle: 'dashed',
+    opacity: 0.35,
+  },
+  notch: {
+    position: 'absolute',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+  },
+  notchLeft: {
+    left: -12,
+  },
+  notchRight: {
+    right: -12,
+  },
+  ticketBottom: {
+    paddingHorizontal: 22,
+    paddingTop: 10,
+    paddingBottom: 22,
+    gap: 2,
+  },
   steps: {
-    marginTop: 14,
+    marginHorizontal: PageInset,
+    marginTop: 18,
   },
   page: {
     paddingHorizontal: PageInset,

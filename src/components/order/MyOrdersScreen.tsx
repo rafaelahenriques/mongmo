@@ -5,9 +5,10 @@ import { formatInTimeZone } from 'date-fns-tz';
 
 import { getOrderLines } from '@/api/orders';
 import { ThemedText } from '@/components/ThemedText';
+import { Chapter } from '@/components/ui/Chapter';
 import { Icon } from '@/components/ui/Icon';
 import { TaskCard } from '@/components/ui/TaskCard';
-import { PageInset } from '@/constants/theme';
+import { PageInset, Radius } from '@/constants/theme';
 import { useMyOrders } from '@/hooks/useMyOrders';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
@@ -56,11 +57,19 @@ export default function MyOrdersScreen() {
           }}
           accessibilityRole="button"
           {...nameFromContent(`${ORDER_STATUS_TITLE[order.status]}, pickup code ${pickupCode(order.id)}. Open.`)}
-          style={[styles.current, { backgroundColor: theme.backgroundSelected }]}
+          style={({ pressed }) => [
+            styles.current,
+            { backgroundColor: theme.brandFill, transform: [{ scale: pressed ? 0.98 : 1 }] },
+          ]}
         >
           <View style={styles.flex}>
-            <ThemedText type="title">{ORDER_STATUS_TITLE[order.status]}</ThemedText>
-            <ThemedText type="caption" themeColor="textSecondary">
+            <ThemedText type="label" style={{ color: theme.onBrand }}>
+              Current order
+            </ThemedText>
+            <ThemedText type="title" style={{ color: theme.onBrand }}>
+              {ORDER_STATUS_TITLE[order.status]}
+            </ThemedText>
+            <ThemedText type="small" style={{ color: theme.onBrand }}>
               {[
                 pickupCode(order.id),
                 formatCents(order.total_cents),
@@ -70,16 +79,14 @@ export default function MyOrdersScreen() {
                 .join(' · ')}
             </ThemedText>
           </View>
-          <View style={[styles.arrow, { backgroundColor: theme.brandFill }]}>
-            <Icon name="chevronRight" size={18} color={theme.onBrand} weight="semibold" />
+          <View style={[styles.arrow, { backgroundColor: theme.surfaceDark }]}>
+            <Icon name="arrowRight" size={18} color={theme.brand} weight="bold" />
           </View>
         </Pressable>
       ))}
 
       <View style={styles.page}>
-        <ThemedText type="subtitle" accessibilityRole="header">
-          History
-        </ThemedText>
+        <Chapter title="Past orders" />
         {orders.isPending ? (
           <LoadingState />
         ) : orders.isError ? (
@@ -116,20 +123,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    paddingHorizontal: PageInset,
-    paddingVertical: 16,
-    marginBottom: 6,
+    marginHorizontal: PageInset,
+    marginTop: 8,
+    marginBottom: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 18,
+    borderRadius: Radius.tile,
   },
   arrow: {
     width: 44,
     height: 44,
+    borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
   },
   page: {
     paddingHorizontal: PageInset,
-    paddingTop: 12,
-    gap: 8,
+    paddingTop: 16,
+    gap: 10,
   },
   loader: {
     marginVertical: 24,

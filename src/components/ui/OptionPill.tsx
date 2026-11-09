@@ -8,7 +8,7 @@ import { haptics } from '@/services/haptics';
 import { ripple } from '@/components/ui/ripple';
 
 /**
- * Outlined option chip, sage when picked. With `checked` it's a radio in a
+ * Soft stone option chip, sage and ink-ringed when picked. With `checked` it's a radio in a
  * group (kind, duration, challenge type), or a checkbox on its own
  * (`toggle`: extra protein); without, a one-tap preset button.
  */
@@ -45,8 +45,9 @@ export function OptionPill({
       style={({ pressed }) => [
         styles.pill,
         {
-          backgroundColor: selected ? theme.brandFill : 'transparent',
-          borderColor: selected ? theme.brandFill : theme.text,
+          backgroundColor: selected ? theme.brandFill : theme.backgroundSelected,
+          // An ink ring on the picked one, so it doesn't rest on colour alone.
+          borderColor: selected ? theme.text : 'transparent',
           transform: [{ scale: pressed ? 0.96 : 1 }],
         },
       ]}
@@ -65,8 +66,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.one + 2,
     borderRadius: Radius.pill,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    minHeight: 28,
+    borderWidth: 1.5,
+    paddingHorizontal: 14,
+    minHeight: 36,
   },
 });

@@ -168,6 +168,7 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
                     </View>
                     <OptionPill
                       label={on ? 'Added' : 'Add'}
+                      icon={on ? 'check' : 'add'}
                       checked={on}
                       toggle
                       accessibilityLabel={`${option.name}, ${formatCents(option.priceCents)} extra`}
