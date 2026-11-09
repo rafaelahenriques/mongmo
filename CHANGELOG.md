@@ -62,6 +62,11 @@ the release workflow publishes that section as the GitHub release notes.
   in the cart with round − and + (a bin at 1); "View cart" shows how many
   things and the total. Your pickup code is a ticket, and your current
   order sits at the top of My orders.
+- Achievements: a sage card with how many badges you have and the next
+  one to get, then every badge as a tile, two to a row. The leaderboard
+  has round rank badges, the top three in sage.
+- Account and Settings: numbered sections, each group of rows on one
+  rounded card.
 - Softer buttons: second choices are stone pills instead of outlines,
   extras are "+ Add" / "✓ Added" pills, and the counters have round
   buttons that are easier to hit.

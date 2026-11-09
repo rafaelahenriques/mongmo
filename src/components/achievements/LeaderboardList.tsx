@@ -60,33 +60,38 @@ export default function LeaderboardList({
       ) : null}
 
       {rows.length > 0 ? (
-        <Card style={styles.list}>
-          {rows.map((row, index) => (
-            <View key={row.userId}>
-              {index > 0 ? <View style={[styles.divider, { backgroundColor: theme.border }]} /> : null}
+        <View>
+          {rows.map((row, index) => {
+            const top = row.rank <= 3;
+            return (
               <View
+                key={row.userId}
                 accessible
                 accessibilityRole="text"
                 accessibilityLabel={`Rank ${row.rank}, ${row.isMe ? 'you' : row.name}, ${row.points} points`}
-                style={[styles.row, row.isMe && { backgroundColor: theme.backgroundSelected }]}
+                style={[
+                  styles.row,
+                  index < rows.length - 1 && !row.isMe && { borderBottomWidth: 1, borderBottomColor: theme.border },
+                  row.isMe && { backgroundColor: theme.backgroundSelected, borderRadius: Radius.card },
+                ]}
               >
-                <ThemedText
-                  type="subtitle"
-                  style={[styles.rank, { color: row.rank <= 3 ? theme.brand : theme.textSecondary }]}
-                >
-                  {row.rank}
-                </ThemedText>
-                <ThemedText type="smallBold" style={styles.flex} numberOfLines={1}>
+                {/* The top three on sage, the rest on stone: the number says it too. */}
+                <View style={[styles.rank, { backgroundColor: top ? theme.brandFill : theme.backgroundSelected }]}>
+                  <ThemedText type="card" style={{ color: top ? theme.onBrand : theme.text }}>
+                    {row.rank}
+                  </ThemedText>
+                </View>
+                <ThemedText type="card" style={styles.flex} numberOfLines={1}>
                   {row.isMe ? `${shortName(row.name)} (you)` : shortName(row.name)}
                 </ThemedText>
-                <ThemedText type="smallBold">{row.points.toLocaleString()}</ThemedText>
+                <ThemedText type="card">{row.points.toLocaleString()}</ThemedText>
                 <ThemedText type="small" themeColor="textSecondary">
                   pts
                 </ThemedText>
               </View>
-            </View>
-          ))}
-        </Card>
+            );
+          })}
+        </View>
       ) : !hidden ? (
         <ThemedText type="small" themeColor="textSecondary">
           No scores yet — check in to claim the top spot.
@@ -111,24 +116,19 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  list: {
-    padding: Spacing.two,
-    gap: 0,
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    marginHorizontal: Spacing.two,
-  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.two,
-    borderRadius: Radius.medium,
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.two,
+    gap: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 10,
   },
   rank: {
-    width: 32,
+    width: 40,
+    height: 40,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

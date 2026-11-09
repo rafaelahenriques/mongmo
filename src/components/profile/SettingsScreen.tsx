@@ -5,10 +5,11 @@ import { useFocusEffect, useRouter } from 'expo-router';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
+import { Chapter } from '@/components/ui/Chapter';
 import { ListRow } from '@/components/ui/ListRow';
 import { Segmented } from '@/components/ui/Segmented';
 import { Toggle } from '@/components/ui/Toggle';
-import { PageInset } from '@/constants/theme';
+import { CardShadow, PageInset, Radius } from '@/constants/theme';
 import { useAuthUser } from '@/hooks/useAuthUser';
 import { useProfile, useSetLeaderboardVisible } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
@@ -55,13 +56,13 @@ const NOTIFICATION_OPTIONS: { key: keyof NotificationPrefs; label: string; hint:
   { key: 'cartReminder', label: 'Cart reminders', hint: 'If you leave something in your cart' },
 ];
 
-function Group({ title, children }: { title: string; children: ReactNode }) {
+/** A numbered section, its rows on one rounded white card. */
+function Group({ number, title, children }: { number: string; title: string; children: ReactNode }) {
+  const theme = useTheme();
   return (
     <View style={styles.group}>
-      <ThemedText type="section" accessibilityRole="header">
-        {title}
-      </ThemedText>
-      <View>{children}</View>
+      <Chapter number={number} title={title} />
+      <View style={[styles.card, { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }]}>{children}</View>
     </View>
   );
 }
@@ -110,7 +111,7 @@ export default function SettingsScreen() {
       style={{ flex: 1, backgroundColor: theme.background }}
       contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + 32 }]}
     >
-      <Group title="Notifications">
+      <Group number="01" title="Notifications">
         {Platform.OS !== 'web' && permission && !permission.granted ? (
           <View style={[styles.notice, { backgroundColor: theme.backgroundSelected }]}>
             <ThemedText type="caption">
@@ -156,7 +157,7 @@ export default function SettingsScreen() {
         ) : null}
       </Group>
 
-      <Group title="App">
+      <Group number="02" title="App">
         <ListRow
           title="Appearance"
           trailing={
@@ -198,7 +199,7 @@ export default function SettingsScreen() {
         ) : null}
       </Group>
 
-      <Group title="Privacy">
+      <Group number="03" title="Privacy">
         <ListRow
           title="Your data"
           subtitle="See it, download it, delete it"
@@ -220,14 +221,14 @@ export default function SettingsScreen() {
         <ListRow title="Privacy policy" onPress={() => router.push('/(profile)/privacy')} last />
       </Group>
 
-      <Group title="Account">
+      <Group number="04" title="Account">
         <ListRow
           title="Email"
           subtitle={email ?? (account.data?.isGuest ? 'None yet: you’re a guest' : ' ')}
           chevron={false}
         />
         {email ? <ListRow title="Change password" onPress={() => router.push('/(profile)/password')} /> : null}
-        <ListRow title="Help" value={HELP_EMAIL} onPress={() => void Linking.openURL(`mailto:${HELP_EMAIL}`)} />
+        <ListRow title="Help" subtitle={HELP_EMAIL} onPress={() => void Linking.openURL(`mailto:${HELP_EMAIL}`)} />
         <ListRow title="Log out" onPress={confirmLogOut} chevron={false} />
         <ListRow title="Delete account" onPress={() => void confirmDeleteAccount()} chevron={false} danger last />
       </Group>
@@ -242,15 +243,23 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   content: {
     paddingHorizontal: PageInset,
-    paddingTop: 4,
-    gap: 24,
+    paddingTop: 8,
+    gap: 26,
   },
   group: {
-    gap: 2,
+    gap: 8,
+  },
+  // Rows sit inside with their hairlines; the card rounds them off.
+  card: {
+    borderRadius: Radius.card,
+    paddingHorizontal: 16,
+    overflow: 'hidden',
   },
   notice: {
-    padding: 12,
+    padding: 14,
     gap: 10,
-    marginVertical: 8,
+    marginTop: 12,
+    marginBottom: 4,
+    borderRadius: Radius.large,
   },
 });

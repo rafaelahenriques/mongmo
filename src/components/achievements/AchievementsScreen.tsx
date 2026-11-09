@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Coin } from '@/components/ui/Coin';
 import { Segmented } from '@/components/ui/Segmented';
 import { TopBar } from '@/components/ui/TopBar';
-import { PageInset } from '@/constants/theme';
+import { CardShadow, PageInset, Radius } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { useSetLeaderboardVisible } from '@/hooks/useProfile';
@@ -21,9 +21,10 @@ import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 import { useRefreshControl } from '@/components/ui/LoadState';
 
 /**
- * M-06 Achievements (the trophy in the top bar): every badge as a coin,
- * sage once earned and stone until then, with how far along you are; or
- * the leaderboard, this week's or all-time.
+ * M-06 Achievements (the trophy in the top bar): a sage card with how many
+ * badges you have and the next one to get, then every badge as a tile (white
+ * once earned, stone until then, with how far along you are); or the
+ * leaderboard, this week's or all-time.
  */
 export default function AchievementsScreen() {
   const theme = useTheme();
@@ -37,6 +38,11 @@ export default function AchievementsScreen() {
   const [period, setPeriod] = useState<LeaderboardPeriod>('weekly');
   const leaderboard = useLeaderboard(period);
   const joinLeaderboard = useSetLeaderboardVisible();
+  // The badge you're closest to: the highest share done of those not yet earned.
+  const next = badges
+    .filter((badge) => !earned.has(badge.id) && progress[badge.key])
+    .map((badge) => ({ badge, step: progress[badge.key]! }))
+    .sort((a, b) => b.step.current / Math.max(1, b.step.target) - a.step.current / Math.max(1, a.step.target))[0];
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
@@ -89,30 +95,72 @@ export default function AchievementsScreen() {
           contentContainerStyle={[styles.list, { paddingBottom: tabBarInset + 32 }]}
           refreshControl={refreshControl}
         >
-          {badges.map((badge) => {
-            const got = earned.get(badge.id);
-            const step = progress[badge.key];
-            const status = got
-              ? `Earned ${formatInTimeZone(new Date(got.earnedAt), DISPLAY_TIME_ZONE, 'd MMM')}`
-              : step
-                ? `${step.current} of ${step.target}`
-                : 'Not yet';
-            return (
+          {/* How far you are: badges earned out of all, and the closest one to get. */}
+          <View
+            style={[styles.hero, { backgroundColor: theme.brandFill }]}
+            accessible
+            accessibilityLabel={`${earned.size} of ${badges.length} badges earned.${
+              next ? ` Next: ${next.badge.title}, ${next.step.current} of ${next.step.target}.` : ''
+            }`}
+          >
+            <ThemedText type="label" style={{ color: theme.onBrand }}>
+              Badges
+            </ThemedText>
+            <View style={styles.heroNumber}>
+              <ThemedText type="display" style={[styles.heroCount, { color: theme.onBrand }]}>
+                {earned.size}
+              </ThemedText>
+              <ThemedText type="title" style={{ color: theme.onBrandSoft }}>
+                {`of ${badges.length}`}
+              </ThemedText>
+            </View>
+            <View style={[styles.heroTrack, { backgroundColor: theme.onBrandSoft + '40' }]}>
               <View
-                key={badge.id}
-                style={styles.row}
-                accessible
-                accessibilityLabel={`${badge.title}. ${badge.description}. ${status}.`}
-              >
-                <Coin icon={badgeIcon(badge.key)} earned={Boolean(got)} size={76} />
-                {/* The badge's name first, what it takes under it, then how far you are. */}
-                <View style={styles.texts}>
-                  <ThemedText type="section">{badge.title}</ThemedText>
-                  <ThemedText type="caption" themeColor="textSecondary">
+                style={[
+                  styles.fill,
+                  {
+                    width: `${badges.length ? (earned.size / badges.length) * 100 : 0}%`,
+                    backgroundColor: theme.onBrand,
+                  },
+                ]}
+              />
+            </View>
+            {next ? (
+              <ThemedText type="small" style={{ color: theme.onBrand }}>
+                {`Next: ${next.badge.title} · ${next.step.current} of ${next.step.target}`}
+              </ThemedText>
+            ) : null}
+          </View>
+
+          {/* Every badge as a tile, two to a row: white once earned, stone until then. */}
+          <View style={styles.grid}>
+            {badges.map((badge) => {
+              const got = earned.get(badge.id);
+              const step = progress[badge.key];
+              const status = got
+                ? `Earned ${formatInTimeZone(new Date(got.earnedAt), DISPLAY_TIME_ZONE, 'd MMM')}`
+                : step
+                  ? `${step.current} of ${step.target}`
+                  : 'Not yet';
+              return (
+                <View
+                  key={badge.id}
+                  style={[
+                    styles.tile,
+                    got
+                      ? { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }
+                      : { backgroundColor: theme.backgroundSelected },
+                  ]}
+                  accessible
+                  accessibilityLabel={`${badge.title}. ${badge.description}. ${status}.`}
+                >
+                  <Coin icon={badgeIcon(badge.key)} earned={Boolean(got)} size={56} />
+                  <ThemedText type="card">{badge.title}</ThemedText>
+                  <ThemedText type="caption" themeColor="textSecondary" style={styles.tileText}>
                     {badge.description}
                   </ThemedText>
                   {!got && step ? (
-                    <View style={[styles.track, { backgroundColor: theme.backgroundSelected }]}>
+                    <View style={[styles.track, { backgroundColor: theme.backgroundElement }]}>
                       <View
                         style={[
                           styles.fill,
@@ -128,9 +176,9 @@ export default function AchievementsScreen() {
                     {status}
                   </ThemedText>
                 </View>
-              </View>
-            );
-          })}
+              );
+            })}
+          </View>
         </ScrollView>
       )}
     </View>
@@ -157,22 +205,49 @@ const styles = StyleSheet.create({
     paddingTop: 6,
     gap: 16,
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
+  hero: {
+    borderRadius: Radius.tile,
+    padding: 20,
+    gap: 8,
   },
-  texts: {
-    flex: 1,
-    gap: 4,
+  heroNumber: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 8,
+  },
+  heroCount: {
+    fontSize: 64,
+    lineHeight: 70,
+  },
+  heroTrack: {
+    height: 8,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  // Two tiles a row on a phone; one a row when large text needs the width.
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  tile: {
+    flexGrow: 1,
+    flexBasis: 150,
+    borderRadius: Radius.card,
+    padding: 14,
+    gap: 6,
+  },
+  tileText: {
+    flexGrow: 1,
   },
   track: {
     height: 6,
     borderRadius: 3,
     overflow: 'hidden',
-    marginTop: 4,
+    marginTop: 2,
   },
   fill: {
     height: '100%',
+    borderRadius: 4,
   },
 });

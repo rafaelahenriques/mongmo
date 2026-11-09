@@ -9,9 +9,10 @@ import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { IconBadge } from '@/components/ui/IconBadge';
 import { ListRow } from '@/components/ui/ListRow';
-import { ScreenScroll, SectionHeader } from '@/components/ui/Screen';
+import { ScreenScroll } from '@/components/ui/Screen';
+import { Chapter } from '@/components/ui/Chapter';
 import { TopBar } from '@/components/ui/TopBar';
-import { Spacing, Radius } from '@/constants/theme';
+import { CardShadow, Radius, Spacing } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useAuthUser } from '@/hooks/useAuthUser';
 import { useMyOrders } from '@/hooks/useMyOrders';
@@ -98,7 +99,7 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <View>
+        <View style={[styles.card, { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }]}>
           <ListRow
             title="Achievements"
             value={badgeCount ? `${summary.earned.length} of ${badgeCount}` : undefined}
@@ -116,7 +117,7 @@ export default function ProfileScreen() {
           <ListRow title="Settings" onPress={() => router.push('/(profile)/settings')} last />
         </View>
 
-        <SectionHeader title="Your photos" />
+        <Chapter title="Your photos" />
         <PhotoGallery
           own
           photos={photos.data ?? []}
@@ -138,6 +139,12 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
     padding: 18,
     borderRadius: Radius.tile,
+  },
+  // The menu rows on one rounded white card, like Settings.
+  card: {
+    borderRadius: Radius.card,
+    paddingHorizontal: 16,
+    overflow: 'hidden',
   },
   identityTexts: {
     flex: 1,
