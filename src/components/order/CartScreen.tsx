@@ -12,6 +12,7 @@ import { BlockButton } from '@/components/ui/BlockButton';
 import { Button } from '@/components/ui/Button';
 import { Chapter } from '@/components/ui/Chapter';
 import { Icon } from '@/components/ui/Icon';
+import { Stepper } from '@/components/ui/Stepper';
 import { Toggle } from '@/components/ui/Toggle';
 import { orderPoints } from '@/constants/points';
 import { PRODUCT_PHOTO_POSITION, productPhoto } from '@/constants/productPhotos';
@@ -125,8 +126,8 @@ export default function CartScreen() {
     setRemoved(null);
   };
 
+  // The stepper gives the haptic tick itself.
   const step = (line: CartItem, by: number) => {
-    haptics.select();
     useCartStore.getState().setQuantity(line.key, line.quantity + by);
   };
 
@@ -206,40 +207,14 @@ export default function CartScreen() {
                       </ThemedText>
                     ) : null}
                     <View style={styles.lineActions}>
-                      {line.quantity > 1 ? (
-                        <Pressable
-                          onPress={() => step(line, -1)}
-                          accessibilityRole="button"
-                          accessibilityLabel={`One less ${line.name}`}
-                          hitSlop={10}
-                          style={styles.lineButton}
-                        >
-                          <ThemedText type="captionBold" themeColor="primaryText">
-                            −1
-                          </ThemedText>
-                        </Pressable>
-                      ) : (
-                        <Pressable
-                          onPress={() => remove(line)}
-                          accessibilityRole="button"
-                          accessibilityLabel={`Remove ${line.name}`}
-                          hitSlop={10}
-                          style={styles.lineButton}
-                        >
-                          <Icon name="trash" size={18} color={theme.textSecondary} />
-                        </Pressable>
-                      )}
-                      <Pressable
-                        onPress={() => step(line, 1)}
-                        accessibilityRole="button"
-                        accessibilityLabel={`+1: one more ${line.name}`}
-                        hitSlop={10}
-                        style={styles.lineButton}
-                      >
-                        <ThemedText type="captionBold" themeColor="primaryText">
-                          +1
-                        </ThemedText>
-                      </Pressable>
+                      <Stepper
+                        value={line.quantity}
+                        min={1}
+                        max={20}
+                        label={line.name}
+                        onChange={(next) => step(line, next - line.quantity)}
+                        onRemove={() => remove(line)}
+                      />
                     </View>
                   </View>
                 </View>
@@ -391,10 +366,7 @@ const styles = StyleSheet.create({
   },
   lineActions: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    gap: 4,
-    marginRight: -12,
+    paddingTop: 8,
   },
   reward: {
     flexDirection: 'row',

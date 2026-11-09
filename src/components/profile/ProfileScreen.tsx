@@ -11,7 +11,7 @@ import { IconBadge } from '@/components/ui/IconBadge';
 import { ListRow } from '@/components/ui/ListRow';
 import { ScreenScroll, SectionHeader } from '@/components/ui/Screen';
 import { TopBar } from '@/components/ui/TopBar';
-import { Spacing } from '@/constants/theme';
+import { Spacing, Radius } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useAuthUser } from '@/hooks/useAuthUser';
 import { useMyOrders } from '@/hooks/useMyOrders';
@@ -79,7 +79,7 @@ export default function ProfileScreen() {
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <TopBar title="Account" onBack={back} />
       <ScreenScroll>
-        <View style={styles.identity}>
+        <View style={[styles.identity, { backgroundColor: theme.backgroundSelected }]}>
           <Avatar name={user.name} url={user.avatarUrl} />
           <View style={styles.identityTexts}>
             <ThemedText type="title" numberOfLines={2} accessibilityRole="header">
@@ -131,10 +131,13 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
+  // You, on a soft stone card: the photo or initial, name, email, since when.
   identity: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.three,
+    padding: 18,
+    borderRadius: Radius.tile,
   },
   identityTexts: {
     flex: 1,
