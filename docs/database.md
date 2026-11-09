@@ -7,7 +7,7 @@ applied in order. Per-migration notes: [`supabase/README.md`](../supabase/README
 
 | Area | Tables | Who writes |
 |---|---|---|
-| People | `profiles` (name, role, leaderboard choice) | The person (some columns), functions |
+| People | `profiles` (name, role, profile photo, leaderboard choice) | The person (some columns), functions |
 | Places | `stores`, `events` (pop-ups) | Staff |
 | Food | `menus`, `menu_items`, `event_menus` | Staff |
 | Orders | `orders`, `order_items` | Functions only (`create_order`, `place_order`, `cancel_my_order`, `advance_order_status`). Paid at pickup: `paid_at` is set when staff mark an order collected |
@@ -27,7 +27,10 @@ applied in order. Per-migration notes: [`supabase/README.md`](../supabase/README
   granted (0023). Retention functions only by the service role.
 - **Storage:** `challenge-photos` is private, a folder per person,
   readable by the person, staff, and anyone while a photo is shared in
-  Photos of the week; `event-images` is public, written by staff.
+  Photos of the week; `avatars` (profile photos) is private, a folder per
+  person, readable by the person and, while it's their current photo and
+  they're on the leaderboard, by other members (0033); `event-images` is
+  public, written by staff.
 - Proven by `tests/integration/accessControl.test.ts` on every push.
 
 ## Changing the schema

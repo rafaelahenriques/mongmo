@@ -1,6 +1,6 @@
 {
   "title": "Privacy policy",
-  "updated": "5 November 2026",
+  "updated": "9 November 2026",
   "intro": "This is what the Mongmo app collects about you, why, who else handles it, how long we keep it, and what you can do about it. It describes what the app actually does, not what it might do.",
   "sections": [
     {
@@ -12,12 +12,13 @@
     {
       "heading": "What we collect, and why",
       "paragraphs": [
-        "Your account: your email address and password (stored hashed, never readable, by our sign-in provider), the name you choose, and, if you fill it in, your home city. Guests have no email or password. Why: to run your account (our contract with you).",
+        "Your account: your email address and password (stored hashed, never readable, by our sign-in provider), the name you choose, and, if you add them, a profile photo and your home city. Guests have no email or password. Why: to run your account (our contract with you).",
         "Your orders: what you ordered, where and when you pick it up, the price and any reward you used. Why: to make and hand over your order (contract). You pay at the counter when you pick it up: the app takes no payments and collects no card details.",
         "Points, levels, badges and rewards: what you earned, from what, and what you redeemed. Why: the loyalty programme you join by signing up (contract).",
         "Check-ins and challenges: which pop-up you checked in at and when, and the result of each challenge (a score, a rating, a vote, how many photos). Your location is used once to check you're at the pop-up and is not stored. Why: the programme (contract).",
         "Photos you take for a challenge: stored privately; only you and Mongmo staff can see them. Right after you take one, we ask whether to share it in Photos of the week. If you say yes, other members can see it on Home for seven days, without your name, and you can stop sharing at any time (Account → Your photos). Anyone can report a shared photo: it's taken down at once and staff look at the report. Why: the photo challenge you chose to do; sharing only with your consent.",
-        "The leaderboard: only if you join it (Achievements → Leaderboard), your name and points are shown to other members. You can leave it any time in Settings. Why: your consent.",
+        "Your profile photo, if you add one (Account → Edit profile): stored privately; only you can see it, and other members while you're on the leaderboard. Change or remove it any time: a removed or replaced photo is deleted. Why: your choice (consent).",
+        "The leaderboard: only if you join it (Achievements → Leaderboard), your name, profile photo (if you added one) and points are shown to other members. You can leave it any time in Settings. Why: your consent.",
         "Crash reports, only if you said yes: when the app crashes, a report of what went wrong in the code, your phone model, system and app version. No name, email, location, or anything you typed. Why: your consent, which you can withdraw in Settings."
       ]
     },
@@ -40,7 +41,7 @@
     {
       "heading": "How long we keep it",
       "paragraphs": [
-        "Unpaid draft orders: 1 day. Guest accounts not used: 30 days. Challenge photos: 12 months. Check-ins, challenge results and orders: 24 months. Rewards you've used: 24 months after you used them. Points history: as long as your account. Accounts not used for 24 months are deleted entirely. Crash reports: 30 days. Deletion happens automatically, every night."
+        "Unpaid draft orders: 1 day. Guest accounts not used: 30 days. Challenge photos: 12 months. Your profile photo: until you change or remove it. Check-ins, challenge results and orders: 24 months. Rewards you've used: 24 months after you used them. Points history: as long as your account. Accounts not used for 24 months are deleted entirely. Crash reports: 30 days. Deletion happens automatically, every night."
       ]
     },
     {
@@ -49,7 +50,7 @@
         "See and download your data: Settings → Your data → Download a copy.",
         "Correct it: Account → Edit profile, and Settings for your email and password.",
         "Delete it: Settings → Delete account. Your account, orders, points, badges, rewards, check-ins, challenge results and photos are deleted from our systems, not hidden.",
-        "Withdraw consent: crash reports and the leaderboard in Settings, a shared photo in Account → Your photos, any time.",
+        "Withdraw consent: crash reports and the leaderboard in Settings, a shared photo in Account → Your photos, your profile photo in Account → Edit profile, any time.",
         "You can also object to or ask us to limit how we use your data, by email. If you're unhappy with how we handle it, you can complain to the Belgian Data Protection Authority (www.dataprotectionauthority.be)."
       ]
     },

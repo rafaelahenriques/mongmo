@@ -52,16 +52,21 @@ describe('deleting the account', () => {
 
   it('deletes every photo file, then the account and its data, then signs out', async () => {
     answerDialog('Delete');
+    // Challenge photos, then profile photos: a page of files, then none left.
     mockBucket.list
       .mockResolvedValueOnce({ data: [{ name: 'a.jpg' }, { name: 'b.jpg' }], error: null })
+      .mockResolvedValueOnce({ data: [], error: null })
+      .mockResolvedValueOnce({ data: [{ name: 'me.jpg' }], error: null })
       .mockResolvedValueOnce({ data: [], error: null });
     mockBucket.remove.mockResolvedValue({ error: null });
 
     await confirmDeleteAccount();
 
     expect(supabase.storage.from).toHaveBeenCalledWith('challenge-photos');
+    expect(supabase.storage.from).toHaveBeenCalledWith('avatars');
     expect(mockBucket.list).toHaveBeenCalledWith('user-1', { limit: 100 });
     expect(mockBucket.remove).toHaveBeenCalledWith(['user-1/a.jpg', 'user-1/b.jpg']);
+    expect(mockBucket.remove).toHaveBeenCalledWith(['user-1/me.jpg']);
     expect(rpc).toHaveBeenCalledWith('delete_my_account');
     expect(auth.signOut).toHaveBeenCalled();
   });
@@ -80,7 +85,7 @@ describe('deleting the account', () => {
 
   it("stays signed in and says so when the server can't delete the account", async () => {
     answerDialog('Delete');
-    mockBucket.list.mockResolvedValueOnce({ data: [], error: null });
+    mockBucket.list.mockResolvedValue({ data: [], error: null });
     rpc.mockResolvedValue({
       data: null,
       error: { message: 'Your photos are still being deleted. Try again.', code: 'P0001' },

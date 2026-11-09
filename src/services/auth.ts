@@ -45,21 +45,24 @@ export async function confirmDeleteAccount(): Promise<void> {
 }
 
 /**
- * Removes every photo file the user uploaded (challenge-photos/<their id>/),
- * a page at a time, through the Storage API so the files themselves go.
- * delete_my_account() won't run while any are left (0020).
+ * Removes every photo file the user uploaded (challenge-photos/<their id>/
+ * and their profile photos in avatars/<their id>/), a page at a time,
+ * through the Storage API so the files themselves go. delete_my_account()
+ * won't run while any are left (0020, 0033).
  */
 async function deleteMyPhotos(): Promise<void> {
   const { data } = await supabase.auth.getUser();
   const userId = data.user?.id;
   if (!userId) return;
-  const bucket = supabase.storage.from('challenge-photos');
-  for (;;) {
-    const { data: files, error } = await bucket.list(userId, { limit: 100 });
-    if (error) throw error;
-    if (!files?.length) return;
-    const { error: removeError } = await bucket.remove(files.map((file) => `${userId}/${file.name}`));
-    if (removeError) throw removeError;
+  for (const name of ['challenge-photos', 'avatars'] as const) {
+    const bucket = supabase.storage.from(name);
+    for (;;) {
+      const { data: files, error } = await bucket.list(userId, { limit: 100 });
+      if (error) throw error;
+      if (!files?.length) break;
+      const { error: removeError } = await bucket.remove(files.map((file) => `${userId}/${file.name}`));
+      if (removeError) throw removeError;
+    }
   }
 }
 

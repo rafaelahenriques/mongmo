@@ -7,6 +7,7 @@ import {
   storeRowToStore,
 } from '@/api/mappers';
 import { ApiError, toApiError } from '@/api/errors';
+import { signedPhotoUrls, uploadImage } from '@/api/storage';
 import { getCurrentUserId, supabase } from '@/lib/supabase';
 import { isThisWeek, isToday } from '@/utils/dateTime';
 import type { Database } from '@/types/database';
@@ -111,7 +112,11 @@ export async function getProfile(): Promise<UserProfile> {
     if (error) throw toApiError(error);
     if (!data) throw new Error('Couldn’t set up your profile.');
   }
-  return profileRowToUserProfile(data);
+  const profile = profileRowToUserProfile(data);
+  if (!profile.avatarPath) return profile;
+  // Their own photo, through a short-lived link; the initials if it can't be signed.
+  const urls = await signedPhotoUrls([profile.avatarPath], 'avatars').catch(() => new Map<string, string>());
+  return { ...profile, avatarUrl: urls.get(profile.avatarPath) ?? '' };
 }
 
 /**
@@ -145,6 +150,38 @@ export async function updateProfile(edit: ProfileEdit): Promise<void> {
       ? new ApiError('Check your details: your name is required and each field has a length limit.', 400)
       : toApiError(error);
   }
+}
+
+/**
+ * Uploads a new profile photo to the person's folder in the private
+ * `avatars` bucket (0033), makes it their photo, then deletes the one it
+ * replaces. A leftover file is cleaned up by the retention job.
+ */
+export async function setProfilePhoto(image: { uri: string; mimeType?: string | null }): Promise<void> {
+  const userId = await getCurrentUserId();
+  const previous = await currentAvatarPath(userId);
+  const path = await uploadImage({ bucket: 'avatars', folder: userId, ...image });
+  const { error } = await supabase.from('profiles').update({ avatar_path: path }).eq('id', userId);
+  if (error) {
+    await supabase.storage.from('avatars').remove([path]);
+    throw toApiError(error);
+  }
+  if (previous) await supabase.storage.from('avatars').remove([previous]);
+}
+
+/** Takes the profile photo away: the initials show again, and the file is deleted. */
+export async function removeProfilePhoto(): Promise<void> {
+  const userId = await getCurrentUserId();
+  const previous = await currentAvatarPath(userId);
+  const { error } = await supabase.from('profiles').update({ avatar_path: null }).eq('id', userId);
+  if (error) throw toApiError(error);
+  if (previous) await supabase.storage.from('avatars').remove([previous]);
+}
+
+async function currentAvatarPath(userId: string): Promise<string | null> {
+  const { data, error } = await supabase.from('profiles').select('avatar_path').eq('id', userId).maybeSingle();
+  if (error) throw toApiError(error);
+  return data?.avatar_path ?? null;
 }
 
 /** Updates the leaderboard-visibility privacy toggle (Settings → Privacy). */
@@ -391,9 +428,21 @@ export async function verifyCheckIn(
   if (error) throw toApiError(error);
 }
 
-/** Other members' leaderboard scores for a period, aggregated server-side. */
+/**
+ * Other members' leaderboard scores for a period, aggregated server-side,
+ * with short-lived links to their photos. If the photos can't be signed the
+ * board still shows, with initials.
+ */
 export async function getLeaderboard(period: LeaderboardPeriod): Promise<LeaderboardEntry[]> {
   const { data, error } = await supabase.rpc('leaderboard', { p_period: period });
   if (error) throw toApiError(error);
-  return data.map((row) => ({ userId: row.user_id, name: row.name, points: row.points }));
+  const paths = data.flatMap((row) => (row.avatar_path ? [row.avatar_path] : []));
+  const urls = await signedPhotoUrls(paths, 'avatars').catch(() => new Map<string, string>());
+  return data.map((row) => ({
+    userId: row.user_id,
+    name: row.name,
+    points: row.points,
+    photoPath: row.avatar_path ?? '',
+    photoUrl: (row.avatar_path && urls.get(row.avatar_path)) || '',
+  }));
 }

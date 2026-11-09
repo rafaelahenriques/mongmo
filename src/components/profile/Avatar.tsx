@@ -6,8 +6,25 @@ import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useMotion } from '@/constants/motion';
 
-/** Profile photo, or the name's initials on cream when there isn't one. */
-export function Avatar({ name, url, size = 84 }: { name: string; url: string; size?: number }) {
+/**
+ * Profile photo, or the name's initials on cream when there isn't one.
+ * `cacheKey` (the photo's storage path) keeps a photo behind a short-lived
+ * signed link from downloading again each time the link changes.
+ */
+export function Avatar({
+  name,
+  url,
+  size = 84,
+  cacheKey,
+  decorative = false,
+}: {
+  name: string;
+  url: string;
+  size?: number;
+  cacheKey?: string;
+  /** When the name is said next to it anyway (a leaderboard row). */
+  decorative?: boolean;
+}) {
   const theme = useTheme();
   const motion = useMotion();
   const initials = name
@@ -20,12 +37,13 @@ export function Avatar({ name, url, size = 84 }: { name: string; url: string; si
   if (url) {
     return (
       <Image
-        source={{ uri: url }}
+        source={{ uri: url, cacheKey: cacheKey || undefined }}
         style={[styles.circle, { width: size, height: size, backgroundColor: theme.backgroundSelected }]}
         contentFit="cover"
         transition={motion.imageFadeMs}
-        accessibilityRole="image"
-        accessibilityLabel={`Profile photo of ${name}`}
+        {...(decorative
+          ? { accessible: false, accessibilityLabel: '' }
+          : { accessibilityRole: 'image' as const, accessibilityLabel: `Profile photo of ${name}` })}
       />
     );
   }

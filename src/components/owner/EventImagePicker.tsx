@@ -13,6 +13,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { errorMessage } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import { hasNativeFeature, UPDATE_APP_MESSAGE } from '@/services/nativeModules';
+import { pickImage } from '@/services/pickImage';
 import { useMotion } from '@/constants/motion';
 
 const PICKER_OPTIONS: ImagePickerOptions = {
@@ -40,24 +41,11 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
     setProblem(null);
     setRemoved(null);
     try {
-      // Loaded on demand: see services/nativeModules.ts.
-      const ImagePicker = await import('expo-image-picker');
-      if (source === 'camera') {
-        const permission = await ImagePicker.requestCameraPermissionsAsync();
-        if (!permission.granted) {
-          setProblem('Camera access is off for Mongmo — allow it in Settings to take a photo.');
-          return;
-        }
-      }
-      const result =
-        source === 'camera'
-          ? await ImagePicker.launchCameraAsync(PICKER_OPTIONS)
-          : await ImagePicker.launchImageLibraryAsync(PICKER_OPTIONS);
-      const asset = result.canceled ? undefined : result.assets[0];
+      const asset = await pickImage(source, PICKER_OPTIONS);
       if (!asset) return;
 
       setUploading(true);
-      onChange(await uploadEventImage({ uri: asset.uri, mimeType: asset.mimeType }));
+      onChange(await uploadEventImage(asset));
       haptics.success();
     } catch (error) {
       haptics.error();
