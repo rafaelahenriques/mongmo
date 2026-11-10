@@ -6,8 +6,28 @@ import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { useMotion } from '@/constants/motion';
 
-/** Profile photo, or the name's initials on cream when there isn't one. */
-export function Avatar({ name, url, size = 84 }: { name: string; url: string; size?: number }) {
+/**
+ * Profile photo, or the name's initials on cream when there isn't one.
+ * `cacheKey` (the photo's storage path) keeps a photo behind a short-lived
+ * signed link from downloading again each time the link changes.
+ */
+export function Avatar({
+  name,
+  url,
+  size = 84,
+  cacheKey,
+  decorative = false,
+  shape = 'circle',
+}: {
+  name: string;
+  url: string;
+  size?: number;
+  cacheKey?: string;
+  /** When the name is said next to it anyway (a leaderboard row). */
+  decorative?: boolean;
+  /** Round, or a rounded square (the leaderboard's photo tiles). */
+  shape?: 'circle' | 'rounded';
+}) {
   const theme = useTheme();
   const motion = useMotion();
   const initials = name
@@ -16,23 +36,25 @@ export function Avatar({ name, url, size = 84 }: { name: string; url: string; si
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join('');
+  const radius = { borderRadius: shape === 'circle' ? Radius.pill : size >= 64 ? Radius.large : 14 };
 
   if (url) {
     return (
       <Image
-        source={{ uri: url }}
-        style={[styles.circle, { width: size, height: size, backgroundColor: theme.backgroundSelected }]}
+        source={{ uri: url, cacheKey: cacheKey || undefined }}
+        style={[radius, { width: size, height: size, backgroundColor: theme.backgroundSelected }]}
         contentFit="cover"
         transition={motion.imageFadeMs}
-        accessibilityRole="image"
-        accessibilityLabel={`Profile photo of ${name}`}
+        {...(decorative
+          ? { accessible: false, accessibilityLabel: '' }
+          : { accessibilityRole: 'image' as const, accessibilityLabel: `Profile photo of ${name}` })}
       />
     );
   }
 
   return (
     <View
-      style={[styles.circle, styles.center, { width: size, height: size, backgroundColor: theme.accent }]}
+      style={[radius, styles.center, { width: size, height: size, backgroundColor: theme.accent }]}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
@@ -44,9 +66,6 @@ export function Avatar({ name, url, size = 84 }: { name: string; url: string; si
 }
 
 const styles = StyleSheet.create({
-  circle: {
-    borderRadius: Radius.pill,
-  },
   center: {
     alignItems: 'center',
     justifyContent: 'center',

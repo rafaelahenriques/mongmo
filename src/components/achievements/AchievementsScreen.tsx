@@ -77,6 +77,9 @@ export default function AchievementsScreen() {
             onChangePeriod={setPeriod}
             onJoin={() => joinLeaderboard.mutate(true)}
             joining={joinLeaderboard.isPending}
+            loading={leaderboard.query.isPending}
+            failed={leaderboard.query.isError}
+            onRetry={() => leaderboard.query.refetch()}
           />
         </ScrollView>
       ) : query.isPending ? (

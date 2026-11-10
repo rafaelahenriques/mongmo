@@ -1,6 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { getProfile, setLeaderboardVisible, updateProfile, type ProfileEdit } from '@/api/endpoints';
+import {
+  getProfile,
+  removeProfilePhoto,
+  setLeaderboardVisible,
+  setProfilePhoto,
+  updateProfile,
+  type ProfileEdit,
+} from '@/api/endpoints';
+import type { PickedImage } from '@/services/pickImage';
 
 /** The signed-in user's profile (cached with the rest of the API cache). */
 export function useProfile() {
@@ -32,6 +40,19 @@ export function useUpdateProfile() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
       // The leaderboard shows names too.
+      queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+    },
+  });
+}
+
+/** Sets a new profile photo, or takes it away (null). It shows on the leaderboard too. */
+export function useProfilePhoto() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (image: PickedImage | null) => (image ? setProfilePhoto(image) : removeProfilePhoto()),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
     },
   });

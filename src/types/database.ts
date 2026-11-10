@@ -45,6 +45,8 @@ type ProfileRow = {
   role: 'customer' | 'owner';
   name: string;
   avatar_url: string | null;
+  /** The profile photo in the private `avatars` bucket: "<id>/<file>". */
+  avatar_path: string | null;
   home_city: string | null;
   leaderboard_visible: boolean;
   member_since: string;
@@ -315,7 +317,7 @@ export type Database = {
       };
       leaderboard: {
         Args: { p_period: 'weekly' | 'all' };
-        Returns: { user_id: string; name: string; points: number }[];
+        Returns: { user_id: string; name: string; points: number; avatar_path: string | null }[];
       };
       verify_check_in: {
         Args: {

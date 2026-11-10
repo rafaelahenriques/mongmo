@@ -38,7 +38,7 @@ Tracking: **No**. No data is used for tracking or shared with data brokers.
 |---|---|---|---|
 | Contact Info → Email Address | Yes | Yes | App Functionality |
 | Contact Info → Name | Yes (display name) | Yes | App Functionality |
-| User Content → Photos or Videos | Yes (challenge photos; shown to other members only if the person shares one) | Yes | App Functionality |
+| User Content → Photos or Videos | Yes (challenge photos, shown to other members only if the person shares one; a profile photo, if added, shown on the leaderboard only if the person joins it) | Yes | App Functionality |
 | Purchases → Purchase History | Yes (orders) | Yes | App Functionality |
 | Identifiers → User ID | Yes (account id) | Yes | App Functionality |
 | Usage Data → Product Interaction | Yes (check-ins, challenge results, points) | Yes | App Functionality |

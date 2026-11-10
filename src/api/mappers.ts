@@ -59,6 +59,7 @@ export function profileRowToUserProfile(row: ProfileRow): UserProfile {
     role: row.role,
     name: row.name,
     avatarUrl: row.avatar_url ?? '',
+    avatarPath: row.avatar_path ?? '',
     homeCity: row.home_city ?? '',
     leaderboardVisible: row.leaderboard_visible,
     memberSince: row.member_since,

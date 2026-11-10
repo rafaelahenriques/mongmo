@@ -95,7 +95,10 @@ export type UserProfile = {
   id: string;
   role: 'customer' | 'owner';
   name: string;
+  /** A link to show their photo ('' when there's none). Signed links expire after an hour. */
   avatarUrl: string;
+  /** Their uploaded photo's path in the `avatars` bucket ('' when none). */
+  avatarPath: string;
   homeCity: string;
   /** Whether this user appears in other people's leaderboard views. */
   leaderboardVisible: boolean;
@@ -222,4 +225,8 @@ export type LeaderboardEntry = {
   userId: string;
   name: string;
   points: number;
+  /** A short-lived link to their profile photo, '' when there's none. */
+  photoUrl: string;
+  /** The photo's path, so a re-signed link doesn't download it again. */
+  photoPath: string;
 };

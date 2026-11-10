@@ -20,11 +20,21 @@ const db = createClient(url, key, { auth: { persistSession: false, autoRefreshTo
 const { data: files, error: filesError } = await db.rpc('retention_photo_paths');
 if (filesError) throw filesError;
 const paths = files.map((row) => row.path);
+const { data: avatarFiles, error: avatarsError } = await db.rpc('retention_avatar_paths');
+if (avatarsError) throw avatarsError;
+const avatarPaths = avatarFiles.map((row) => row.path);
 
 if (dryRun) {
   const { data: accounts, error } = await db.rpc('retention_expired_accounts');
   if (error) throw error;
-  console.log(JSON.stringify({ dry_run: true, photo_files: paths.length, accounts: accounts.length }));
+  console.log(
+    JSON.stringify({
+      dry_run: true,
+      photo_files: paths.length,
+      profile_photo_files: avatarPaths.length,
+      accounts: accounts.length,
+    }),
+  );
   process.exit(0);
 }
 
@@ -32,7 +42,11 @@ for (let i = 0; i < paths.length; i += 100) {
   const { error } = await db.storage.from('challenge-photos').remove(paths.slice(i, i + 100));
   if (error) throw error;
 }
+for (let i = 0; i < avatarPaths.length; i += 100) {
+  const { error } = await db.storage.from('avatars').remove(avatarPaths.slice(i, i + 100));
+  if (error) throw error;
+}
 const { data: deleted, error } = await db.rpc('apply_retention');
 if (error) throw error;
 // Counts only: nothing personal goes into the job's log.
-console.log(JSON.stringify({ photo_files: paths.length, ...deleted }));
+console.log(JSON.stringify({ photo_files: paths.length, profile_photo_files: avatarPaths.length, ...deleted }));

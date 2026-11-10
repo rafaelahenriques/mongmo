@@ -81,7 +81,7 @@ export default function ProfileScreen() {
       <TopBar title="Account" onBack={back} />
       <ScreenScroll>
         <View style={[styles.identity, { backgroundColor: theme.backgroundSelected }]}>
-          <Avatar name={user.name} url={user.avatarUrl} />
+          <Avatar name={user.name} url={user.avatarUrl} cacheKey={user.avatarPath} />
           <View style={styles.identityTexts}>
             <ThemedText type="title" numberOfLines={2} accessibilityRole="header">
               {user.name}

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { Avatar } from '@/components/profile/Avatar';
+import { ProfilePhotoPicker } from '@/components/profile/ProfilePhotoPicker';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -15,7 +15,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import type { UserProfile } from '@/types';
 
-/** Profile → Edit: display name (shown on the leaderboard) and home city. */
+/** Profile → Edit: photo and display name (both shown on the leaderboard), and home city. */
 export default function ProfileEditScreen() {
   const theme = useTheme();
   const profile = useProfile();
@@ -69,9 +69,7 @@ function ProfileForm({ profile }: { profile: UserProfile }) {
         contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + Spacing.five }]}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.avatar}>
-          <Avatar name={trimmedName || profile.name} url={profile.avatarUrl} size={96} />
-        </View>
+        <ProfilePhotoPicker profile={profile} name={trimmedName || profile.name} />
 
         <Card style={styles.group}>
           <TextField
@@ -127,10 +125,6 @@ const styles = StyleSheet.create({
   content: {
     padding: Spacing.three + Spacing.one,
     gap: Spacing.three,
-  },
-  avatar: {
-    alignItems: 'center',
-    marginVertical: Spacing.two,
   },
   group: {
     gap: Spacing.three,

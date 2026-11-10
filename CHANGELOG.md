@@ -42,6 +42,12 @@ the release workflow publishes that section as the GitHub release notes.
 
 - Mongmo's own stickers in the app: on rewards, levels, the menu's
   sections, Home's reward and level cards, and empty screens.
+- A profile photo: choose one or take one in Account → Edit profile.
+  The leaderboard opens on your spot (your rank, photo and how far to the
+  next one up), then the top three as photo cards with their medals, then
+  everyone close behind. No photo shows your initials. Photos are private
+  and only shown while you're on the leaderboard; a removed photo is
+  deleted.
 
 ### Changed
 

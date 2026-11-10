@@ -25,8 +25,8 @@ const EXTENSION: Record<string, string> = {
   'image/heic': 'heic',
 };
 
-/** The storage buckets: event photos are public, guests' challenge photos private. */
-export type Bucket = 'challenge-photos' | 'event-images';
+/** The storage buckets: event photos are public; guests' challenge and profile photos private. */
+export type Bucket = 'challenge-photos' | 'event-images' | 'avatars';
 
 /** How long a link to a private photo works: an hour, then the app asks for a new one. */
 export const SIGNED_URL_SECONDS = 60 * 60;
@@ -55,10 +55,13 @@ export function publicImageUrl(path: string): string {
   return supabase.storage.from('event-images').getPublicUrl(path).data.publicUrl;
 }
 
-/** Short-lived links to private challenge photos, by path. Paths it couldn't sign are left out. */
-export async function signedPhotoUrls(paths: string[]): Promise<Map<string, string>> {
+/** Short-lived links to private photos (challenge photos unless told otherwise), by path. Paths it couldn't sign are left out. */
+export async function signedPhotoUrls(
+  paths: string[],
+  bucket: 'challenge-photos' | 'avatars' = 'challenge-photos',
+): Promise<Map<string, string>> {
   if (paths.length === 0) return new Map();
-  const { data, error } = await supabase.storage.from('challenge-photos').createSignedUrls(paths, SIGNED_URL_SECONDS);
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrls(paths, SIGNED_URL_SECONDS);
   if (error) throw toApiError(error);
   const urls = new Map<string, string>();
   for (const entry of data) if (entry.path && entry.signedUrl) urls.set(entry.path, entry.signedUrl);

@@ -1,7 +1,7 @@
 # Personal data inventory
 
 Every place the app collects, stores or sends personal data, from the code
-as of 5 November 2026. Keep it current: the privacy policy
+as of 9 November 2026. Keep it current: the privacy policy
 (`src/constants/privacyPolicy.json`) and the store declarations
 (`docs/store-release.md`) are written from it.
 
@@ -12,7 +12,8 @@ as of 5 November 2026. Keep it current: the privacy policy
 | Email, password (hashed by Supabase Auth) | `SignInScreen`, `ChangePasswordScreen` | `auth.users` | The person | Account | Account's life; 24 months unused |
 | Display name | Sign-up, `ProfileEditScreen` | `profiles.name` | The person; staff; other members only if the person joins the leaderboard | Account, leaderboard | Account's life |
 | Home city (optional) | `ProfileEditScreen` | `profiles.home_city` | The person; staff | Planned: shown on the leaderboard | Account's life |
-| Profile picture link | Nowhere yet | `profiles.avatar_url` | The person; staff | Planned: shown on the leaderboard | Account's life |
+| Profile photo | `ProfilePhotoPicker` (Account → Edit profile) | Private bucket `avatars/<user id>/`, `profiles.avatar_path` | The person; other members while the person is on the leaderboard (signed links, one hour) | Shown on the person's profile and the leaderboard, by their choice | Until changed or removed (the file is deleted); files nobody uses are removed by the retention job after a day; deleted with the account |
+| Profile picture link (from sign-up details, if any) | Nowhere | `profiles.avatar_url` | The person; staff | Not shown to others | Account's life |
 | Leaderboard choice | Achievements, Settings | `profiles.leaderboard_visible` (off for new accounts) | The person | Opt-in | Account's life |
 | Orders: items, options, pickup place and time, totals, reward used, paid at pickup and when | Cart, checkout | `orders`, `order_items` | The person; staff | Making the order | 24 months (drafts: 1 day) |
 | Points history | Server (orders, challenges, badges, rewards) | `point_events` | The person | Loyalty balance and level | Account's life |
@@ -58,7 +59,7 @@ Decided:
 |---|---|---|
 | 1 | Profile **bio** | **Removed** (`0027_drop_profile_bio.sql`): nobody but the person ever saw it |
 | 2 | Profile **home city** | **Kept**: it will be shown on the leaderboard. Update the privacy policy when it is |
-| 3 | Profile **picture link** | **Kept**: profile pictures will be shown on the leaderboard. Add the upload, the policy text and the store declarations then |
+| 3 | Profile **picture** | **Done** (`0033`): an uploaded photo in a private bucket, shown on the leaderboard only while the person is on it; policy and store declarations updated |
 
 | 4 | **Distance from the venue** in check-in challenge results | **Removed** (`0028`): stores `withinRadius` only; stored distances cleared |
 | 5 | Old **photo links** in challenge results | **Removed** (`0028`): replaced with a photo count |
