@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 
 import type { OrderMenuItem } from '@/api/orders';
-import { shortName } from '@/components/achievements/LeaderboardList';
+import { shortName } from '@/components/achievements/leaderboardText';
 import { ThemedText } from '@/components/ThemedText';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { Chapter } from '@/components/ui/Chapter';

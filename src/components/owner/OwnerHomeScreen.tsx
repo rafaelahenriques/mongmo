@@ -10,6 +10,7 @@ import { CardShadow, PageInset } from '@/constants/theme';
 import { useOwnerEvents } from '@/hooks/useOwnerEvents';
 import { useOwnerOrders } from '@/hooks/useOwnerOrders';
 import { useReportedPhotos } from '@/hooks/usePhotos';
+import { useReportedProfilePhotos } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { useRefreshControl } from '@/components/ui/LoadState';
@@ -17,7 +18,7 @@ import { useRefreshControl } from '@/components/ui/LoadState';
 /**
  * A-01 Owner tools: today's orders as three big numbers (new ones are the
  * loudest), MANAGE ORDERS, then pop-ups — a new one, or the ones you have —
- * and reported photos waiting for a decision.
+ * and reported photos (Photos of the week, profile photos) waiting for a decision.
  */
 export default function OwnerHomeScreen() {
   const theme = useTheme();
@@ -27,7 +28,8 @@ export default function OwnerHomeScreen() {
   const { orders } = useOwnerOrders();
   const eventsQuery = useOwnerEvents();
   const reported = useReportedPhotos();
-  const toReview = reported.data?.length ?? 0;
+  const reportedProfiles = useReportedProfilePhotos();
+  const toReview = (reported.data?.length ?? 0) + (reportedProfiles.data?.length ?? 0);
 
   const counts = useMemo(
     () => ({
@@ -88,7 +90,7 @@ export default function OwnerHomeScreen() {
       />
 
       <ThemedText type="subtitle" accessibilityRole="header">
-        Photos of the week
+        Members’ photos
       </ThemedText>
       <TaskCard
         icon="photo"

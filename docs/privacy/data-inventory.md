@@ -23,6 +23,7 @@ as of 9 November 2026. Keep it current: the privacy policy
 | Challenge results (a score, a vote, how many photos, within the venue's radius or not) | Challenge screens | `challenge_completions.data` | The person; staff | Points | 24 months |
 | Challenge photos | `PhotoCapture` | Private bucket `challenge-photos/<user id>/`, `photos` | The person; staff (signed links, one hour); other members, without a name, for 7 days if the person shares it | The photo challenge; Photos of the week by consent (asked after taking it) | 12 months |
 | Photo reports (which photo, who reported it, when) | Photos of the week | `photo_reports` | Staff (the app shows only how many) | Moderation | Until staff decide (Owner tools → Reported photos), then deleted; the photo keeps the outcome |
+| Profile photo reports (whose photo, who reported it, when) | Leaderboard (tap a photo → Report) | `profile_photo_reports`; `profiles.avatar_hidden_at` while hidden | Staff (the app shows only how many) | Moderation | Until staff decide (Owner tools → Reported photos: put it back or remove it), then deleted |
 | Account activity (last sign-in, session refresh) | Supabase Auth | `auth.users`, `auth.sessions` | Supabase, retention job | Security, retention | Supabase's own |
 
 ## Kept on the phone only

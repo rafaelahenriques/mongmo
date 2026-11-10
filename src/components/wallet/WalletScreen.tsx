@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { AccessibilityInfo, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import { shortName } from '@/components/achievements/LeaderboardList';
+import { shortName } from '@/components/achievements/leaderboardText';
 import { ThemedText } from '@/components/ThemedText';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { Icon, type IconName } from '@/components/ui/Icon';

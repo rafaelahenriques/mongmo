@@ -184,6 +184,66 @@ async function currentAvatarPath(userId: string): Promise<string | null> {
   return data?.avatar_path ?? null;
 }
 
+/** Reports someone's photo on the leaderboard: it's hidden from everyone else at once (0034). */
+export async function reportProfilePhoto(userId: string): Promise<void> {
+  const { error } = await supabase.rpc('report_profile_photo', { p_user_id: userId });
+  if (error) throw toApiError(error);
+}
+
+/** A profile photo hidden after a report, waiting for staff to decide. */
+export type ReportedProfilePhoto = {
+  userId: string;
+  name: string;
+  /** '' when the person has since removed it. */
+  path: string;
+  /** Empty when the file can't be shown. */
+  url: string;
+  hiddenAt: string;
+  reports: number;
+};
+
+/** Staff: hidden profile photos waiting for a decision, oldest first. */
+export async function getReportedProfilePhotos(): Promise<ReportedProfilePhoto[]> {
+  const { data, error } = await supabase.rpc('reported_profile_photos');
+  if (error) throw toApiError(error);
+  const paths = data.flatMap((row) => (row.avatar_path ? [row.avatar_path] : []));
+  // Staff must be able to decide even when a photo can't be shown.
+  const urls = await signedPhotoUrls(paths, 'avatars').catch(() => new Map<string, string>());
+  return data.map((row) => ({
+    userId: row.user_id,
+    name: row.name,
+    path: row.avatar_path ?? '',
+    url: (row.avatar_path && urls.get(row.avatar_path)) || '',
+    hiddenAt: row.hidden_at,
+    reports: row.reports,
+  }));
+}
+
+/**
+ * Staff: put a hidden profile photo back, or remove it: the file first,
+ * then the link to it, so a refused delete never leaves a photo nobody can
+ * find.
+ */
+export async function reviewReportedProfilePhoto(
+  photo: Pick<ReportedProfilePhoto, 'userId' | 'path'>,
+  restore: boolean,
+): Promise<void> {
+  if (!restore && photo.path) {
+    const bucket = supabase.storage.from('avatars');
+    const removed = await bucket.remove([photo.path]);
+    if (removed.error) throw toApiError({ message: removed.error.message });
+    // Nothing removed means already gone, or a rule refused: carry on only if it's gone.
+    if (removed.data.length === 0 && !(await bucket.createSignedUrl(photo.path, 60)).error) {
+      throw new ApiError('Couldn’t delete the photo’s file. Try again.', 500);
+    }
+  }
+  const { error } = await supabase.rpc('review_reported_profile_photo', {
+    p_user_id: photo.userId,
+    p_restore: restore,
+  });
+  if (error) throw toApiError(error);
+}
+
 /** Updates the leaderboard-visibility privacy toggle (Settings → Privacy). */
 export async function setLeaderboardVisible(visible: boolean): Promise<void> {
   const userId = await getCurrentUserId();

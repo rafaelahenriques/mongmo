@@ -47,6 +47,8 @@ type ProfileRow = {
   avatar_url: string | null;
   /** The profile photo in the private `avatars` bucket: "<id>/<file>". */
   avatar_path: string | null;
+  /** Set while the photo is hidden after a report, until staff decide (0034). */
+  avatar_hidden_at: string | null;
   home_city: string | null;
   leaderboard_visible: boolean;
   member_since: string;
@@ -289,6 +291,12 @@ export type Database = {
       };
       review_reported_photo: { Args: { p_photo_id: string; p_restore: boolean }; Returns: undefined };
       delete_reported_photo: { Args: { p_photo_id: string }; Returns: undefined };
+      report_profile_photo: { Args: { p_user_id: string }; Returns: undefined };
+      reported_profile_photos: {
+        Args: Record<string, never>;
+        Returns: { user_id: string; name: string; avatar_path: string | null; hidden_at: string; reports: number }[];
+      };
+      review_reported_profile_photo: { Args: { p_user_id: string; p_restore: boolean }; Returns: undefined };
       photos_of_the_week: {
         Args: Record<string, never>;
         Returns: {

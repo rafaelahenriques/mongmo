@@ -1,14 +1,19 @@
-import { StyleSheet, View } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
+import { gapLine, pointsLabel, shortName } from '@/components/achievements/leaderboardText';
+import { MemberPhotoSheet } from '@/components/achievements/MemberPhotoSheet';
 import { Avatar } from '@/components/profile/Avatar';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Chapter } from '@/components/ui/Chapter';
 import { Icon } from '@/components/ui/Icon';
+import { ripple } from '@/components/ui/ripple';
 import { Segmented } from '@/components/ui/Segmented';
 import { CardShadow, Paper, paperAlpha, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/services/haptics';
 import type { LeaderboardPeriod } from '@/types';
 import type { LeaderboardRow } from '@/hooks/useLeaderboard';
 
@@ -34,7 +39,8 @@ const PERIODS: { value: LeaderboardPeriod; label: string }[] = [
  * Weekly / all-time leaderboard, your place first: a sage card with your
  * rank, photo and how far to the next one up; then the top three as photo
  * cards with their medals; then everyone close behind. Members show their
- * own photo, or their initials.
+ * own photo, or their initials. Tapping someone's photo shows it bigger,
+ * with Report.
  */
 export default function LeaderboardList({
   rows,
@@ -51,6 +57,9 @@ export default function LeaderboardList({
   const me = rows.find((row) => row.isMe);
   const top = rows.slice(0, 3);
   const rest = rows.slice(3);
+  const [viewing, setViewing] = useState<LeaderboardRow | null>(null);
+  /** Someone else's photo opens bigger, with Report; your own row and initials don't open. */
+  const opener = (row: LeaderboardRow) => (!row.isMe && row.photoUrl ? () => setViewing(row) : undefined);
 
   return (
     <View style={styles.wrap}>
@@ -93,7 +102,13 @@ export default function LeaderboardList({
           <Chapter number="01" title="Top three" style={styles.chapter} />
           <View style={styles.top}>
             {top.map((row) => (
-              <TopRow key={row.userId} row={row} above={rows[row.rank - 2]} below={rows[row.rank]} />
+              <TopRow
+                key={row.userId}
+                row={row}
+                above={rows[row.rank - 2]}
+                below={rows[row.rank]}
+                onOpen={opener(row)}
+              />
             ))}
           </View>
 
@@ -102,7 +117,7 @@ export default function LeaderboardList({
               <Chapter number="02" title="Close behind" style={styles.chapter} />
               <View>
                 {rest.map((row, index) => (
-                  <RankRow key={row.userId} row={row} last={index === rest.length - 1} />
+                  <RankRow key={row.userId} row={row} last={index === rest.length - 1} onOpen={opener(row)} />
                 ))}
               </View>
             </>
@@ -113,26 +128,47 @@ export default function LeaderboardList({
           No scores yet — check in to claim the top spot.
         </ThemedText>
       ) : null}
+
+      <MemberPhotoSheet row={viewing} onClose={() => setViewing(null)} />
     </View>
   );
 }
 
-/** "1 pt", "40 pts", "1,240 pts". */
-export const pointsLabel = (points: number) => (points === 1 ? '1 pt' : `${points.toLocaleString()} pts`);
-
-/** How far you are from the one above, or ahead of the one below when you're first. */
-export function gapLine(me: LeaderboardRow, above?: LeaderboardRow, below?: LeaderboardRow): string {
-  if (above) {
-    const toGo = above.points - me.points;
-    return toGo > 0
-      ? `${pointsLabel(toGo)} to pass ${shortName(above.name)} at #${above.rank}`
-      : `Level with ${shortName(above.name)} at #${above.rank}`;
+/** A member's row: a button that opens their photo when there's one to open, plain text otherwise. */
+function Member({
+  label,
+  onOpen,
+  style,
+  children,
+}: {
+  label: string;
+  onOpen?: () => void;
+  style: StyleProp<ViewStyle>;
+  children: ReactNode;
+}) {
+  const theme = useTheme();
+  if (!onOpen) {
+    return (
+      <View accessible accessibilityRole="text" accessibilityLabel={label} style={style}>
+        {children}
+      </View>
+    );
   }
-  if (below) {
-    const lead = me.points - below.points;
-    return lead > 0 ? `${pointsLabel(lead)} ahead of ${shortName(below.name)}` : `Level with ${shortName(below.name)}`;
-  }
-  return 'The only one on the board so far';
+  return (
+    <Pressable
+      onPress={() => {
+        haptics.tap();
+        onOpen();
+      }}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityHint="Shows their photo bigger, with Report"
+      android_ripple={ripple(theme.text)}
+      style={({ pressed }) => [style, { opacity: pressed ? 0.75 : 1 }]}
+    >
+      {children}
+    </Pressable>
+  );
 }
 
 const spoken = (row: LeaderboardRow) =>
@@ -195,7 +231,17 @@ function YourSpot({
 }
 
 /** One of the top three: a photo tile with its medal (sage, cream, rose), the name, the gap, the points. */
-function TopRow({ row, above, below }: { row: LeaderboardRow; above?: LeaderboardRow; below?: LeaderboardRow }) {
+function TopRow({
+  row,
+  above,
+  below,
+  onOpen,
+}: {
+  row: LeaderboardRow;
+  above?: LeaderboardRow;
+  below?: LeaderboardRow;
+  onOpen?: () => void;
+}) {
   const theme = useTheme();
   const medal = [
     { fill: theme.brandFill, ink: theme.onBrand },
@@ -214,10 +260,9 @@ function TopRow({ row, above, below }: { row: LeaderboardRow; above?: Leaderboar
         : 'Level at the top'
       : 'On top';
   return (
-    <View
-      accessible
-      accessibilityRole="text"
-      accessibilityLabel={`${spoken(row)}, ${note}`}
+    <Member
+      label={`${spoken(row)}, ${note}`}
+      onOpen={onOpen}
       style={[styles.topRow, { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }]}
     >
       <View>
@@ -237,19 +282,18 @@ function TopRow({ row, above, below }: { row: LeaderboardRow; above?: Leaderboar
         </ThemedText>
       </View>
       <ThemedText type="section">{row.points.toLocaleString()}</ThemedText>
-    </View>
+    </Member>
   );
 }
 
 /** Fourth place down: "04", the photo, the name and points; yours in deep sage. */
-function RankRow({ row, last }: { row: LeaderboardRow; last: boolean }) {
+function RankRow({ row, last, onOpen }: { row: LeaderboardRow; last: boolean; onOpen?: () => void }) {
   const theme = useTheme();
   const color = row.isMe ? theme.primaryText : theme.text;
   return (
-    <View
-      accessible
-      accessibilityRole="text"
-      accessibilityLabel={spoken(row)}
+    <Member
+      label={spoken(row)}
+      onOpen={onOpen}
       style={[styles.row, !last && { borderBottomWidth: 1, borderBottomColor: theme.border }]}
     >
       <ThemedText type="section" style={[styles.rank, { color: row.isMe ? theme.primaryText : theme.textSecondary }]}>
@@ -264,7 +308,7 @@ function RankRow({ row, last }: { row: LeaderboardRow; last: boolean }) {
       <ThemedText type="smallBold" style={{ color }}>
         {row.points.toLocaleString()}
       </ThemedText>
-    </View>
+    </Member>
   );
 }
 
@@ -356,18 +400,3 @@ const styles = StyleSheet.create({
     borderRadius: 18,
   },
 });
-
-/**
- * A name as the leaderboard shows it: first name and initial ("Rafaela H."),
- * so a long name fits and a name made from an email address
- * ("rafaela.henriques") doesn't show it.
- */
-export function shortName(name: string): string {
-  const [first = '', second] = name
-    .trim()
-    .split(/[\s._-]+/)
-    .filter(Boolean);
-  const cap = (word: string) => word.charAt(0).toUpperCase() + word.slice(1);
-  if (!first) return 'Mongmo fan';
-  return second ? `${cap(first)} ${second.charAt(0).toUpperCase()}.` : cap(first);
-}

@@ -113,9 +113,16 @@ export function ProfilePhotoPicker({ profile, name }: { profile: UserProfile; na
         </ThemedText>
       )}
 
-      <ThemedText type="caption" themeColor="textSecondary" style={styles.center}>
-        Other members see your photo on the leaderboard, if you’ve joined it.
-      </ThemedText>
+      {profile.avatarHidden ? (
+        <ThemedText type="small" themeColor="textSecondary" style={styles.center} accessibilityRole="alert">
+          Someone reported your photo, so it’s hidden from the leaderboard while Mongmo staff look at it. You can still
+          change or remove it.
+        </ThemedText>
+      ) : (
+        <ThemedText type="caption" themeColor="textSecondary" style={styles.center}>
+          Other members see your photo on the leaderboard, if you’ve joined it.
+        </ThemedText>
+      )}
 
       {problem ? (
         <ThemedText type="small" themeColor="danger" accessibilityRole="alert" style={styles.center}>

@@ -29,7 +29,8 @@ applied in order. Per-migration notes: [`supabase/README.md`](../supabase/README
   readable by the person, staff, and anyone while a photo is shared in
   Photos of the week; `avatars` (profile photos) is private, a folder per
   person, readable by the person and, while it's their current photo and
-  they're on the leaderboard, by other members (0033); `event-images` is
+  they're on the leaderboard, by other members (0033); staff see and may
+  delete one that was hidden after a report (0034); `event-images` is
   public, written by staff.
 - Proven by `tests/integration/accessControl.test.ts` on every push.
 
