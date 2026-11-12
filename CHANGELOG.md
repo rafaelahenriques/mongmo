@@ -48,6 +48,9 @@ the release workflow publishes that section as the GitHub release notes.
   everyone close behind. No photo shows your initials. Photos are private
   and only shown while you're on the leaderboard; a removed photo is
   deleted.
+- Tap someone's photo on the leaderboard to see it bigger, and report it
+  if it isn't right: it's hidden straight away. Staff put it back or
+  remove it in Owner tools → Reported photos.
 
 ### Changed
 

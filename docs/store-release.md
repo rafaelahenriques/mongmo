@@ -28,7 +28,7 @@ changes, change these answers in both consoles too.
 | Encryption (export compliance) | Standard HTTPS only: `usesNonExemptEncryption: false` in `app.json` |
 | Age rating | No objectionable content, no user-to-user chat, no gambling: 4+ / Everyone. If pop-ups advertise alcohol, answer "infrequent alcohol references" |
 | Location in the background | Used only for alerts near a live pop-up, off until the person turns it on; explained in the permission text |
-| User-generated content (Apple 1.2, Google Play UGC policy) | Photos of the week: members choose to share a challenge photo, shown without names for 7 days. Every shared photo has **Report**, which takes it down for everyone at once; staff decide in Owner tools → Reported photos (put it back, keep it down, or delete it). Contact: hello@mongmo-store.com. Say so in the review notes |
+| User-generated content (Apple 1.2, Google Play UGC policy) | Photos of the week: members choose to share a challenge photo, shown without names for 7 days. Every shared photo has **Report**, which takes it down for everyone at once; staff decide in Owner tools → Reported photos (put it back, keep it down, or delete it). Profile photos on the leaderboard (opt-in, members only): tap a photo → **Report this photo** hides it at once; staff put it back or remove it in the same place. Contact: hello@mongmo-store.com. Say so in the review notes |
 
 ## Apple: App Privacy (App Store Connect → App Privacy)
 

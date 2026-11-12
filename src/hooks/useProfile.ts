@@ -2,11 +2,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
   getProfile,
+  getReportedProfilePhotos,
   removeProfilePhoto,
+  reportProfilePhoto,
+  reviewReportedProfilePhoto,
   setLeaderboardVisible,
   setProfilePhoto,
   updateProfile,
   type ProfileEdit,
+  type ReportedProfilePhoto,
 } from '@/api/endpoints';
 import type { PickedImage } from '@/services/pickImage';
 
@@ -53,6 +57,33 @@ export function useProfilePhoto() {
     mutationFn: (image: PickedImage | null) => (image ? setProfilePhoto(image) : removeProfilePhoto()),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
+    },
+  });
+}
+
+/** Report someone's photo on the leaderboard (it's hidden at once). */
+export function useReportProfilePhoto() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) => reportProfilePhoto(userId),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['leaderboard'] }),
+  });
+}
+
+/** Staff: hidden profile photos waiting for a decision (Owner tools). */
+export function useReportedProfilePhotos(enabled = true) {
+  return useQuery({ queryKey: ['profilePhotos', 'reported'], queryFn: getReportedProfilePhotos, enabled });
+}
+
+/** Staff: put a hidden profile photo back, or remove it. */
+export function useReviewReportedProfilePhoto() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ photo, restore }: { photo: ReportedProfilePhoto; restore: boolean }) =>
+      reviewReportedProfilePhoto(photo, restore),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['profilePhotos'] });
       queryClient.invalidateQueries({ queryKey: ['leaderboard'] });
     },
   });

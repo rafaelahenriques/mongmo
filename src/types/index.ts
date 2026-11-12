@@ -99,6 +99,8 @@ export type UserProfile = {
   avatarUrl: string;
   /** Their uploaded photo's path in the `avatars` bucket ('' when none). */
   avatarPath: string;
+  /** Hidden from other members after a report, until staff have looked. */
+  avatarHidden: boolean;
   homeCity: string;
   /** Whether this user appears in other people's leaderboard views. */
   leaderboardVisible: boolean;

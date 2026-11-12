@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { formatInTimeZone } from 'date-fns-tz';
 
-import { shortName } from '@/components/achievements/LeaderboardList';
+import { shortName } from '@/components/achievements/leaderboardText';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { ThemedText } from '@/components/ThemedText';
 import { StampRow } from '@/components/ui/Stamps';

@@ -1,4 +1,4 @@
-import { gapLine, pointsLabel, shortName } from '@/components/achievements/LeaderboardList';
+import { gapLine, pointsLabel, shortName } from '@/components/achievements/leaderboardText';
 import type { LeaderboardRow } from '@/hooks/useLeaderboard';
 
 const row = (rank: number, name: string, points: number): LeaderboardRow => ({

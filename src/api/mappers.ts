@@ -60,6 +60,7 @@ export function profileRowToUserProfile(row: ProfileRow): UserProfile {
     name: row.name,
     avatarUrl: row.avatar_url ?? '',
     avatarPath: row.avatar_path ?? '',
+    avatarHidden: Boolean(row.avatar_hidden_at),
     homeCity: row.home_city ?? '',
     leaderboardVisible: row.leaderboard_visible,
     memberSince: row.member_since,

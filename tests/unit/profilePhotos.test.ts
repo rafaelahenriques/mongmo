@@ -1,4 +1,4 @@
-import { getLeaderboard, removeProfilePhoto, setProfilePhoto } from '@/api/endpoints';
+import { getLeaderboard, removeProfilePhoto, reviewReportedProfilePhoto, setProfilePhoto } from '@/api/endpoints';
 import { uploadImage } from '@/api/storage';
 import { getCurrentUserId, supabase } from '@/lib/supabase';
 
@@ -102,5 +102,25 @@ describe('the leaderboard', () => {
 
     const rows = await getLeaderboard('all');
     expect(rows.map((row) => row.photoUrl)).toEqual(['', '']);
+  });
+});
+
+describe('staff deciding on a reported profile photo', () => {
+  it('removes the file first, then clears it from the profile', async () => {
+    rpc.mockResolvedValue({ data: null, error: null });
+    mockBucket.remove.mockResolvedValue({ data: [{ name: 'me.jpg' }], error: null });
+
+    await reviewReportedProfilePhoto({ userId: 'user-2', path: 'user-2/me.jpg' }, false);
+
+    expect(mockBucket.remove).toHaveBeenCalledWith(['user-2/me.jpg']);
+    expect(rpc).toHaveBeenCalledWith('review_reported_profile_photo', { p_user_id: 'user-2', p_restore: false });
+    expect(mockBucket.remove.mock.invocationCallOrder[0]).toBeLessThan(rpc.mock.invocationCallOrder[0]!);
+  });
+
+  it('puts it back without touching the file', async () => {
+    rpc.mockResolvedValue({ data: null, error: null });
+    await reviewReportedProfilePhoto({ userId: 'user-2', path: 'user-2/me.jpg' }, true);
+    expect(mockBucket.remove).not.toHaveBeenCalled();
+    expect(rpc).toHaveBeenCalledWith('review_reported_profile_photo', { p_user_id: 'user-2', p_restore: true });
   });
 });
