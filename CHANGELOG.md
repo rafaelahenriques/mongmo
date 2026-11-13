@@ -61,6 +61,8 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Changed
 
+- Photos upload faster and use far less data: they're made smaller on
+  your phone before they're sent.
 - A smaller, lighter app: about a fifth less code to download and start.
   It stops checking for updates in the background and on orders that are
   done, and keeps shared photos instead of downloading them again.
