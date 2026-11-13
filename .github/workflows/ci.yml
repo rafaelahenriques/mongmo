@@ -62,6 +62,8 @@ jobs:
           EXPO_PUBLIC_SUPABASE_URL: https://ci-build-check.supabase.co
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ci-build-check-anon-key
         run: npx expo export --platform web --output-dir dist
+      - name: Web build within its size budget
+        run: node scripts/check-bundle-size.mjs dist
 
   integration:
     name: Integration tests (local Supabase)

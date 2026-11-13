@@ -60,7 +60,7 @@ export default function PhotosOfTheWeek({ style }: { style?: StyleProp<ViewStyle
             <Image
               accessible={false}
               accessibilityLabel=""
-              source={{ uri: photo.url }}
+              source={{ uri: photo.url, cacheKey: photo.path }}
               style={[styles.thumb, { backgroundColor: theme.backgroundSelected }]}
               contentFit="cover"
               transition={motion.imageFadeMs}

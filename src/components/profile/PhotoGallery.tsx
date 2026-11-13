@@ -63,7 +63,7 @@ export default function PhotoGallery({ photos, emptyText, own = false }: PhotoGa
             <Image
               accessible={false}
               accessibilityLabel=""
-              source={{ uri: photo.url }}
+              source={{ uri: photo.url, cacheKey: photo.path || undefined }}
               style={[styles.photo, { backgroundColor: theme.backgroundSelected }]}
               contentFit="cover"
               transition={motion.imageFadeMs}
@@ -126,7 +126,7 @@ export function PhotoViewer({
   onClose,
   actions,
 }: {
-  photo: { url: string; eventTitle: string } | null;
+  photo: { url: string; path?: string; eventTitle: string } | null;
   onClose: () => void;
   actions?: ReactNode;
 }) {
@@ -137,7 +137,7 @@ export function PhotoViewer({
       <View style={styles.viewer}>
         {photo ? (
           <Image
-            source={{ uri: photo.url }}
+            source={{ uri: photo.url, cacheKey: photo.path || undefined }}
             style={StyleSheet.absoluteFill}
             contentFit="contain"
             accessibilityLabel={`Photo from ${photo.eventTitle}`}

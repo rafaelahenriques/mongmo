@@ -1,5 +1,6 @@
 import NetInfo from '@react-native-community/netinfo';
-import { QueryCache, QueryClient, onlineManager } from '@tanstack/react-query';
+import { QueryCache, QueryClient, focusManager, onlineManager } from '@tanstack/react-query';
+import { AppState, Platform } from 'react-native';
 
 import { log } from '@/lib/log';
 
@@ -14,6 +15,20 @@ onlineManager.setEventListener((setOnline) =>
     setOnline(online);
   }),
 );
+
+/**
+ * Tell react-query when the app is in the foreground. On a phone it can't
+ * tell by itself, so polling (an order's status, the owner's board) went on
+ * in the background, and coming back to the app refreshed nothing. Now
+ * polling pauses in the background and stale data refreshes on return. The
+ * web already reports this through the page's visibility.
+ */
+if (Platform.OS !== 'web') {
+  focusManager.setEventListener((setFocused) => {
+    const subscription = AppState.addEventListener('change', (state) => setFocused(state === 'active'));
+    return () => subscription.remove();
+  });
+}
 
 export const queryClient = new QueryClient({
   // Screens only say "Couldn't load …"; the log says *why* (a missing

@@ -196,13 +196,19 @@ export async function detachMenu(eventId: string, menuId: string): Promise<void>
 
 export type OwnerOrderRow = Database['public']['Tables']['orders']['Row'];
 
-/** Every non-draft order, for the owner's New/Preparing/Ready/Collected board. */
-export async function getOwnerOrders(): Promise<OwnerOrderRow[]> {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*')
-    .neq('status', 'draft')
-    .order('created_at', { ascending: true });
+/** How far back the board's Collected column, and cancelled orders, go. */
+const OWNER_BOARD_HISTORY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * The orders the owner's board needs: everything still with the kitchen,
+ * what was collected or cancelled in the last day, and any cancelled order
+ * whose online refund isn't confirmed. Not the whole history, which grows
+ * with every order and is fetched again every 15 seconds.
+ */
+export async function getOwnerOrders(now = Date.now()): Promise<OwnerOrderRow[]> {
+  const { data, error } = await supabase.rpc('owner_board_orders', {
+    p_since: new Date(now - OWNER_BOARD_HISTORY_MS).toISOString(),
+  });
   if (error) throw toApiError(error);
   return data;
 }

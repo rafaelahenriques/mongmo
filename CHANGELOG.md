@@ -61,6 +61,11 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Changed
 
+- A smaller, lighter app: about a fifth less code to download and start.
+  It stops checking for updates in the background and on orders that are
+  done, and keeps shared photos instead of downloading them again.
+- My orders shows your latest 50 orders; every order is still in
+  Settings → Your data.
 - The stamp card shows stamps: an Ô sticker for each one earned, a dashed
   circle for each to go, and the next one's ring filling with your points.
 - A new look, photo first: Home opens on a kitchen photo with your name,
@@ -102,6 +107,10 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Fixed
 
+- Owner tools: the orders board kept every order ever placed, getting
+  slower each week, and lost customers' names and dishes after a few
+  hundred orders. It now holds what's in the kitchen, the last day's
+  orders and any refund still owed.
 - Wallet: "Redeem" no longer breaks across two lines.
 - Settings: the Contrast options sit under their explanation instead of
   squeezing it into a narrow column.

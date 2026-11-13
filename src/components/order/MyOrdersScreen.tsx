@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { formatInTimeZone } from 'date-fns-tz';
 
-import { getOrderLines } from '@/api/orders';
+import { getOrderLines, MY_ORDERS_LIMIT } from '@/api/orders';
 import { ThemedText } from '@/components/ThemedText';
 import { Chapter } from '@/components/ui/Chapter';
 import { Icon } from '@/components/ui/Icon';
@@ -110,6 +110,11 @@ export default function MyOrdersScreen() {
             />
           ))
         )}
+        {(orders.data?.length ?? 0) >= MY_ORDERS_LIMIT ? (
+          <ThemedText type="small" themeColor="textSecondary">
+            Your latest {MY_ORDERS_LIMIT} orders. Every order is in Settings → Your data.
+          </ThemedText>
+        ) : null}
       </View>
     </ScrollView>
   );
