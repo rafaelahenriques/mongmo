@@ -85,6 +85,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "privacy:page": "node ./scripts/build-privacy-page.mjs",
+    "store:listing": "node ./scripts/check-listing.mjs",
     "audit:deps": "node ./scripts/audit-deps.mjs",
     "serve:web": "node ./scripts/serve-web.mjs"
   },
