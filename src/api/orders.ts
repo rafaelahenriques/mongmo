@@ -163,6 +163,9 @@ export async function getOrderLines(orderIds: string[]): Promise<Record<string, 
 }
 
 /** Order history, newest first — excludes abandoned drafts. */
+/** My orders shows the latest this many; the rest are in Settings → Your data. */
+export const MY_ORDERS_LIMIT = 50;
+
 export async function getMyOrders(): Promise<OrderRow[]> {
   // Scoped explicitly: RLS also lets an owner read every customer's orders.
   const userId = await getCurrentUserId();
@@ -171,7 +174,8 @@ export async function getMyOrders(): Promise<OrderRow[]> {
     .select('*')
     .eq('user_id', userId)
     .neq('status', 'draft')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(MY_ORDERS_LIMIT);
   if (error) throw toApiError(error);
   return data;
 }

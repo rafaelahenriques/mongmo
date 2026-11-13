@@ -151,7 +151,7 @@ function ReportCard({
     <Card style={styles.card}>
       {photo.url ? (
         <Image
-          source={{ uri: photo.url }}
+          source={{ uri: photo.url, cacheKey: photo.path || undefined }}
           style={[styles.photo, { backgroundColor: theme.backgroundSelected }]}
           contentFit="contain"
           accessibilityLabel={`Reported photo from ${photo.eventTitle}`}
@@ -194,7 +194,7 @@ function ProfileReportCard({
     <Card style={styles.card}>
       {photo.url ? (
         <Image
-          source={{ uri: photo.url }}
+          source={{ uri: photo.url, cacheKey: photo.path || undefined }}
           style={[styles.profilePhoto, { backgroundColor: theme.backgroundSelected }]}
           contentFit="cover"
           accessibilityLabel={`Reported profile photo of ${photo.name}`}

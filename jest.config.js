@@ -22,6 +22,7 @@ module.exports = {
         '\\.css$': '<rootDir>/tests/unit/cssStub.js',
         // The icon library's CommonJS build: Jest can't load its .mjs one.
         '^lucide-react-native$': '<rootDir>/node_modules/lucide-react-native/dist/cjs/lucide-react-native.js',
+        '^lucide-react-native/icons/(.*)$': '<rootDir>/node_modules/lucide-react-native/dist/cjs/icons/$1.js',
         ...moduleNameMapper,
       },
       transformIgnorePatterns: [

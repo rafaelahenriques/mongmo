@@ -5,6 +5,8 @@ import { getCurrentUserId, supabase } from '@/lib/supabase';
 export type Photo = {
   id: string;
   url: string;
+  /** Storage path: the image cache's key, as the signed URL changes each time. */
+  path: string;
   eventId: string;
   eventTitle: string;
   challengeId: string | null;
@@ -21,6 +23,8 @@ export type Photo = {
 export type WeekPhoto = {
   id: string;
   url: string;
+  /** Storage path: the image cache's key, as the signed URL changes each time. */
+  path: string;
   eventTitle: string;
   sharedAt: string;
   mine: boolean;
@@ -85,7 +89,9 @@ export async function getPhotosOfTheWeek(): Promise<WeekPhoto[]> {
   return data.flatMap((row) => {
     const url = urls.get(row.storage_path);
     if (!url) return [];
-    return [{ id: row.id, url, eventTitle: row.event_title, sharedAt: row.shared_at, mine: row.mine }];
+    return [
+      { id: row.id, url, path: row.storage_path, eventTitle: row.event_title, sharedAt: row.shared_at, mine: row.mine },
+    ];
   });
 }
 
@@ -116,6 +122,7 @@ async function getPhotos(filter: PhotoFilter): Promise<Photo[]> {
       {
         id: row.id,
         url,
+        path: row.storage_path,
         eventId: row.event_id,
         eventTitle: titles.get(row.event_id) ?? 'Pop-up',
         challengeId: row.challenge_id,

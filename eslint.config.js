@@ -14,6 +14,25 @@ module.exports = defineConfig([
     rules: { 'no-console': 'error' },
   },
   {
+    // One module per icon (src/components/ui/icons.ts): the package's own
+    // entry point puts every Lucide icon in the app, a fifth of the bundle.
+    files: ['src/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'lucide-react-native',
+              message: "Import each icon from 'lucide-react-native/icons/<name>' instead.",
+              allowTypeImports: true,
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     // Jest's mock factories and isolated modules load code with require().
     files: ['tests/**/*.{ts,tsx}'],
     rules: { '@typescript-eslint/no-require-imports': 'off' },

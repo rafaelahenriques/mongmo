@@ -1,76 +1,77 @@
 import { Platform, type ColorValue } from 'react-native';
 import { SymbolView, type SFSymbol } from 'expo-symbols';
-import {
-  Activity,
-  ArrowRight,
-  Award,
-  Bell,
-  Binoculars,
-  BookOpen,
-  Briefcase,
-  Calendar,
-  CalendarPlus,
-  Camera,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  ChevronUp,
-  CircleAlert,
-  CircleCheck,
-  Clock,
-  Coffee,
-  Compass,
-  Crosshair,
-  Eye,
-  Flame,
-  Gift,
-  House,
-  Image as ImageIcon,
-  Layers,
-  Leaf,
-  List,
-  LocateFixed,
-  Lock,
-  LogOut,
-  Mail,
-  Map as MapIcon,
-  MapPin,
-  Medal,
-  Minus,
-  MoonStar,
-  Music,
-  Navigation,
-  Package,
-  Pencil,
-  Phone,
-  Plus,
-  Printer,
-  QrCode,
-  Receipt,
-  ReceiptText,
-  Repeat,
-  ScanLine,
-  Search,
-  ShoppingBag,
-  SlidersHorizontal,
-  Sparkles,
-  SquareCheckBig,
-  Star,
-  Store,
-  Sunrise,
-  Ticket,
-  Timer,
-  Trash2,
-  Trophy,
-  Truck,
-  Upload,
-  User,
-  Users,
-  Utensils,
-  Wallet,
-  X,
-  type LucideIcon,
-} from 'lucide-react-native';
+import type { LucideIcon } from 'lucide-react-native';
+// One module per icon: importing from 'lucide-react-native' itself puts all
+// of Lucide's few thousand icons in the app (Metro doesn't drop unused
+// exports), a fifth of the JavaScript. Lint stops that import.
+import Activity from 'lucide-react-native/icons/activity';
+import ArrowRight from 'lucide-react-native/icons/arrow-right';
+import Award from 'lucide-react-native/icons/award';
+import Bell from 'lucide-react-native/icons/bell';
+import Binoculars from 'lucide-react-native/icons/binoculars';
+import BookOpen from 'lucide-react-native/icons/book-open';
+import Briefcase from 'lucide-react-native/icons/briefcase';
+import Calendar from 'lucide-react-native/icons/calendar';
+import CalendarPlus from 'lucide-react-native/icons/calendar-plus';
+import Camera from 'lucide-react-native/icons/camera';
+import Check from 'lucide-react-native/icons/check';
+import ChevronLeft from 'lucide-react-native/icons/chevron-left';
+import ChevronRight from 'lucide-react-native/icons/chevron-right';
+import ChevronUp from 'lucide-react-native/icons/chevron-up';
+import CircleAlert from 'lucide-react-native/icons/circle-exclamation-point';
+import CircleCheck from 'lucide-react-native/icons/circle-check';
+import Clock from 'lucide-react-native/icons/clock';
+import Coffee from 'lucide-react-native/icons/coffee';
+import Compass from 'lucide-react-native/icons/compass';
+import Crosshair from 'lucide-react-native/icons/crosshair';
+import Eye from 'lucide-react-native/icons/eye';
+import Flame from 'lucide-react-native/icons/flame';
+import Gift from 'lucide-react-native/icons/gift';
+import House from 'lucide-react-native/icons/house';
+import ImageIcon from 'lucide-react-native/icons/image';
+import Layers from 'lucide-react-native/icons/layers';
+import Leaf from 'lucide-react-native/icons/leaf';
+import List from 'lucide-react-native/icons/list';
+import LocateFixed from 'lucide-react-native/icons/locate-fixed';
+import Lock from 'lucide-react-native/icons/lock';
+import LogOut from 'lucide-react-native/icons/log-out';
+import Mail from 'lucide-react-native/icons/mail';
+import MapIcon from 'lucide-react-native/icons/map';
+import MapPin from 'lucide-react-native/icons/map-pin';
+import Medal from 'lucide-react-native/icons/medal';
+import Minus from 'lucide-react-native/icons/minus';
+import MoonStar from 'lucide-react-native/icons/moon-star';
+import Music from 'lucide-react-native/icons/eighth-notes';
+import Navigation from 'lucide-react-native/icons/navigation';
+import Package from 'lucide-react-native/icons/package';
+import Pencil from 'lucide-react-native/icons/pencil';
+import Phone from 'lucide-react-native/icons/phone';
+import Plus from 'lucide-react-native/icons/plus';
+import Printer from 'lucide-react-native/icons/printer';
+import QrCode from 'lucide-react-native/icons/qr-code';
+import Receipt from 'lucide-react-native/icons/receipt';
+import ReceiptText from 'lucide-react-native/icons/receipt-text';
+import Repeat from 'lucide-react-native/icons/repeat';
+import ScanLine from 'lucide-react-native/icons/scan-line';
+import Search from 'lucide-react-native/icons/search';
+import ShoppingBag from 'lucide-react-native/icons/shopping-bag';
+import SlidersHorizontal from 'lucide-react-native/icons/sliders-horizontal';
+import Sparkles from 'lucide-react-native/icons/sparkles';
+import SquareCheckBig from 'lucide-react-native/icons/square-check-big';
+import Star from 'lucide-react-native/icons/star';
+import Store from 'lucide-react-native/icons/store';
+import Sunrise from 'lucide-react-native/icons/sunrise';
+import Ticket from 'lucide-react-native/icons/ticket';
+import Timer from 'lucide-react-native/icons/timer';
+import Trash2 from 'lucide-react-native/icons/trash';
+import Trophy from 'lucide-react-native/icons/trophy';
+import Truck from 'lucide-react-native/icons/truck';
+import Upload from 'lucide-react-native/icons/upload';
+import User from 'lucide-react-native/icons/user';
+import Users from 'lucide-react-native/icons/users';
+import Utensils from 'lucide-react-native/icons/utensils';
+import Wallet from 'lucide-react-native/icons/wallet';
+import X from 'lucide-react-native/icons/x';
 
 /**
  * Every icon the app uses, by meaning, in the design's thin outline style.
