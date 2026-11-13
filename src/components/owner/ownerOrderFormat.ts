@@ -24,6 +24,13 @@ export const NEXT_STEP: Partial<Record<OwnerColumn, { status: 'preparing' | 'rea
   ready: { status: 'collected', label: 'Paid & collected' },
 };
 
+/** The button's words: handing over an order that's already paid online takes no payment. */
+export function stepLabel(column: OwnerColumn, order: { payment: string; paid_at: string | null }): string | null {
+  const step = NEXT_STEP[column];
+  if (!step) return null;
+  return column === 'ready' && order.payment === 'online' && order.paid_at ? 'Collected' : step.label;
+}
+
 /** "In 18 min", "Now", "As soon as possible". */
 export function untilPickup(pickupAt: string | null, now: number, long = false): string {
   if (!pickupAt) return 'As soon as possible';

@@ -19,13 +19,14 @@ import { useAuthUser } from '@/hooks/useAuthUser';
 import { useEvents } from '@/hooks/useEvents';
 import { useEventsWithMenu } from '@/hooks/useEventsWithMenu';
 import { usePickupPlace } from '@/hooks/usePickupPlace';
-import { usePlaceOrder } from '@/hooks/usePlaceOrder';
+import { usePlaceOrder, type PaymentChoice } from '@/hooks/usePlaceOrder';
 import { useNow } from '@/hooks/useNow';
 import { useProfile } from '@/hooks/useProfile';
 import { useStore } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
 import { confirm, errorMessage } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
+import { onlinePaymentAvailable } from '@/services/payments';
 import { cartSubtotalCents, useCartStore } from '@/state/cartStore';
 import { getEventPhase } from '@/utils/dateTime';
 import { formatCents } from '@/utils/orderFormat';
@@ -35,7 +36,8 @@ import { discountOff } from '@/utils/rewards';
 /**
  * O-04 Checkout: where (the bakery or the live pop-up), when (today or
  * tomorrow, only times it's open), your name if you came in as a guest,
- * pay at pickup, and PLACE ORDER with the total. The server prices it.
+ * how to pay (now, with Stripe, or at pickup), and the button with the
+ * total. The server prices it.
  */
 export default function CheckoutScreen() {
   const theme = useTheme();
@@ -58,6 +60,10 @@ export default function CheckoutScreen() {
   const now = useNow();
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const canPayOnline = onlinePaymentAvailable();
+  const [payment, setPayment] = useState<PaymentChoice>(canPayOnline ? 'online' : 'at_pickup');
+  /** The order made before the payment sheet was closed, kept for the next try with the same cart. */
+  const [draft, setDraft] = useState<{ id: string; totalCents: number; cart: string } | null>(null);
 
   const back = () => (router.canGoBack() ? router.back() : router.replace('/(orders)'));
 
@@ -113,19 +119,27 @@ export default function CheckoutScreen() {
         homeCity: profile.data?.homeCity ?? '',
       }).catch(() => undefined);
     }
+    const input = {
+      location,
+      items: items.map((item) => ({
+        menuItemId: item.menuItemId,
+        quantity: item.quantity,
+        options: item.options.map((option) => option.id),
+      })),
+      pickupAt: pickupAt.toISOString(),
+      userRewardId: discount?.userRewardId ?? null,
+    };
+    // The same cart, place and time as the order already made: use it again.
+    const cart = JSON.stringify(input);
     placeOrder.mutate(
+      { ...input, payment, draft: draft?.cart === cart ? draft : null },
       {
-        location,
-        items: items.map((item) => ({
-          menuItemId: item.menuItemId,
-          quantity: item.quantity,
-          options: item.options.map((option) => option.id),
-        })),
-        pickupAt: pickupAt.toISOString(),
-        userRewardId: discount?.userRewardId ?? null,
-      },
-      {
-        onSuccess: (order) => {
+        onSuccess: ({ order, outcome }) => {
+          if (outcome === 'cancelled') {
+            setDraft({ id: order.id, totalCents: order.total_cents, cart });
+            return;
+          }
+          setDraft(null);
           haptics.success();
           router.dismissTo('/(orders)');
           router.push({ pathname: '/(orders)/order/status/[id]', params: { id: order.id } });
@@ -216,9 +230,29 @@ export default function CheckoutScreen() {
           </View>
         ) : null}
 
+        <View style={styles.group}>
+          <Chapter number={needsName ? '04' : '03'} title="Pay" />
+          {canPayOnline ? (
+            <Segmented
+              look="blocks"
+              accessibilityLabel="How to pay"
+              value={payment}
+              onChange={setPayment}
+              options={[
+                { value: 'online', label: 'Pay now' },
+                { value: 'at_pickup', label: 'At pickup' },
+              ]}
+            />
+          ) : null}
+          <ThemedText type="caption" themeColor="textSecondary">
+            {payment === 'online'
+              ? 'Card, Apple Pay, Google Pay or Bancontact, through Stripe. We never see your card details.'
+              : 'Pay at the counter when you collect it.'}
+          </ThemedText>
+        </View>
+
         <View>
-          {discount ? <ListRow title={discount.reward.title} value={`−${formatCents(off)}`} /> : null}
-          <ListRow title="Pay at pickup" subtitle="Pay at the counter when you collect it." last />
+          {discount ? <ListRow title={discount.reward.title} value={`−${formatCents(off)}`} last /> : null}
           <ThemedText type="caption" themeColor="textSecondary" style={styles.vat}>
             Prices include VAT.
           </ThemedText>
@@ -231,7 +265,7 @@ export default function CheckoutScreen() {
         ) : null}
       </ScrollView>
       <BlockButton
-        label="Place order"
+        label={payment === 'online' && subtotal - off > 0 ? 'Pay and order' : 'Place order'}
         value={formatCents(subtotal - off)}
         onPress={() => void onPlace()}
         loading={placeOrder.isPending}

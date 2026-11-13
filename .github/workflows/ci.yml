@@ -40,6 +40,16 @@ jobs:
         run: npm run privacy:page -- --check
       - name: Type check
         run: npm run typecheck
+      - name: Type check the Edge Functions (Deno)
+        # The payment functions run on Deno, not in the app: checked with
+        # Deno's own type checker, on a copy outside the repo as deploy.yml
+        # deploys them (inside it, Deno looks for their npm: imports in the
+        # app's node_modules and fails). Their logic is unit tested with the
+        # app's.
+        run: |
+          cp -r supabase/functions "$RUNNER_TEMP/functions"
+          cd "$RUNNER_TEMP/functions"
+          npx --yes deno@2.9.6 check */index.ts
       - name: Unit tests
         run: npm test -- --ci
       - name: Dependency audit

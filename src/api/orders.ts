@@ -1,4 +1,5 @@
 import { ensureProfile } from '@/api/endpoints';
+import { requestRefund } from '@/api/payments';
 import { toApiError } from '@/api/errors';
 import { getCurrentUserId, supabase } from '@/lib/supabase';
 import type { CartLocation } from '@/state/cartStore';
@@ -60,11 +61,11 @@ export async function getMenuItems(location: CartLocation): Promise<OrderMenuIte
 }
 
 /**
- * Creates the order server-side (prices and totals computed from item ids
- * only), then places it. The customer pays at the counter when they pick
- * it up: the app takes no payment.
+ * Creates the order server-side as a draft (prices and totals computed from
+ * item ids only). It's placed by paying at pickup (placeAtPickup) or
+ * online (the payment, confirmed by Stripe to the server).
  */
-export async function placeOrder(
+export async function createDraftOrder(
   location: CartLocation,
   items: { menuItemId: string; quantity: number; options?: string[] }[],
   pickupAt: string | null,
@@ -86,10 +87,39 @@ export async function placeOrder(
     p_user_reward_id: userRewardId,
   });
   if (error) throw toApiError(error);
+  return order;
+}
 
-  const { data: placed, error: placeError } = await supabase.rpc('place_order', { p_order_id: order.id });
-  if (placeError) throw toApiError(placeError);
-  return placed;
+/** Places a draft order, to be paid at the counter on pickup. */
+export async function placeAtPickup(orderId: string): Promise<OrderRow> {
+  const { data, error } = await supabase.rpc('place_order', { p_order_id: orderId });
+  if (error) throw toApiError(error);
+  return data;
+}
+
+/** Creates the order and places it, to be paid at the counter on pickup. */
+export async function placeOrder(
+  location: CartLocation,
+  items: { menuItemId: string; quantity: number; options?: string[] }[],
+  pickupAt: string | null,
+  userRewardId: string | null = null,
+): Promise<OrderRow> {
+  const order = await createDraftOrder(location, items, pickupAt, userRewardId);
+  return placeAtPickup(order.id);
+}
+
+/**
+ * After the payment sheet: the order as soon as Stripe has confirmed the
+ * payment to the server (paid and placed), or as it is after `timeoutMs`
+ * (the status screen keeps checking and says it's confirming).
+ */
+export async function waitForPayment(orderId: string, timeoutMs = 12_000, everyMs = 1_000): Promise<OrderRow> {
+  const until = Date.now() + timeoutMs;
+  for (;;) {
+    const order = await getOrder(orderId);
+    if (order.paid_at || Date.now() >= until) return order;
+    await new Promise((resolve) => setTimeout(resolve, everyMs));
+  }
 }
 
 /**
@@ -99,6 +129,9 @@ export async function placeOrder(
 export async function cancelMyOrder(orderId: string): Promise<OrderRow> {
   const { data, error } = await supabase.rpc('cancel_my_order', { p_order_id: orderId });
   if (error) throw toApiError(error);
+  // Paid online: the money goes back. If asking fails, the order still
+  // says a refund is due, and staff can send it from Owner tools.
+  if (data.refund_status === 'pending') await requestRefund(orderId).catch(() => undefined);
   return data;
 }
 

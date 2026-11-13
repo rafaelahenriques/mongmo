@@ -1,26 +1,55 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { placeOrder } from '@/api/orders';
+import { createDraftOrder, placeAtPickup, waitForPayment, type OrderRow } from '@/api/orders';
+import { payOrder } from '@/services/payments';
 import { useCartStore } from '@/state/cartStore';
 import type { CartLocation } from '@/state/cartStore';
 
-/** Places the order (paid at pickup) and clears the cart. */
+export type PaymentChoice = 'online' | 'at_pickup';
+
+export type PlaceOrderInput = {
+  location: CartLocation;
+  items: { menuItemId: string; quantity: number; options?: string[] }[];
+  pickupAt: string | null;
+  userRewardId?: string | null;
+  payment: PaymentChoice;
+  /** A draft made for the same cart before (the payment sheet was closed): used again. */
+  draft?: { id: string; totalCents: number } | null;
+};
+
+/**
+ * placed: paying at pickup · paid: paid online (the order may still be
+ * confirming) · cancelled: they closed the payment sheet, nothing charged,
+ * and the draft can be used for the next try.
+ */
+export type PlaceOrderResult = { order: OrderRow; outcome: 'placed' | 'paid' | 'cancelled' };
+
+/** Places the order, paying at pickup or online, and clears the cart once it's placed or paid. */
 export function usePlaceOrder() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       location,
       items,
       pickupAt,
       userRewardId = null,
-    }: {
-      location: CartLocation;
-      items: { menuItemId: string; quantity: number; options?: string[] }[];
-      pickupAt: string | null;
-      userRewardId?: string | null;
-    }) => placeOrder(location, items, pickupAt, userRewardId),
-    onSuccess: () => {
+      payment,
+      draft = null,
+    }: PlaceOrderInput): Promise<PlaceOrderResult> => {
+      const order: Pick<OrderRow, 'id' | 'total_cents'> = draft
+        ? { id: draft.id, total_cents: draft.totalCents }
+        : await createDraftOrder(location, items, pickupAt, userRewardId);
+      // Nothing to pay (a reward covers it all): just place it.
+      if (payment === 'at_pickup' || order.total_cents === 0) {
+        return { order: await placeAtPickup(order.id), outcome: 'placed' };
+      }
+      const outcome = await payOrder(order.id);
+      if (outcome === 'cancelled') return { order: order as OrderRow, outcome };
+      return { order: await waitForPayment(order.id), outcome: 'paid' };
+    },
+    onSuccess: ({ outcome }) => {
+      if (outcome === 'cancelled') return;
       useCartStore.getState().clear();
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['active-order'] });

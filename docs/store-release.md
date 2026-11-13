@@ -6,10 +6,14 @@ changes, change these answers in both consoles too.
 
 ## Before the first submission: blockers
 
-- [x] **Payment.** Customers pay at the counter when they pick up (no
-      payment in the app, so no in-app purchase rules apply). If online
-      payment comes later, food is a physical good: a provider like Stripe,
-      not Apple's or Google's in-app purchase.
+- [x] **Payment.** Customers pay in the app with Stripe (card, Apple Pay,
+      Google Pay, Bancontact) or at the counter when they pick up. Food is
+      a physical good, so Apple's and Google's in-app purchase rules don't
+      apply (Apple guideline 3.1.3(e), Google Play's payments policy for
+      physical goods): Stripe is allowed, and required to stay that way.
+- [ ] **Stripe set up** for production: live keys, payment methods, the
+      webhook, the Apple merchant ID and Google Pay production access
+      ([DEPLOYMENT.md → Online payment](DEPLOYMENT.md#online-payment-stripe)).
 - [ ] **A reviewer account**: an email and password with some points and an
       order, written in App Store Connect → App Review Information and in
       Play Console → App access.
@@ -52,6 +56,7 @@ Tracking: **No**. No data is used for tracking or shared with data brokers.
 | Contact Info → Name | Yes (display name) | Yes | App Functionality |
 | User Content → Photos or Videos | Yes (challenge photos, shown to other members only if the person shares one; a profile photo, if added, shown on the leaderboard only if the person joins it) | Yes | App Functionality |
 | Purchases → Purchase History | Yes (orders) | Yes | App Functionality |
+| Financial Info → Payment Info | Yes: Stripe's SDK in the app takes card or bank details for in-app payment (we never receive them). Check Stripe's own App Privacy guidance for its SDK before submitting | Yes | App Functionality |
 | Identifiers → User ID | Yes (account id) | Yes | App Functionality |
 | Usage Data → Product Interaction | Yes (check-ins, challenge results, points) | Yes | App Functionality |
 | Diagnostics → Crash Data | Yes, only with consent | No | App Functionality |
@@ -67,8 +72,8 @@ when "Add to calendar" is tapped.
 
 ## Google Play: Data safety (Play Console → App content → Data safety)
 
-- Data **shared** with third parties: **none** (Supabase and Sentry are
-  service providers).
+- Data **shared** with third parties: **none** (Supabase, Sentry and
+  Stripe are service providers).
 - Data **encrypted in transit**: **Yes**.
 - People can **request deletion**: **Yes**, in the app and on the web.
 
@@ -79,6 +84,7 @@ when "Add to calendar" is tapped.
 | Personal info → Name | Yes | No | No | App functionality, Account management |
 | Photos and videos → Photos | Yes | Yes | No | App functionality |
 | Financial info → Purchase history | Yes | Yes | No | App functionality |
+| Financial info → User payment info | Yes (entered in Stripe's payment sheet, sent to Stripe; we never receive it) | Yes (pay at pickup instead) | No | App functionality, Fraud prevention |
 | App activity → Other actions (check-ins, challenges, points) | Yes | Yes | No | App functionality |
 | App info and performance → Crash logs, Diagnostics | Yes | Yes (consent) | No | Analytics (fixing crashes) |
 

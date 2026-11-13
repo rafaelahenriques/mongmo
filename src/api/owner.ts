@@ -1,3 +1,4 @@
+import { requestRefund } from '@/api/payments';
 import { toApiError } from '@/api/errors';
 import { getCurrentUserId, supabase } from '@/lib/supabase';
 import type { ChallengeRules } from '@/types';
@@ -248,9 +249,12 @@ export async function advanceOrderStatus(
   orderId: string,
   status: 'preparing' | 'ready' | 'collected' | 'cancelled',
 ): Promise<void> {
-  const { error } = await supabase.rpc('advance_order_status', {
+  const { data, error } = await supabase.rpc('advance_order_status', {
     p_order_id: orderId,
     p_status: status,
   });
   if (error) throw toApiError(error);
+  // Cancelling an order paid online gives the money back. If asking
+  // fails, the order shows the refund as due, with Send refund.
+  if (data?.refund_status === 'pending') await requestRefund(orderId).catch(() => undefined);
 }

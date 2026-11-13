@@ -3,10 +3,18 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatInTimeZone } from 'date-fns-tz';
 
-import { COLUMN_LABEL, columnFor, NEXT_STEP, untilPickup, type OwnerColumn } from '@/components/owner/ownerOrderFormat';
+import {
+  COLUMN_LABEL,
+  columnFor,
+  NEXT_STEP,
+  stepLabel,
+  untilPickup,
+  type OwnerColumn,
+} from '@/components/owner/ownerOrderFormat';
 import { ThemedText } from '@/components/ThemedText';
 import { BlockButton } from '@/components/ui/BlockButton';
 import { Segmented } from '@/components/ui/Segmented';
+import { TaskCard } from '@/components/ui/TaskCard';
 import { CardShadow, PageInset } from '@/constants/theme';
 import { useNow } from '@/hooks/useNow';
 import { useOwnerOrders } from '@/hooks/useOwnerOrders';
@@ -38,6 +46,14 @@ export default function OwnerOrdersScreen() {
     .filter((order) => columnFor(order.status) === column)
     .sort((a, b) => (a.pickup_at ?? a.created_at).localeCompare(b.pickup_at ?? b.created_at));
   const next = NEXT_STEP[column];
+  // Cancelled orders paid online whose refund hasn't been confirmed yet.
+  const refundsDue = orders.filter(
+    (order) =>
+      order.status === 'cancelled' &&
+      order.payment === 'online' &&
+      order.paid_at &&
+      (order.refund_status === 'pending' || order.refund_status === 'failed'),
+  );
 
   return (
     <ScrollView
@@ -45,6 +61,16 @@ export default function OwnerOrdersScreen() {
       contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + 32 }]}
       refreshControl={refreshControl}
     >
+      {refundsDue.map((order) => (
+        <TaskCard
+          key={order.id}
+          icon="alert"
+          title={order.refund_status === 'failed' ? 'Refund didn’t go through' : 'Refund on its way'}
+          subtitle={`${pickupCode(order.id)} · €${formatCents(order.total_cents)} · cancelled`}
+          state="arrow"
+          onPress={() => router.push({ pathname: '/(profile)/owner/order/[id]', params: { id: order.id } })}
+        />
+      ))}
       <Segmented
         options={(Object.keys(COLUMN_LABEL) as OwnerColumn[]).map((value) => ({
           value,
@@ -116,12 +142,12 @@ export default function OwnerOrdersScreen() {
                 <ThemedText type="caption" themeColor="textSecondary" style={styles.until}>
                   {/* Paid at pickup: the amount to take until it's handed over. */}
                   {order.paid_at
-                    ? `€${formatCents(order.total_cents)} paid`
+                    ? `€${formatCents(order.total_cents)} paid${order.payment === 'online' ? ' online' : ''}`
                     : `${untilPickup(order.pickup_at, now)} · €${formatCents(order.total_cents)} to pay`}
                 </ThemedText>
                 {next ? (
                   <BlockButton
-                    label={next.label}
+                    label={stepLabel(column, order) ?? next.label}
                     size="compact"
                     tone={column === 'new' ? 'sage' : 'dark'}
                     onPress={() => advance({ orderId: order.id, status: next.status })}

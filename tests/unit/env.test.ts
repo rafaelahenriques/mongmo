@@ -10,6 +10,7 @@ const valid = {
   supabaseUrl: 'https://abcdefghij.supabase.co',
   supabaseAnonKey: ANON,
   sentryDsn: undefined,
+  stripePublishableKey: undefined,
 };
 
 describe('parseEnv', () => {
@@ -19,6 +20,7 @@ describe('parseEnv', () => {
       supabaseUrl: 'https://abcdefghij.supabase.co',
       supabaseAnonKey: ANON,
       sentryDsn: null,
+      stripePublishableKey: null,
     });
   });
 
@@ -53,6 +55,31 @@ describe('parseEnv', () => {
     expect(parseEnv({ ...valid, sentryDsn: ' "https://key@o1.ingest.sentry.io/2" ' }).sentryDsn).toBe(
       'https://key@o1.ingest.sentry.io/2',
     );
+  });
+});
+
+describe('the Stripe key', () => {
+  it('takes a publishable key: test outside production, live in it', () => {
+    expect(parseEnv({ ...valid, stripePublishableKey: 'pk_live_abc' }).stripePublishableKey).toBe('pk_live_abc');
+    expect(
+      parseEnv({ ...valid, appEnv: 'staging', stripePublishableKey: ' "pk_test_abc" ' }).stripePublishableKey,
+    ).toBe('pk_test_abc');
+  });
+
+  it('refuses a secret or restricted key, which could move money', () => {
+    expect(() => parseEnv({ ...valid, stripePublishableKey: 'sk_live_abc' })).toThrow('secret Stripe key');
+    expect(() => parseEnv({ ...valid, stripePublishableKey: 'rk_live_abc' })).toThrow('secret Stripe key');
+  });
+
+  it('keeps test builds from charging real cards, and production from taking test payments', () => {
+    expect(() => parseEnv({ ...valid, appEnv: 'staging', stripePublishableKey: 'pk_live_abc' })).toThrow(
+      'must use a Stripe test key',
+    );
+    expect(() => parseEnv({ ...valid, stripePublishableKey: 'pk_test_abc' })).toThrow('needs the live Stripe key');
+  });
+
+  it('leaves online payment off without a key', () => {
+    expect(parseEnv({ ...valid, stripePublishableKey: '' }).stripePublishableKey).toBeNull();
   });
 });
 

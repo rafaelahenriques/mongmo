@@ -21,7 +21,16 @@ import { openDirections } from '@/services/directions';
 import { haptics } from '@/services/haptics';
 import { orderAgain } from '@/services/orderAgain';
 import { nameFromContent } from '@/utils/a11y';
-import { formatCents, ORDER_STATUS_TITLE, ORDER_STEP, ORDER_STEPS, pickupCode } from '@/utils/orderFormat';
+import {
+  formatCents,
+  ORDER_STATUS_TITLE,
+  ORDER_STEP,
+  ORDER_STEPS,
+  paidOnline,
+  paymentNote,
+  pickupCode,
+  refundNote,
+} from '@/utils/orderFormat';
 import { ErrorState, useRefreshControl } from '@/components/ui/LoadState';
 import { cancelMyOrder } from '@/api/orders';
 import { Button } from '@/components/ui/Button';
@@ -47,16 +56,18 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
     },
     onError: (error) => showError('Couldn’t cancel it', error),
   });
+  const data = order.data;
   const onCancel = async () => {
     const yes = await confirm(
       'Cancel this order?',
-      'The café hasn’t started on it yet. A reward you used comes back to your Wallet.',
+      data && paidOnline(data)
+        ? 'The café hasn’t started on it yet. You get your money back, and a reward you used comes back to your Wallet.'
+        : 'The café hasn’t started on it yet. A reward you used comes back to your Wallet.',
       'Cancel order',
       { cancelLabel: 'Keep it', destructive: true },
     );
     if (yes) cancel.mutate();
   };
-  const data = order.data;
   const level = useLevel();
   const awarded = useQuery({
     queryKey: ['points', 'order', orderId],
@@ -100,6 +111,9 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
   }
 
   const code = pickupCode(data.id);
+  // Paid online, waiting for Stripe's confirmation to place it.
+  const confirming = data.status === 'draft' && data.payment === 'online';
+  const refund = refundNote(data);
   const done = data.status === 'collected' || data.status === 'cancelled';
   // Collected: what the order actually earned. Before: the estimate, with
   // the first-order double or your level's bonus.
@@ -153,10 +167,14 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
           </View>
           <View style={styles.ticketBottom}>
             <ThemedText type="title" accessibilityRole="header" style={{ color: theme.onBrand }}>
-              {ORDER_STATUS_TITLE[data.status]}
+              {confirming ? 'Confirming' : ORDER_STATUS_TITLE[data.status]}
             </ThemedText>
             <ThemedText type="small" style={{ color: theme.onBrand }}>
-              {data.status === 'cancelled' ? 'This order was cancelled.' : pickup}
+              {data.status === 'cancelled'
+                ? 'This order was cancelled.'
+                : confirming
+                  ? 'Your payment is being confirmed. This takes a few seconds.'
+                  : pickup}
             </ThemedText>
           </View>
         </View>
@@ -189,7 +207,13 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
               />
             ))}
             {data.discount_cents ? <ListRow title="Reward" value={`−${formatCents(data.discount_cents)}`} /> : null}
-            <ListRow title="Total" value={formatCents(data.total_cents)} last={data.status === 'cancelled'} />
+            <ListRow
+              title="Total"
+              subtitle={paymentNote(data)}
+              value={formatCents(data.total_cents)}
+              last={data.status === 'cancelled' && !refund}
+            />
+            {refund ? <ListRow title={refund.title} subtitle={refund.subtitle} last /> : null}
             {data.status !== 'cancelled' && earned > 0 ? (
               <ListRow
                 title="Points"

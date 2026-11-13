@@ -230,10 +230,15 @@ type OrderRow = {
   pickup_at: string | null;
   user_reward_id: string | null;
   created_at: string;
-  /** How it's paid: at the counter on pickup (the only way for now). */
-  payment: 'at_pickup';
-  /** When staff took the payment: set as they mark it collected. */
+  /** How it's paid: at the counter on pickup, or online with Stripe (0036). */
+  payment: 'at_pickup' | 'online';
+  /** When it was paid: online, when Stripe confirmed it; at pickup, when staff mark it collected. */
   paid_at: string | null;
+  /** The Stripe PaymentIntent of an online payment. */
+  stripe_payment_intent_id: string | null;
+  /** A cancelled online payment's refund: being made, done, or failed (staff can retry). */
+  refund_status: 'pending' | 'refunded' | 'failed' | null;
+  refunded_at: string | null;
 };
 
 type OrderItemRow = {
