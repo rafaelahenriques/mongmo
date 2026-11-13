@@ -7,6 +7,12 @@
     "icon": "./assets/images/icon.png",
     "scheme": "mongmo",
     "userInterfaceStyle": "automatic",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/78581b24-d9be-4459-95bb-0f14b4aaeefc"
+    },
     "ios": {
       "icon": "./assets/mongmo.icon",
       "bundleIdentifier": "com.mongmostore.app",

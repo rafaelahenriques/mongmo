@@ -14,6 +14,11 @@ From `main` to the App Store and Google Play.
   production build.
 - Each release is a **tag** `v1.4.0` on `main`, and a GitHub release with
   its changelog.
+- The version is also the **runtime version** for over-the-air updates:
+  an update only reaches builds of the same version. So a release that
+  changes native code (a new native package, `app.json` plugins or
+  permissions, an SDK upgrade) always gets a new version, never an
+  over-the-air update ([`DEPLOYMENT.md`](DEPLOYMENT.md#over-the-air-updates)).
 
 ## The pipeline
 

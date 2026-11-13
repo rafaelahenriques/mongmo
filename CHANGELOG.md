@@ -61,6 +61,8 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Changed
 
+- Small fixes can now reach the app the same day, without waiting for a
+  store update. The app checks for one when it opens.
 - Photos upload faster and use far less data: they're made smaller on
   your phone before they're sent.
 - A smaller, lighter app: about a fifth less code to download and start.
