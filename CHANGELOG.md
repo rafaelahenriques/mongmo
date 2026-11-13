@@ -107,6 +107,8 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Fixed
 
+- On the web, sending a photo failed: the site's security rules stopped
+  the app reading the photo you had just picked.
 - Owner tools: the orders board kept every order ever placed, getting
   slower each week, and lost customers' names and dishes after a few
   hundred orders. It now holds what's in the kitchen, the last day's
