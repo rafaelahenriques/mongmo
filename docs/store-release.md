@@ -18,6 +18,18 @@ changes, change these answers in both consoles too.
       the app's policy (the text of `public/privacy.html`, built from the
       in-app policy). Its "Your rights" section is the deletion page Google
       Play asks for. The app's web version doesn't need to be online.
+- [ ] **Terms of use URL**: the same for `public/terms.html`, e.g.
+      `https://www.mongmo-store.com/app-terms` (App Store Connect → the
+      app's license agreement field can point to it, or keep Apple's
+      standard one).
+- [ ] **Company details in the terms**: add Mongmo's enterprise number
+      (KBO/BCE) and VAT number to "Who we are" in
+      `src/constants/termsOfUse.json`. Belgian law asks for both wherever
+      you sell to consumers online.
+- [ ] **Allergens filled in** for every menu item, dips and extras
+      included, from the kitchen's recipes (template in
+      `supabase/base.sql`). EU food law requires them before someone
+      orders; until then the app says they aren't listed and to ask.
 
 ## Both stores
 

@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AllergenInfo } from '@/components/order/AllergenInfo';
 import { CategoryIcon } from '@/components/order/CategoryIcon';
 import { ThemedText } from '@/components/ThemedText';
 import { BlockButton } from '@/components/ui/BlockButton';
@@ -138,6 +139,7 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
               </ThemedText>
             ) : null}
           </View>
+          <AllergenInfo item={item} options={groups.flatMap((group) => group.items)} />
           {groups.map((group) =>
             group.choice ? (
               <View key={group.name} style={styles.group}>

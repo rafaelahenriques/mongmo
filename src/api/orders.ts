@@ -14,6 +14,8 @@ export type OrderMenuItem = {
   category: string | null;
   /** The sections this is an option for (a dip, extra protein); null for a normal item. */
   addOnFor: string[] | null;
+  /** Which of the 14 EU allergens it contains; null when not filled in yet, [] for none. */
+  allergens: string[] | null;
 };
 
 export type OrderRow = Database['public']['Tables']['orders']['Row'];
@@ -39,7 +41,7 @@ export async function getMenuItems(location: CartLocation): Promise<OrderMenuIte
 
   const { data, error } = await supabase
     .from('menu_items')
-    .select('id, name, description, price_cents, image_url, category, add_on_for')
+    .select('id, name, description, price_cents, image_url, category, add_on_for, allergens')
     .in('menu_id', menuIds)
     .eq('available', true)
     .order('sort_order');
@@ -53,6 +55,7 @@ export async function getMenuItems(location: CartLocation): Promise<OrderMenuIte
     imageUrl: row.image_url,
     category: row.category,
     addOnFor: row.add_on_for,
+    allergens: row.allergens,
   }));
 }
 

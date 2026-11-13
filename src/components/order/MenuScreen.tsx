@@ -210,6 +210,9 @@ export default function MenuScreen() {
             })}
           </View>
         )}
+        <ThemedText type="caption" themeColor="textSecondary" style={styles.note}>
+          Prices include VAT. Each dish’s allergens are on its page.
+        </ThemedText>
       </ScrollView>
 
       {count ? (
@@ -280,6 +283,9 @@ function Reorder({ placeName, onDone }: { placeName?: string; onDone: () => void
 }
 
 const styles = StyleSheet.create({
+  note: {
+    marginTop: 16,
+  },
   // A soft pill on the stone card, not a link: the whole card opens the places.
   change: {
     paddingHorizontal: 14,

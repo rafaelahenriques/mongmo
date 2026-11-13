@@ -51,6 +51,10 @@ the release workflow publishes that section as the GitHub release notes.
 - Tap someone's photo on the leaderboard to see it bigger, and report it
   if it isn't right: it's hidden straight away. Staff put it back or
   remove it in Owner tools → Reported photos.
+- Allergens on every dish's page, dips and extras included, with a way to
+  ask us by email. A dish whose allergens aren't filled in yet says so.
+- "Prices include VAT" on the menu, cart and checkout.
+- Terms of use, in Settings and on sign-up, and as a web page.
 
 ### Changed
 

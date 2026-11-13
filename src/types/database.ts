@@ -116,6 +116,8 @@ type MenuItemRow = {
   available: boolean;
   /** Sections this item is an option for (0017); null for a normal item. */
   add_on_for: string[] | null;
+  /** Which of the 14 EU allergens it contains (0035); null = not filled in yet. */
+  allergens: string[] | null;
 };
 
 type ChallengeRow = {
