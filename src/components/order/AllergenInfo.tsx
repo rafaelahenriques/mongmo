@@ -35,7 +35,8 @@ export function AllergenInfo({ item, options }: { item: OrderMenuItem; options: 
       <View style={styles.ask}>
         <Button
           label="Ask us by email"
-          accessibilityLabel={`Ask about allergens by email, ${ALLERGY_CONTACT}`}
+          // Starts with the visible words, so voice control finds it by what it says.
+          accessibilityLabel={`Ask us by email about allergens, ${ALLERGY_CONTACT}`}
           variant="secondary"
           size="small"
           icon="mail"
