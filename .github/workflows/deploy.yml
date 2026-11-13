@@ -1,8 +1,9 @@
 name: Deploy
 
 # Ships a commit to staging or production: database migrations, then iOS and
-# Android builds on EAS, optionally sent on to the stores. Every CI check runs
-# first. Each target is a GitHub environment with its own secrets; give
+# Android builds on EAS, optionally sent on to the stores; or, for a fix in
+# the JavaScript only, an over-the-air update to the builds already on
+# phones. Every CI check runs first. Each target is a GitHub environment with its own secrets; give
 # "production" required reviewers so nothing reaches customers without an
 # approval.
 #
@@ -23,7 +24,7 @@ on:
       ship:
         description: What to ship
         type: choice
-        options: [database and app, database only, app only]
+        options: [database and app, database only, app only, update (JavaScript only)]
         default: database and app
       submit:
         description: Send production builds to TestFlight and Google Play (internal testing)
@@ -55,7 +56,7 @@ jobs:
   database:
     name: Database migrations
     needs: checks
-    if: inputs.ship != 'app only'
+    if: inputs.ship == 'database and app' || inputs.ship == 'database only'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: ${{ inputs.target }}
@@ -84,7 +85,7 @@ jobs:
   functions:
     name: Edge Functions (online payment)
     needs: database
-    if: inputs.ship != 'app only'
+    if: inputs.ship == 'database and app' || inputs.ship == 'database only'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment: ${{ inputs.target }}
@@ -123,7 +124,8 @@ jobs:
     name: App builds on EAS
     needs: [checks, database]
     if: >-
-      always() && inputs.ship != 'database only' && needs.checks.result == 'success' &&
+      always() && (inputs.ship == 'database and app' || inputs.ship == 'app only') &&
+      needs.checks.result == 'success' &&
       (needs.database.result == 'success' || needs.database.result == 'skipped')
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -156,3 +158,53 @@ jobs:
           PROFILE: ${{ inputs.target }}
           SUBMIT: ${{ inputs.target == 'production' && inputs.submit && '--auto-submit' || '' }}
         run: eas build --profile "$PROFILE" --platform all --non-interactive --no-wait $SUBMIT
+
+  update:
+    name: Over-the-air update (JavaScript only)
+    # For a fix that changes no native code: the builds already on phones
+    # download it the next time they open, and use it from the start after.
+    # It reaches only builds of the same app version (the runtime version),
+    # on this target's channel. A change that adds a native package or
+    # touches app.json's plugins or permissions needs a new version and a
+    # build instead: docs/DEPLOYMENT.md → Over-the-air updates.
+    needs: checks
+    if: inputs.ship == 'update (JavaScript only)'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.target }}
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+      SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
+    steps:
+      - name: Check the environment is set up
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::Add the EXPO_TOKEN secret to the '${{ inputs.target }}' environment (docs/DEPLOYMENT.md)."
+            exit 1
+          fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - uses: expo/expo-github-action@9da89d3617bb88139671bad31b09c65714c2ee06 # 9.0.1
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Publish the update
+        # The channel is the target's (eas.json). --environment brings the
+        # same variables the builds get from expo.dev; EXPO_PUBLIC_APP_ENV
+        # comes from eas.json's build profile there, so it's set here.
+        env:
+          CHANNEL: ${{ inputs.target }}
+          EAS_ENVIRONMENT: ${{ inputs.target == 'production' && 'production' || 'preview' }}
+          EXPO_PUBLIC_APP_ENV: ${{ inputs.target }}
+        run: |
+          eas update --channel "$CHANNEL" --environment "$EAS_ENVIRONMENT" \
+            --message "$(git log -1 --format=%s)" --non-interactive
+      - name: Source maps to Sentry, so crash reports from the update show the real code
+        if: env.SENTRY_AUTH_TOKEN != ''
+        run: npx sentry-expo-upload-sourcemaps dist

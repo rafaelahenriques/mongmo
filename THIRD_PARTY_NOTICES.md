@@ -25,7 +25,7 @@ end up inside the app; they are listed anyway. Don't edit this file by hand.
 This project started from Expo's `create-expo-app` template.
 Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full text below).
 
-## npm packages (809)
+## npm packages (814)
 
 | Package | Version | Licence | Copyright |
 | --- | --- | --- | --- |
@@ -126,6 +126,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @expo/devtools | 58.0.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | @expo/dom-webview | 58.0.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | @expo/env | 2.5.4 | MIT | Copyright (c) 2023-present 650 Industries, Inc. (aka Expo) |
+| @expo/env | 2.6.0 | MIT | Copyright (c) 2023-present 650 Industries, Inc. (aka Expo) |
 | @expo/fingerprint | 0.21.9 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | @expo/image-utils | 0.12.6 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | @expo/inline-modules | 0.2.9 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
@@ -141,7 +142,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @expo/osascript | 2.8.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | @expo/package-manager | 1.14.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | @expo/platforms | 58.0.1 | MIT | Copyright (c) 2023-present 650 Industries, Inc. (aka Expo) |
-| @expo/plist | 0.10.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| @expo/plist | 0.10.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | @expo/prebuild-config | 58.0.19 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | @expo/require-utils | 58.0.5 | MIT | Copyright (c) 2025-present 650 Industries, Inc. (aka Expo) |
 | @expo/router-server | 58.0.21 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
@@ -295,6 +296,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | ansi-styles | 4.3.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | ansi-styles | 5.2.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | anymatch | 3.1.3 | ISC | Copyright (c) 2019 Elan Shanker, Paul Miller (https://paulmillr.com); copyright notice and this permission notice appear in all copies. |
+| arg | 4.1.3 | MIT | Copyright (c) 2017-2019 Zeit, Inc. |
 | arg | 5.0.2 | MIT | Copyright (c) 2021 Vercel, Inc. |
 | argparse | 1.0.10 | MIT | Copyright (C) 2012 by Vitaly Puzrin |
 | argparse | 2.0.1 | Python-2.0 | Copyright (c) 1991 - 1995, Stichting Mathematisch Centrum Amsterdam, |
@@ -420,6 +422,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | expo-dev-launcher | 58.0.18 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-dev-menu | 58.0.12 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-dev-menu-interface | 58.0.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-eas-client | 58.0.2 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-file-system | 58.0.13 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-font | 58.0.11 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-glass-effect | 58.0.5 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
@@ -445,9 +448,11 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | expo-server | 58.0.6 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-splash-screen | 58.0.13 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-status-bar | 58.0.4 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-structured-headers | 58.0.1 | MIT | 650 Industries, Inc. |
 | expo-symbols | 58.0.4 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-system-ui | 58.0.7 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-task-manager | 58.0.13 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-updates | 58.0.22 | MIT | 650 Industries, Inc. |
 | expo-updates-interface | 58.0.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | exponential-backoff | 3.1.3 | Apache-2.0 | copyright notice that is included in or attached to the work; copyright license to reproduce, prepare Derivative Works of, |
 | fast-json-stable-stringify | 2.1.0 | MIT | Copyright (c) 2017 Evgeny Poberezkin; Copyright (c) 2013 James Halliday |

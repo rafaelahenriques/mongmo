@@ -187,6 +187,55 @@ supabase db push --db-url "$SUPABASE_DB_URL"
 eas build --profile staging --platform all                # or production
 ```
 
+## Over-the-air updates
+
+A fix that changes only JavaScript or images can reach the builds already
+on phones without a store review (EAS Update, `expo-updates`). The app
+asks Expo's server for a newer version when it opens, downloads it in the
+background, and uses it from the next start.
+
+**Use it for** a bug fix, a text, a colour. **Not for** anything that adds
+a native package, changes `app.json`'s plugins or permissions, or upgrades
+the Expo SDK: the builds on phones don't contain that native code, so
+ship a new version through the stores instead. Apple's developer
+agreement also allows downloaded JavaScript only while it doesn't change
+what the app is for: new features go through review.
+
+How it's kept safe:
+
+- **Runtime version = app version** (`runtimeVersion: { policy:
+  "appVersion" }`). An update published from version 1.2.0 reaches only
+  1.2.0 builds. So bump the version (`npm version`) for every release
+  that changes native code, as [`release-process.md`](release-process.md)
+  already says, and old builds never get JavaScript they can't run.
+- **A channel per environment** (`eas.json`): staging builds listen to
+  `staging`, production builds to `production`.
+- If an update crashes on start, the app goes back to the one before by
+  itself.
+
+**Publish** (staging first, then production): Actions → Deploy → Run
+workflow → _What to ship_: **update (JavaScript only)**. Every check runs
+first. Or by hand:
+
+```bash
+EXPO_PUBLIC_APP_ENV=production \
+  eas update --channel production --environment production --message "Fix the pickup time label"
+npx sentry-expo-upload-sourcemaps dist                    # with SENTRY_AUTH_TOKEN, SENTRY_ORG, SENTRY_PROJECT set
+```
+
+`EXPO_PUBLIC_APP_ENV` must be set as above (builds get it from
+`eas.json`; an update doesn't), or the update is built as the development
+app.
+
+**Roll back** an update that made things worse:
+
+```bash
+eas update:rollback                                       # asks which: the update before, or the one in the build
+```
+
+A rollback travels like an update: phones download it the next time the
+app opens, and use it from the start after that.
+
 ## Rolling back
 
 First decide what broke: the app, the database, or both. Then stop the
@@ -209,8 +258,8 @@ An installed app can't be taken back from people's phones, so:
    fix is small, fix it on `main` and release that instead.
 3. **Check** Sentry's crash-free rate recovering on the new version.
 
-(Instant over-the-air rollbacks of JavaScript-only changes need EAS Update,
-which the app doesn't use yet: add `expo-updates` if you want that.)
+If the bad change went out as an over-the-air update, not a build, undo
+it with `eas update:rollback` (see above): no store step needed.
 
 ### The database
 

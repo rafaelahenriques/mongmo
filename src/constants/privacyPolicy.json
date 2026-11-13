@@ -35,6 +35,7 @@
         "Supabase hosts our database, sign-in and photo storage, as our processor.",
         "Sentry receives crash reports, only if you said yes, as our processor.",
         "Stripe (Stripe Payments Europe, Ireland) handles payments in the app, as our payment provider. Stripe also uses payment data under its own privacy policy, for example to prevent fraud and to meet its legal duties (stripe.com/privacy).",
+        "Expo (650 Industries, United States) delivers small fixes to the app between store updates, as our processor. When the app opens, it asks Expo's server whether there is a newer version. The request carries your phone's system (iOS or Android), the app's version and a random token for this installation: not your account, and no device identifier. Expo is certified under the EU–US Data Privacy Framework.",
         "Apple and Google run the app stores, your phone's location services, and the maps app that opens when you ask for directions.",
         "Staff tools only: when Mongmo staff search for an address for a new pop-up, the search text goes to Photon (komoot) to find it.",
         "We don't sell your data, use advertising networks, or track you across other apps and websites."

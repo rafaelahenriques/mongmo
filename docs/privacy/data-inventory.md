@@ -49,6 +49,7 @@ Notifications are scheduled on the phone: no push token is collected.
 |---|---|---|---|---|
 | Supabase | Everything in the first table | Using the app | Processor (hosting, database, auth, storage) | Needed to run the app |
 | Sentry | Crash reports: code, device model, OS and app version; scrubbed of personal data (`crashReporting.ts`) | A crash | Processor | **Consent** (asked once, Settings → Crash reports) |
+| Expo (EAS Update; 650 Industries, USA) | The phone's system (iOS or Android), the app's version, the project id and a random token for this installation (Expo: "non-identifying", no unique device identifier); as with any request, the server sees the IP address | Opening the app: it asks for a newer version | Processor (delivering app updates); EU–US Data Privacy Framework | Needed to keep the app working between store releases; no account data |
 | Stripe | Card, Apple Pay, Google Pay or Bancontact details, typed into Stripe's payment sheet and sent from it to Stripe; from our server, the amount and the order and account ids (as metadata) | Paying in the app (Pay now) | Payment provider; independent controller for its own fraud prevention and legal duties | Only when the person chooses to pay in the app |
 | Apple / Google | Location (OS services), directions destination | Location features; "Directions" | Platform | OS permission prompts |
 | Photon (komoot) | Address search text | Staff creating a pop-up | Third party | Staff only |

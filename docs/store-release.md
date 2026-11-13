@@ -60,7 +60,7 @@ Tracking: **No**. No data is used for tracking or shared with data brokers.
 | Financial Info → Payment Info | Yes: Stripe's SDK in the app takes card or bank details for in-app payment (we never receive them). Check Stripe's own App Privacy guidance for its SDK before submitting | Yes | App Functionality |
 | Identifiers → User ID | Yes (account id) | Yes | App Functionality |
 | Usage Data → Product Interaction | Yes (check-ins, challenge results, points) | Yes | App Functionality |
-| Diagnostics → Crash Data | Yes, only with consent | No | App Functionality |
+| Diagnostics → Crash Data | Yes: crash reports to Sentry only with consent; and Expo's update service learns when an update failed to start (Expo's own guidance for apps with `expo-updates` is to declare Crash Data) | No | App Functionality |
 | Location → Precise Location | No: sent once to check a check-in and not stored (processed in real time only) | — | — |
 
 If in doubt about location, declaring it (Precise, linked, App
@@ -73,8 +73,8 @@ when "Add to calendar" is tapped.
 
 ## Google Play: Data safety (Play Console → App content → Data safety)
 
-- Data **shared** with third parties: **none** (Supabase, Sentry and
-  Stripe are service providers).
+- Data **shared** with third parties: **none** (Supabase, Sentry, Stripe
+  and Expo's update service are service providers).
 - Data **encrypted in transit**: **Yes**.
 - People can **request deletion**: **Yes**, in the app and on the web.
 
@@ -87,7 +87,7 @@ when "Add to calendar" is tapped.
 | Financial info → Purchase history | Yes | Yes | No | App functionality |
 | Financial info → User payment info | Yes (entered in Stripe's payment sheet, sent to Stripe; we never receive it) | Yes (pay at pickup instead) | No | App functionality, Fraud prevention |
 | App activity → Other actions (check-ins, challenges, points) | Yes | Yes | No | App functionality |
-| App info and performance → Crash logs, Diagnostics | Yes | Yes (consent) | No | Analytics (fixing crashes) |
+| App info and performance → Crash logs, Diagnostics | Yes | Yes (consent for Sentry's crash reports; the update check to Expo is needed for the app to work) | No | Analytics (fixing crashes); App functionality (app updates) |
 
 ## Google Play: other declarations (App content)
 

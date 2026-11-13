@@ -7,6 +7,7 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
+      "channel": "development",
       "environment": "development",
       "env": {
         "EXPO_PUBLIC_APP_ENV": "development"
@@ -20,6 +21,7 @@
     },
     "staging": {
       "distribution": "internal",
+      "channel": "staging",
       "environment": "preview",
       "env": {
         "EXPO_PUBLIC_APP_ENV": "staging"
@@ -27,6 +29,7 @@
     },
     "production": {
       "autoIncrement": true,
+      "channel": "production",
       "environment": "production",
       "env": {
         "EXPO_PUBLIC_APP_ENV": "production"

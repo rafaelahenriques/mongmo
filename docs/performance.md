@@ -85,8 +85,8 @@ build over budget fails.
 
 | | Budget | Now |
 |---|---|---|
-| Web JavaScript, all files | 6,000 KB | 5,490 KB |
-| Web JavaScript, largest file | 4,000 KB | 3,663 KB |
+| Web JavaScript, all files | 6,000 KB | 5,502 KB |
+| Web JavaScript, largest file | 4,000 KB | 3,676 KB |
 
 Raise a budget only on purpose: say in the pull request what grew and why,
 and change it here and in the script together.

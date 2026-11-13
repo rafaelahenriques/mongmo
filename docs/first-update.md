@@ -37,6 +37,11 @@ Sort the list once a week, top to bottom:
 Keep the first update small: the fixes from 1–3 and one or two things from
 4. Small updates get through review faster and are easier to roll back.
 
+A fix that only changes JavaScript (a wrong label, a broken button) doesn't
+need a store review at all: it can go out as an over-the-air update the
+same day ([DEPLOYMENT.md](DEPLOYMENT.md#over-the-air-updates)). New
+features and anything native still go through the stores.
+
 ## Getting it through review
 
 - Write the "What's New" text in plain words: what's fixed and what's new,
