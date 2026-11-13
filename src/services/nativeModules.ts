@@ -12,6 +12,7 @@ const NATIVE_MODULES = {
   imagePicker: 'ExponentImagePicker',
   motion: 'ExponentDeviceMotion',
   calendar: 'ExpoCalendar',
+  imageManipulator: 'ExpoImageManipulator',
 } as const;
 
 export type NativeFeature = keyof typeof NATIVE_MODULES;

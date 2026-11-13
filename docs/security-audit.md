@@ -48,7 +48,10 @@ the checks marked ↻ before each release.
 - `public/_headers`: HSTS, nosniff, no framing, referrer and permissions
   policies, and a Content-Security-Policy (images only from the app and
   Supabase, since the demo pictures stopped coming from Unsplash). The accessibility walk-through
-  runs every screen under it and fails if anything is blocked.
+  runs every screen under it and fails if anything is blocked. `connect-src`
+  also allows `blob:` and `data:`: that's how the web app reads a photo the
+  person just picked or took, before uploading it. Both are data already
+  in the page; neither can send anything anywhere.
 
 ## Authentication
 

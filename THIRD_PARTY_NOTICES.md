@@ -25,7 +25,7 @@ end up inside the app; they are listed anyway. Don't edit this file by hand.
 This project started from Expo's `create-expo-app` template.
 Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full text below).
 
-## npm packages (808)
+## npm packages (809)
 
 | Package | Version | Licence | Copyright |
 | --- | --- | --- | --- |
@@ -184,8 +184,8 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @jridgewell/source-map | 0.3.11 | MIT | Copyright 2024 Justin Ridgewell <justin@ridgewell.name> |
 | @jridgewell/sourcemap-codec | 1.6.0 | MIT | Copyright 2024 Justin Ridgewell <justin@ridgewell.name> |
 | @jridgewell/trace-mapping | 0.3.31 | MIT | Copyright 2024 Justin Ridgewell <justin@ridgewell.name> |
-| @noxcturnal/noxcturnal-linux-x64-gnu | 0.1.11 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright (c) 2026-present VoidZero Inc. & Contributors |
-| @noxcturnal/noxcturnal-linux-x64-musl | 0.1.11 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright (c) 2026-present VoidZero Inc. & Contributors |
+| @noxcturnal/noxcturnal-linux-x64-gnu | 0.1.12 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright (c) 2026-present VoidZero Inc. & Contributors |
+| @noxcturnal/noxcturnal-linux-x64-musl | 0.1.12 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright (c) 2026-present VoidZero Inc. & Contributors |
 | @oxc-project/types | 0.154.0 | MIT | Copyright (c) 2024-present VoidZero Inc. & Contributors; Copyright (c) 2023 Boshen |
 | @parcel/watcher | 2.6.0 | MIT | Copyright (c) 2017-present Devon Govett |
 | @parcel/watcher-linux-x64-glibc | 2.6.0 | MIT | Copyright (c) 2017-present Devon Govett |
@@ -244,18 +244,19 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @sinclair/typebox | 0.34.52 | MIT | Copyright (c) 2017-2026 Haydn Paterson |
 | @sinonjs/commons | 3.0.1 | BSD-3-Clause | Copyright (c) 2018, Sinon.JS |
 | @sinonjs/fake-timers | 15.4.0 | BSD-3-Clause | Copyright (c) 2010-2014, Christian Johansen, christian@cjohansen.no. All rights reserved. |
-| @supabase/auth-js | 2.117.2 | MIT | Copyright (c) 2020 Supabase |
-| @supabase/functions-js | 2.117.2 | MIT | Copyright (c) 2020 Supabase |
+| @stripe/stripe-react-native | 0.81.0 | MIT | Copyright (c) 2020 stripe |
+| @supabase/auth-js | 2.119.0 | MIT | Copyright (c) 2020 Supabase |
+| @supabase/functions-js | 2.119.0 | MIT | Copyright (c) 2020 Supabase |
 | @supabase/phoenix | 0.4.5 | MIT | Copyright (c) 2014 Chris McCord |
-| @supabase/postgrest-js | 2.117.2 | MIT | Copyright (c) 2020 Supabase |
-| @supabase/realtime-js | 2.117.2 | MIT | Copyright (c) 2020 Supabase |
-| @supabase/storage-js | 2.117.2 | MIT | Copyright (c) 2020 Supabase |
-| @supabase/supabase-js | 2.117.2 | MIT | Copyright (c) 2020 Supabase |
-| @tanstack/query-async-storage-persister | 5.103.2 | MIT | Copyright (c) 2021-present Tanner Linsley |
-| @tanstack/query-core | 5.103.2 | MIT | Copyright (c) 2021-present Tanner Linsley |
-| @tanstack/query-persist-client-core | 5.103.2 | MIT | Copyright (c) 2021-present Tanner Linsley |
-| @tanstack/react-query | 5.103.2 | MIT | Copyright (c) 2021-present Tanner Linsley |
-| @tanstack/react-query-persist-client | 5.103.2 | MIT | Copyright (c) 2021-present Tanner Linsley |
+| @supabase/postgrest-js | 2.119.0 | MIT | Copyright (c) 2020 Supabase |
+| @supabase/realtime-js | 2.119.0 | MIT | Copyright (c) 2020 Supabase |
+| @supabase/storage-js | 2.119.0 | MIT | Copyright (c) 2020 Supabase |
+| @supabase/supabase-js | 2.119.0 | MIT | Copyright (c) 2020 Supabase |
+| @tanstack/query-async-storage-persister | 5.106.1 | MIT | Copyright (c) 2021-present Tanner Linsley |
+| @tanstack/query-core | 5.106.1 | MIT | Copyright (c) 2021-present Tanner Linsley |
+| @tanstack/query-persist-client-core | 5.106.1 | MIT | Copyright (c) 2021-present Tanner Linsley |
+| @tanstack/react-query | 5.106.1 | MIT | Copyright (c) 2021-present Tanner Linsley |
+| @tanstack/react-query-persist-client | 5.106.1 | MIT | Copyright (c) 2021-present Tanner Linsley |
 | @testing-library/react-native | 14.1.0 | MIT | Copyright (c) 2018 Callstack and Rally Health |
 | @types/babel__core | 7.20.5 | MIT | Copyright (c) Microsoft Corporation. |
 | @types/babel__generator | 7.27.0 | MIT | Copyright (c) Microsoft Corporation. |
@@ -425,6 +426,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | expo-haptics | 58.0.7 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-image | 58.0.18 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-image-loader | 58.0.3 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
+| expo-image-manipulator | 58.0.16 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-image-picker | 58.0.10 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-json-utils | 58.0.1 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
 | expo-keep-awake | 58.0.3 | MIT | Copyright (c) 2015-present 650 Industries, Inc. (aka Expo) |
@@ -567,7 +569,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | lru-cache | 10.4.3 | ISC | Copyright (c) 2010-2023 Isaac Z. Schlueter and Contributors; copyright notice and this permission notice appear in all copies. |
 | lru-cache | 11.5.3 | BlueOak-1.0.0 | copyright in it. |
 | lru-cache | 5.1.1 | ISC | Copyright (c) Isaac Z. Schlueter and Contributors; copyright notice and this permission notice appear in all copies. |
-| lucide-react-native | 1.47.0 | ISC | Copyright (c) 2026 Lucide Icons and Contributors; copyright notice and this permission notice appear in all copies. |
+| lucide-react-native | 1.69.0 | ISC | Copyright (c) 2026 Lucide Icons and Contributors; copyright notice and this permission notice appear in all copies. |
 | magic-string | 0.30.21 | MIT | Copyright 2018 Rich Harris |
 | make-dir | 4.0.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
 | makeerror | 1.0.12 | BSD-3-Clause | Copyright (c) 2014, Naitik Shah. All rights reserved. |
@@ -630,7 +632,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | node-int64 | 0.4.0 | MIT | Copyright (c) 2014 Robert Kieffer |
 | node-releases | 2.0.56 | MIT | Copyright (c) 2017 Sergey Rubanov (https://github.com/chicoxyzzy) |
 | normalize-path | 3.0.0 | MIT | Copyright (c) 2014-2018, Jon Schlinkert. |
-| noxcturnal | 0.1.11 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright (c) 2026-present VoidZero Inc. & Contributors |
+| noxcturnal | 0.1.12 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates.; Copyright (c) 2026-present VoidZero Inc. & Contributors |
 | npm-package-arg | 11.0.3 | ISC | Copyright (c) npm, Inc.; copyright notice and this permission notice appear in all copies. |
 | npm-run-path | 4.0.1 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com) |
 | nth-check | 2.1.1 | BSD-2-Clause | Copyright (c) Felix Böhm |
@@ -693,7 +695,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | react-native-gesture-handler | 3.3.0 | MIT | Copyright (c) 2016 Software Mansion <swmansion.com> |
 | react-native-is-edge-to-edge | 1.3.1 | MIT | Copyright (c) 2024 Mathieu Acthernoene |
 | react-native-maps | 1.29.11 | MIT | Copyright (c) 2015 Airbnb |
-| react-native-qrcode-svg | 6.3.26 | MIT | Copyright (c) 2016 JerryShen |
+| react-native-qrcode-svg | 6.3.54 | MIT | Copyright (c) 2016 JerryShen |
 | react-native-reanimated | 4.7.1 | MIT | Copyright (c) 2016 Software Mansion <swmansion.com> |
 | react-native-safe-area-context | 5.11.1 | MIT | Copyright (c) 2019 Th3rd Wave |
 | react-native-screens | 4.30.1 | MIT | Copyright (c) 2018 Software Mansion <swmansion.com> |
@@ -801,7 +803,6 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | unrs-resolver | 1.12.2 | MIT | See https://github.com/unrs/unrs-resolver |
 | update-browserslist-db | 1.3.3 | MIT | Copyright 2022 Andrey Sitnik <andrey@sitnik.es> and other contributors; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
 | use-latest-callback | 0.2.6 | MIT | Copyright (c) 2023 Satyajit Sahoo |
-| use-sync-external-store | 1.7.0 | MIT | Copyright (c) Meta Platforms, Inc. and affiliates. |
 | utils-merge | 1.0.1 | MIT | Copyright (c) 2013-2017 Jared Hanson; COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER |
 | v8-to-istanbul | 9.3.0 | ISC | Copyright (c) 2017, Contributors |
 | validate-npm-package-name | 5.0.1 | ISC | Copyright (c) 2015, npm, Inc |
@@ -835,7 +836,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | yargs-parser | 18.1.3 | ISC | Copyright (c) 2016, Contributors |
 | yargs-parser | 21.1.1 | ISC | Copyright (c) 2016, Contributors |
 | yocto-queue | 0.1.0 | MIT | Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (https://sindresorhus.com) |
-| zustand | 5.0.15 | MIT | Copyright (c) 2019 Paul Henschel |
+| zustand | 5.0.16 | MIT | Copyright (c) 2019 Paul Henschel |
 | zxing-wasm | 3.1.3 | MIT | Copyright (c) 2023 Ze-Zheng Wu |
 
 ## Licence texts

@@ -61,6 +61,8 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Changed
 
+- Photos upload faster and use far less data: they're made smaller on
+  your phone before they're sent.
 - A smaller, lighter app: about a fifth less code to download and start.
   It stops checking for updates in the background and on orders that are
   done, and keeps shared photos instead of downloading them again.
@@ -107,6 +109,8 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Fixed
 
+- On the web, sending a photo failed: the site's security rules stopped
+  the app reading the photo you had just picked.
 - Owner tools: the orders board kept every order ever placed, getting
   slower each week, and lost customers' names and dishes after a few
   hundred orders. It now holds what's in the kitchen, the last day's

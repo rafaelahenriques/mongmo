@@ -18,6 +18,8 @@ Numbers are from release exports (`npx expo export`) and a local Supabase,
 | An order's status screen, once collected or cancelled | checked every 15 s | not checked | |
 | Polling with the app in the background (phones) | carried on | paused | |
 | Shared photos and the photo gallery, on each refresh | downloaded again | from the cache | |
+| A camera photo, uploaded (estimate, 12 MP) | 1.5–2.9 MB | 180–330 KB | about −90% |
+| A profile photo, uploaded (estimate, 12 MP) | 1.5–2.9 MB | 80–150 KB | about −95% |
 
 **The icon library.** `import { Plus } from 'lucide-react-native'` put all of
 Lucide's ~4,000 icons in the app: Metro doesn't drop unused exports. Each
@@ -43,6 +45,15 @@ come through signed links that change every time they're fetched, so the
 image cache never matched and each refresh downloaded every photo again.
 They're now cached by their storage path, as profile photos already were.
 
+**Uploaded photos** went up as the camera made them, several megabytes
+each, and a 44-point leaderboard avatar downloaded all of it. They're now
+shrunk on the phone first (`src/services/shrinkImage.ts`): challenge
+photos and pop-up images to 1,600 pixels on the longest side, profile
+photos to 1,024, saved as JPEG at 80% quality. HEIC photos become JPEG
+too, which every phone and browser can show. If a photo can't be shrunk,
+the original is sent as before. The sizes in the table are estimates from
+sample photos re-encoded on a computer, not measured on a phone.
+
 **My orders** shows the latest 50 (with a note when there are more; every
 order is in Settings → Your data), so it and the lines lookup behind it
 stay the same size however long someone has been a customer.
@@ -58,11 +69,6 @@ stay the same size however long someone has been a customer.
 
 ## Still open
 
-- **Uploaded photos aren't resized.** Camera and library photos go up at
-  full size (several MB), and a 40 px leaderboard avatar downloads all of
-  it. Resizing before upload (to about 1,080 px for photos, 256 px for
-  avatars) needs `expo-image-manipulator`, Expo's own package; waiting for
-  approval to add it.
 - **The Material Symbols font (950 KB)** is in the Android and web builds
   although only iOS draws symbols: Expo Router loads `expo-symbols` itself
   for its native tabs. Leaving it: removing it would mean overriding how
@@ -79,7 +85,7 @@ build over budget fails.
 
 | | Budget | Now |
 |---|---|---|
-| Web JavaScript, all files | 6,000 KB | 5,474 KB |
+| Web JavaScript, all files | 6,000 KB | 5,490 KB |
 | Web JavaScript, largest file | 4,000 KB | 3,663 KB |
 
 Raise a budget only on purpose: say in the pull request what grew and why,

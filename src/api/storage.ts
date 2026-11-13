@@ -2,7 +2,9 @@ import { Platform } from 'react-native';
 import { File } from 'expo-file-system';
 
 import { toApiError } from '@/api/errors';
+import { log } from '@/lib/log';
 import { supabase } from '@/lib/supabase';
+import { shrinkImage } from '@/services/shrinkImage';
 
 /** A captured or picked image's bytes: `file://` on iOS/Android, `blob:`/`data:` in the browser. */
 async function readImageBytes(uri: string): Promise<ArrayBuffer> {
@@ -28,12 +30,42 @@ const EXTENSION: Record<string, string> = {
 /** The storage buckets: event photos are public; guests' challenge and profile photos private. */
 export type Bucket = 'challenge-photos' | 'event-images' | 'avatars';
 
+/**
+ * The longest side, in pixels, a photo is shrunk to before it's uploaded:
+ * what the largest place it's shown needs on a sharp phone screen (a
+ * profile photo fills the member sheet's width; the others, the screen).
+ */
+const MAX_SIDE: Record<Bucket, number> = {
+  'challenge-photos': 1600,
+  'event-images': 1600,
+  avatars: 1024,
+};
+
+/**
+ * The image to send: shrunk and saved as a JPEG. If that can't be done (a
+ * format the phone can't decode, an install without the resizer), the
+ * original goes up as it is; the bucket's own size and type limits still
+ * apply.
+ */
+async function forUpload(
+  bucket: Bucket,
+  uri: string,
+  mimeType: string | null | undefined,
+): Promise<{ uri: string; mimeType: string | null | undefined }> {
+  try {
+    return (await shrinkImage(uri, MAX_SIDE[bucket])) ?? { uri, mimeType };
+  } catch (error) {
+    log.warn('upload', 'could not shrink the photo, sending the original', error);
+    return { uri, mimeType };
+  }
+}
+
 /** How long a link to a private photo works: an hour, then the app asks for a new one. */
 export const SIGNED_URL_SECONDS = 60 * 60;
 
 /**
- * Uploads an image to `folder/<random>.<ext>` in a bucket and returns its
- * path. The bucket's policies decide who may write where.
+ * Uploads an image, shrunk first, to `folder/<random>.<ext>` in a bucket
+ * and returns its path. The bucket's policies decide who may write where.
  */
 export async function uploadImage(params: {
   bucket: Bucket;
@@ -41,9 +73,10 @@ export async function uploadImage(params: {
   uri: string;
   mimeType?: string | null;
 }): Promise<string> {
-  const contentType = imageContentType(params.mimeType);
+  const image = await forUpload(params.bucket, params.uri, params.mimeType);
+  const contentType = imageContentType(image.mimeType);
   const path = `${params.folder}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${EXTENSION[contentType]}`;
-  const bytes = await readImageBytes(params.uri);
+  const bytes = await readImageBytes(image.uri);
 
   const { error } = await supabase.storage.from(params.bucket).upload(path, bytes, { contentType });
   if (error) throw toApiError(error);
