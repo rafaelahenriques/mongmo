@@ -38,6 +38,8 @@ jobs:
         run: npm run format:check
       - name: Privacy policy web page matches the app's text
         run: npm run privacy:page -- --check
+      - name: Store listing texts fit the stores' limits
+        run: npm run store:listing
       - name: Type check
         run: npm run typecheck
       - name: Type check the Edge Functions (Deno)

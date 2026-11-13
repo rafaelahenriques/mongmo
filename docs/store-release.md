@@ -15,8 +15,9 @@ changes, change these answers in both consoles too.
       webhook, the Apple merchant ID and Google Pay production access
       ([DEPLOYMENT.md → Online payment](DEPLOYMENT.md#online-payment-stripe)).
 - [ ] **A reviewer account**: an email and password with some points and an
-      order, written in App Store Connect → App Review Information and in
-      Play Console → App access.
+      order (`scripts/reviewer-account.mjs`), written in App Store Connect →
+      App Review Information and in Play Console → App access, with the
+      notes in [`review-notes.md`](review-notes.md).
 - [ ] **Privacy policy and account deletion URLs**: a page on Mongmo's own
       website (Odoo), e.g. `https://www.mongmo-store.com/app-privacy`, with
       the app's policy (the text of `public/privacy.html`, built from the
@@ -106,10 +107,16 @@ when "Add to calendar" is tapped.
 
 ## Store listings
 
+The full texts, screenshot captions and what could get them rejected are
+in [`store-listing.md`](store-listing.md); the reviewer package and the
+submission checklist in [`review-notes.md`](review-notes.md). After launch:
+[`review-replies.md`](review-replies.md) and
+[`first-update.md`](first-update.md).
+
 | | App Store | Google Play |
 |---|---|---|
 | Name | Mongmo | Mongmo |
-| Subtitle / short description | Bánh mì, pop-ups and rewards (≤ 30 / 80 characters) | Order ahead, find pop-ups, earn rewards |
+| Subtitle / short description | Bánh mì, pop-ups and rewards (≤ 30 characters) | Order bánh mì ahead, find our pop-ups and earn rewards with every bite. (≤ 80) |
 | Screenshots | 6.9" iPhone (1320 × 2868); 6.5" if not auto-scaled | Phone, at least 2 (1080 × 1920 or larger) |
 | Other images | — | Feature graphic 1024 × 500, icon 512 × 512 |
 | Category | Food & Drink | Food & Drink |
