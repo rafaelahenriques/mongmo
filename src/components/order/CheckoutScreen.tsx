@@ -219,6 +219,9 @@ export default function CheckoutScreen() {
         <View>
           {discount ? <ListRow title={discount.reward.title} value={`−${formatCents(off)}`} /> : null}
           <ListRow title="Pay at pickup" subtitle="Pay at the counter when you collect it." last />
+          <ThemedText type="caption" themeColor="textSecondary" style={styles.vat}>
+            Prices include VAT.
+          </ThemedText>
         </View>
 
         {error ? (
@@ -240,6 +243,9 @@ export default function CheckoutScreen() {
 }
 
 const styles = StyleSheet.create({
+  vat: {
+    marginTop: 8,
+  },
   screen: {
     flex: 1,
   },

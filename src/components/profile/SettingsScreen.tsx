@@ -218,7 +218,8 @@ export default function SettingsScreen() {
             }
           />
         ) : null}
-        <ListRow title="Privacy policy" onPress={() => router.push('/(profile)/privacy')} last />
+        <ListRow title="Privacy policy" onPress={() => router.push('/(profile)/privacy')} />
+        <ListRow title="Terms of use" onPress={() => router.push('/(profile)/terms')} last />
       </Group>
 
       <Group number="04" title="Account">

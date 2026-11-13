@@ -12,6 +12,7 @@ export default function ProfileLayout() {
       <Stack.Screen name="password" options={{ headerTitle: 'Change password' }} />
       <Stack.Screen name="your-data" options={{ headerTitle: 'Your data' }} />
       <Stack.Screen name="privacy" options={{ headerTitle: 'Privacy policy' }} />
+      <Stack.Screen name="terms" options={{ headerTitle: 'Terms of use' }} />
       {/* My orders lives under Account: opening it never switches you to the Order tab. */}
       <Stack.Screen name="orders" options={{ headerTitle: 'My orders' }} />
       <Stack.Screen name="order/[id]" options={{ headerShown: false }} />

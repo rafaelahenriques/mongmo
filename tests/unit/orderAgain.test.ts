@@ -9,6 +9,7 @@ const item = (fields: Partial<OrderMenuItem> & Pick<OrderMenuItem, 'id' | 'name'
   imageUrl: null,
   category: 'Bánh mì',
   addOnFor: null,
+  allergens: null,
   ...fields,
 });
 const MENU = [

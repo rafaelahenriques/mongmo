@@ -1,16 +1,21 @@
 #!/usr/bin/env node
-// Writes public/privacy.html from src/constants/privacyPolicy.json: the
-// privacy policy as a page anyone can open, for the App Store and Google
-// Play listings (they want a link). The app shows the same text.
+// Writes public/privacy.html and public/terms.html from
+// src/constants/privacyPolicy.json and termsOfUse.json: the privacy policy
+// and the terms of use as pages anyone can open, for the App Store and
+// Google Play listings (they want links). The app shows the same texts.
 //
 //   node scripts/build-privacy-page.mjs          write it
 //   node scripts/build-privacy-page.mjs --check  fail if it's out of date (CI)
 import { readFile, writeFile } from 'node:fs/promises';
 
-const policy = JSON.parse(await readFile(new URL('../src/constants/privacyPolicy.json', import.meta.url), 'utf8'));
+// Each legal text and the page it becomes.
+const PAGES = [
+  { source: '../src/constants/privacyPolicy.json', target: '../public/privacy.html' },
+  { source: '../src/constants/termsOfUse.json', target: '../public/terms.html' },
+];
 const escape = (text) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-const html = `<!doctype html>
+const page = (policy) => `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -41,15 +46,23 @@ ${policy.sections
 </html>
 `;
 
-const target = new URL('../public/privacy.html', import.meta.url);
-if (process.argv.includes('--check')) {
-  const current = await readFile(target, 'utf8').catch(() => '');
-  if (current !== html) {
-    console.error('public/privacy.html is out of date: run node scripts/build-privacy-page.mjs');
-    process.exit(1);
+const check = process.argv.includes('--check');
+let stale = false;
+for (const { source, target } of PAGES) {
+  const html = page(JSON.parse(await readFile(new URL(source, import.meta.url), 'utf8')));
+  const file = new URL(target, import.meta.url);
+  const name = target.replace('../', '');
+  if (check) {
+    const current = await readFile(file, 'utf8').catch(() => '');
+    if (current !== html) {
+      console.error(`${name} is out of date: run node scripts/build-privacy-page.mjs`);
+      stale = true;
+    } else {
+      console.log(`${name} is up to date`);
+    }
+  } else {
+    await writeFile(file, html);
+    console.log(`Wrote ${name}`);
   }
-  console.log('public/privacy.html is up to date');
-} else {
-  await writeFile(target, html);
-  console.log('Wrote public/privacy.html');
 }
+if (stale) process.exit(1);

@@ -266,6 +266,9 @@ export default function CartScreen() {
                 }.`}
               </ThemedText>
             </View>
+            <ThemedText type="caption" themeColor="textSecondary">
+              Prices include VAT.
+            </ThemedText>
 
             {suggestions.length ? (
               <View style={styles.more}>

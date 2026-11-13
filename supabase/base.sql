@@ -49,6 +49,29 @@ update public.menu_items set add_on_for = '{Bánh mì,Springrolls}'
 update public.menu_items set add_on_for = '{Springrolls}'
   where id in ('00000000-0000-0000-0000-0000000000db', '00000000-0000-0000-0000-0000000000dc');
 
+-- Allergens (0035_menu_allergens.sql): which of the 14 EU allergens each
+-- item contains, filled in from the kitchen's recipes, dips and extras
+-- included. Until an item has them, the app says they aren't listed yet
+-- and to ask before ordering. Write '{}' for none of the 14, or a list:
+--   gluten, crustaceans, eggs, fish, peanuts, soybeans, milk, nuts,
+--   celery, mustard, sesame, sulphites, lupin, molluscs
+-- e.g. '{gluten,soybeans,sesame}'. Remove the "-- " in front of a line
+-- once its list is right. Running this file again doesn't clear them.
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000d2';  -- Bánh mì, chicken lemongrass
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000d3';  -- Bánh mì, crispy pork belly
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000d4';  -- Bánh mì, grilled meatballs
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000d5';  -- Bánh mì, fried tofu
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000d6';  -- Springrolls, chicken lemongrass
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000d7';  -- Springrolls, grilled meatballs
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000d8';  -- Springrolls, fried tofu
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000d9';  -- Springrolls, eggs
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000da';  -- Additional protein
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000db';  -- Mango dip
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000dc';  -- Peanut dip
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000dd';  -- Bò kho (beef stew)
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000de';  -- Gà cà ri (chicken stew)
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000df';  -- Bánh mì without filling
+
 -- ------------------------------------------------------------------
 -- Store: the one permanent Mongmo café, Kortrijk.
 -- ------------------------------------------------------------------

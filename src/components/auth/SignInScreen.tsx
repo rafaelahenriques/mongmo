@@ -1,15 +1,18 @@
 import { useCallback, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { OpeningScreen } from '@/components/auth/OpeningScreen';
 import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm';
 import { Wordmark } from '@/components/brand/Wordmark';
+import { PrivacyPolicy } from '@/components/privacy/PrivacyPolicy';
+import { TermsOfUse } from '@/components/privacy/TermsOfUse';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { TextField } from '@/components/ui/TextField';
 import { BrandPhotoFocus, BrandPhotos } from '@/constants/brandPhotos';
+import { useMotion } from '@/constants/motion';
 import { PageInset, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/lib/supabase';
@@ -234,6 +237,8 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
               disabled={pending === 'account'}
               accessibilityHint="Look around without an account. You can create one later to keep your points."
             />
+
+            <LegalLinks />
           </View>
         )}
       </ScrollView>
@@ -241,7 +246,54 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
   );
 }
 
+/**
+ * Agreeing to the terms: creating an account or going on as a guest means
+ * agreeing to them, so they (and the privacy policy) open from here,
+ * before anyone is signed in.
+ */
+function LegalLinks() {
+  const theme = useTheme();
+  const motion = useMotion();
+  const insets = useSafeAreaInsets();
+  const [open, setOpen] = useState<'terms' | 'privacy' | null>(null);
+  const close = () => setOpen(null);
+  return (
+    <View style={styles.legal}>
+      <ThemedText type="caption" themeColor="textSecondary" style={styles.center}>
+        By creating an account or continuing as a guest, you agree to our terms of use. Our privacy policy explains how
+        we use your data.
+      </ThemedText>
+      <View style={styles.legalLinks}>
+        <Button label="Terms of use" variant="ghost" size="small" onPress={() => setOpen('terms')} />
+        <Button label="Privacy policy" variant="ghost" size="small" onPress={() => setOpen('privacy')} />
+      </View>
+      <Modal visible={open !== null} animationType={motion.sheet} presentationStyle="pageSheet" onRequestClose={close}>
+        <View style={[styles.flex, { paddingTop: insets.top, backgroundColor: theme.background }]}>
+          {open === 'terms' ? (
+            <TermsOfUse onClose={close} bottomInset={insets.bottom + 32} />
+          ) : open === 'privacy' ? (
+            <PrivacyPolicy onClose={close} bottomInset={insets.bottom + 32} />
+          ) : null}
+        </View>
+      </Modal>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  legal: {
+    gap: 8,
+    alignItems: 'center',
+  },
+  center: {
+    textAlign: 'center',
+  },
+  legalLinks: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 8,
+  },
   flex: {
     flex: 1,
   },
