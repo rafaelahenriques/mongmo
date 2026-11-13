@@ -23,9 +23,47 @@
  │  Storage:  challenge photos (private),     │
  │            pop-up images (public)          │
  │  Realtime: occupancy, order status         │
+ │  Edge Functions: start a payment, refund,  │
+ │            Stripe's webhook (hold the      │
+ │            Stripe and service-role keys)   │
+ └──────────────▲────────────────────────────┘
+                │ signed webhooks; PaymentIntents and refunds
+ ┌──────────────┴────────────────────────────┐
+ │ Stripe: payments (the app only shows its   │
+ │         payment sheet, publishable key)    │
  └────────────────────────────────────────────┘
         Sentry (crash reports, only with consent)
 ```
+
+## Who may talk to whom
+
+The app is an untrusted client: anyone can take it apart and call the same
+APIs. So it holds no secret and decides nothing that matters.
+
+| From | To | With |
+|---|---|---|
+| App | Supabase (Auth, database through row-level security, Storage, Edge Functions) | The publishable (anon) key and the person's sign-in |
+| App | Stripe's payment sheet | The publishable key and a one-payment client secret |
+| Edge Functions | Stripe | The secret key (a Supabase secret) |
+| Edge Functions | The database, past row-level security | The service-role key (set by Supabase) |
+| Stripe | The `stripe-webhook` function | Its signature, checked before anything else |
+
+## Where each thing lives
+
+One place is right for each kind of data; everything else reads from it.
+
+| Data | Source of truth | Copies, and who wins |
+|---|---|---|
+| Accounts, profiles, photos | Supabase | None |
+| Menu, prices, allergens | Supabase (`menu_items`), edited by staff | None. An order keeps the name and price it was placed at |
+| Orders and their status | Supabase (`orders`) | None |
+| Whether an order is paid or refunded | Stripe | `orders.paid_at` and `refund_status`, written only by Stripe's webhook. Stripe wins |
+| Points, levels, rewards | Supabase, worked out by database functions | None |
+| Crash reports | Sentry | None |
+
+There is no back-office system (accounting, stock) connected yet. If one
+is added, it gets a row here first: which side owns each record, which way
+it's copied, and who wins when they differ.
 
 ## Principles
 

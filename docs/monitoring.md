@@ -32,6 +32,20 @@ Rolling back).
   turn on spend alerts in Organization → Billing.
 - **Backups**: Database → Backups, before every production deploy.
 
+## Payments: Stripe
+
+- **Developers → Webhooks → the endpoint**: failed deliveries. Stripe tries
+  again for three days; a run of failures means the function or its secrets
+  are broken.
+- **Supabase → Edge Functions → `stripe-webhook` → Logs**, filtered on
+  `"level":"error"`: a dispute opened, a refund that failed, an event that
+  couldn't be handled. Each line has Stripe's event id to look it up by;
+  no line has personal data.
+- **Disputes** are answered in the Stripe Dashboard before the deadline in
+  Stripe's email. The app only logs that one opened.
+- **Refunds to check** on the owner's orders board: a cancelled order whose
+  refund hasn't gone through; "Send refund again" retries it.
+
 ## Automated jobs: GitHub Actions
 
 - A failed run emails its author. Watch for: **Data retention** (nightly),

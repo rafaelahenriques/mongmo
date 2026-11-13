@@ -127,6 +127,9 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Security
 
+- Paying in the app: each message from Stripe is acted on once, however
+  often it arrives, and one account can start at most 10 payments or
+  refunds a minute.
 - Sign-in kept in the phone's Keychain or Keystore.
 - Signed-out visitors can't call any database function; challenge photos
   are private, shown through short-lived links.

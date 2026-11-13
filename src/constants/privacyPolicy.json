@@ -59,7 +59,7 @@
     {
       "heading": "Security",
       "paragraphs": [
-        "Everything is sent encrypted (HTTPS). Database rules mean each person can only reach their own data. Passwords are hashed. Your sign-in on the phone is kept in its secure storage."
+        "Everything is sent encrypted (HTTPS). Database rules mean each person can only reach their own data. Passwords are hashed. Your sign-in on the phone is kept in its secure storage. To stop misuse, we count how often an account starts a payment or a refund in a minute; the counts are deleted after a day."
       ]
     },
     {

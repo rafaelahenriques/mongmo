@@ -17,6 +17,7 @@ as of 9 November 2026. Keep it current: the privacy policy
 | Leaderboard choice | Achievements, Settings | `profiles.leaderboard_visible` (off for new accounts) | The person | Opt-in | Account's life |
 | Orders: items, options, pickup place and time, totals, reward used, paid at pickup and when | Cart, checkout | `orders`, `order_items` | The person; staff | Making the order | 24 months (drafts: 1 day) |
 | Online payment record: paid or not and when, Stripe's payment reference, refund and when (never card or bank details) | Checkout (Pay now), Stripe's webhook | `orders.payment`, `paid_at`, `stripe_payment_intent_id`, `refund_status`, `refunded_at` | The person; staff | Taking and refunding payment; accounts | With the order (24 months); Stripe keeps its own records as the law requires |
+| Payment rate-limit counts: how many times the account started a payment or refund in a minute | The payment functions | `rate_limits` | Nobody: the server only | Stopping misuse of payments | 1 day, and deleted with the account |
 | Points history | Server (orders, challenges, badges, rewards) | `point_events` | The person | Loyalty balance and level | Account's life |
 | Badges, rewards redeemed and used | Server | `user_badges`, `user_rewards` | The person | Loyalty | Used rewards: 24 months |
 | Check-ins (pop-up, time, by QR code) | `CheckInScreen` | `check_ins` | The person; staff | Challenges, badges | 24 months |
