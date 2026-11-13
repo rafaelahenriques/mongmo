@@ -16,6 +16,8 @@ How long each kind of personal data is kept, and the code that deletes it.
 | Accounts with an email, with everything in them | 24 months | Last activity |
 | Points history, badges, unused rewards | With the account | — |
 | Crash reports (Sentry) | 30 days | Received |
+| Payment rate-limit counts (how many times an account started a payment or refund in a minute) | 1 day, and with the account | Counted |
+| Stripe events handled (Stripe's event id, type and outcome; nothing personal) | 90 days | Received |
 
 "Last activity" is the latest of: account created, last sign-in, last
 session refresh, last order, last check-in (`last_active_at()`). Staff

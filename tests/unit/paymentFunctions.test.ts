@@ -1,6 +1,9 @@
 import {
+  allowCall,
   handleStripeEvent,
+  NEEDS_ATTENTION,
   PaymentError,
+  processStripeEvent,
   refundOrder,
   startPayment,
   type Db,
@@ -110,6 +113,7 @@ describe('starting a payment', () => {
 
 describe('what Stripe reports', () => {
   const succeeded = {
+    id: 'evt_paid',
     type: 'payment_intent.succeeded',
     data: { object: { id: 'pi_1', amount: 1550, amount_received: 1550, metadata: { order_id: ORDER.id } } },
   };
@@ -142,6 +146,7 @@ describe('what Stripe reports', () => {
   it('refunds that went through, or failed, update the order', async () => {
     const refunded = fakes();
     await handleStripeEvent(refunded.deps, {
+      id: 'evt_refunded',
       type: 'charge.refunded',
       data: { object: { payment_intent: 'pi_1', refunded: true } },
     });
@@ -149,6 +154,7 @@ describe('what Stripe reports', () => {
 
     const failed = fakes();
     await handleStripeEvent(failed.deps, {
+      id: 'evt_refund_failed',
       type: 'refund.failed',
       data: { object: { payment_intent: 'pi_1', status: 'failed' } },
     });
@@ -157,13 +163,77 @@ describe('what Stripe reports', () => {
 
   it('ignores everything else, and payments that aren’t for an order', async () => {
     const { db, deps } = fakes();
-    await expect(handleStripeEvent(deps, { type: 'customer.created', data: { object: {} } })).resolves.toMatch(
-      /^ignored/,
-    );
     await expect(
-      handleStripeEvent(deps, { type: 'payment_intent.succeeded', data: { object: { id: 'pi_x', amount: 1 } } }),
+      handleStripeEvent(deps, { id: 'evt_other', type: 'customer.created', data: { object: {} } }),
+    ).resolves.toMatch(/^ignored/);
+    await expect(
+      handleStripeEvent(deps, {
+        id: 'evt_not_ours',
+        type: 'payment_intent.succeeded',
+        data: { object: { id: 'pi_x', amount: 1 } },
+      }),
     ).resolves.toMatch(/^ignored/);
     expect(db.rpc).not.toHaveBeenCalled();
+  });
+
+  it('a failed payment changes nothing; a dispute is flagged for someone to answer', async () => {
+    const { db, deps } = fakes();
+    await expect(
+      handleStripeEvent(deps, { id: 'evt_failed', type: 'payment_intent.payment_failed', data: { object: {} } }),
+    ).resolves.toBe('payment failed');
+    const dispute = await handleStripeEvent(deps, {
+      id: 'evt_dispute',
+      type: 'charge.dispute.created',
+      data: { object: {} },
+    });
+    expect(NEEDS_ATTENTION).toContain(dispute);
+    expect(db.rpc).not.toHaveBeenCalled();
+  });
+
+  it('handles an event once: a repeat is answered without running anything', async () => {
+    const first = fakes({ stripe_event_seen: { data: false }, mark_order_paid: { data: 'placed' } });
+    await expect(processStripeEvent(first.deps, succeeded)).resolves.toBe('paid');
+    expect(first.db.rpc).toHaveBeenLastCalledWith('record_stripe_event', {
+      p_event_id: 'evt_paid',
+      p_type: 'payment_intent.succeeded',
+      p_outcome: 'paid',
+    });
+
+    const repeat = fakes({ stripe_event_seen: { data: true }, mark_order_paid: { data: 'placed' } });
+    await expect(processStripeEvent(repeat.deps, succeeded)).resolves.toBe('duplicate');
+    expect(repeat.db.rpc).toHaveBeenCalledTimes(1);
+    expect(repeat.db.rpc).not.toHaveBeenCalledWith('mark_order_paid', expect.anything());
+  });
+
+  it('an event that failed isn’t recorded, so Stripe’s next try handles it', async () => {
+    const { db, deps } = fakes({ stripe_event_seen: { data: false }, mark_order_paid: { error: { message: 'down' } } });
+    await expect(processStripeEvent(deps, succeeded)).rejects.toThrow('mark_order_paid');
+    expect(db.rpc).not.toHaveBeenCalledWith('record_stripe_event', expect.anything());
+  });
+});
+
+describe('the limit on payment calls', () => {
+  it('lets a call through while the person is within their limit, counting it', async () => {
+    const { db, deps } = fakes({ take_rate_limit: { data: true } });
+    await expect(allowCall(deps.db, 'user-1', 'payment-sheet')).resolves.toBeUndefined();
+    expect(db.rpc).toHaveBeenCalledWith('take_rate_limit', {
+      p_user_id: 'user-1',
+      p_action: 'payment-sheet',
+      p_max: 10,
+      p_window_seconds: 60,
+    });
+  });
+
+  it('refuses with a message to show once they’re over it', async () => {
+    const { deps } = fakes({ take_rate_limit: { data: false } });
+    await expect(allowCall(deps.db, 'user-1', 'payment-sheet')).rejects.toMatchObject({ status: 429 });
+  });
+
+  it('fails closed when the limit can’t be checked', async () => {
+    const { deps } = fakes({ take_rate_limit: { error: { message: 'down' } } });
+    const refusal = await allowCall(deps.db, 'user-1', 'payment-sheet').catch((error: unknown) => error);
+    expect(refusal).not.toBeInstanceOf(PaymentError);
+    expect(refusal).toBeInstanceOf(Error);
   });
 });
 

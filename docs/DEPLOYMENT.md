@@ -107,9 +107,12 @@ mode for production:
    PaymentIntents and Refunds only. Never in the app or the repository.
 3. **Webhook.** Developers → Webhooks → Add endpoint:
    `https://<project-ref>.supabase.co/functions/v1/stripe-webhook`, with the
-   events `payment_intent.succeeded`, `charge.refunded`, `refund.failed`
-   and `charge.refund.updated`. Copy its signing secret into the Supabase
-   secrets as `STRIPE_WEBHOOK_SECRET`.
+   events `payment_intent.succeeded`, `payment_intent.payment_failed`,
+   `charge.refunded`, `refund.failed`, `charge.refund.updated` and
+   `charge.dispute.created`. Copy its signing secret into the Supabase
+   secrets as `STRIPE_WEBHOOK_SECRET`. Each event is handled once
+   (`stripe_events` remembers them for 90 days), and each person can start
+   10 payments or refunds a minute.
 4. **Deploy the functions.** The Deploy workflow does it after the
    migrations (with `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_REF`), or
    by hand from a folder with `supabase/functions`:

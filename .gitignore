@@ -31,9 +31,10 @@ yarn-error.*
 .DS_Store
 *.pem
 
-# local env files
+# Env files hold keys: only the empty example is committed.
 .env
-.env*.local
+.env.*
+!.env.example
 
 # Supabase CLI cache
 supabase/.temp

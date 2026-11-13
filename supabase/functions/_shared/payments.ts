@@ -111,7 +111,32 @@ export async function startPayment(
 }
 
 /** A Stripe event, as verified by the webhook. */
-export type StripeEvent = { type: string; data: { object: Record<string, unknown> } };
+export type StripeEvent = { id: string; type: string; data: { object: Record<string, unknown> } };
+
+/** Outcomes someone should look at: the webhook logs these as errors. */
+export const NEEDS_ATTENTION = ['dispute opened', 'refund failed'];
+
+/**
+ * Handles a verified Stripe event once. Stripe sends an event again when
+ * it gets no answer, and now and then twice anyway: one already handled is
+ * answered "duplicate" and nothing runs. It's recorded only after it was
+ * handled, so one that failed is still handled when Stripe sends it again.
+ */
+export async function processStripeEvent(deps: { db: Db; stripe: StripeApi }, event: StripeEvent): Promise<string> {
+  const seen = await deps.db.rpc('stripe_event_seen', { p_event_id: event.id });
+  if (seen.error) throw new Error(`stripe_event_seen: ${seen.error.message}`);
+  if (seen.data === true) return 'duplicate';
+
+  const outcome = await handleStripeEvent(deps, event);
+
+  const recorded = await deps.db.rpc('record_stripe_event', {
+    p_event_id: event.id,
+    p_type: event.type,
+    p_outcome: outcome,
+  });
+  if (recorded.error) throw new Error(`record_stripe_event: ${recorded.error.message}`);
+  return outcome;
+}
 
 /**
  * Acts on a verified Stripe event. A payment that succeeded pays (and
@@ -153,6 +178,15 @@ export async function handleStripeEvent(deps: { db: Db; stripe: StripeApi }, eve
       await setRefundStatus(deps.db, intentId, 'failed');
       return 'refund failed';
     }
+    case 'payment_intent.payment_failed':
+      // The order stays a draft and the payment sheet tells the customer,
+      // who can try again or pay at pickup: nothing to change here.
+      return 'payment failed';
+    case 'charge.dispute.created':
+      // A customer's bank is taking the money back. It's answered in the
+      // Stripe Dashboard, before the deadline Stripe emails: logged as an
+      // error so it isn't missed.
+      return 'dispute opened';
     default:
       return `ignored: ${event.type}`;
   }
@@ -161,6 +195,21 @@ export async function handleStripeEvent(deps: { db: Db; stripe: StripeApi }, eve
 async function setRefundStatus(db: Db, intentId: string, status: 'pending' | 'refunded' | 'failed'): Promise<void> {
   const { error } = await db.rpc('set_refund_status', { p_intent_id: intentId, p_status: status });
   if (error) throw new Error(`set_refund_status: ${error.message}`);
+}
+
+/** How often one person may call a payment function: plenty for real use, not for a script. */
+const CALL_LIMIT = { max: 10, windowSeconds: 60 };
+
+/** Counts this call against the person's limit for the action; refuses once they're over it. */
+export async function allowCall(db: Db, userId: string, action: string, limit = CALL_LIMIT): Promise<void> {
+  const { data, error } = await db.rpc('take_rate_limit', {
+    p_user_id: userId,
+    p_action: action,
+    p_max: limit.max,
+    p_window_seconds: limit.windowSeconds,
+  });
+  if (error) throw new Error(`take_rate_limit: ${error.message}`);
+  if (data !== true) throw new PaymentError('Too many tries. Wait a minute and try again.', 429);
 }
 
 /**

@@ -7,7 +7,7 @@
 import Stripe from 'npm:stripe@23.1.0';
 import { createClient } from 'npm:@supabase/supabase-js@2.117.2';
 
-import { PaymentError, type Db, type StripeApi } from './payments.ts';
+import { allowCall, PaymentError, type Db, type StripeApi } from './payments.ts';
 
 export function setting(name: string): string {
   const value = Deno.env.get(name);
@@ -58,9 +58,21 @@ export async function orderIdFrom(req: Request): Promise<string> {
 }
 
 /**
+ * One line of JSON per event, for the function logs: what happened and the
+ * ids to follow it by. Never names, emails, amounts or messages from people.
+ */
+export function log(level: 'info' | 'error', fields: Record<string, string | number>): void {
+  const line = JSON.stringify({ level, ...fields });
+  if (level === 'error') console.error(line);
+  else console.log(line);
+}
+
+/**
  * A signed-in user's POST: runs `handle` with their id and the order, and
- * answers with what it returns. Refusals keep their safe message; anything
- * else is logged without personal data and answered with a general one.
+ * answers with what it returns. Each person gets a limited number of calls
+ * a minute. Refusals keep their safe message; anything else is logged
+ * without personal data and answered with a general one, with a request id
+ * to find it in the logs.
  */
 export function serveForUser(
   name: string,
@@ -68,14 +80,21 @@ export function serveForUser(
 ): void {
   Deno.serve(async (req) => {
     if (req.method !== 'POST') return json({ error: 'Use POST.' }, 405);
+    const requestId = crypto.randomUUID();
     try {
       const userId = await callerId(req);
       if (!userId) return json({ error: 'Sign in first.' }, 401);
-      return json(await handle(userId, await orderIdFrom(req)));
+      await allowCall(serviceDb(), userId, name);
+      const result = await handle(userId, await orderIdFrom(req));
+      log('info', { fn: name, requestId, outcome: 'ok' });
+      return json(result);
     } catch (error) {
-      if (error instanceof PaymentError) return json({ error: error.message }, error.status);
-      console.error(`${name} failed: ${(error as Error).name}`);
-      return json({ error: 'Something went wrong. Try again.' }, 500);
+      if (error instanceof PaymentError) {
+        log('info', { fn: name, requestId, outcome: 'refused', status: error.status });
+        return json({ error: error.message }, error.status);
+      }
+      log('error', { fn: name, requestId, outcome: 'failed', error: (error as Error).name });
+      return json({ error: 'Something went wrong. Try again.', requestId }, 500);
     }
   });
 }

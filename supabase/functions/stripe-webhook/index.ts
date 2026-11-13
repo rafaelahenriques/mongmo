@@ -1,11 +1,12 @@
 // Stripe calls this when a payment or refund changes. It has no Supabase
 // sign-in (deploy with --no-verify-jwt): Stripe's signature proves the
 // message is real, checked with the webhook's signing secret before
-// anything else. Answers 500 on a failure, so Stripe sends it again.
+// anything else. Answers 500 on a failure, so Stripe sends it again; an
+// event already handled is answered without running anything twice.
 import Stripe from 'npm:stripe@23.1.0';
 
-import { handleStripeEvent, type StripeEvent } from '../_shared/payments.ts';
-import { json, serviceDb, setting, stripeApi, stripeClient } from '../_shared/server.ts';
+import { NEEDS_ATTENTION, processStripeEvent, type StripeEvent } from '../_shared/payments.ts';
+import { json, log, serviceDb, setting, stripeApi, stripeClient } from '../_shared/server.ts';
 
 // Deno's Web Crypto, for checking the signature.
 const cryptoProvider = Stripe.createSubtleCryptoProvider();
@@ -32,12 +33,17 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const outcome = await handleStripeEvent({ db: serviceDb(), stripe: stripeApi(stripe) }, event);
-    // The event type and outcome only: nothing personal goes in the log.
-    console.log(`${event.type}: ${outcome}`);
+    const outcome = await processStripeEvent({ db: serviceDb(), stripe: stripeApi(stripe) }, event);
+    // Stripe's event id, its type and the outcome only: nothing personal goes in the log.
+    log(NEEDS_ATTENTION.includes(outcome) ? 'error' : 'info', {
+      fn: 'stripe-webhook',
+      event: event.id,
+      type: event.type,
+      outcome,
+    });
     return json({ received: true });
   } catch (error) {
-    console.error(`${event.type} failed: ${(error as Error).message}`);
+    log('error', { fn: 'stripe-webhook', event: event.id, type: event.type, outcome: 'failed', error: (error as Error).message });
     return json({ error: 'Not handled; send it again.' }, 500);
   }
 });
