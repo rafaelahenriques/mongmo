@@ -55,6 +55,9 @@ the release workflow publishes that section as the GitHub release notes.
   ask us by email. A dish whose allergens aren't filled in yet says so.
 - "Prices include VAT" on the menu, cart and checkout.
 - Terms of use, in Settings and on sign-up, and as a web page.
+- Pay in the app: card, Apple Pay, Google Pay or Bancontact, through
+  Stripe, or still at the counter. Cancelling an order you paid for gives
+  the money back. Staff see which orders are paid.
 
 ### Changed
 

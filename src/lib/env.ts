@@ -15,6 +15,11 @@ export type EnvConfig = {
   supabaseAnonKey: string;
   /** Crash reporting is off without one. */
   sentryDsn: string | null;
+  /**
+   * Stripe's publishable key (pk_…), for paying online. Online payment is
+   * off without one. Test keys outside production, a live key in it.
+   */
+  stripePublishableKey: string | null;
 };
 
 type RawEnv = { [K in keyof EnvConfig]: string | undefined };
@@ -79,7 +84,41 @@ export function parseEnv(raw: RawEnv): EnvConfig {
     );
   }
 
-  return { appEnv: appEnv as AppEnv, supabaseUrl, supabaseAnonKey, sentryDsn: cleanEnvValue(raw.sentryDsn) || null };
+  const stripePublishableKey = cleanEnvValue(raw.stripePublishableKey) || null;
+  if (stripePublishableKey) checkStripeKey(stripePublishableKey, appEnv as AppEnv);
+
+  return {
+    appEnv: appEnv as AppEnv,
+    supabaseUrl,
+    supabaseAnonKey,
+    sentryDsn: cleanEnvValue(raw.sentryDsn) || null,
+    stripePublishableKey,
+  };
+}
+
+/**
+ * Only a publishable key belongs in the app: a secret (sk_) or restricted
+ * (rk_) key would let anyone with the app move money. Production takes
+ * real payments (pk_live_), everything else test ones (pk_test_), so no
+ * test build can charge a real card.
+ */
+function checkStripeKey(key: string, appEnv: AppEnv): void {
+  if (/^(sk|rk)_/.test(key)) {
+    throw new Error(
+      'EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY holds a secret Stripe key. Use the publishable key (pk_…); the ' +
+        'secret one belongs in the Supabase function secrets only. Roll the secret key in Stripe if this build was shared.',
+    );
+  }
+  const live = key.startsWith('pk_live_');
+  if (!live && !key.startsWith('pk_test_')) {
+    throw new Error('EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY isn’t a Stripe publishable key (pk_test_… or pk_live_…).');
+  }
+  if (appEnv === 'production' && !live) {
+    throw new Error('A production build needs the live Stripe key (pk_live_…), not a test key.');
+  }
+  if (appEnv !== 'production' && live) {
+    throw new Error(`A ${appEnv} build must use a Stripe test key (pk_test_…), so it can't charge real cards.`);
+  }
 }
 
 // Each variable must be read as a literal `process.env.EXPO_PUBLIC_*` member
@@ -90,4 +129,5 @@ export const env = parseEnv({
   supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
   supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
   sentryDsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+  stripePublishableKey: process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY,
 });

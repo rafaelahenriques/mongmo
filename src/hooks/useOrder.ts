@@ -9,8 +9,9 @@ export function useOrder(orderId: string) {
     queryFn: () => getOrder(orderId),
     enabled: orderId.length > 0,
     // Cheap fallback for live status until the Realtime subscription
-    // (see useOrderStatusNotifications) invalidates it directly.
-    refetchInterval: 15_000,
+    // (see useOrderStatusNotifications) invalidates it directly. Every two
+    // seconds while an online payment is being confirmed.
+    refetchInterval: (query) => (query.state.data?.status === 'draft' ? 2_000 : 15_000),
   });
 
   const items = useQuery({

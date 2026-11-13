@@ -51,3 +51,35 @@ export function shortItemName(name: string, category: string | null): string {
   const rest = name.slice(prefix.length).replace(/^[\s,:·-]+/, '');
   return rest ? rest.charAt(0).toUpperCase() + rest.slice(1) : name;
 }
+
+type PaymentFields = {
+  status: OrderStatus;
+  payment: 'at_pickup' | 'online';
+  paid_at: string | null;
+  refund_status: 'pending' | 'refunded' | 'failed' | null;
+};
+
+/** Whether the money for this order has come in online (so nobody charges it again at the counter). */
+export function paidOnline(order: PaymentFields): boolean {
+  return order.payment === 'online' && order.paid_at !== null;
+}
+
+/** How the customer pays, said under the total. */
+export function paymentNote(order: PaymentFields): string {
+  if (paidOnline(order)) return 'Paid online';
+  if (order.status === 'collected') return 'Paid at the counter';
+  if (order.status === 'draft' && order.payment === 'online') return 'Confirming your payment…';
+  return 'Pay at the counter when you collect it';
+}
+
+/** Where a cancelled online payment's money is, for the customer; null when there's no refund. */
+export function refundNote(order: PaymentFields): { title: string; subtitle: string } | null {
+  if (order.status !== 'cancelled' || !paidOnline(order)) return null;
+  if (order.refund_status === 'refunded') {
+    return { title: 'Refunded', subtitle: 'The money is back on your card or account; banks can take a few days.' };
+  }
+  if (order.refund_status === 'failed') {
+    return { title: 'Refund held up', subtitle: 'We’re sorting it out and will make sure you get it back.' };
+  }
+  return { title: 'Refund on its way', subtitle: 'Back on your card or account within a few days.' };
+}

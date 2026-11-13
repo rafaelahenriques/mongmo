@@ -92,6 +92,13 @@
           "calendarPermission": "Allow $(PRODUCT_NAME) to add pop-ups you choose to your calendar.",
           "remindersPermission": false
         }
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.mongmostore.app",
+          "enableGooglePay": true
+        }
       ]
     ],
     "experiments": {

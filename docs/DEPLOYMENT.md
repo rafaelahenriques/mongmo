@@ -30,6 +30,7 @@ EAS environment, or locally with
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Plain text | The **anon / publishable** key only. The app refuses to start with the service_role key. |
 | `EXPO_PUBLIC_SENTRY_DSN` | Plain text | Sentry project → Client Keys. Leave unset to keep crash reporting off. |
 | `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` | Secret | Optional. With them, builds upload source maps so crash reports show the real code. |
+| `EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Plain text | Stripe's **publishable** key: `pk_test_…` for development and staging, `pk_live_…` for production (the app refuses the wrong one, and any secret key). Leave unset to offer pay at pickup only. See [Online payment](#online-payment-stripe). |
 | `GOOGLE_MAPS_ANDROID_API_KEY` | Sensitive | Android's map (Google Maps). Without it, Android builds show a drawn map instead of the live one; iOS uses Apple Maps and needs nothing. See below. |
 
 Never put the Supabase service_role key, a database password or any other
@@ -71,6 +72,12 @@ Settings → Environments), `staging` and `production`, each with:
   (Connect → Session pooler), with the password in it.
 - `EXPO_TOKEN`: secret. An Expo access token (expo.dev → Account settings →
   Access tokens).
+- `SUPABASE_ACCESS_TOKEN`: secret. A Supabase access token
+  (supabase.com → Account → Access tokens), to deploy the payment
+  functions.
+- `SUPABASE_PROJECT_REF`: secret. That environment's project ref (the
+  `abcdefghij` in `https://abcdefghij.supabase.co`). Without these two,
+  deploys skip the payment functions with a warning.
 
 Give `production` **required reviewers**, so a deploy waits for an approval.
 
@@ -79,6 +86,52 @@ The nightly retention job has its own environment, `retention`
 switch the automations on once their environments are ready:
 `STAGING_AUTO_DEPLOY`, `STORE_SUBMIT`, `RETENTION_ENABLED`
 ([`github-setup.md`](github-setup.md)).
+
+### Online payment (Stripe)
+
+People can pay in the app (card, Apple Pay, Google Pay, Bancontact) or at
+the counter. The app shows Stripe's payment sheet; three Supabase Edge
+Functions (`supabase/functions`) do the server side: `payment-sheet`
+starts a payment for exactly the order's total, `stripe-webhook` marks the
+order paid when Stripe confirms it, `refund-order` refunds a cancelled
+order. Do this once per environment, in test mode for staging and live
+mode for production:
+
+1. **Payment methods.** Stripe Dashboard → Settings → Payments → Payment
+   methods: turn on Cards, Apple Pay, Google Pay and Bancontact; others
+   off. The app takes only methods that confirm straight away.
+2. **Keys.** Developers → API keys. The **publishable** key goes in the
+   app (`EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY`, above). The **secret** key
+   goes only in the Supabase project → Edge Functions → Secrets, as
+   `STRIPE_SECRET_KEY`. Better still, a restricted key with write access to
+   PaymentIntents and Refunds only. Never in the app or the repository.
+3. **Webhook.** Developers → Webhooks → Add endpoint:
+   `https://<project-ref>.supabase.co/functions/v1/stripe-webhook`, with the
+   events `payment_intent.succeeded`, `charge.refunded`, `refund.failed`
+   and `charge.refund.updated`. Copy its signing secret into the Supabase
+   secrets as `STRIPE_WEBHOOK_SECRET`.
+4. **Deploy the functions.** The Deploy workflow does it after the
+   migrations (with `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_REF`), or
+   by hand from a folder with `supabase/functions`:
+   `supabase functions deploy payment-sheet`, `refund-order`, and
+   `stripe-webhook --no-verify-jwt` (Stripe can't sign in; the function
+   checks Stripe's signature instead).
+5. **Apple Pay.** Apple Developer → Identifiers → Merchant IDs → add
+   `merchant.com.mongmostore.app` (it's in `app.json`). Then Stripe
+   Dashboard → Settings → Apple Pay → add an iOS certificate for it, and
+   build again: EAS adds the Apple Pay capability.
+6. **Google Pay.** Works in test mode right away. For live payments, ask
+   for production access in the Google Pay & Wallet Console for the app
+   (`com.mongmostore.app`); Google checks screenshots of the checkout.
+7. **Try it on staging** with Stripe's test cards (`4242 4242 4242 4242`,
+   any future date and CVC), a Bancontact test payment, and a
+   cancellation: the order should show paid, then refunded. Apple Pay and
+   Google Pay need a real phone and a store or development build, not Expo
+   Go.
+
+Refunds come out of the Stripe balance; if a refund fails, staff see it
+under Owner tools → Orders, with **Send refund again**, and it can also be
+refunded in the Stripe Dashboard.
 
 ### One-time setup
 

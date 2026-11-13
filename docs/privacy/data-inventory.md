@@ -16,6 +16,7 @@ as of 9 November 2026. Keep it current: the privacy policy
 | Profile picture link (from sign-up details, if any) | Nowhere | `profiles.avatar_url` | The person; staff | Not shown to others | Account's life |
 | Leaderboard choice | Achievements, Settings | `profiles.leaderboard_visible` (off for new accounts) | The person | Opt-in | Account's life |
 | Orders: items, options, pickup place and time, totals, reward used, paid at pickup and when | Cart, checkout | `orders`, `order_items` | The person; staff | Making the order | 24 months (drafts: 1 day) |
+| Online payment record: paid or not and when, Stripe's payment reference, refund and when (never card or bank details) | Checkout (Pay now), Stripe's webhook | `orders.payment`, `paid_at`, `stripe_payment_intent_id`, `refund_status`, `refunded_at` | The person; staff | Taking and refunding payment; accounts | With the order (24 months); Stripe keeps its own records as the law requires |
 | Points history | Server (orders, challenges, badges, rewards) | `point_events` | The person | Loyalty balance and level | Account's life |
 | Badges, rewards redeemed and used | Server | `user_badges`, `user_rewards` | The person | Loyalty | Used rewards: 24 months |
 | Check-ins (pop-up, time, by QR code) | `CheckInScreen` | `check_ins` | The person; staff | Challenges, badges | 24 months |
@@ -47,6 +48,7 @@ Notifications are scheduled on the phone: no push token is collected.
 |---|---|---|---|---|
 | Supabase | Everything in the first table | Using the app | Processor (hosting, database, auth, storage) | Needed to run the app |
 | Sentry | Crash reports: code, device model, OS and app version; scrubbed of personal data (`crashReporting.ts`) | A crash | Processor | **Consent** (asked once, Settings → Crash reports) |
+| Stripe | Card, Apple Pay, Google Pay or Bancontact details, typed into Stripe's payment sheet and sent from it to Stripe; from our server, the amount and the order and account ids (as metadata) | Paying in the app (Pay now) | Payment provider; independent controller for its own fraud prevention and legal duties | Only when the person chooses to pay in the app |
 | Apple / Google | Location (OS services), directions destination | Location features; "Directions" | Platform | OS permission prompts |
 | Photon (komoot) | Address search text | Staff creating a pop-up | Third party | Staff only |
 
