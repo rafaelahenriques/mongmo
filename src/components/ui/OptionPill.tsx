@@ -53,7 +53,7 @@ export function OptionPill({
       ]}
     >
       {icon ? <Icon name={icon} size={14} color={color} /> : null}
-      <ThemedText type="captionBold" style={{ color }}>
+      <ThemedText type="captionBold" style={[styles.label, { color }]}>
         {label}
       </ThemedText>
     </Pressable>
@@ -68,6 +68,13 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
     borderWidth: 1.5,
     paddingHorizontal: 14,
+    paddingVertical: 6,
     minHeight: 36,
+    // A long label (an allergen's full name, at a large text size) wraps
+    // inside the pill instead of running out of its row.
+    maxWidth: '100%',
+  },
+  label: {
+    flexShrink: 1,
   },
 });

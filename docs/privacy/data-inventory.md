@@ -23,9 +23,9 @@ as of 9 November 2026. Keep it current: the privacy policy
 | Check-ins (pop-up, time, by QR code) | `CheckInScreen` | `check_ins` | The person; staff | Challenges, badges | 24 months |
 | Location at check-in | `CheckInScreen` | **Not stored**: checked by `verify_check_in` and dropped | — | Proving presence | Not kept |
 | Challenge results (a score, a vote, how many photos, within the venue's radius or not) | Challenge screens | `challenge_completions.data` | The person; staff | Points | 24 months |
-| Challenge photos | `PhotoCapture` | Private bucket `challenge-photos/<user id>/`, `photos` | The person; staff (signed links, one hour); other members, without a name, for 7 days if the person shares it and staff pick it within 30 days (Owner tools → Photos of the week) | The photo challenge; Photos of the week by consent (asked after taking it) | 12 months |
-| Photo reports (which photo, who reported it, when) | Photos of the week | `photo_reports` | Staff (the app shows only how many) | Moderation | Until staff decide (Owner tools → Reported photos), then deleted; the photo keeps the outcome |
-| Profile photo reports (whose photo, who reported it, when) | Leaderboard (tap a photo → Report) | `profile_photo_reports`; `profiles.avatar_hidden_at` while hidden | Staff (the app shows only how many) | Moderation | Until staff decide (Owner tools → Reported photos: put it back or remove it), then deleted |
+| Challenge photos | `PhotoCapture` | Private bucket `challenge-photos/<user id>/`, `photos` | The person; staff (signed links, one hour); other members, without a name, for 7 days if the person shares it and staff pick it within 30 days (the owner’s view: Today → Photos of the week) | The photo challenge; Photos of the week by consent (asked after taking it) | 12 months |
+| Photo reports (which photo, who reported it, when) | Photos of the week | `photo_reports` | Staff (the app shows only how many) | Moderation | Until staff decide (the owner’s view: Today → Reported photos), then deleted; the photo keeps the outcome |
+| Profile photo reports (whose photo, who reported it, when) | Leaderboard (tap a photo → Report) | `profile_photo_reports`; `profiles.avatar_hidden_at` while hidden | Staff (the app shows only how many) | Moderation | Until staff decide (the owner’s view: Today → Reported photos: put it back or remove it), then deleted |
 | Account activity (last sign-in, session refresh) | Supabase Auth | `auth.users`, `auth.sessions` | Supabase, retention job | Security, retention | Supabase's own |
 
 ## Kept on the phone only

@@ -13,6 +13,8 @@ export default function OrdersLayout() {
       <Stack.Screen name="order/cart" options={{ headerShown: false }} />
       <Stack.Screen name="order/checkout" options={{ headerShown: false }} />
       <Stack.Screen name="order/status/[id]" options={{ headerShown: false }} />
+      {/* The owner's view: one order, for the counter. */}
+      <Stack.Screen name="owner/order/[id]" options={{ headerShown: false }} />
     </Stack>
   );
 }

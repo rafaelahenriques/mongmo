@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { usePathname } from 'expo-router';
 import type { BottomTabBarProps } from 'expo-router/tabs';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -8,19 +9,31 @@ import Svg, { Circle, Path } from 'react-native-svg';
 import { ThemedText } from '@/components/ThemedText';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { CardShadow, Radius } from '@/constants/theme';
+import { useOwnerView } from '@/hooks/useOwnerView';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { isTabBarHidden } from '@/utils/tabBar';
 
 /**
- * The four tabs, in order. Pop-ups is the logo's Ộ, the app's map pin.
- * Account and achievements sit in the top bar instead (AppHeader).
+ * The customer's four tabs, in order. Pop-ups is the logo's Ộ, the app's
+ * map pin. Account and achievements sit in the top bar instead (AppHeader).
  */
 export const TABS: readonly { name: string; label: string; icon: IconName | 'mark' }[] = [
   { name: '(home)', label: 'Home', icon: 'home' },
   { name: '(popups)', label: 'Pop-ups', icon: 'mark' },
   { name: '(orders)', label: 'Order', icon: 'bag' },
   { name: '(wallet)', label: 'Wallet', icon: 'wallet' },
+];
+
+/**
+ * The owner's view: the same four tabs hold the owner's screens, in the
+ * order of a working day. (wallet) is where the menu is edited.
+ */
+export const OWNER_TABS: typeof TABS = [
+  { name: '(home)', label: 'Today', icon: 'home' },
+  { name: '(orders)', label: 'Orders', icon: 'receipt' },
+  { name: '(popups)', label: 'Pop-ups', icon: 'mark' },
+  { name: '(wallet)', label: 'Menu', icon: 'food' },
 ];
 
 const ICON = 22;
@@ -31,10 +44,31 @@ const ICON = 22;
  * the rest are light grey. Tapping the current tab again goes back to its
  * first screen.
  */
-export function IconNav({ state, emitter, navigateToTab }: BottomTabBarProps) {
+export function IconNav({ state, descriptors, emitter, navigateToTab }: BottomTabBarProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const pathname = usePathname();
+  const ownerView = useOwnerView();
+  const tabs = ownerView ? OWNER_TABS : TABS;
+
+  // Switching between the owner's and the customer's view (Account) starts
+  // the other one fresh: every tab back on its first screen, so nothing of
+  // the old view is left open, and the first tab showing.
+  const shownView = useRef(ownerView);
+  useEffect(() => {
+    if (shownView.current === ownerView) return;
+    shownView.current = ownerView;
+    // Any screen's navigation speaks for the tabs; its state has each tab's stack.
+    const tabsNavigation = descriptors[state.routes[state.index].key]?.navigation;
+    for (const route of tabsNavigation?.getState().routes ?? []) {
+      const stack = route.state;
+      // As the tabs do themselves when a tab is pressed twice.
+      if (stack?.key && (stack.index ?? 0) > 0) tabsNavigation.dispatch({ type: 'POP_TO_TOP', target: stack.key });
+    }
+    const first = state.routes.find((route) => route.name === TABS[0].name);
+    if (first) navigateToTab(first.key);
+  }, [ownerView, state, descriptors, navigateToTab]);
+
   if (isTabBarHidden(pathname)) return null;
 
   const current = state.routes[state.index]?.name;
@@ -44,7 +78,7 @@ export function IconNav({ state, emitter, navigateToTab }: BottomTabBarProps) {
         style={[styles.bar, { backgroundColor: theme.surfaceDark, boxShadow: CardShadow }]}
         accessibilityRole="tablist"
       >
-        {TABS.map((tab) => {
+        {tabs.map((tab) => {
           const route = state.routes.find((candidate) => candidate.name === tab.name);
           if (!route) return null;
           const selected = current === tab.name;

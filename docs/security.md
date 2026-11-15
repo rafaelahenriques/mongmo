@@ -37,9 +37,15 @@ Keep **Email OTP length** at 6 and its expiry at 3600 seconds (Sign In /
 Providers → Email): the app and the emails say six digits and one hour.
 
 The emails come from Supabase's own sender until you connect your email
-provider (Authentication → Emails → SMTP settings): do that before launch,
-with the sender name `Mongmo` and an address at mongmo-store.com. The
-built-in sender only sends a few emails an hour and is meant for testing.
+provider (Authentication → Emails → SMTP settings), with the sender name
+`Mongmo` and an address at mongmo-store.com. **This has to be done before
+launch.** The built-in sender is for testing only: it writes only to
+people on the project's Supabase team, a few emails an hour. Anyone else
+who signs up or asks for a password reset gets no email (the app says "We
+can't send emails to that address yet").
+
+Change the templates and ship the app version that asks for a code
+together: an older app expects the link, the new one the code.
 
 ## Supabase → Storage
 

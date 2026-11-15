@@ -76,7 +76,7 @@ left, per "no hardcoded/mock data."
 | `0027_drop_profile_bio.sql` | Drops `profiles.bio`, and every bio written: nobody but its author ever saw it. |
 | `0028_privacy_cleanup.sql` | Check-in challenges record `withinRadius`, not the distance (old distances cleared); old photo links in results become a count; the leaderboard is opt-in for new accounts; the demo pop-ups' Unsplash pictures are cleared. |
 | `0029_photos_of_the_week.sql` | Challenge photos (records and files) are private to the person and staff. `set_photo_shared()` shares one in Photos of the week for 7 days; `photos_of_the_week()` lists them without names; `report_photo()` takes one down at once and records it in `photo_reports` for staff. |
-| `0030_review_reported_photos.sql` | Staff decide on reported photos (Owner tools → Reported photos): `reported_photos()`, `review_reported_photo()` (put it back or keep it down), `delete_reported_photo()` (after the app removes the file; staff may delete only taken-down files). Reports are deleted once decided; the photo keeps the outcome, which the export shows. |
+| `0030_review_reported_photos.sql` | Staff decide on reported photos (the owner’s view: Today → Reported photos): `reported_photos()`, `review_reported_photo()` (put it back or keep it down), `delete_reported_photo()` (after the app removes the file; staff may delete only taken-down files). Reports are deleted once decided; the photo keeps the outcome, which the export shows. |
 | `0031_pay_at_pickup.sql` | Pay at pickup: the status `paid` becomes `placed` (no money changed hands), `place_order()` replaces the test payment, and orders record `payment` (`at_pickup`) and `paid_at`, set when staff mark them collected. |
 | `0032_cancel_my_order.sql` | `cancel_my_order()`: customers cancel their own order until staff accept it. A reward used on a cancelled order (by the customer or staff) comes back unused. |
 | `0040_owner_picks_photos.sql` | Photos of the week are picked by staff: `set_photo_shared()` now offers a photo, `offered_photos()` lists what members offer (staff only, no names), `set_photo_featured()` picks one for 7 days or takes it out. `photos_of_the_week()`, `report_photo()` and the storage rule follow the pick (`photos.featured_at`); a member can't set it. The data export says when a photo was picked. |
@@ -148,7 +148,7 @@ where id = (select id from auth.users where email = 'you@example.com');
 
 Then **log out and sign back in** in the app (Account → Settings → Log out): the app
 caches your profile, so it won't notice the new role until it refetches.
-Once you're an owner, Account (the person in the top bar) shows "Owner tools", and you can promote others from
+Once you're an owner, the app opens in the owner's view (Today, Orders, Pop-ups and Menu; Account has a switch to the customer's view), and you can promote others from
 there too if owner UI for that gets added later (right now, only the schema
 supports it — see `is_owner()` and the `prevent_role_escalation` trigger).
 

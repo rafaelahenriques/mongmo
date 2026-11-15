@@ -1,5 +1,5 @@
 import { requestRefund } from '@/api/payments';
-import { toApiError } from '@/api/errors';
+import { ApiError, toApiError } from '@/api/errors';
 import { getCurrentUserId, supabase } from '@/lib/supabase';
 import type { ChallengeRules } from '@/types';
 import type { Database } from '@/types/database';
@@ -187,6 +187,123 @@ export async function attachMenu(eventId: string, menuId: string): Promise<void>
 
 export async function detachMenu(eventId: string, menuId: string): Promise<void> {
   const { error } = await supabase.from('event_menus').delete().eq('event_id', eventId).eq('menu_id', menuId);
+  if (error) throw toApiError(error);
+}
+
+/* ------------------------------------------------------------------ *
+ * The menu (owner: items, prices, what's on today)                     *
+ * ------------------------------------------------------------------ */
+
+export type OwnerMenuItem = {
+  id: string;
+  menuId: string;
+  name: string;
+  description: string;
+  priceCents: number;
+  /** The section it's listed under; for an option, the group it's offered in. */
+  category: string;
+  sortOrder: number;
+  /** Off: customers don't see it and can't order it. */
+  available: boolean;
+  /** The sections this is an option for; null for a dish or drink of its own. */
+  optionFor: string[] | null;
+  /** Which of the 14 allergens it contains; null while not filled in. */
+  allergens: string[] | null;
+};
+
+export type OwnerMenu = { id: string; name: string; items: OwnerMenuItem[] };
+
+/** What the owner fills in for an item. */
+export type MenuItemInput = Pick<
+  OwnerMenuItem,
+  'name' | 'description' | 'priceCents' | 'category' | 'available' | 'optionFor' | 'allergens'
+>;
+
+/** Every active menu with all its items, the ones taken off included, in menu order. */
+export async function getOwnerMenus(): Promise<OwnerMenu[]> {
+  const menus = await supabase.from('menus').select('id, name').eq('active', true).order('name');
+  if (menus.error) throw toApiError(menus.error);
+  if (menus.data.length === 0) return [];
+  const items = await supabase
+    .from('menu_items')
+    .select('*')
+    .in(
+      'menu_id',
+      menus.data.map((menu) => menu.id),
+    )
+    .order('sort_order');
+  if (items.error) throw toApiError(items.error);
+  return menus.data.map((menu) => ({
+    id: menu.id,
+    name: menu.name,
+    items: items.data
+      .filter((row) => row.menu_id === menu.id)
+      .map((row) => ({
+        id: row.id,
+        menuId: row.menu_id,
+        name: row.name,
+        description: row.description ?? '',
+        priceCents: row.price_cents,
+        category: row.category ?? '',
+        sortOrder: row.sort_order,
+        available: row.available,
+        optionFor: row.add_on_for?.length ? row.add_on_for : null,
+        allergens: row.allergens,
+      })),
+  }));
+}
+
+const menuItemColumns = (input: MenuItemInput) => ({
+  name: input.name.trim(),
+  description: input.description.trim() || null,
+  price_cents: input.priceCents,
+  category: input.category.trim() || null,
+  available: input.available,
+  add_on_for: input.optionFor?.length ? input.optionFor : null,
+  allergens: input.allergens,
+});
+
+/** Adds an item at the end of its menu. Returns its id. */
+export async function createMenuItem(menuId: string, input: MenuItemInput): Promise<string> {
+  const last = await supabase
+    .from('menu_items')
+    .select('sort_order')
+    .eq('menu_id', menuId)
+    .order('sort_order', { ascending: false })
+    .limit(1);
+  if (last.error) throw toApiError(last.error);
+  const { data, error } = await supabase
+    .from('menu_items')
+    .insert({ menu_id: menuId, sort_order: (last.data[0]?.sort_order ?? 0) + 1, ...menuItemColumns(input) })
+    .select('id')
+    .single();
+  if (error) throw toApiError(error);
+  return data.id;
+}
+
+export async function updateMenuItem(itemId: string, input: MenuItemInput): Promise<void> {
+  const { error } = await supabase.from('menu_items').update(menuItemColumns(input)).eq('id', itemId);
+  if (error) throw toApiError(error);
+}
+
+/** Puts an item on the menu, or takes it off (sold out, not today). */
+export async function setMenuItemAvailable(itemId: string, available: boolean): Promise<void> {
+  const { error } = await supabase.from('menu_items').update({ available }).eq('id', itemId);
+  if (error) throw toApiError(error);
+}
+
+/** Postgres: another row still points at this one. */
+const STILL_REFERENCED = '23503';
+
+/**
+ * Deletes an item for good. One that's on an order someone placed can't
+ * go (the order keeps pointing at it): take it off the menu instead.
+ */
+export async function deleteMenuItem(itemId: string): Promise<void> {
+  const { error } = await supabase.from('menu_items').delete().eq('id', itemId);
+  if (error?.code === STILL_REFERENCED) {
+    throw new ApiError('It’s on orders people placed, so it can’t be deleted. Take it off the menu instead.', 409);
+  }
   if (error) throw toApiError(error);
 }
 

@@ -71,7 +71,7 @@ export function useReportProfilePhoto() {
   });
 }
 
-/** Staff: hidden profile photos waiting for a decision (Owner tools). */
+/** Staff: hidden profile photos waiting for a decision (the owner’s view). */
 export function useReportedProfilePhotos(enabled = true) {
   return useQuery({ queryKey: ['profilePhotos', 'reported'], queryFn: getReportedProfilePhotos, enabled });
 }

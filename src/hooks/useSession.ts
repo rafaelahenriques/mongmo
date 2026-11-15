@@ -3,6 +3,7 @@ import type { Session } from '@supabase/supabase-js';
 
 import { queryClient } from '@/api/queryClient';
 import { supabase } from '@/lib/supabase';
+import { useSettingsStore } from '@/state/settingsStore';
 
 /**
  * The signed-in Supabase session, kept live via onAuthStateChange. Gates the
@@ -24,6 +25,8 @@ export function useSession() {
       // achievements, orders…) so a new sign-in never flashes stale data.
       if (event === 'SIGNED_OUT') {
         queryClient.clear();
+        // The next person to sign in on this phone starts as a customer.
+        useSettingsStore.getState().setStaff(false);
       }
     });
 

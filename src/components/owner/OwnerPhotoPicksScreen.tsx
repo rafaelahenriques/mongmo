@@ -23,7 +23,7 @@ const THUMB = 96;
 const day = (iso: string) => formatInTimeZone(new Date(iso), DISPLAY_TIME_ZONE, 'EEE d MMM');
 
 /**
- * Owner tools → Photos of the week. Members share photos from challenges;
+ * Today → Photos of the week (the owner’s view). Members share photos from challenges;
  * here staff pick the ones that show on Home. A picked photo shows for
  * seven days, without the member's name, and can be taken out again. The
  * member can stop sharing at any time, which takes it off this screen and

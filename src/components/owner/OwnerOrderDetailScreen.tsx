@@ -47,7 +47,7 @@ export default function OwnerOrderDetailScreen({ orderId }: { orderId: string })
       showError('Couldn’t send the refund', error);
     },
   });
-  const back = () => (router.canGoBack() ? router.back() : router.replace('/(profile)/owner/orders'));
+  const back = () => (router.canGoBack() ? router.back() : router.replace('/(orders)'));
 
   if (!order) {
     return (

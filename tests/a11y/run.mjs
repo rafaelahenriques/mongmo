@@ -14,6 +14,8 @@
 //   heading        exactly one h1, and no level skipped below it
 //   target-size    every control is at least 24 × 24 CSS px (WCAG 2.5.8)
 //   keyboard       every control can be reached with Tab, and nothing traps focus
+//   hidden-focus   nothing hidden from screen readers (a tab that isn't
+//                  showing) can still take the keyboard's focus
 //   focus-visible  the focused control shows a focus ring
 //   reflow         no sideways scrolling at 320 px wide (200%–400% zoom)
 //   text-200       with every font at twice its size (the phone's largest
@@ -96,6 +98,19 @@ function staticChecks() {
         target: `${describe(el)} is ${Math.round(rect.width)}×${Math.round(rect.height)}`,
       });
     }
+  }
+
+  // A screen that's hidden from screen readers but still takes Tab makes
+  // keyboard users walk through things they can't see. One line is enough.
+  const stray = [...document.querySelectorAll('a[href], button, input, textarea, select, [tabindex="0"]')].filter(
+    (el) => {
+      if (!el.closest('[aria-hidden="true"]') || el.closest('[inert]') || el.disabled) return false;
+      const style = getComputedStyle(el);
+      return el.getClientRects().length > 0 && style.visibility !== 'hidden' && style.display !== 'none';
+    },
+  );
+  if (stray.length) {
+    out.push({ rule: 'hidden-focus', target: `${stray.length} controls, the first ${describe(stray[0])}` });
   }
 
   const headings = [...document.querySelectorAll('h1, h2, h3, h4, h5, h6, [role=heading]')]
@@ -486,33 +501,42 @@ if (process.env.OWNER_EMAIL && process.env.OWNER_PASSWORD) {
   await owner.getByPlaceholder('Password').fill(process.env.OWNER_PASSWORD);
   await button(owner, 'Sign in').click();
   await owner.waitForTimeout(WAIT);
-  const ownerTools = async () => {
-    await owner.goBack();
-    await owner.waitForTimeout(1200);
-  };
-  await step(owner, 'Owner tools', async () => {
+  // Staff land in the owner's view: Today, Orders, Pop-ups and Menu.
+  await step(owner, 'Owner: today', async () => {
     const notNow = button(owner, 'Not now');
     if (await notNow.count()) await notNow.click();
-    await button(owner, 'Account').click();
-    await owner.waitForTimeout(1200);
-    await button(owner, /^Owner tools/).click();
+    await tab(owner, 'Today').waitFor();
   });
-  await step(owner, 'Owner: orders', () => button(owner, /Manage orders/).click());
-  await step(owner, 'Owner: pop-ups', async () => {
-    await ownerTools();
-    await button(owner, /^Manage pop-ups/).click();
+  await step(owner, 'Owner: orders', () => tab(owner, 'Orders').click());
+  await step(owner, 'Owner: pop-ups', () => tab(owner, 'Pop-ups').click());
+  await step(owner, 'Owner: new pop-up', () => button(owner, /^Create a new pop-up/).click());
+  await step(owner, 'Owner: menu', async () => {
+    await back(owner);
+    await tab(owner, 'Menu').click();
   });
-  await step(owner, 'Owner: new pop-up', async () => {
-    await ownerTools();
-    await button(owner, /^New pop-up/).click();
+  await step(owner, 'Owner: menu item', () => button(owner, /^Bánh mì, /).click());
+  await step(owner, 'Owner: new menu item', async () => {
+    await back(owner);
+    await button(owner, 'Add an item').click();
+    // With the allergen list open, so its fourteen choices are checked too.
+    await owner
+      .getByRole('switch', { name: 'Allergens checked with the kitchen' })
+      .filter({ visible: true })
+      .first()
+      .click();
   });
   await step(owner, 'Owner: photos of the week', async () => {
-    await ownerTools();
+    await back(owner);
+    await tab(owner, 'Today').click();
     await button(owner, /^Photos of the week/).click();
   });
   await step(owner, 'Owner: reported photos', async () => {
-    await ownerTools();
+    await back(owner);
     await button(owner, /^Reported photos/).click();
+  });
+  await step(owner, 'Owner: account', async () => {
+    await back(owner);
+    await button(owner, 'Account').click();
   });
 }
 

@@ -66,7 +66,7 @@ describe('Photos of the week on Home', () => {
   });
 });
 
-describe('Owner tools: Photos of the week', () => {
+describe('The owner’s view: Photos of the week', () => {
   const mutate = jest.fn();
   beforeEach(() => {
     jest
