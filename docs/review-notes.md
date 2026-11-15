@@ -84,7 +84,7 @@ are settings and content only you can fill in.
 
 **Content**
 
-- [ ] Allergens filled in for every menu item, dips and extras included.
+- [ ] Allergens filled in for every menu item, sauces and other options included.
 - [ ] Company number (KBO/BCE) and VAT number in the terms of use.
 - [ ] Privacy policy and terms of use published on mongmo-store.com; their
       URLs in both consoles.

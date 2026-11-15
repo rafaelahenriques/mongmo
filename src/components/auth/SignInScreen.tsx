@@ -3,6 +3,7 @@ import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleShee
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ConfirmEmailForm } from '@/components/auth/ConfirmEmailForm';
 import { OpeningScreen } from '@/components/auth/OpeningScreen';
 import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm';
 import { Wordmark } from '@/components/brand/Wordmark';
@@ -17,6 +18,7 @@ import { PageInset, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/lib/supabase';
 import { authErrorMessage, MIN_PASSWORD_LENGTH } from '@/services/authMessages';
+import { alreadyRegistered } from '@/services/emailConfirmation';
 import { haptics } from '@/services/haptics';
 import { useSettingsStore } from '@/state/settingsStore';
 
@@ -57,8 +59,9 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
   const [password, setPassword] = useState('');
   const [pending, setPending] = useState<'account' | 'guest' | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const [resetting, setResetting] = useState(false);
+  /** The address whose 6-digit code we're waiting for, after creating an account. */
+  const [confirming, setConfirming] = useState<string | null>(null);
 
   // Older accounts may have 6-character passwords; new ones need more.
   const minLength = mode === 'sign-in' ? 6 : MIN_PASSWORD_LENGTH;
@@ -66,7 +69,6 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
 
   const onSubmit = useCallback(async () => {
     setError(null);
-    setNotice(null);
     setPending('account');
     const address = email.trim();
     try {
@@ -74,22 +76,25 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
         mode === 'sign-in'
           ? await supabase.auth.signInWithPassword({ email: address, password })
           : await supabase.auth.signUp({ email: address, password });
-      if (authError) {
+      if (authError?.code === 'email_not_confirmed') {
+        // They made the account but never entered the code: ask for it now.
+        setPassword('');
+        setConfirming(address);
+      } else if (authError) {
         haptics.error();
-        setError(
-          authError.code === 'email_not_confirmed'
-            ? `Confirm your email first: open the link we sent to ${address}.`
-            : authErrorMessage(authError),
-        );
-      } else if (!data.session) {
-        // The project asks new accounts to confirm their email before they
-        // can sign in: say so, and have them sign in once they have.
-        haptics.success();
-        setNotice(
-          `Check your email: we sent a link to ${address}. Open it to confirm your account, then sign in here.`,
-        );
+        setError(authErrorMessage(authError));
+      } else if (mode === 'sign-up' && alreadyRegistered(data.user)) {
+        haptics.error();
+        setError('There’s already an account with that email. Sign in instead.');
         setPassword('');
         onModeChange('sign-in');
+      } else if (!data.session) {
+        // The project asks new accounts to confirm their email: the code
+        // from that email, typed here, signs them in.
+        haptics.success();
+        setPassword('');
+        onModeChange('sign-in');
+        setConfirming(address);
       } else {
         haptics.success();
       }
@@ -120,12 +125,12 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingTop: insets.top + 54, paddingBottom: insets.bottom + 24 }]}
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 20 }]}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.brand}>
           <ThemedText type="captionBold">Pick-Up · Pop Ups · Discounts</ThemedText>
-          <Wordmark height={78} />
+          <Wordmark height={60} />
         </View>
 
         {BrandPhotos.welcome ? (
@@ -144,7 +149,9 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
           {mode === 'sign-in' ? 'Welcome' : 'Join us'}
         </ThemedText>
 
-        {resetting ? (
+        {confirming ? (
+          <ConfirmEmailForm email={confirming} onBack={() => setConfirming(null)} />
+        ) : resetting ? (
           <ResetPasswordForm initialEmail={email} onDone={() => setResetting(false)} />
         ) : (
           <View style={styles.form}>
@@ -169,7 +176,8 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
               secureTextEntry
               autoComplete={mode === 'sign-in' ? 'password' : 'password-new'}
               textContentType={mode === 'sign-in' ? 'password' : 'newPassword'}
-              placeholder={mode === 'sign-in' ? 'Password' : `Password (${MIN_PASSWORD_LENGTH} characters or more)`}
+              placeholder="Password"
+              hint={mode === 'sign-up' ? `At least ${MIN_PASSWORD_LENGTH} characters.` : undefined}
               hideLabel
               testID="password"
             />
@@ -178,14 +186,6 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
               <ThemedText type="caption" themeColor="danger" accessibilityRole="alert">
                 {error}
               </ThemedText>
-            ) : null}
-            {notice ? (
-              <View
-                style={[styles.notice, { backgroundColor: theme.backgroundSelected }]}
-                accessibilityLiveRegion="polite"
-              >
-                <ThemedText type="small">{notice}</ThemedText>
-              </View>
             ) : null}
 
             <Button
@@ -202,7 +202,6 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
                 onPress={() => {
                   haptics.select();
                   setError(null);
-                  setNotice(null);
                   setResetting(true);
                 }}
                 accessibilityRole="button"
@@ -217,7 +216,6 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
               onPress={() => {
                 haptics.select();
                 setError(null);
-                setNotice(null);
                 onModeChange(mode === 'sign-in' ? 'sign-up' : 'sign-in');
               }}
               accessibilityRole="button"
@@ -260,8 +258,8 @@ function LegalLinks() {
   return (
     <View style={styles.legal}>
       <ThemedText type="caption" themeColor="textSecondary" style={styles.center}>
-        By creating an account or continuing as a guest, you agree to our terms of use. Our privacy policy explains how
-        we use your data.
+        By continuing, with an account or as a guest, you agree to our terms of use. The privacy policy says how we use
+        your data.
       </ThemedText>
       <View style={styles.legalLinks}>
         <Button label="Terms of use" variant="ghost" size="small" onPress={() => setOpen('terms')} />
@@ -299,17 +297,15 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: PageInset + 32,
-    gap: 28,
+    gap: 20,
   },
   brand: {
-    gap: 16,
+    gap: 10,
   },
-  notice: {
-    padding: 12,
-  },
+  // A wide strip of the table, so the form fits a phone screen without scrolling.
   photo: {
     width: '100%',
-    aspectRatio: 300 / 170,
+    aspectRatio: 300 / 120,
     borderRadius: Radius.medium,
   },
   form: {
@@ -317,6 +313,6 @@ const styles = StyleSheet.create({
   },
   switch: {
     alignSelf: 'center',
-    paddingVertical: 14,
+    paddingVertical: 10,
   },
 });

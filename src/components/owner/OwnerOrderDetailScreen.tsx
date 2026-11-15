@@ -12,7 +12,7 @@ import { ListRow } from '@/components/ui/ListRow';
 import { StepBar } from '@/components/ui/StepBar';
 import { TextLink } from '@/components/ui/TextLink';
 import { TopBar } from '@/components/ui/TopBar';
-import { PageInset } from '@/constants/theme';
+import { PageInset, Radius } from '@/constants/theme';
 import { useNow } from '@/hooks/useNow';
 import { useOwnerOrders } from '@/hooks/useOwnerOrders';
 import { useTheme } from '@/hooks/useTheme';
@@ -113,6 +113,12 @@ export default function OwnerOrderDetailScreen({ orderId }: { orderId: string })
           <ThemedText type="section" accessibilityRole="header">
             Make this
           </ThemedText>
+          {order.note ? (
+            <View style={[styles.note, { backgroundColor: theme.backgroundSelected }]}>
+              <ThemedText type="captionBold">Note from the customer</ThemedText>
+              <ThemedText type="default">{order.note}</ThemedText>
+            </View>
+          ) : null}
           <View>
             {(about?.lines ?? []).map((line) => (
               <ListRow
@@ -169,6 +175,11 @@ export default function OwnerOrderDetailScreen({ orderId }: { orderId: string })
 }
 
 const styles = StyleSheet.create({
+  note: {
+    gap: 4,
+    padding: 14,
+    borderRadius: Radius.medium,
+  },
   screen: {
     flex: 1,
   },

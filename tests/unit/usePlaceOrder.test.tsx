@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import type { PropsWithChildren } from 'react';
 
-import { createDraftOrder, placeAtPickup, waitForPayment } from '@/api/orders';
+import { createDraftOrder, placeAtPickup, setOrderNote, waitForPayment } from '@/api/orders';
 import { usePlaceOrder } from '@/hooks/usePlaceOrder';
 import { payOrder } from '@/services/payments';
 import { useCartStore } from '@/state/cartStore';
@@ -10,6 +10,7 @@ import { useCartStore } from '@/state/cartStore';
 jest.mock('@/api/orders', () => ({
   createDraftOrder: jest.fn(),
   placeAtPickup: jest.fn(),
+  setOrderNote: jest.fn(),
   waitForPayment: jest.fn(),
 }));
 jest.mock('@/services/payments', () => ({ payOrder: jest.fn() }));
@@ -115,6 +116,8 @@ describe('paying online', () => {
 
     expect(createDraftOrder).not.toHaveBeenCalled();
     expect(payOrder).toHaveBeenCalledWith('order-1');
+    // The order made before may carry an older note: it's set to what's written now (nothing).
+    expect(setOrderNote).toHaveBeenCalledWith('order-1', null);
   });
 
   it('just places an order a reward pays for in full: nothing to charge', async () => {
@@ -126,5 +129,57 @@ describe('paying online', () => {
 
     expect(payOrder).not.toHaveBeenCalled();
     expect(placeAtPickup).toHaveBeenCalledWith('order-1');
+  });
+});
+
+describe('a note for the kitchen', () => {
+  it('goes on the order before it is placed', async () => {
+    const calls: string[] = [];
+    jest.mocked(setOrderNote).mockImplementation(async () => void calls.push('note'));
+    jest.mocked(placeAtPickup).mockImplementation(async () => {
+      calls.push('place');
+      return { ...DRAFT, status: 'placed' } as never;
+    });
+    const { result } = await setup();
+
+    await result.current.mutateAsync({
+      location: CAFE,
+      items: ITEMS,
+      pickupAt: null,
+      payment: 'at_pickup',
+      note: '  No coriander  ',
+    });
+
+    expect(setOrderNote).toHaveBeenCalledWith('order-1', 'No coriander');
+    expect(calls).toEqual(['note', 'place']);
+  });
+
+  it('is not sent when nothing was written', async () => {
+    jest.mocked(placeAtPickup).mockResolvedValue({ ...DRAFT, status: 'placed' } as never);
+    const { result } = await setup();
+
+    await result.current.mutateAsync({
+      location: CAFE,
+      items: ITEMS,
+      pickupAt: null,
+      payment: 'at_pickup',
+      note: '   ',
+    });
+
+    expect(setOrderNote).not.toHaveBeenCalled();
+  });
+
+  it('keeps the order from being placed when the note is refused', async () => {
+    jest.mocked(setOrderNote).mockRejectedValue(new Error('Keep the note to 200 characters'));
+    const { result } = await setup();
+
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync({ location: CAFE, items: ITEMS, pickupAt: null, payment: 'at_pickup', note: 'x' }),
+      ).rejects.toThrow('200 characters');
+    });
+
+    expect(placeAtPickup).not.toHaveBeenCalled();
+    expect(useCartStore.getState().items).toHaveLength(1);
   });
 });

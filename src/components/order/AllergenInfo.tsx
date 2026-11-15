@@ -9,24 +9,34 @@ import { useTheme } from '@/hooks/useTheme';
 import { shortItemName } from '@/utils/orderFormat';
 
 /**
- * An item's allergens, and those of its dips and extras, before it's added
+ * An item's allergens, and those of its sauces and other options, before it's added
  * to the order (EU food information rules). When something isn't listed
  * yet, it says so and how to ask.
  */
 export function AllergenInfo({ item, options }: { item: OrderMenuItem; options: OrderMenuItem[] }) {
   const theme = useTheme();
   const missing = [item, ...options].some((entry) => entry.allergens == null);
+  const listed = options.filter((option) => option.allergens != null);
+  // Options without a list yet, in one line instead of one each.
+  const unlisted = options
+    .filter((option) => option.allergens == null)
+    .map((option) => shortItemName(option.name, option.category));
   return (
     <View style={[styles.box, { borderColor: theme.border }]}>
       <ThemedText type="section" accessibilityRole="header">
         Allergens
       </ThemedText>
       <ThemedText type="small">{allergenText(item.allergens)}</ThemedText>
-      {options.map((option) => (
+      {listed.map((option) => (
         <ThemedText key={option.id} type="small" themeColor="textSecondary">
           {`${shortItemName(option.name, option.category)}: ${allergenText(option.allergens)}`}
         </ThemedText>
       ))}
+      {unlisted.length ? (
+        <ThemedText type="small" themeColor="textSecondary">
+          {`Not listed yet: ${unlisted.join(', ')}.`}
+        </ThemedText>
+      ) : null}
       <ThemedText type="small" themeColor="textSecondary">
         {missing
           ? 'Some allergens aren’t listed yet. If you have an allergy, ask us before you order.'

@@ -20,7 +20,6 @@ import { confirmDeleteAccount, confirmLogOut } from '@/services/auth';
 import {
   ensureNotificationPermission,
   getNotificationPermission,
-  sendTestNotification,
   type NotificationPermission,
 } from '@/services/notifications';
 import { useSettingsStore, type ContrastMode, type NotificationPrefs, type ThemeMode } from '@/state/settingsStore';
@@ -91,7 +90,6 @@ export default function SettingsScreen() {
 
   // Re-read on every visit: they may have just flipped it in the phone's settings.
   const [permission, setPermission] = useState<NotificationPermission | null>(null);
-  const [testResult, setTestResult] = useState<string | null>(null);
   const refreshPermission = useCallback(() => {
     getNotificationPermission().then(setPermission);
   }, []);
@@ -132,7 +130,7 @@ export default function SettingsScreen() {
             key={option.key}
             title={option.label}
             subtitle={option.hint}
-            last={index === NOTIFICATION_OPTIONS.length - 1 && Platform.OS === 'web'}
+            last={index === NOTIFICATION_OPTIONS.length - 1}
             trailing={
               <Toggle
                 value={notifications[option.key]}
@@ -142,19 +140,6 @@ export default function SettingsScreen() {
             }
           />
         ))}
-        {Platform.OS !== 'web' ? (
-          <ListRow
-            title="Send a test notification"
-            subtitle={testResult ?? 'Check they reach this phone'}
-            onPress={async () => {
-              const sent = await sendTestNotification();
-              setTestResult(sent ? 'Sent. It should show up now.' : 'Notifications are off for Mongmo.');
-              refreshPermission();
-            }}
-            chevron={false}
-            last
-          />
-        ) : null}
       </Group>
 
       <Group number="02" title="App">

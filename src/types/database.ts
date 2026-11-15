@@ -239,6 +239,8 @@ type OrderRow = {
   /** A cancelled online payment's refund: being made, done, or failed (staff can retry). */
   refund_status: 'pending' | 'refunded' | 'failed' | null;
   refunded_at: string | null;
+  /** What the customer wrote for the kitchen at checkout (0039). */
+  note: string | null;
 };
 
 type OrderItemRow = {
@@ -363,6 +365,10 @@ export type Database = {
       };
       place_order: {
         Args: { p_order_id: string };
+        Returns: OrderRow;
+      };
+      set_order_note: {
+        Args: { p_order_id: string; p_note: string | null };
         Returns: OrderRow;
       };
       cancel_my_order: {

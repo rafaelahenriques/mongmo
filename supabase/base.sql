@@ -11,8 +11,9 @@
 -- ------------------------------------------------------------------
 -- Menu: the board at the café, shared by the store and every event.
 -- Item names say what the kitchen makes ("Bánh mì, crispy pork belly");
--- the app shows them under their section without the repeat. Extras and
--- dips are options, chosen on an item's page (see below).
+-- the app shows them under their section without the repeat. Sauces,
+-- coriander, spicy and extra sauce are options, chosen on an item's page
+-- (see below).
 -- ------------------------------------------------------------------
 insert into public.menus (id, name, description, active) values
   ('00000000-0000-0000-0000-0000000000d1', 'Mongmo pop-up menu', 'Bánh mì, springrolls and Vietnamese stews, available until sold out.', true)
@@ -27,12 +28,16 @@ insert into public.menu_items (id, menu_id, name, description, price_cents, cate
   ('00000000-0000-0000-0000-0000000000d7', '00000000-0000-0000-0000-0000000000d1', 'Springrolls, grilled meatballs', null, 500, 'Springrolls', 6, true),
   ('00000000-0000-0000-0000-0000000000d8', '00000000-0000-0000-0000-0000000000d1', 'Springrolls, fried tofu', null, 500, 'Springrolls', 7, true),
   ('00000000-0000-0000-0000-0000000000d9', '00000000-0000-0000-0000-0000000000d1', 'Springrolls, eggs', null, 500, 'Springrolls', 8, true),
-  ('00000000-0000-0000-0000-0000000000da', '00000000-0000-0000-0000-0000000000d1', 'Additional protein', 'In your bánh mì or springrolls', 100, 'Extras', 9, true),
-  ('00000000-0000-0000-0000-0000000000db', '00000000-0000-0000-0000-0000000000d1', 'Mango dip', null, 0, 'Choose your dip', 10, true),
-  ('00000000-0000-0000-0000-0000000000dc', '00000000-0000-0000-0000-0000000000d1', 'Peanut dip', null, 0, 'Choose your dip', 11, true),
-  ('00000000-0000-0000-0000-0000000000dd', '00000000-0000-0000-0000-0000000000d1', 'Bò kho (beef stew)', null, 1650, 'Vietnamese stews', 12, true),
-  ('00000000-0000-0000-0000-0000000000de', '00000000-0000-0000-0000-0000000000d1', 'Gà cà ri (chicken stew)', null, 1650, 'Vietnamese stews', 13, true),
-  ('00000000-0000-0000-0000-0000000000df', '00000000-0000-0000-0000-0000000000d1', 'Bánh mì without filling', null, 150, 'Bánh mì without filling', 14, true)
+  ('00000000-0000-0000-0000-0000000000e4', '00000000-0000-0000-0000-0000000000d1', 'Springrolls, salmon', null, 500, 'Springrolls', 9, true),
+  ('00000000-0000-0000-0000-0000000000dc', '00000000-0000-0000-0000-0000000000d1', 'Peanut sauce', null, 0, 'Choose your sauce', 10, true),
+  ('00000000-0000-0000-0000-0000000000db', '00000000-0000-0000-0000-0000000000d1', 'Mango sauce', null, 0, 'Choose your sauce', 11, true),
+  ('00000000-0000-0000-0000-0000000000e0', '00000000-0000-0000-0000-0000000000d1', 'Coriander', null, 0, 'Options', 12, true),
+  ('00000000-0000-0000-0000-0000000000e1', '00000000-0000-0000-0000-0000000000d1', 'Spicy', null, 0, 'Options', 13, true),
+  ('00000000-0000-0000-0000-0000000000e2', '00000000-0000-0000-0000-0000000000d1', 'Extra peanut sauce', null, 90, 'Extras', 14, true),
+  ('00000000-0000-0000-0000-0000000000e3', '00000000-0000-0000-0000-0000000000d1', 'Extra mango sauce', null, 90, 'Extras', 15, true),
+  ('00000000-0000-0000-0000-0000000000dd', '00000000-0000-0000-0000-0000000000d1', 'Bò kho (beef stew)', null, 1650, 'Vietnamese stews', 16, true),
+  ('00000000-0000-0000-0000-0000000000de', '00000000-0000-0000-0000-0000000000d1', 'Gà cà ri (chicken stew)', null, 1650, 'Vietnamese stews', 17, true),
+  ('00000000-0000-0000-0000-0000000000df', '00000000-0000-0000-0000-0000000000d1', 'Bánh mì without filling', null, 150, 'Bánh mì without filling', 18, true)
 on conflict (id) do update set
   name = excluded.name,
   description = excluded.description,
@@ -41,13 +46,19 @@ on conflict (id) do update set
   sort_order = excluded.sort_order,
   available = excluded.available;
 
--- Options (0017_item_options.sql): picked on the item's own page, not
--- the menu. Extra protein for bánh mì and springrolls, a dip with
--- springrolls.
-update public.menu_items set add_on_for = '{Bánh mì,Springrolls}'
-  where id = '00000000-0000-0000-0000-0000000000da';
+-- Options (0017_item_options.sql): picked on the item's own page, not the
+-- menu. A group whose name starts with "Choose" is pick-one (the sauce
+-- that comes with springrolls); the rest are switched on one by one, free
+-- (coriander, spicy) or paid (extra sauce).
 update public.menu_items set add_on_for = '{Springrolls}'
-  where id in ('00000000-0000-0000-0000-0000000000db', '00000000-0000-0000-0000-0000000000dc');
+  where id in (
+    '00000000-0000-0000-0000-0000000000dc', '00000000-0000-0000-0000-0000000000db',
+    '00000000-0000-0000-0000-0000000000e2', '00000000-0000-0000-0000-0000000000e3'
+  );
+update public.menu_items set add_on_for = '{Bánh mì,Springrolls}'
+  where id in ('00000000-0000-0000-0000-0000000000e0', '00000000-0000-0000-0000-0000000000e1');
+-- "Additional protein" was an option until 0039.
+delete from public.menu_items where id = '00000000-0000-0000-0000-0000000000da';
 
 -- Allergens (0035_menu_allergens.sql): which of the 14 EU allergens each
 -- item contains, filled in from the kitchen's recipes, dips and extras
@@ -65,9 +76,13 @@ update public.menu_items set add_on_for = '{Springrolls}'
 -- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000d7';  -- Springrolls, grilled meatballs
 -- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000d8';  -- Springrolls, fried tofu
 -- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000d9';  -- Springrolls, eggs
--- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000da';  -- Additional protein
--- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000db';  -- Mango dip
--- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000dc';  -- Peanut dip
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000e4';  -- Springrolls, salmon
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000dc';  -- Peanut sauce
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000db';  -- Mango sauce
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000e0';  -- Coriander
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000e1';  -- Spicy
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000e2';  -- Extra peanut sauce
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000e3';  -- Extra mango sauce
 -- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000dd';  -- Bò kho (beef stew)
 -- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000de';  -- Gà cà ri (chicken stew)
 -- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000df';  -- Bánh mì without filling
@@ -91,7 +106,7 @@ insert into public.stores (
     "sun": {"open": "10:00", "close": "16:00"}
   }'::jsonb,
   array['Fresh bakery daily', 'Pickup & delivery', 'Card payment', 'Vegetarian friendly'],
-  40, 11,
+  40, 0,
   '+32 56 94 43 81',
   'https://bestel.mongmo-store.com/nl',
   '00000000-0000-0000-0000-0000000000d1'
@@ -107,9 +122,9 @@ insert into public.badges (key, title, description, points, sort_order) values
   ('street-food-fan', 'Street Food Fan', 'Check in to 4 pop-ups', 40, 3),
   ('local-legend', 'Local Legend', 'Check in to 6 pop-ups', 50, 4),
   ('memory-maker', 'Memory Maker', 'Complete 3 challenges', 40, 5),
-  ('first-order', 'First Order', 'Place your first order', 25, 6),
-  ('regular', 'Regular', 'Place 3 orders', 50, 7),
-  ('event-eater', 'Event Eater', 'Order at 2 different pop-ups', 25, 8),
+  ('first-order', 'First Order', 'Pick up your first order', 25, 6),
+  ('regular', 'Regular', 'Pick up 3 orders', 50, 7),
+  ('event-eater', 'Event Eater', 'Pick up orders at 2 different pop-ups', 25, 8),
   ('city-hopper', 'City Hopper', 'Check in to pop-ups in 2 different cities', 25, 9),
   ('event-hopper', 'Event Hopper', 'Check in at 3 different pop-ups', 40, 10),
   ('shutterbug', 'Shutterbug', 'Complete 3 photo challenges', 25, 11),

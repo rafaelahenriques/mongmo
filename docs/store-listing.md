@@ -31,7 +31,7 @@ Mongmo makes Vietnamese bánh mì, springrolls and stews in Kortrijk, and takes 
 
 ORDER AHEAD
 • Pick a time at the café or a live pop-up, and your order is ready when you arrive.
-• Choose your dip and extras on each dish.
+• Choose your sauce and extras on each dish.
 • Every dish shows its allergens before you order.
 • Pay in the app with card, Apple Pay or Bancontact, or pay at the counter when you collect it.
 • Follow your order as it's made, and show your pickup code at the counter.
@@ -63,7 +63,7 @@ privacy page (`docs/store-release.md` → blockers) · **Category**: Food & Drin
 
 1. Home — `Order ahead, collect it hot`
 2. Menu — `Bánh mì, springrolls and stews`
-3. A dish — `Pick your dip. See every allergen.`
+3. A dish — `Pick your sauce. See every allergen.`
 4. Checkout — `Pay in the app or at pickup`
 5. Pop-ups map — `Find our next pop-up`
 6. Wallet — `Earn points, unlock rewards`
@@ -86,7 +86,7 @@ Mongmo makes Vietnamese bánh mì, springrolls and stews in Kortrijk, and takes 
 
 ORDER AHEAD
 • Pick a time at the café or a live pop-up, and your order is ready when you arrive.
-• Choose your dip and extras on each dish.
+• Choose your sauce and extras on each dish.
 • Every dish shows its allergens before you order.
 • Pay in the app with card, Google Pay or Bancontact, or pay at the counter when you collect it.
 • Follow your order as it's made, and show your pickup code at the counter.

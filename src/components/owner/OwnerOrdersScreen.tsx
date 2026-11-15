@@ -137,6 +137,7 @@ export default function OwnerOrdersScreen() {
                       .join('. ')}
                   </ThemedText>
                 ) : null}
+                {order.note ? <ThemedText type="caption">{`Note: ${order.note}`}</ThemedText> : null}
               </Pressable>
               <View style={styles.ticketFoot}>
                 <ThemedText type="caption" themeColor="textSecondary" style={styles.until}>

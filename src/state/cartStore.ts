@@ -12,7 +12,7 @@ export function isSameLocation(a: CartLocation | null, b: CartLocation): boolean
   return false;
 }
 
-/** An option chosen on an item's page: a dip, extra protein. */
+/** An option chosen on an item's page: a sauce, coriander, spicy. */
 export type CartOption = {
   id: string;
   name: string;
@@ -20,7 +20,7 @@ export type CartOption = {
 };
 
 export type CartItem = {
-  /** The item and its options: the same roll with another dip is another line. */
+  /** The item and its options: the same roll with another sauce is another line. */
   key: string;
   menuItemId: string;
   name: string;

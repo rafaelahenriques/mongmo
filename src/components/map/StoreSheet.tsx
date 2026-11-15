@@ -1,6 +1,5 @@
 import StoreSheetContent from '@/components/map/StoreSheetContent';
 import { Sheet } from '@/components/ui/Sheet';
-import { useBusyStore } from '@/state/busyStore';
 import type { Store } from '@/types';
 
 export type StoreSheetProps = {
@@ -16,13 +15,11 @@ export type StoreSheetProps = {
  * React 19 build). Fully controlled via `visible`.
  */
 export default function StoreSheet({ visible, store, onClose }: StoreSheetProps) {
-  const busy = useBusyStore((state) => (store ? state.busy[store.id] : undefined));
-
   if (!store) return null;
 
   return (
     <Sheet visible={visible} title={store.name} subtitle={store.address} onClose={onClose}>
-      <StoreSheetContent store={store} busy={busy ?? store.busy} onClose={onClose} />
+      <StoreSheetContent store={store} onClose={onClose} />
     </Sheet>
   );
 }

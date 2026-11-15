@@ -32,21 +32,32 @@ async function orderPointsEarned(orderId: string): Promise<number> {
 describe('placing an order', () => {
   it('prices it on the server from the menu, options included, and places it to pay at pickup', async () => {
     const order = await placeOrder(customer, [
-      { menu_item_id: SEED.banhMiPork, quantity: 2, options: [SEED.extraProtein] },
-      { menu_item_id: SEED.springrollsTofu, quantity: 1, options: [SEED.mangoDip] },
+      { menu_item_id: SEED.banhMiPork, quantity: 2, options: [SEED.coriander] },
+      {
+        menu_item_id: SEED.springrollsTofu,
+        quantity: 1,
+        options: [SEED.mangoSauce, SEED.coriander, SEED.extraPeanutSauce],
+      },
     ]);
     expect(order.status).toBe('placed');
-    expect(order).toMatchObject({ payment: 'at_pickup', paid_at: null });
-    expect(order.total_cents).toBe((1050 + 100) * 2 + (500 + 0));
+    expect(order).toMatchObject({ payment: 'at_pickup', paid_at: null, note: null });
+    // Coriander and the sauce that comes with it are free; more sauce is €0.90.
+    expect(order.total_cents).toBe(1050 * 2 + (500 + 90));
 
     const { data: lines } = await customer.client.from('order_items').select('*').eq('order_id', order.id);
     expect(lines).toHaveLength(2);
+    expect(lines!.map((line) => line.options_snapshot).sort()).toEqual([
+      'Coriander',
+      'Mango sauce, Coriander, Extra peanut sauce',
+    ]);
   });
 
   it('refuses an option that goes with another section', async () => {
-    await expect(
-      placeOrder(customer, [{ menu_item_id: SEED.banhMiPork, quantity: 1, options: [SEED.mangoDip] }]),
-    ).rejects.toMatchObject({ message: expect.stringContaining('not available') });
+    for (const option of [SEED.mangoSauce, SEED.extraPeanutSauce]) {
+      await expect(
+        placeOrder(customer, [{ menu_item_id: SEED.banhMiPork, quantity: 1, options: [option] }]),
+      ).rejects.toMatchObject({ message: expect.stringContaining('not available') });
+    }
   });
 
   it('refuses an empty cart and a zero quantity', async () => {
@@ -157,5 +168,95 @@ describe('points for orders', () => {
     const before = await orderPointsEarned(order.id);
     await owner.client.rpc('advance_order_status', { p_order_id: order.id, p_status: 'collected' });
     expect(await orderPointsEarned(order.id)).toBe(before);
+  });
+});
+
+describe('a note with an order', () => {
+  const draft = async (person: Customer) => {
+    const { data, error } = await person.client.rpc('create_order', {
+      p_store_id: SEED.storeId,
+      p_event_id: null,
+      p_items: [{ menu_item_id: SEED.banhMiPork, quantity: 1 }],
+      p_pickup_at: null,
+      p_user_reward_id: null,
+    });
+    if (error) throw error;
+    return data;
+  };
+  const setNote = (person: Customer, orderId: string, note: string | null) =>
+    person.client.rpc('set_order_note', { p_order_id: orderId, p_note: note });
+
+  it('is kept on one line with the order, and staff read it on their board', async () => {
+    const order = await draft(customer);
+    const { data, error } = await setNote(customer, order.id, '  No coriander,\n please  ');
+    expect(error).toBeNull();
+    expect(data!.note).toBe('No coriander, please');
+
+    await customer.client.rpc('place_order', { p_order_id: order.id });
+    const { data: board } = await owner.client.rpc('owner_board_orders', { p_since: new Date().toISOString() });
+    expect(board!.find((row) => row.id === order.id)?.note).toBe('No coriander, please');
+  });
+
+  it('can be cleared, and takes at most 200 characters', async () => {
+    const order = await draft(customer);
+    expect((await setNote(customer, order.id, 'x'.repeat(200))).data!.note).toHaveLength(200);
+    expect((await setNote(customer, order.id, 'x'.repeat(201))).error?.code).toBe('22023');
+    expect((await setNote(customer, order.id, '   ')).data!.note).toBeNull();
+  });
+
+  it("can't be changed once the order is placed, or on someone else's order", async () => {
+    const order = await draft(customer);
+    expect((await setNote(owner, order.id, 'free food please')).error?.code).toBe('P0002');
+    await customer.client.rpc('place_order', { p_order_id: order.id });
+    expect((await setNote(customer, order.id, 'changed my mind')).error?.code).toBe('P0002');
+    // Nor by writing to the table directly.
+    await customer.client.from('orders').update({ note: 'sneaky' }).eq('id', order.id);
+    const { data: after } = await customer.client.from('orders').select('note').eq('id', order.id).single();
+    expect(after!.note).toBeNull();
+  });
+});
+
+describe('order badges', () => {
+  const badges = async (person: Customer) => {
+    const { data, error } = await admin.from('user_badges').select('badges(key)').eq('user_id', person.userId);
+    if (error) throw error;
+    return data.map((row) => (row.badges as unknown as { key: string }).key);
+  };
+
+  it('come from orders that were picked up: a cancelled order earns no badge and no points', async () => {
+    const fresh = await signUp();
+    try {
+      const cancelled = await placeOrder(fresh, [{ menu_item_id: SEED.banhMiPork, quantity: 1 }]);
+      await fresh.client.rpc('cancel_my_order', { p_order_id: cancelled.id });
+      expect(await badges(fresh)).not.toContain('first-order');
+      const { data: balance } = await fresh.client.rpc('my_points_balance');
+      expect(balance).toBe(0);
+
+      const collected = await placeOrder(fresh, [{ menu_item_id: SEED.banhMiPork, quantity: 1 }]);
+      expect(await badges(fresh)).not.toContain('first-order');
+      await collect(collected.id);
+      expect(await badges(fresh)).toContain('first-order');
+    } finally {
+      await deleteAccount(fresh);
+    }
+  });
+});
+
+describe('the leaderboard', () => {
+  it('lists people who have points, not everyone who joined it', async () => {
+    const [withPoints, without] = await Promise.all([signUp(), signUp()]);
+    try {
+      for (const person of [withPoints, without]) {
+        await person.client.from('profiles').update({ leaderboard_visible: true }).eq('id', person.userId);
+      }
+      await givePoints(withPoints.userId, 30);
+      const { data, error } = await customer.client.rpc('leaderboard', { p_period: 'all' });
+      expect(error).toBeNull();
+      const ids = data!.map((row) => row.user_id);
+      expect(ids).toContain(withPoints.userId);
+      expect(ids).not.toContain(without.userId);
+    } finally {
+      await Promise.all([deleteAccount(withPoints), deleteAccount(without)]);
+    }
   });
 });

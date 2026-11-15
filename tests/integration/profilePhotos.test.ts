@@ -1,4 +1,4 @@
-import { admin, deleteAccount, signUp, type Customer } from './helpers';
+import { admin, deleteAccount, givePoints, signUp, type Customer } from './helpers';
 
 /**
  * Profile photos (0033): each person's own, in their folder of the private
@@ -18,6 +18,8 @@ beforeAll(async () => {
       ).toBeNull(),
     ),
   );
+  // The leaderboard lists people with points (0039).
+  await Promise.all([alice, bob].map((person) => givePoints(person.userId, 10)));
 });
 afterAll(async () => {
   for (const person of [alice, bob]) {

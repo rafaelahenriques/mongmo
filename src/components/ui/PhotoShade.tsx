@@ -1,5 +1,4 @@
 import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Icon, type IconName } from '@/components/ui/Icon';
@@ -7,29 +6,27 @@ import { Paper, paperAlpha, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 
+/** The shade's ink (#1C1D19) at an opacity. */
+const ink = (opacity: number): string => `rgba(28, 29, 25, ${Math.min(1, Math.max(0, opacity)).toFixed(2)})`;
+
 /**
  * Darkens a photo toward its bottom (and a little at the top, for buttons
  * there), so paper text over it reads. Decorative; fills its parent.
+ *
+ * A gradient the platform draws itself (React Native's `backgroundImage`).
+ * It used to be an SVG stretched from a 1 × 1 box, which iPhones drew in
+ * hard bands: a dark block across the photo instead of a fade.
  */
 export function PhotoShade({ from = 0.05, to = 0.78 }: { from?: number; to?: number }) {
   return (
-    <Svg
-      width="100%"
-      height="100%"
-      style={StyleSheet.absoluteFill}
-      preserveAspectRatio="none"
-      viewBox="0 0 1 1"
+    <View
       aria-hidden
-    >
-      <Defs>
-        <LinearGradient id="shade" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#1C1D19" stopOpacity={from + 0.25} />
-          <Stop offset="0.35" stopColor="#1C1D19" stopOpacity={from} />
-          <Stop offset="1" stopColor="#1C1D19" stopOpacity={to} />
-        </LinearGradient>
-      </Defs>
-      <Rect x="0" y="0" width="1" height="1" fill="url(#shade)" />
-    </Svg>
+      style={[
+        StyleSheet.absoluteFill,
+        styles.shade,
+        { backgroundImage: `linear-gradient(to bottom, ${ink(from + 0.25)} 0%, ${ink(from)} 35%, ${ink(to)} 100%)` },
+      ]}
+    />
   );
 }
 
@@ -125,6 +122,10 @@ export function GlassButton({
 }
 
 const styles = StyleSheet.create({
+  // Taps go through to the photo's card underneath.
+  shade: {
+    pointerEvents: 'none',
+  },
   round: {
     width: 44,
     height: 44,

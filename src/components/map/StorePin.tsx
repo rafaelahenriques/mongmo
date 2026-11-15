@@ -3,7 +3,6 @@ import { StyleSheet, View } from 'react-native';
 import { Marker } from 'react-native-maps';
 
 import { BrandPin } from '@/components/map/BrandPin';
-import { useBusyStore } from '@/state/busyStore';
 import { useLocationStore } from '@/state/locationStore';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import { getStoreStatus } from '@/utils/dateTime';
@@ -19,14 +18,11 @@ export type StorePinProps = {
  * sage or paper). Tap it for the rest.
  */
 function StorePinComponent({ store, onPress }: StorePinProps) {
-  const busy = useBusyStore((state) => state.busy[store.id] ?? store.busy);
   const userCoordinates = useLocationStore((state) => state.coordinates);
   const status = useMemo(() => getStoreStatus(store.hours, store.timeZone), [store.hours, store.timeZone]);
   const distance = userCoordinates ? distanceInMeters(userCoordinates, store.coordinates) : null;
 
-  const label =
-    `${store.name} café, ${status.label}, ${busy.occupancy} of ${busy.capacity} inside` +
-    (distance !== null ? `, ${formatDistance(distance)} away` : '');
+  const label = `${store.name} café, ${status.label}` + (distance !== null ? `, ${formatDistance(distance)} away` : '');
 
   return (
     <Marker coordinate={store.coordinates} anchor={{ x: 0.5, y: 0.5 }} onPress={onPress}>
