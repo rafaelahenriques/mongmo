@@ -83,9 +83,13 @@ export default function PhotoGallery({ photos, emptyText, own = false }: PhotoGa
   );
 }
 
-/** What a screen reader hears after "Photo from …" on your own photo. */
+/**
+ * What a screen reader hears after "Photo from …" on your own photo. It
+ * has the word on the photo's tag in it ("Showing", "Shared"), so voice
+ * control finds the photo by what's written on it.
+ */
 function sharingLabel(photo: Photo): string {
-  if (photo.showing) return ', in Photos of the week';
+  if (photo.showing) return ', showing in Photos of the week';
   return photo.shared ? ', shared for Photos of the week' : '';
 }
 
