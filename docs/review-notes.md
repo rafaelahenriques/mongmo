@@ -41,6 +41,7 @@ restricted" → add the same login and instructions.
 
 ```
 Sign in: review@mongmo-store.com / <password>
+(The first screen: Sign in. Skip looks around as a guest: the pop-ups and the menu, but ordering and points need an account.)
 
 Mongmo is a café's app for ordering bánh mì ahead, finding its pop-ups and earning loyalty points.
 

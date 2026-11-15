@@ -17,9 +17,9 @@ export async function startAccount(mode: AuthMode): Promise<void> {
   await supabase.auth.signOut();
 }
 
-/** The form Welcome opens on: what a guest just asked for, else sign in. */
-export function welcomeMode(): AuthMode {
-  return nextMode ?? 'sign-in';
+/** The form a guest just asked for, which Welcome opens on; none: Welcome starts at the landing. */
+export function welcomeMode(): AuthMode | null {
+  return nextMode;
 }
 
 /** Once Welcome has opened on it, later visits start from sign in again. */

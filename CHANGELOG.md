@@ -73,6 +73,9 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Changed
 
+- Signing in is shorter. The first screen has three ways in: create an
+  account, sign in, or skip to look around as a guest. The form after it
+  is just your email and password, with the other form a tap away.
 - Guests look around: Home, the pop-ups and the menu. Ordering, checking
   in, challenges, the Wallet, badges, the leaderboard and the profile need
   an account. They're still there to see, dimmed, under a card to create

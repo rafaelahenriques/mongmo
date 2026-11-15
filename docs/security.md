@@ -16,7 +16,7 @@ and production) and in Sentry. Apply them once per project.
 | Refresh token rotation | Sessions | On, reuse interval 10 seconds |
 | Inactivity timeout (paid plans) | Sessions | 30 days |
 | Site URL and redirect URLs | URL Configuration | `https://www.mongmo-store.com` (where a confirmed email link lands); `mongmo://**` for the app |
-| Anonymous sign-ins | Sign In / Providers | On (guests: while it is off, "Continue as guest" says guest sign-in is off). Guests can only look: ordering, check-in, photos, reports and profile changes need an account, in the app and in the database (0042). Also turn on CAPTCHA if abuse appears |
+| Anonymous sign-ins | Sign In / Providers | On (guests: while it is off, Skip on the first screen says guest sign-in is off). Guests can only look: ordering, check-in, photos, reports and profile changes need an account, in the app and in the database (0042). Also turn on CAPTCHA if abuse appears |
 | Multi-factor (when you add the screen) | Multi-Factor | TOTP on |
 
 ### Emails: codes, not links

@@ -5,7 +5,7 @@ tags: [smoke]
 ---
 - launchApp:
     clearState: true
-- tapOn: 'Get started'
+- tapOn: 'Create an account'
 - tapOn:
     id: email
 - inputRandomEmail

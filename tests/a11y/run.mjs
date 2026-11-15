@@ -394,17 +394,18 @@ await context.addInitScript(() =>
 );
 
 await step(page, 'Opening', () => page.goto(APP, { waitUntil: 'load' }));
-await step(page, 'Join us', () => button(page, 'Get started').click());
-await step(page, 'Sign in', () => button(page, /^Already have an account/).click());
+await step(page, 'Create account', () => button(page, 'Create an account').click());
+// The other form is the link at the top right.
+await step(page, 'Sign in', () => button(page, 'Sign in').click());
 await step(page, 'Reset password', () => button(page, 'Forgot your password?').click());
-await step(page, 'Join us again', async () => {
+await step(page, 'Create account again', async () => {
   await button(page, 'Back to sign in').click();
-  await button(page, /^New to Mongmo/).click();
+  await button(page, 'Create account').click();
 });
 const email = `a11y-${Date.now()}@mongmo.test`;
 await step(page, 'Permissions', async () => {
-  await page.getByPlaceholder('Email').fill(email);
-  await page.getByPlaceholder(/Password/).fill('accessible-1');
+  await page.getByLabel('Email').first().fill(email);
+  await page.getByLabel('Password').first().fill('accessible-1');
   await button(page, 'Create account').click();
 });
 await step(page, 'Home', () => button(page, 'Not now').click());
@@ -495,10 +496,9 @@ if (process.env.OWNER_EMAIL && process.env.OWNER_PASSWORD) {
   owner.on('dialog', (dialog) => dialog.accept());
   await owner.goto(APP, { waitUntil: 'load' });
   await owner.waitForTimeout(WAIT);
-  await button(owner, 'Get started').click();
-  await button(owner, /^Already have an account/).click();
-  await owner.getByPlaceholder('Email').fill(process.env.OWNER_EMAIL);
-  await owner.getByPlaceholder('Password').fill(process.env.OWNER_PASSWORD);
+  await button(owner, 'Sign in').click();
+  await owner.getByLabel('Email').first().fill(process.env.OWNER_EMAIL);
+  await owner.getByLabel('Password').first().fill(process.env.OWNER_PASSWORD);
   await button(owner, 'Sign in').click();
   await owner.waitForTimeout(WAIT);
   // Staff land in the owner's view: Today, Orders, Pop-ups and Menu.
@@ -555,8 +555,7 @@ guest.on('dialog', (dialog) => dialog.accept());
 await step(guest, 'Guest: home', async () => {
   await guest.goto(APP, { waitUntil: 'load' });
   await guest.waitForTimeout(WAIT);
-  await button(guest, 'Get started').click();
-  await button(guest, 'Continue as guest').click();
+  await button(guest, /^Skip/).click();
   await guest.waitForTimeout(WAIT);
   const notNow = button(guest, 'Not now');
   if (await notNow.count()) await notNow.click();
