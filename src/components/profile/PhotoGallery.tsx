@@ -21,7 +21,7 @@ export type PhotoGalleryProps = {
   photos: Photo[];
   /** What to say when there are none yet. */
   emptyText: string;
-  /** The person's own photos: shows which are shared, and lets them share or stop. */
+  /** The person's own photos: shows which are shared or showing, and lets them share or stop. */
   own?: boolean;
 };
 
@@ -56,7 +56,7 @@ export default function PhotoGallery({ photos, emptyText, own = false }: PhotoGa
             }}
             // 'button', not 'imagebutton': the web build has no mapping for the latter.
             accessibilityRole="button"
-            accessibilityLabel={`Photo from ${photo.eventTitle}${own && photo.shared ? ', in Photos of the week' : ''}`}
+            accessibilityLabel={`Photo from ${photo.eventTitle}${own ? sharingLabel(photo) : ''}`}
             accessibilityHint="Opens it full screen"
             style={({ pressed }) => [styles.cell, { opacity: pressed ? 0.8 : 1 }]}
           >
@@ -68,7 +68,9 @@ export default function PhotoGallery({ photos, emptyText, own = false }: PhotoGa
               contentFit="cover"
               transition={motion.imageFadeMs}
             />
-            {own && photo.shared ? <Chip label="Shared" tone="dark" style={styles.sharedTag} /> : null}
+            {own && photo.shared ? (
+              <Chip label={photo.showing ? 'Showing' : 'Shared'} tone="dark" style={styles.sharedTag} />
+            ) : null}
           </Pressable>
         ))}
       </View>
@@ -81,7 +83,13 @@ export default function PhotoGallery({ photos, emptyText, own = false }: PhotoGa
   );
 }
 
-/** Share one of your photos in Photos of the week, or stop sharing it. */
+/** What a screen reader hears after "Photo from …" on your own photo. */
+function sharingLabel(photo: Photo): string {
+  if (photo.showing) return ', in Photos of the week';
+  return photo.shared ? ', shared for Photos of the week' : '';
+}
+
+/** Share one of your photos for Photos of the week (Mongmo picks), or stop sharing it. */
 function ShareToggle({ photo, onDone }: { photo: Photo; onDone: () => void }) {
   const setShared = useSetPhotoShared();
   if (photo.takenDown) {
@@ -94,19 +102,21 @@ function ShareToggle({ photo, onDone }: { photo: Photo; onDone: () => void }) {
   if (!photo.shared && !photo.canShare) {
     return (
       <ThemedText type="small" style={styles.light}>
-        Only photos from the last week can go in Photos of the week.
+        Only photos from the last week can be shared for Photos of the week.
       </ThemedText>
     );
   }
   return (
     <>
       <ThemedText type="small" style={styles.light}>
-        {photo.shared
+        {photo.showing
           ? 'In Photos of the week: other members see it on Home, without your name.'
-          : 'Private: only you and Mongmo staff see it.'}
+          : photo.shared
+            ? 'Shared with Mongmo. If they pick it, it shows on Home for a week, without your name.'
+            : 'Private: only you and Mongmo staff see it.'}
       </ThemedText>
       <Button
-        label={photo.shared ? 'Stop sharing' : 'Share in Photos of the week'}
+        label={photo.shared ? 'Stop sharing' : 'Share for Photos of the week'}
         variant="secondary"
         loading={setShared.isPending}
         onPress={() =>

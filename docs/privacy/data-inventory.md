@@ -23,7 +23,7 @@ as of 9 November 2026. Keep it current: the privacy policy
 | Check-ins (pop-up, time, by QR code) | `CheckInScreen` | `check_ins` | The person; staff | Challenges, badges | 24 months |
 | Location at check-in | `CheckInScreen` | **Not stored**: checked by `verify_check_in` and dropped | — | Proving presence | Not kept |
 | Challenge results (a score, a vote, how many photos, within the venue's radius or not) | Challenge screens | `challenge_completions.data` | The person; staff | Points | 24 months |
-| Challenge photos | `PhotoCapture` | Private bucket `challenge-photos/<user id>/`, `photos` | The person; staff (signed links, one hour); other members, without a name, for 7 days if the person shares it | The photo challenge; Photos of the week by consent (asked after taking it) | 12 months |
+| Challenge photos | `PhotoCapture` | Private bucket `challenge-photos/<user id>/`, `photos` | The person; staff (signed links, one hour); other members, without a name, for 7 days if the person shares it and staff pick it within 30 days (Owner tools → Photos of the week) | The photo challenge; Photos of the week by consent (asked after taking it) | 12 months |
 | Photo reports (which photo, who reported it, when) | Photos of the week | `photo_reports` | Staff (the app shows only how many) | Moderation | Until staff decide (Owner tools → Reported photos), then deleted; the photo keeps the outcome |
 | Profile photo reports (whose photo, who reported it, when) | Leaderboard (tap a photo → Report) | `profile_photo_reports`; `profiles.avatar_hidden_at` while hidden | Staff (the app shows only how many) | Moderation | Until staff decide (Owner tools → Reported photos: put it back or remove it), then deleted |
 | Account activity (last sign-in, session refresh) | Supabase Auth | `auth.users`, `auth.sessions` | Supabase, retention job | Security, retention | Supabase's own |
@@ -69,7 +69,7 @@ Decided:
 | 4 | **Distance from the venue** in check-in challenge results | **Removed** (`0028`): stores `withinRadius` only; stored distances cleared |
 | 5 | Old **photo links** in challenge results | **Removed** (`0028`): replaced with a photo count |
 | 6 | **Leaderboard on by default** | **Opt-in** (`0028`): new accounts start hidden and join from Achievements; existing accounts keep their choice |
-| 7 | **Photos readable by every signed-in member** | **Private** (`0029`): the person and staff only, unless the person shares one in Photos of the week (asked after taking it; 7 days, no name; stop any time; reports take it down at once) |
+| 7 | **Photos readable by every signed-in member** | **Private** (`0029`): the person and staff only, unless the person shares one for Photos of the week and staff pick it (asked after taking it; `0040`: shown 7 days from the pick, no name; stop any time; reports take it down at once) |
 | 8 | **Demo images from images.unsplash.com** | **Removed** (`0028`): pop-ups without a picture show Mongmo's own bundled photos; the web's image policy now allows only the app and Supabase |
 
 ## Retention

@@ -32,9 +32,12 @@ the release workflow publishes that section as the GitHub release notes.
 - Crash reports, only if you say yes; change your mind in Settings.
 - The app version at the bottom of Settings.
 - Photos of the week on Home: after a challenge photo, choose whether to
-  share it. Shared photos show for a week without your name; stop sharing
-  from Account, or report someone else's.
+  share it. Mongmo picks from the shared photos; a picked photo shows for a
+  week without your name. Stop sharing from Account, or report someone
+  else's.
 - Pop-ups without a picture of their own show Mongmo's photos.
+- Owner tools → Photos of the week: staff pick which shared photos show on
+  Home, and take one out again.
 - Owner tools → Reported photos: staff put a reported photo back, keep it
   down, or delete it for good. Reports are deleted once decided.
 

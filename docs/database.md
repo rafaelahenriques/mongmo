@@ -26,8 +26,8 @@ applied in order. Per-migration notes: [`supabase/README.md`](../supabase/README
 - **Functions** can be called only by signed-in users, and only those
   granted (0023). Retention functions only by the service role.
 - **Storage:** `challenge-photos` is private, a folder per person,
-  readable by the person, staff, and anyone while a photo is shared in
-  Photos of the week; `avatars` (profile photos) is private, a folder per
+  readable by the person, staff, and anyone while a photo is showing in
+  Photos of the week (shared by the person and picked by staff, 0040); `avatars` (profile photos) is private, a folder per
   person, readable by the person and, while it's their current photo and
   they're on the leaderboard, by other members (0033); staff see and may
   delete one that was hidden after a report (0034); `event-images` is

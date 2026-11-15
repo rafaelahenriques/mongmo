@@ -11,8 +11,10 @@ export type Photo = {
   eventTitle: string;
   challengeId: string | null;
   createdAt: string;
-  /** In this week's Photos of the week. */
+  /** Offered for Photos of the week: staff can pick it. */
   shared: boolean;
+  /** Picked by staff: in this week's Photos of the week. */
+  showing: boolean;
   /** Can be shared: taken in the last week and never taken down. */
   canShare: boolean;
   /** Taken out of Photos of the week after a report. */
@@ -26,19 +28,49 @@ export type WeekPhoto = {
   /** Storage path: the image cache's key, as the signed URL changes each time. */
   path: string;
   eventTitle: string;
+  /** When staff picked it. */
   sharedAt: string;
   mine: boolean;
 };
 
-/** How long a shared photo stays in Photos of the week (0029). */
+/** A photo a member offered for Photos of the week, as staff see it: no name. */
+export type OfferedPhoto = {
+  id: string;
+  url: string;
+  /** Storage path: the image cache's key, as the signed URL changes each time. */
+  path: string;
+  eventTitle: string;
+  offeredAt: string;
+  /** In Photos of the week now. */
+  showing: boolean;
+  /** The day it stops showing; null while it isn't showing. */
+  showsUntil: string | null;
+};
+
+/** How long a picked photo stays in Photos of the week (0040), and how recent a photo must be to share. */
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+/** How long staff can pick a photo after it was offered (0040; the server refuses later). */
+const OFFER_MS = 30 * 24 * 60 * 60 * 1000;
+
+/** What a member's photo is doing in Photos of the week, from its dates. */
+export function sharingState(
+  row: { shared_at: string | null; featured_at: string | null; removed_at: string | null },
+  now = Date.now(),
+): { shared: boolean; showing: boolean } {
+  const offered = row.shared_at !== null && row.removed_at === null;
+  const showing = offered && row.featured_at !== null && now - Date.parse(row.featured_at) < WEEK_MS;
+  // An offer nobody picked runs out: staff's list goes back 30 days.
+  const shared = showing || (offered && now - Date.parse(row.shared_at as string) < OFFER_MS);
+  return { shared, showing };
+}
 
 /**
  * Uploads a challenge photo to the signed-in user's folder in the
  * `challenge-photos` bucket and records it in `photos` — which is what
  * complete_challenge counts. The bucket is private: photos are shown
  * through short-lived signed links (see getPhotos). It starts private;
- * the person may share it afterwards (setPhotoShared). Returns its id.
+ * the person may offer it for Photos of the week afterwards
+ * (setPhotoShared). Returns its id.
  */
 export async function uploadChallengePhoto(params: {
   uri: string;
@@ -68,7 +100,10 @@ export async function uploadChallengePhoto(params: {
   return data.id;
 }
 
-/** Shares one of your photos in Photos of the week, or stops sharing it. */
+/**
+ * Offers one of your photos for Photos of the week (staff pick which ones
+ * show), or takes it back: it comes down at once if it was showing.
+ */
 export async function setPhotoShared(photoId: string, shared: boolean): Promise<void> {
   const { error } = await supabase.rpc('set_photo_shared', { p_photo_id: photoId, p_shared: shared });
   if (error) throw toApiError(error);
@@ -80,7 +115,7 @@ export async function reportPhoto(photoId: string): Promise<void> {
   if (error) throw toApiError(error);
 }
 
-/** This week's shared photos, newest first. */
+/** This week's photos, picked by staff from what members shared; newest pick first. */
 export async function getPhotosOfTheWeek(): Promise<WeekPhoto[]> {
   const { data, error } = await supabase.rpc('photos_of_the_week');
   if (error) throw toApiError(error);
@@ -101,7 +136,7 @@ type PhotoFilter = { userId: string } | { eventId: string };
 async function getPhotos(filter: PhotoFilter): Promise<Photo[]> {
   let query = supabase
     .from('photos')
-    .select('id, storage_path, event_id, challenge_id, created_at, shared_at, removed_at')
+    .select('id, storage_path, event_id, challenge_id, created_at, shared_at, featured_at, removed_at')
     .order('created_at', { ascending: false })
     .limit(60);
   query = 'userId' in filter ? query.eq('user_id', filter.userId) : query.eq('event_id', filter.eventId);
@@ -127,7 +162,7 @@ async function getPhotos(filter: PhotoFilter): Promise<Photo[]> {
         eventTitle: titles.get(row.event_id) ?? 'Pop-up',
         challengeId: row.challenge_id,
         createdAt: row.created_at,
-        shared: row.shared_at !== null && Date.now() - Date.parse(row.shared_at) < WEEK_MS,
+        ...sharingState(row),
         canShare: row.removed_at === null && Date.now() - Date.parse(row.created_at) < WEEK_MS,
         takenDown: row.removed_at !== null,
       },
@@ -143,6 +178,36 @@ export async function getMyPhotos(): Promise<Photo[]> {
 /** Every guest's photos from one pop-up (the owner's view). */
 export async function getEventPhotos(eventId: string): Promise<Photo[]> {
   return getPhotos({ eventId });
+}
+
+/** Staff: photos members are offering, the ones not picked yet first. */
+export async function getOfferedPhotos(): Promise<OfferedPhoto[]> {
+  const { data, error } = await supabase.rpc('offered_photos');
+  if (error) throw toApiError(error);
+  if (data.length === 0) return [];
+  const urls = await signedPhotoUrls(data.map((row) => row.storage_path));
+  return data.flatMap((row) => {
+    const url = urls.get(row.storage_path);
+    if (!url) return [];
+    return [
+      {
+        id: row.id,
+        url,
+        path: row.storage_path,
+        eventTitle: row.event_title,
+        offeredAt: row.shared_at,
+        showing: row.showing,
+        showsUntil:
+          row.showing && row.featured_at ? new Date(Date.parse(row.featured_at) + WEEK_MS).toISOString() : null,
+      },
+    ];
+  });
+}
+
+/** Staff: put an offered photo in Photos of the week for seven days, or take it out. */
+export async function setPhotoFeatured(photoId: string, featured: boolean): Promise<void> {
+  const { error } = await supabase.rpc('set_photo_featured', { p_photo_id: photoId, p_featured: featured });
+  if (error) throw toApiError(error);
 }
 
 /** A photo taken down after a report, waiting for staff to decide. */

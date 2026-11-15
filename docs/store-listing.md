@@ -46,7 +46,7 @@ EARN AS YOU EAT
 • Swap points for rewards: stickers, money off, a free bánh mì.
 • Level up from Dough to Crisp for perks along the way.
 • Check in at a pop-up with its QR code and take on challenges: a photo, a vote, a taste test, a dance.
-• Join the leaderboard if you like, and share your best photo in Photos of the week.
+• Join the leaderboard if you like, and share your best photo for Photos of the week.
 
 YOURS TO CONTROL
 • No ads, no tracking. Crash reports only if you say yes.
@@ -101,7 +101,7 @@ EARN AS YOU EAT
 • Swap points for rewards: stickers, money off, a free bánh mì.
 • Level up from Dough to Crisp for perks along the way.
 • Check in at a pop-up with its QR code and take on challenges: a photo, a vote, a taste test, a dance.
-• Join the leaderboard if you like, and share your best photo in Photos of the week.
+• Join the leaderboard if you like, and share your best photo for Photos of the week.
 
 YOURS TO CONTROL
 • No ads, no tracking. Crash reports only if you say yes.

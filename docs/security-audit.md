@@ -30,7 +30,8 @@ the checks marked ↻ before each release.
   reference.
 - **Found:** every signed-in member could read every challenge photo,
   record and file. **Fixed** in `0029_photos_of_the_week.sql`: the person
-  and staff only, unless the person shares one in Photos of the week
+  and staff only, unless the person shares one for Photos of the week
+  and (since `0040`) staff pick it
   (`tests/integration/photosOfTheWeek.test.ts`).
 - **Found:** four helper functions didn't pin their search path. **Fixed.**
 - **Found:** no length or format limits on profile links and staff-entered
