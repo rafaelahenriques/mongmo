@@ -113,3 +113,15 @@ Dependabot leaves SDK packages' minor and major versions alone, on
 purpose. Once per SDK release, on a branch: `npx expo install expo@^NN`
 then `npx expo install --fix`, read the SDK's changelog, rebuild the
 development build, run everything, and release it as a minor version.
+
+**Stripe on iOS.** `app.json` gives Stripe's plugin `"disableSPM": true`.
+Without it, Stripe's package fetches its iOS SDK through Swift Package
+Manager, which needs the whole app linked as dynamic frameworks; this app
+links statically (Expo's default), so `pod install` stops with "requires
+dynamic frameworks" and no iOS build is made. Stripe calls the option
+temporary. When an upgrade of `@stripe/stripe-react-native` drops it,
+switch instead: add `expo-build-properties` with
+`"ios": { "useFrameworks": "dynamic" }`, remove `disableSPM`, and make an
+iOS build before merging, because dynamic frameworks can break other
+native packages. `tests/unit/iosBuildConfig.test.ts` fails if neither
+setting is there.

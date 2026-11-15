@@ -103,7 +103,8 @@
         "@stripe/stripe-react-native",
         {
           "merchantIdentifier": "merchant.com.mongmostore.app",
-          "enableGooglePay": true
+          "enableGooglePay": true,
+          "disableSPM": true
         }
       ]
     ],
