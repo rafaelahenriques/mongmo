@@ -14,6 +14,12 @@ it('says to wait when sign-in is rate limited', () => {
   expect(authErrorMessage({ status: 429 })).toMatch(/Too many tries/);
 });
 
+it('says so when the project can’t email that address yet, rather than blaming the connection', () => {
+  expect(authErrorMessage({ code: 'email_address_not_authorized' })).toBe(
+    'We can’t send emails to that address yet. Please try again later.',
+  );
+});
+
 it('hides the server’s own wording for anything else, and logs it', () => {
   expect(authErrorMessage({ code: 'unexpected_failure', message: 'Database error saving new user' })).toBe(
     'That didn’t work. Check your connection and try again.',

@@ -35,6 +35,13 @@ type SettingsState = {
   /** Crash reports: nothing is sent until the person says yes ('on'). */
   crashReports: CrashReportsChoice;
   contrast: ContrastMode;
+  /**
+   * The account last signed in on this phone was staff, so the app can
+   * open in the owner's view straight away, before the profile has loaded.
+   */
+  staff: boolean;
+  /** Staff looking at the app the way a customer sees it. */
+  customerView: boolean;
   setNotificationPref: (key: keyof NotificationPrefs, enabled: boolean) => void;
   setThemeMode: (mode: ThemeMode) => void;
   markNotificationsSeen: () => void;
@@ -43,6 +50,8 @@ type SettingsState = {
   markLevelSeen: (key: string) => void;
   setCrashReports: (choice: 'on' | 'off') => void;
   setContrast: (mode: ContrastMode) => void;
+  setStaff: (staff: boolean) => void;
+  setCustomerView: (customerView: boolean) => void;
 };
 
 /** 'unasked' until the person answers the crash reports question. */
@@ -63,6 +72,8 @@ const DEFAULTS = {
   levelSeen: null as string | null,
   crashReports: 'unasked' as CrashReportsChoice,
   contrast: 'system' as ContrastMode,
+  staff: false,
+  customerView: false,
 };
 
 /**
@@ -83,6 +94,9 @@ export const useSettingsStore = create<SettingsState>()(
       markLevelSeen: (key) => set({ levelSeen: key }),
       setCrashReports: (choice) => set({ crashReports: choice }),
       setContrast: (mode) => set({ contrast: mode }),
+      // Not staff (any more): the customer's view is the only one.
+      setStaff: (staff) => set((state) => ({ staff, customerView: staff ? state.customerView : false })),
+      setCustomerView: (customerView) => set({ customerView }),
     }),
     {
       name: 'mongmo-settings',
@@ -93,7 +107,8 @@ export const useSettingsStore = create<SettingsState>()(
       // v3 added `achievements`, v4 `cartReminder` (both on by default).
       // v5 added `crashReports`, unasked: everyone is asked once.
       // v6 added `contrast`, following the phone.
-      version: 6,
+      // v7 added `staff` and `customerView`, both off.
+      version: 7,
       migrate: (persisted, version) => {
         if (!persisted || typeof persisted !== 'object') return persisted as SettingsState;
         let state = persisted as Partial<SettingsState> & { notificationsEnabled?: boolean };
@@ -118,6 +133,7 @@ export const useSettingsStore = create<SettingsState>()(
         }
         if (version < 5) state = { ...state, crashReports: 'unasked' };
         if (version < 6) state = { ...state, contrast: 'system' };
+        if (version < 7) state = { ...state, staff: false, customerView: false };
         return state as SettingsState;
       },
     },

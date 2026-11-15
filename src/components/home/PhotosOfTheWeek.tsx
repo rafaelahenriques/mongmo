@@ -6,6 +6,8 @@ import type { WeekPhoto } from '@/api/photos';
 import { PhotoViewer } from '@/components/profile/PhotoGallery';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
+import { Chapter } from '@/components/ui/Chapter';
+import { EmptyState } from '@/components/ui/LoadState';
 import { useMotion } from '@/constants/motion';
 import { Paper, Radius, Spacing } from '@/constants/theme';
 import { usePhotosOfTheWeek, useReportPhoto, useSetPhotoShared } from '@/hooks/usePhotos';
@@ -16,9 +18,11 @@ import { haptics } from '@/services/haptics';
 const THUMB = 120;
 
 /**
- * Home: photos members chose to share this week, newest first, without
- * names. Nothing shows until someone shares one. Your own can be taken
- * back; anyone else's can be reported, which takes it down at once.
+ * Home: this week's photos, picked by Mongmo from the ones members chose
+ * to share, newest pick first, without names. The section is always
+ * there: while nothing is picked it says how a photo gets here. Your own
+ * can be taken back; anyone else's can be reported, which takes it down at
+ * once.
  */
 export default function PhotosOfTheWeek({ style }: { style?: StyleProp<ViewStyle> }) {
   const theme = useTheme();
@@ -26,16 +30,27 @@ export default function PhotosOfTheWeek({ style }: { style?: StyleProp<ViewStyle
   const photos = usePhotosOfTheWeek();
   const [open, setOpen] = useState<WeekPhoto | null>(null);
 
-  if (!photos.data?.length) return null;
+  // Not loaded (yet, or at all): leave the space rather than say "none".
+  if (!photos.data) return null;
+
+  if (photos.data.length === 0) {
+    return (
+      <View style={style}>
+        <Chapter number="05" title="Photos of the week" />
+        <EmptyState
+          icon="photo"
+          text="No photos picked yet this week. Take one for a challenge at a pop-up and share it: Mongmo picks the ones that show here."
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={style}>
       <View>
-        <ThemedText type="section" accessibilityRole="header">
-          Photos of the week
-        </ThemedText>
+        <Chapter number="05" title="Photos of the week" />
         <ThemedText type="small" themeColor="textSecondary">
-          Shared by members from this week’s challenges
+          Picked by Mongmo from photos members shared
         </ThemedText>
       </View>
       <ScrollView

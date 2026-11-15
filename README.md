@@ -23,7 +23,7 @@ Expo (React Native) · Expo Router · TypeScript · Supabase (PostgreSQL, Auth, 
 
 | Folder | Contents |
 |---|---|
-| `src/app/` | File-based routes: the Home, Pop-ups, Order and Wallet tabs, plus Account (with the owner screens) and Achievements, opened from the top bar |
+| `src/app/` | File-based routes: the Home, Pop-ups, Order and Wallet tabs (for staff the same four hold the owner’s view: Today, Orders, Pop-ups, Menu), plus Account and Achievements, opened from the top bar |
 | `src/api/`, `src/hooks/` | Supabase queries and mutations wrapped in TanStack Query hooks |
 | `src/services/` | Location, geofencing, notifications, calendar, motion and haptics, with web variants |
 | `src/state/` | Zustand stores for cart, filters, location and settings |

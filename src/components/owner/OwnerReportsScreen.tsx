@@ -22,7 +22,7 @@ import { EmptyState, ErrorState, LoadingState, useRefreshControl } from '@/compo
 type Decision = 'restore' | 'keep' | 'delete';
 
 /**
- * Owner tools → Reported photos. A report takes a photo of the week down at
+ * Today → Reported photos (the owner’s view). A report takes a photo of the week down at
  * once; here staff decide what happens next: put it back, keep it down (the
  * person keeps it privately), or delete it for good. A reported profile
  * photo is hidden from the leaderboard at once; staff put it back or remove

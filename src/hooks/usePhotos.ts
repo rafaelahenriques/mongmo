@@ -4,10 +4,12 @@ import {
   deleteReportedPhoto,
   getEventPhotos,
   getMyPhotos,
+  getOfferedPhotos,
   getPhotosOfTheWeek,
   getReportedPhotos,
   reportPhoto,
   reviewReportedPhoto,
+  setPhotoFeatured,
   setPhotoShared,
   type ReportedPhoto,
 } from '@/api/photos';
@@ -26,12 +28,12 @@ export function useEventPhotos(eventId: string) {
   });
 }
 
-/** Photos members shared this week (Home). */
+/** This week's photos, picked by staff from what members shared (Home). */
 export function usePhotosOfTheWeek() {
   return useQuery({ queryKey: ['photos', 'week'], queryFn: getPhotosOfTheWeek });
 }
 
-/** Share one of your photos in Photos of the week, or stop sharing it. */
+/** Offer one of your photos for Photos of the week, or take it back. */
 export function useSetPhotoShared() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -50,7 +52,21 @@ export function useReportPhoto() {
   });
 }
 
-/** Staff: reported photos waiting for a decision (Owner tools). */
+/** Staff: photos members are offering for Photos of the week (the owner’s view). */
+export function useOfferedPhotos() {
+  return useQuery({ queryKey: ['photos', 'offered'], queryFn: getOfferedPhotos });
+}
+
+/** Staff: put a photo in Photos of the week, or take it out. */
+export function useSetPhotoFeatured() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ photoId, featured }: { photoId: string; featured: boolean }) => setPhotoFeatured(photoId, featured),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['photos'] }),
+  });
+}
+
+/** Staff: reported photos waiting for a decision (the owner’s view). */
 export function useReportedPhotos(enabled = true) {
   return useQuery({ queryKey: ['photos', 'reported'], queryFn: getReportedPhotos, enabled });
 }

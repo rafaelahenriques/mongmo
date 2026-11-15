@@ -139,7 +139,7 @@ export async function cancelMyOrder(orderId: string): Promise<OrderRow> {
   const { data, error } = await supabase.rpc('cancel_my_order', { p_order_id: orderId });
   if (error) throw toApiError(error);
   // Paid online: the money goes back. If asking fails, the order still
-  // says a refund is due, and staff can send it from Owner tools.
+  // says a refund is due, and staff can send it from their Orders tab.
   if (data.refund_status === 'pending') await requestRefund(orderId).catch(() => undefined);
   return data;
 }

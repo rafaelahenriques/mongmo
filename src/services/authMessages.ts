@@ -18,6 +18,9 @@ const MESSAGES: Record<string, string> = {
   validation_failed: 'Check the email and password and try again.',
   over_request_rate_limit: 'Too many tries. Wait a few minutes, then try again.',
   over_email_send_rate_limit: 'Too many emails sent. Wait a few minutes, then try again.',
+  // Supabase's own sender only writes to the project's team: this is what
+  // everyone else gets until the project has its own email provider (SMTP).
+  email_address_not_authorized: 'We can’t send emails to that address yet. Please try again later.',
   signup_disabled: 'New accounts can’t be made right now.',
   anonymous_provider_disabled: 'Guest sign-in is off right now. Make an account instead.',
   same_password: 'Your new password is the same as the old one.',

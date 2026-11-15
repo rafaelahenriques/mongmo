@@ -49,10 +49,10 @@ export default function OwnerEventsScreen() {
   }, [eventsQuery.data]);
 
   const openEvent = useCallback(
-    (id: string) => router.push({ pathname: '/(profile)/owner/event/[id]', params: { id } }),
+    (id: string) => router.push({ pathname: '/(popups)/owner/event/[id]', params: { id } }),
     [router],
   );
-  const openNew = useCallback(() => router.push('/(profile)/owner/event/new'), [router]);
+  const openNew = useCallback(() => router.push('/(popups)/owner/event/new'), [router]);
   const refreshControl = useRefreshControl();
 
   if (eventsQuery.isPending) {

@@ -29,7 +29,7 @@ export default function OwnerEventCreateScreen() {
           submitError={createEvent.error?.message}
           onSubmit={(input) =>
             createEvent.mutate(input, {
-              onSuccess: (id) => router.replace({ pathname: '/(profile)/owner/event/[id]', params: { id } }),
+              onSuccess: (id) => router.replace({ pathname: '/(popups)/owner/event/[id]', params: { id } }),
             })
           }
         />

@@ -46,7 +46,7 @@ EARN AS YOU EAT
 • Swap points for rewards: stickers, money off, a free bánh mì.
 • Level up from Dough to Crisp for perks along the way.
 • Check in at a pop-up with its QR code and take on challenges: a photo, a vote, a taste test, a dance.
-• Join the leaderboard if you like, and share your best photo in Photos of the week.
+• Join the leaderboard if you like, and share your best photo for Photos of the week.
 
 YOURS TO CONTROL
 • No ads, no tracking. Crash reports only if you say yes.
@@ -101,7 +101,7 @@ EARN AS YOU EAT
 • Swap points for rewards: stickers, money off, a free bánh mì.
 • Level up from Dough to Crisp for perks along the way.
 • Check in at a pop-up with its QR code and take on challenges: a photo, a vote, a taste test, a dance.
-• Join the leaderboard if you like, and share your best photo in Photos of the week.
+• Join the leaderboard if you like, and share your best photo for Photos of the week.
 
 YOURS TO CONTROL
 • No ads, no tracking. Crash reports only if you say yes.
@@ -125,6 +125,6 @@ screenshots (1080 × 1920 or larger), the same seven as the App Store.
 | Superlatives, prices or awards in the text | Apple 2.3.7, Google metadata policy | None used ("best", "#1", "cheapest", review quotes) |
 | Keyword stuffing, other brands | Apple 2.3.7 | Keywords are generic food words; no competitor names |
 | Background location without a clear reason | Apple 5.1.1, Google location policy | Explained in the permission text and review notes; off until turned on |
-| User photos without reporting | Apple 1.2, Google UGC policy | Report on every shared and profile photo; staff review in Owner tools |
+| User photos without reporting | Apple 1.2, Google UGC policy | Report on every shared and profile photo; staff review in the owner’s view (Today → Reported photos) |
 | Account deletion only by email | Apple 5.1.1(v), Google account deletion | In the app: Settings → Delete account; on the web: the privacy page |
 | Allergens missing | EU food law (not a store rule, but a real risk) | Fill them in before launch (`supabase/base.sql`); the app shows "not listed yet" until then |

@@ -68,7 +68,7 @@ export default function OwnerOrdersScreen() {
           title={order.refund_status === 'failed' ? 'Refund didn’t go through' : 'Refund on its way'}
           subtitle={`${pickupCode(order.id)} · €${formatCents(order.total_cents)} · cancelled`}
           state="arrow"
-          onPress={() => router.push({ pathname: '/(profile)/owner/order/[id]', params: { id: order.id } })}
+          onPress={() => router.push({ pathname: '/(orders)/owner/order/[id]', params: { id: order.id } })}
         />
       ))}
       <Segmented
@@ -109,7 +109,7 @@ export default function OwnerOrdersScreen() {
               <Pressable
                 onPress={() => {
                   haptics.tap();
-                  router.push({ pathname: '/(profile)/owner/order/[id]', params: { id: order.id } });
+                  router.push({ pathname: '/(orders)/owner/order/[id]', params: { id: order.id } });
                 }}
                 accessibilityRole="button"
                 {...nameFromContent(`Order ${code}${about?.name ? ` for ${about.name}` : ''}. Open.`)}

@@ -52,7 +52,7 @@ Location: sent once to confirm a check-in (not stored), and, only if the person 
 Camera: scans pop-up QR codes and takes challenge or profile photos.
 Motion: the dance challenge. Calendar: only when "Add to calendar" is tapped.
 
-Photos members can see (Photos of the week, leaderboard profile photos) can be reported from the photo; a report hides it at once and staff review it in Owner tools.
+Photos of the week are picked by staff from photos members chose to share (the owner’s view: Today → Photos of the week). Photos members can see (Photos of the week, leaderboard profile photos) can be reported from the photo; a report hides it at once and staff review it in the owner’s view (Today → Reported photos).
 
 Account deletion: Account → Settings → Delete account. It deletes the account and all its data.
 

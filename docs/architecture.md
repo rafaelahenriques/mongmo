@@ -83,7 +83,7 @@ it's copied, and who wins when they differ.
 
 | Folder | What's in it |
 |---|---|
-| `src/app/` | Routes (Expo Router, file-based, typed). `(tabs)` are Home, Pop-ups, Order, Wallet; `(profile)` is Account, Settings, Your data, the owner screens. `_layout.tsx` starts everything. |
+| `src/app/` | Routes (Expo Router, file-based, typed). `(tabs)` are Home, Pop-ups, Order, Wallet; `(profile)` is Account, Settings, Your data. Staff get the owner’s view: each tab’s first screen shows the owner’s screen instead (Today, Orders, Pop-ups, Menu; `useOwnerView`), and the owner’s other pages sit under `owner/` in the tab they belong to. `_layout.tsx` starts everything. |
 | `src/components/` | Screens and their parts, by area (`order/`, `wallet/`, `privacy/`…); `ui/` holds the shared controls (Button, ListRow, TextField…). |
 | `src/api/` | One file per area of Supabase calls; `errors.ts` turns server errors into messages people can read. |
 | `src/hooks/` | Query and mutation hooks around `src/api`, and small UI hooks. |
