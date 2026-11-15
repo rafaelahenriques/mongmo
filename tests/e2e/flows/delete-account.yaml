@@ -11,4 +11,4 @@ tags: [privacy]
 - tapOn: 'Delete account'
 # The confirmation dialog.
 - tapOn: 'Delete'
-- assertVisible: 'Get started'
+- assertVisible: 'Create an account'

@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 
 /**
- * Whether the signed-in account is a guest's ("Continue as guest", an
+ * Whether the signed-in account is a guest's (Skip on the first screen, an
  * anonymous sign-in). Set once from the session (Providers), so screens
  * know at their first frame, without waiting for a request.
  */

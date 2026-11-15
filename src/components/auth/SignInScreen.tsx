@@ -1,66 +1,97 @@
 import { useCallback, useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { Image } from 'expo-image';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ConfirmEmailForm } from '@/components/auth/ConfirmEmailForm';
+import { LegalLinks } from '@/components/auth/LegalLinks';
 import { OpeningScreen } from '@/components/auth/OpeningScreen';
 import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm';
-import { Wordmark } from '@/components/brand/Wordmark';
-import { PrivacyPolicy } from '@/components/privacy/PrivacyPolicy';
-import { TermsOfUse } from '@/components/privacy/TermsOfUse';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
+import { IconButton } from '@/components/ui/IconButton';
 import { TextField } from '@/components/ui/TextField';
-import { BrandPhotoFocus, BrandPhotos } from '@/constants/brandPhotos';
-import { useMotion } from '@/constants/motion';
-import { PageInset, Radius } from '@/constants/theme';
+import { PageInset } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/lib/supabase';
 import { authErrorMessage, MIN_PASSWORD_LENGTH } from '@/services/authMessages';
 import { alreadyRegistered } from '@/services/emailConfirmation';
 import { clearWelcomeMode, welcomeMode, type AuthMode } from '@/services/guest';
 import { haptics } from '@/services/haptics';
-import { useSettingsStore } from '@/state/settingsStore';
-
-type Mode = AuthMode;
 
 /**
- * Everything a signed-out user can reach, rendered in place of the tabs:
- * the Opening screen on the very first launch (W-02), then Welcome (W-04)
- * to sign in, create an account or continue as a guest.
+ * Everything a signed-out person can reach, in place of the tabs: the
+ * Opening landing (W-02: create an account, sign in, or skip to look
+ * around as a guest), then the short form for whichever they picked
+ * (W-04). A guest who asked to sign in or make an account goes straight
+ * to that form.
  */
 export default function SignInScreen() {
-  const openingSeen = useSettingsStore((state) => state.openingSeen);
-  const markOpeningSeen = useSettingsStore((state) => state.markOpeningSeen);
-  // A guest who tapped "Create an account" or "Sign in" lands on that form.
-  const [mode, setMode] = useState<Mode>(welcomeMode);
+  const [step, setStep] = useState<AuthMode | 'landing'>(() => welcomeMode() ?? 'landing');
   useEffect(() => clearWelcomeMode(), []);
+  const [guestPending, setGuestPending] = useState(false);
+  const [guestError, setGuestError] = useState<string | null>(null);
 
-  if (!openingSeen) {
+  const onGuest = useCallback(async () => {
+    setGuestError(null);
+    setGuestPending(true);
+    try {
+      const { error } = await supabase.auth.signInAnonymously();
+      if (error) {
+        haptics.error();
+        setGuestError(authErrorMessage(error));
+      } else {
+        haptics.success();
+      }
+    } finally {
+      setGuestPending(false);
+    }
+  }, []);
+
+  if (step === 'landing') {
     return (
       <OpeningScreen
-        onGetStarted={() => {
-          setMode('sign-up');
-          markOpeningSeen();
-        }}
-        onSignIn={() => {
-          setMode('sign-in');
-          markOpeningSeen();
-        }}
+        onCreateAccount={() => setStep('sign-up')}
+        onSignIn={() => setStep('sign-in')}
+        onGuest={() => void onGuest()}
+        guestPending={guestPending}
+        guestError={guestError}
       />
     );
   }
-  return <WelcomeScreen mode={mode} onModeChange={setMode} />;
+  return <AccountForm mode={step} onModeChange={setStep} onBack={() => setStep('landing')} />;
 }
 
-/** W-04 Welcome: wordmark, photo, email and password, or continue as a guest. */
-function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode: Mode) => void }) {
+const COPY: Record<AuthMode, { title: string; line: string; switchTo: string }> = {
+  'sign-in': {
+    title: 'Welcome back',
+    line: 'Sign in to order ahead and collect your points.',
+    switchTo: 'Create account',
+  },
+  'sign-up': {
+    title: 'Join Mongmo',
+    line: 'Order ahead, collect points and unlock rewards.',
+    switchTo: 'Sign in',
+  },
+};
+
+/**
+ * W-04: the short form. A title, email and password, one button. The
+ * other form is a tap away at the top right, as is the way back.
+ */
+function AccountForm({
+  mode,
+  onModeChange,
+  onBack,
+}: {
+  mode: AuthMode;
+  onModeChange: (mode: AuthMode) => void;
+  onBack: () => void;
+}) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [pending, setPending] = useState<'account' | 'guest' | null>(null);
+  const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resetting, setResetting] = useState(false);
   /** The address whose 6-digit code we're waiting for, after creating an account. */
@@ -69,10 +100,12 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
   // Older accounts may have 6-character passwords; new ones need more.
   const minLength = mode === 'sign-in' ? 6 : MIN_PASSWORD_LENGTH;
   const canSubmit = email.trim().length > 3 && password.length >= minLength && !pending;
+  const copy = COPY[mode];
+  const onForm = !confirming && !resetting;
 
   const onSubmit = useCallback(async () => {
     setError(null);
-    setPending('account');
+    setPending(true);
     const address = email.trim();
     try {
       const { data, error: authError } =
@@ -102,25 +135,15 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
         haptics.success();
       }
     } finally {
-      setPending(null);
+      setPending(false);
     }
   }, [mode, email, password, onModeChange]);
 
-  const onGuest = useCallback(async () => {
+  const switchMode = () => {
+    haptics.select();
     setError(null);
-    setPending('guest');
-    try {
-      const { error: authError } = await supabase.auth.signInAnonymously();
-      if (authError) {
-        haptics.error();
-        setError(authErrorMessage(authError));
-      } else {
-        haptics.success();
-      }
-    } finally {
-      setPending(null);
-    }
-  }, []);
+    onModeChange(mode === 'sign-in' ? 'sign-up' : 'sign-in');
+  };
 
   return (
     <KeyboardAvoidingView
@@ -128,29 +151,30 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 20 }]}
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 16 }]}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.brand}>
-          <ThemedText type="captionBold">Pick-Up · Pop Ups · Discounts</ThemedText>
-          <Wordmark height={60} />
+        <View style={styles.topRow}>
+          <IconButton icon="chevronLeft" tone="muted" onPress={onBack} accessibilityLabel="Back" />
+          {onForm ? (
+            <Pressable onPress={switchMode} accessibilityRole="button" hitSlop={8} style={styles.switch}>
+              <ThemedText type="smallBold" style={{ color: theme.primaryText }}>
+                {copy.switchTo}
+              </ThemedText>
+            </Pressable>
+          ) : null}
         </View>
 
-        {BrandPhotos.welcome ? (
-          <Image
-            accessible={false}
-            accessibilityLabel=""
-            source={BrandPhotos.welcome}
-            style={styles.photo}
-            contentFit="cover"
-            contentPosition={BrandPhotoFocus.welcome}
-            accessibilityIgnoresInvertColors
-          />
-        ) : null}
-
-        <ThemedText type="name" accessibilityRole="header">
-          {mode === 'sign-in' ? 'Welcome' : 'Join us'}
-        </ThemedText>
+        <View style={styles.heading}>
+          <ThemedText type="title" accessibilityRole="header" headingLevel={1}>
+            {copy.title}
+          </ThemedText>
+          {onForm ? (
+            <ThemedText type="small" themeColor="textSecondary">
+              {copy.line}
+            </ThemedText>
+          ) : null}
+        </View>
 
         {confirming ? (
           <ConfirmEmailForm email={confirming} onBack={() => setConfirming(null)} />
@@ -168,22 +192,35 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
               autoComplete="email"
               keyboardType="email-address"
               textContentType="emailAddress"
-              placeholder="Email"
-              hideLabel
+              placeholder="you@example.com"
               testID="email"
             />
-            <TextField
-              label="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              autoComplete={mode === 'sign-in' ? 'password' : 'password-new'}
-              textContentType={mode === 'sign-in' ? 'password' : 'newPassword'}
-              placeholder="Password"
-              hint={mode === 'sign-up' ? `At least ${MIN_PASSWORD_LENGTH} characters.` : undefined}
-              hideLabel
-              testID="password"
-            />
+            <View style={styles.password}>
+              <TextField
+                label="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                autoComplete={mode === 'sign-in' ? 'password' : 'password-new'}
+                textContentType={mode === 'sign-in' ? 'password' : 'newPassword'}
+                hint={mode === 'sign-up' ? `At least ${MIN_PASSWORD_LENGTH} characters.` : undefined}
+                testID="password"
+              />
+              {mode === 'sign-in' ? (
+                <Pressable
+                  onPress={() => {
+                    haptics.select();
+                    setError(null);
+                    setResetting(true);
+                  }}
+                  accessibilityRole="button"
+                  hitSlop={8}
+                  style={styles.forgot}
+                >
+                  <ThemedText type="captionBold">Forgot your password?</ThemedText>
+                </Pressable>
+              ) : null}
+            </View>
 
             {error ? (
               <ThemedText type="caption" themeColor="danger" accessibilityRole="alert">
@@ -196,50 +233,12 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
               variant="brand"
               onPress={onSubmit}
               disabled={!canSubmit}
-              loading={pending === 'account'}
+              loading={pending}
               haptic="press"
             />
-
-            {mode === 'sign-in' ? (
-              <Pressable
-                onPress={() => {
-                  haptics.select();
-                  setError(null);
-                  setResetting(true);
-                }}
-                accessibilityRole="button"
-                hitSlop={10}
-                style={styles.switch}
-              >
-                <ThemedText type="captionBold">Forgot your password?</ThemedText>
-              </Pressable>
+            {mode === 'sign-up' ? (
+              <LegalLinks agreement="By creating an account, you agree to our terms of use." />
             ) : null}
-
-            <Pressable
-              onPress={() => {
-                haptics.select();
-                setError(null);
-                onModeChange(mode === 'sign-in' ? 'sign-up' : 'sign-in');
-              }}
-              accessibilityRole="button"
-              hitSlop={10}
-              style={styles.switch}
-            >
-              <ThemedText type="captionBold">
-                {mode === 'sign-in' ? 'New to Mongmo? Create an account' : 'Already have an account? Sign in'}
-              </ThemedText>
-            </Pressable>
-
-            <Button
-              label="Continue as guest"
-              variant="ghost"
-              onPress={onGuest}
-              loading={pending === 'guest'}
-              disabled={pending === 'account'}
-              accessibilityHint="Look around the pop-ups and the menu. Make an account to order and collect points."
-            />
-
-            <LegalLinks />
           </View>
         )}
       </ScrollView>
@@ -247,75 +246,37 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
   );
 }
 
-/**
- * Agreeing to the terms: creating an account or going on as a guest means
- * agreeing to them, so they (and the privacy policy) open from here,
- * before anyone is signed in.
- */
-function LegalLinks() {
-  const theme = useTheme();
-  const motion = useMotion();
-  const insets = useSafeAreaInsets();
-  const [open, setOpen] = useState<'terms' | 'privacy' | null>(null);
-  const close = () => setOpen(null);
-  return (
-    <View style={styles.legal}>
-      <ThemedText type="caption" themeColor="textSecondary" style={styles.center}>
-        By continuing, with an account or as a guest, you agree to our terms of use. The privacy policy says how we use
-        your data.
-      </ThemedText>
-      <View style={styles.legalLinks}>
-        <Button label="Terms of use" variant="ghost" size="small" onPress={() => setOpen('terms')} />
-        <Button label="Privacy policy" variant="ghost" size="small" onPress={() => setOpen('privacy')} />
-      </View>
-      <Modal visible={open !== null} animationType={motion.sheet} presentationStyle="pageSheet" onRequestClose={close}>
-        <View style={[styles.flex, { paddingTop: insets.top, backgroundColor: theme.background }]}>
-          {open === 'terms' ? (
-            <TermsOfUse onClose={close} bottomInset={insets.bottom + 32} />
-          ) : open === 'privacy' ? (
-            <PrivacyPolicy onClose={close} bottomInset={insets.bottom + 32} />
-          ) : null}
-        </View>
-      </Modal>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  legal: {
-    gap: 8,
-    alignItems: 'center',
-  },
-  center: {
-    textAlign: 'center',
-  },
-  legalLinks: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 8,
-  },
   flex: {
     flex: 1,
   },
   content: {
-    paddingHorizontal: PageInset + 32,
-    gap: 20,
+    paddingHorizontal: PageInset,
+    gap: 24,
   },
-  brand: {
-    gap: 10,
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  // A wide strip of the table, so the form fits a phone screen without scrolling.
-  photo: {
-    width: '100%',
-    aspectRatio: 300 / 120,
-    borderRadius: Radius.medium,
+  // At least 44 tall to tap, though it reads as a link.
+  switch: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  heading: {
+    gap: 6,
   },
   form: {
-    gap: 12,
+    gap: 16,
   },
-  switch: {
-    alignSelf: 'center',
-    paddingVertical: 10,
+  password: {
+    gap: 4,
+  },
+  forgot: {
+    alignSelf: 'flex-end',
+    minHeight: 44,
+    justifyContent: 'center',
   },
 });

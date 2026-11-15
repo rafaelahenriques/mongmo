@@ -1,7 +1,7 @@
 import { admin, anonClient, deleteAccount, SEED, signUp, signUpOwner, type Client, type Customer } from './helpers';
 
 /**
- * Guests ("Continue as guest", an anonymous sign-in) look around: the
+ * Guests (Skip on the first screen, an anonymous sign-in) look around: the
  * menu, the pop-ups, the photos of the week. Ordering, changing the
  * profile, adding a photo and reporting one need an account (0042), and
  * members keep doing all of it.

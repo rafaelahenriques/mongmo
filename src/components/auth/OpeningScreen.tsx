@@ -1,22 +1,33 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
+import { LegalLinks } from '@/components/auth/LegalLinks';
 import { Wordmark } from '@/components/brand/Wordmark';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
+import { PhotoPill } from '@/components/ui/PhotoShade';
 import { ScreenReaderTitle } from '@/components/ui/ScreenReaderTitle';
 import { BrandPhotos } from '@/constants/brandPhotos';
-import { Colors, Fonts, PageInset } from '@/constants/theme';
+import { PageInset, Paper, paperAlpha } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
-import { haptics } from '@/services/haptics';
+
+type OpeningProps = {
+  onCreateAccount: () => void;
+  onSignIn: () => void;
+  /** "Skip": look around as a guest. */
+  onGuest: () => void;
+  guestPending: boolean;
+  /** Why guest sign-in didn't work (it can be switched off). */
+  guestError: string | null;
+};
 
 /**
- * W-02 Opening: the photo-first first-launch screen. The founders' line
- * over hands kneading dough, then on to creating an account or signing in.
+ * W-02 Opening, the first thing a signed-out person sees: hands kneading
+ * dough, the wordmark, and the three ways in. Create an account and sign
+ * in each open the short form; Skip looks around as a guest.
  */
-export function OpeningScreen({ onGetStarted, onSignIn }: { onGetStarted: () => void; onSignIn: () => void }) {
+export function OpeningScreen({ onCreateAccount, onSignIn, onGuest, guestPending, guestError }: OpeningProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   return (
@@ -30,83 +41,73 @@ export function OpeningScreen({ onGetStarted, onSignIn }: { onGetStarted: () => 
           contentFit="cover"
         />
       ) : null}
-      <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" preserveAspectRatio="none">
-        <Defs>
-          <LinearGradient id="opening" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor="#1A1A17" stopOpacity={0.35} />
-            <Stop offset="0.5" stopColor="#1A1A17" stopOpacity={0} />
-            <Stop offset="1" stopColor="#1A1A17" stopOpacity={0.85} />
-          </LinearGradient>
-        </Defs>
-        <Rect width="100%" height="100%" fill="url(#opening)" />
-      </Svg>
+      {/* Dark at the top for Skip, clear in the middle, near black where
+          the buttons sit. Drawn by the platform: an SVG gradient stretched
+          to fill the screen shows in hard bands on iPhones. */}
+      <View aria-hidden pointerEvents="none" style={[StyleSheet.absoluteFill, styles.shade]} />
 
-      <View style={[styles.top, { paddingTop: insets.top + 14 }]}>
-        <View style={styles.tags} accessibilityLabel="Pick-up, pop-ups, discounts">
-          {['Pick-up', 'Pop ups', 'Discounts'].map((tag) => (
-            <ThemedText key={tag} style={[styles.tag, { color: Colors.light.background }]}>
-              {tag}
-            </ThemedText>
-          ))}
-        </View>
-        <Wordmark height={64} />
-        <ScreenReaderTitle>Mongmo</ScreenReaderTitle>
+      <View style={[styles.top, { paddingTop: insets.top + 8 }]}>
+        {/* On frosted glass, so it reads over any part of the photo. */}
+        <PhotoPill
+          label={guestPending ? 'One moment…' : 'Skip'}
+          onPress={onGuest}
+          disabled={guestPending}
+          // Starts with the word on screen, so voice control finds it.
+          accessibilityLabel={guestPending ? 'One moment…' : 'Skip, look around as a guest'}
+        />
       </View>
 
-      <View style={[styles.bottom, { paddingBottom: insets.bottom + 18 }]}>
-        <ThemedText type="smallBold" style={[styles.line, { color: theme.onSurfaceDark }]}>
-          We brought South East Asian culture to Kortrijk and abroad. The bánh mì is how it started.
-        </ThemedText>
-        <Button label="Get started" variant="brand" onPress={onGetStarted} />
-        <Pressable
-          onPress={() => {
-            haptics.tap();
-            onSignIn();
-          }}
-          accessibilityRole="button"
-          hitSlop={10}
-          style={styles.link}
-        >
-          <ThemedText type="smallBold" style={{ color: theme.accent }}>
-            I already have an account
+      <View style={[styles.bottom, { paddingBottom: insets.bottom + 12 }]}>
+        <View style={styles.brand}>
+          <Wordmark height={56} />
+          <ScreenReaderTitle>Mongmo</ScreenReaderTitle>
+          <ThemedText type="small" style={[styles.center, { color: paperAlpha(0.88) }]}>
+            Bánh mì, pop-ups and rewards from Kortrijk.
           </ThemedText>
-        </Pressable>
+        </View>
+        <View style={styles.buttons}>
+          <Button label="Create an account" variant="brand" onPress={onCreateAccount} />
+          <Button label="Sign in" variant="secondary" onPress={onSignIn} />
+        </View>
+        {guestError ? (
+          <ThemedText type="caption" style={[styles.center, styles.onPhoto]} accessibilityRole="alert">
+            {guestError}
+          </ThemedText>
+        ) : null}
+        <LegalLinks onDark />
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  shade: {
+    backgroundImage:
+      'linear-gradient(to bottom, rgba(26, 26, 23, 0.4) 0%, rgba(26, 26, 23, 0) 30%, rgba(26, 26, 23, 0.75) 62%, rgba(26, 26, 23, 0.96) 100%)',
+  },
   screen: {
     flex: 1,
     justifyContent: 'space-between',
   },
   top: {
     paddingHorizontal: PageInset,
-    gap: 14,
+    alignItems: 'flex-end',
   },
-  tags: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  tag: {
-    fontFamily: Fonts.mono,
-    fontSize: 11,
-    lineHeight: 14,
-    letterSpacing: 0.6,
-    textTransform: 'uppercase',
+  onPhoto: {
+    color: Paper,
   },
   bottom: {
-    paddingHorizontal: PageInset,
-    gap: 16,
+    paddingHorizontal: PageInset + 8,
+    gap: 20,
   },
-  line: {
-    fontSize: 15,
-    lineHeight: 22,
-    marginBottom: 20,
+  brand: {
+    alignItems: 'center',
+    gap: 10,
   },
-  link: {
-    alignSelf: 'center',
-    paddingVertical: 4,
+  center: {
+    textAlign: 'center',
+  },
+  buttons: {
+    gap: 12,
   },
 });
