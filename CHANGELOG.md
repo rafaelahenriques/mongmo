@@ -73,6 +73,10 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Changed
 
+- Guests look around: Home, the pop-ups and the menu. Ordering, checking
+  in, challenges, the Wallet, badges, the leaderboard and the profile need
+  an account. They're still there to see, dimmed, under a card to create
+  an account or sign in.
 - Small fixes can now reach the app the same day, without waiting for a
   store update. The app checks for one when it opens.
 - Photos upload faster and use far less data: they're made smaller on

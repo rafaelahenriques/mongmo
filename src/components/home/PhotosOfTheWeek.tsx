@@ -10,9 +10,11 @@ import { Chapter } from '@/components/ui/Chapter';
 import { EmptyState } from '@/components/ui/LoadState';
 import { useMotion } from '@/constants/motion';
 import { Paper, Radius, Spacing } from '@/constants/theme';
+import { useIsGuest } from '@/hooks/useIsGuest';
 import { usePhotosOfTheWeek, useReportPhoto, useSetPhotoShared } from '@/hooks/usePhotos';
 import { useTheme } from '@/hooks/useTheme';
 import { confirm, showError } from '@/services/confirm';
+import { startAccount } from '@/services/guest';
 import { haptics } from '@/services/haptics';
 
 const THUMB = 120;
@@ -96,6 +98,20 @@ export default function PhotosOfTheWeek({ style }: { style?: StyleProp<ViewStyle
 function PhotoActions({ photo, onDone }: { photo: WeekPhoto; onDone: () => void }) {
   const unshare = useSetPhotoShared();
   const report = useReportPhoto();
+  const guest = useIsGuest();
+
+  // Reporting takes a photo down at once, so it's for members: a guest
+  // account is one tap to make, and could take down anyone's photo.
+  if (guest) {
+    return (
+      <>
+        <ThemedText type="small" style={styles.light}>
+          Something wrong with this photo? Make an account to report it.
+        </ThemedText>
+        <Button label="Create an account" variant="secondary" onPress={() => void startAccount('sign-up')} />
+      </>
+    );
+  }
 
   if (photo.mine) {
     return (

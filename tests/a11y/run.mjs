@@ -540,6 +540,49 @@ if (process.env.OWNER_EMAIL && process.env.OWNER_PASSWORD) {
   });
 }
 
+// A guest: looks around; what needs an account is still there, dimmed,
+// under a card to make one (GuestLock), and out of the keyboard's reach.
+const guest = await (
+  await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    colorScheme: SCHEME,
+    contrast: CONTRAST,
+    geolocation: { latitude: 50.8279, longitude: 3.2649 },
+    permissions: ['geolocation'],
+  })
+).newPage();
+guest.on('dialog', (dialog) => dialog.accept());
+await step(guest, 'Guest: home', async () => {
+  await guest.goto(APP, { waitUntil: 'load' });
+  await guest.waitForTimeout(WAIT);
+  await button(guest, 'Get started').click();
+  await button(guest, 'Continue as guest').click();
+  await guest.waitForTimeout(WAIT);
+  const notNow = button(guest, 'Not now');
+  if (await notNow.count()) await notNow.click();
+  await tab(guest, 'Home').waitFor();
+});
+await step(guest, 'Guest: wallet', () => tab(guest, 'Wallet').click());
+await step(guest, 'Guest: menu item', async () => {
+  await tab(guest, 'Order').click();
+  await button(guest, /^bánh mì\s+(from\s+)?\d+,\d\d$/i).click();
+  // Until the section has slid in, the menu's own "… 10,50" buttons match too.
+  await guest.waitForTimeout(800);
+  await button(guest, /\d+,\d\d$/).click();
+});
+await step(guest, 'Guest: achievements', async () => {
+  await back(guest); // the item
+  await back(guest); // the section
+  await tab(guest, 'Home').click();
+  await guest.waitForTimeout(800);
+  await button(guest, 'Achievements').click();
+});
+await step(guest, 'Guest: account', async () => {
+  await button(guest, 'Go back').click();
+  await guest.waitForTimeout(600);
+  await button(guest, 'Account').click();
+});
+
 await browser.close();
 
 const failed = results.filter((result) => result.violations.length);

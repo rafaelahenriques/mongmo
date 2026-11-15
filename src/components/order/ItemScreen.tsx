@@ -6,6 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AllergenInfo } from '@/components/order/AllergenInfo';
 import { CategoryIcon } from '@/components/order/CategoryIcon';
+import { GuestLock } from '@/components/guest/GuestLock';
+import { JOIN } from '@/components/guest/joinCopy';
 import { ThemedText } from '@/components/ThemedText';
 import { BlockButton } from '@/components/ui/BlockButton';
 import { SquareIconButton } from '@/components/ui/SquareIconButton';
@@ -14,6 +16,7 @@ import { Segmented } from '@/components/ui/Segmented';
 import { Stepper } from '@/components/ui/Stepper';
 import { PRODUCT_PHOTO_POSITION, productPhoto } from '@/constants/productPhotos';
 import { PageInset, Radius } from '@/constants/theme';
+import { useIsGuest } from '@/hooks/useIsGuest';
 import { useMenu } from '@/hooks/useMenu';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
@@ -29,6 +32,7 @@ import { ErrorState } from '@/components/ui/LoadState';
  */
 export default function ItemScreen({ itemId }: { itemId: string }) {
   const theme = useTheme();
+  const guest = useIsGuest();
   const motion = useMotion();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -84,6 +88,21 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
     haptics.success();
     back();
   };
+
+  const addBar = (
+    <View style={styles.bar}>
+      <View style={styles.quantity}>
+        <Stepper value={quantity} onChange={setQuantity} min={1} max={20} label={item.name} />
+      </View>
+      <BlockButton
+        label="Add to cart"
+        value={formatCents(unit * quantity)}
+        onPress={onAdd}
+        accessibilityHint={`Adds ${quantity} to your cart`}
+        style={styles.add}
+      />
+    </View>
+  );
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
@@ -191,19 +210,15 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
           )}
 
           {/* How many and add, side by side right under the choices: where
-              you finish, not down at the screen's edge. */}
-          <View style={styles.bar}>
-            <View style={styles.quantity}>
-              <Stepper value={quantity} onChange={setQuantity} min={1} max={20} label={item.name} />
-            </View>
-            <BlockButton
-              label="Add to cart"
-              value={formatCents(unit * quantity)}
-              onPress={onAdd}
-              accessibilityHint={`Adds ${quantity} to your cart`}
-              style={styles.add}
-            />
-          </View>
+              you finish, not down at the screen's edge. A guest can look
+              through the choices; adding needs an account. */}
+          {guest ? (
+            <GuestLock inline {...JOIN.order}>
+              {addBar}
+            </GuestLock>
+          ) : (
+            addBar
+          )}
         </View>
       </ScrollView>
     </View>

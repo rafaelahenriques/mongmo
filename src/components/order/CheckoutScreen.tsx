@@ -3,7 +3,6 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatInTimeZone } from 'date-fns-tz';
 
-import { updateProfile } from '@/api/endpoints';
 import { ORDER_NOTE_MAX } from '@/api/orders';
 import { PickupHeader } from '@/components/order/PickupHeader';
 import { DayStrip } from '@/components/order/DayStrip';
@@ -16,13 +15,11 @@ import { Chapter } from '@/components/ui/Chapter';
 import { TextField } from '@/components/ui/TextField';
 import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
-import { useAuthUser } from '@/hooks/useAuthUser';
 import { useEvents } from '@/hooks/useEvents';
 import { useEventsWithMenu } from '@/hooks/useEventsWithMenu';
 import { usePickupPlace } from '@/hooks/usePickupPlace';
 import { usePlaceOrder, type PaymentChoice } from '@/hooks/usePlaceOrder';
 import { useNow } from '@/hooks/useNow';
-import { useProfile } from '@/hooks/useProfile';
 import { useStore } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
 import { confirm, errorMessage } from '@/services/confirm';
@@ -36,11 +33,11 @@ import { discountOff } from '@/utils/rewards';
 
 /**
  * O-04 Checkout: where (the bakery or the live pop-up), when (today or
- * tomorrow, only times it's open), your name if you came in as a guest,
- * a note for the kitchen, how to pay (now, with Stripe, or at pickup), and
- * the button with the total. Paying at pickup asks once more before the
- * order goes to the kitchen; paying now has Stripe's own sheet for that.
- * The server prices it.
+ * tomorrow, only times it's open), a note for the kitchen, how to pay
+ * (now, with Stripe, or at pickup), and the button with the total. Paying
+ * at pickup asks once more before the order goes to the kitchen; paying
+ * now has Stripe's own sheet for that. The server prices it. Guests don't
+ * get here: ordering needs an account (GuestGate).
  */
 export default function CheckoutScreen() {
   const theme = useTheme();
@@ -52,8 +49,6 @@ export default function CheckoutScreen() {
   const store = useStore();
   const events = useEvents('today');
   const withMenu = useEventsWithMenu();
-  const profile = useProfile();
-  const account = useAuthUser();
   const { usableRewards } = useAchievements();
   const placeOrder = usePlaceOrder();
   /** The chosen pickup day, yyyy-MM-dd; until one's tapped, the first open day. */
@@ -61,7 +56,6 @@ export default function CheckoutScreen() {
   const [slot, setSlot] = useState(0);
   // Re-reads the clock each minute: times that have passed drop off.
   const now = useNow();
-  const [name, setName] = useState('');
   const [note, setNote] = useState('');
   const [error, setError] = useState<string | null>(null);
   const canPayOnline = onlinePaymentAvailable();
@@ -95,7 +89,6 @@ export default function CheckoutScreen() {
   const discount = usableRewards.find(({ userRewardId: id, reward }) => id === userRewardId && reward.discountCents);
   const subtotal = cartSubtotalCents(items);
   const off = discountOff(discount?.reward, subtotal);
-  const needsName = account.data?.isGuest === true && !(profile.data?.name && profile.data.name !== 'Mongmo fan');
 
   const switchTo = async (kind: 'store' | 'event') => {
     if (!location || kind === location.type) return;
@@ -128,13 +121,6 @@ export default function CheckoutScreen() {
         { cancelLabel: 'Not yet' },
       );
       if (!yes) return;
-    }
-    if (needsName && name.trim()) {
-      // Staff call the order by name; a guest's profile is "Mongmo fan".
-      await updateProfile({
-        name: name.trim(),
-        homeCity: profile.data?.homeCity ?? '',
-      }).catch(() => undefined);
     }
     const input = {
       location,
@@ -231,24 +217,8 @@ export default function CheckoutScreen() {
           )}
         </View>
 
-        {needsName ? (
-          <View style={styles.group}>
-            <Chapter number="03" title="Your details" />
-            <TextField
-              label="Name"
-              hideLabel
-              placeholder="Name, so we can call your order"
-              value={name}
-              onChangeText={setName}
-              autoComplete="name"
-              textContentType="name"
-              returnKeyType="done"
-            />
-          </View>
-        ) : null}
-
         <View style={styles.group}>
-          <Chapter number={needsName ? '04' : '03'} title="Note" />
+          <Chapter number="03" title="Note" />
           <TextField
             label="Note for the kitchen"
             hideLabel
@@ -264,7 +234,7 @@ export default function CheckoutScreen() {
         </View>
 
         <View style={styles.group}>
-          <Chapter number={needsName ? '05' : '04'} title="Pay" />
+          <Chapter number="04" title="Pay" />
           {canPayOnline ? (
             <Segmented
               look="blocks"
@@ -302,7 +272,7 @@ export default function CheckoutScreen() {
         value={formatCents(subtotal - off)}
         onPress={() => void onPlace()}
         loading={placeOrder.isPending}
-        disabled={!pickupAt || (needsName && !name.trim())}
+        disabled={!pickupAt}
         bottomInset
       />
     </View>

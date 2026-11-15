@@ -16,6 +16,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useBadgeUnlockNotifications } from '@/hooks/useBadgeUnlockNotifications';
 import { useCartReminder } from '@/hooks/useCartReminder';
 import { useGeofencing } from '@/hooks/useGeofencing';
+import { GuestContext } from '@/hooks/useIsGuest';
 import { useNearbyAlerts } from '@/hooks/useNearbyAlerts';
 import { useOrderStatusNotifications } from '@/hooks/useOrderStatusNotifications';
 import { useRealtime } from '@/hooks/useRealtime';
@@ -58,7 +59,11 @@ export function Providers({ children, session }: ProvidersProps) {
         client={queryClient}
         persistOptions={{ persister, maxAge: PERSIST_MAX_AGE_MS, buster: PERSIST_BUSTER }}
       >
-        <ErrorBoundary>{session ? <AppServices>{children}</AppServices> : children}</ErrorBoundary>
+        <ErrorBoundary>
+          <GuestContext.Provider value={session?.user.is_anonymous === true}>
+            {session ? <AppServices>{children}</AppServices> : children}
+          </GuestContext.Provider>
+        </ErrorBoundary>
       </PersistQueryClientProvider>
     </GestureHandlerRootView>
   );
