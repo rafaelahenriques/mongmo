@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { ThemedText } from '@/components/ThemedText';
 import Chip from '@/components/ui/Chip';
@@ -12,7 +11,9 @@ import { useMotion } from '@/constants/motion';
 /**
  * Photo first, name over it: Home's live pop-up and a pop-up's own page.
  * A shade darkens the top (status bar, controls) and the bottom (the name)
- * so paper text stays readable on any photo.
+ * so paper text stays readable on any photo. The platform draws it (React
+ * Native's `backgroundImage`, as PhotoShade): an SVG gradient stretched over
+ * the photo showed on iPhones as a dark block with a hard edge.
  */
 export function PhotoHero({
   image,
@@ -55,18 +56,7 @@ export function PhotoHero({
           transition={motion.imageFadeMs}
         />
       ) : null}
-      <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" preserveAspectRatio="none">
-        <Defs>
-          <LinearGradient id="shade" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor="#1A1A17" stopOpacity={0.82} />
-            <Stop offset="0.16" stopColor="#1A1A17" stopOpacity={0.66} />
-            <Stop offset="0.34" stopColor="#1A1A17" stopOpacity={0} />
-            <Stop offset="0.55" stopColor="#1A1A17" stopOpacity={0} />
-            <Stop offset="1" stopColor="#1A1A17" stopOpacity={0.78} />
-          </LinearGradient>
-        </Defs>
-        <Rect width="100%" height="100%" fill="url(#shade)" />
-      </Svg>
+      <View aria-hidden pointerEvents="none" style={[StyleSheet.absoluteFill, styles.shade]} />
       {onPress ? (
         <Pressable
           onPress={onPress}
@@ -109,6 +99,12 @@ export function PhotoHero({
 }
 
 const styles = StyleSheet.create({
+  // Dark at the top for the controls, clear through the middle, and dark
+  // again from below the middle for the name.
+  shade: {
+    backgroundImage:
+      'linear-gradient(to bottom, rgba(26, 26, 23, 0.82) 0%, rgba(26, 26, 23, 0.66) 16%, rgba(26, 26, 23, 0) 34%, rgba(26, 26, 23, 0) 45%, rgba(26, 26, 23, 0.85) 100%)',
+  },
   // At least `height` tall, and taller when large text needs it: the name
   // sits at the bottom, below room for the controls along the top.
   hero: {

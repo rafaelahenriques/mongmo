@@ -1,7 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { Wordmark } from '@/components/brand/Wordmark';
 import { ThemedText } from '@/components/ThemedText';
@@ -30,16 +29,9 @@ export function OpeningScreen({ onGetStarted, onSignIn }: { onGetStarted: () => 
           contentFit="cover"
         />
       ) : null}
-      <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" preserveAspectRatio="none">
-        <Defs>
-          <LinearGradient id="opening" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor="#1A1A17" stopOpacity={0.35} />
-            <Stop offset="0.5" stopColor="#1A1A17" stopOpacity={0} />
-            <Stop offset="1" stopColor="#1A1A17" stopOpacity={0.85} />
-          </LinearGradient>
-        </Defs>
-        <Rect width="100%" height="100%" fill="url(#opening)" />
-      </Svg>
+      {/* Drawn by the platform: an SVG gradient stretched to fill the
+          screen shows in hard bands on iPhones. */}
+      <View aria-hidden pointerEvents="none" style={[StyleSheet.absoluteFill, styles.shade]} />
 
       <View style={[styles.top, { paddingTop: insets.top + 14 }]}>
         <View style={styles.tags} accessibilityLabel="Pick-up, pop-ups, discounts">
@@ -77,6 +69,10 @@ export function OpeningScreen({ onGetStarted, onSignIn }: { onGetStarted: () => 
 }
 
 const styles = StyleSheet.create({
+  shade: {
+    backgroundImage:
+      'linear-gradient(to bottom, rgba(26, 26, 23, 0.35) 0%, rgba(26, 26, 23, 0) 50%, rgba(26, 26, 23, 0.85) 100%)',
+  },
   screen: {
     flex: 1,
     justifyContent: 'space-between',
