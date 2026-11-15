@@ -140,9 +140,13 @@ the release workflow publishes that section as the GitHub release notes.
 - Settings: the Contrast options sit under their explanation instead of
   squeezing it into a narrow column.
 
+- On iPhones, a pop-up's photo no longer has a dark band across its top
+  with a hard edge; the shade fades, and the name reads on bright photos.
 - On Android, opening Pop-ups no longer closes the app. The map needs a
   Google Maps key in the build; until it has one, Android shows a drawn
   map, and the list and the panel below still have every pop-up.
+- The Android app builds again: the payment library (Stripe) asked for a
+  private Google library that Android builds can't download.
 
 ### Removed
 

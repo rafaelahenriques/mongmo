@@ -125,3 +125,12 @@ switch instead: add `expo-build-properties` with
 iOS build before merging, because dynamic frameworks can break other
 native packages. `tests/unit/iosBuildConfig.test.ts` fails if neither
 setting is there.
+
+**Stripe on Android.** Expo SDK 58 recommends `@stripe/stripe-react-native`
+0.81.0, whose Android build asks for Google's private TapAndPay library;
+SDK 58's Android build tools try to download it for the release lint
+check, and the build stops with "Could not find
+com.google.android.gms:play-services-tapandpay". 0.82.0 leaves it out, so
+the app uses 0.82.0, and `package.json` → `expo.install.exclude` keeps
+`npx expo install --fix` from putting 0.81.0 back. Once the SDK's
+recommended version is 0.82.0 or later, remove that exclude.
