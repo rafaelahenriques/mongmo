@@ -40,10 +40,12 @@
     "production": {
       "android": {
         "track": "internal",
-        "releaseStatus": "completed"
+        "releaseStatus": "completed",
+        "applicationId": "com.mongmostore.app"
       },
       "ios": {
-        "ascAppId": "6835037637"
+        "ascAppId": "6835037637",
+        "bundleIdentifier": "com.mongmostore.app"
       }
     }
   }
