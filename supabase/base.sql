@@ -31,13 +31,15 @@ insert into public.menu_items (id, menu_id, name, description, price_cents, cate
   ('00000000-0000-0000-0000-0000000000e4', '00000000-0000-0000-0000-0000000000d1', 'Springrolls, salmon', null, 500, 'Springrolls', 9, true),
   ('00000000-0000-0000-0000-0000000000dc', '00000000-0000-0000-0000-0000000000d1', 'Peanut sauce', null, 0, 'Choose your sauce', 10, true),
   ('00000000-0000-0000-0000-0000000000db', '00000000-0000-0000-0000-0000000000d1', 'Mango sauce', null, 0, 'Choose your sauce', 11, true),
-  ('00000000-0000-0000-0000-0000000000e0', '00000000-0000-0000-0000-0000000000d1', 'Coriander', null, 0, 'Options', 12, true),
-  ('00000000-0000-0000-0000-0000000000e1', '00000000-0000-0000-0000-0000000000d1', 'Spicy', null, 0, 'Options', 13, true),
-  ('00000000-0000-0000-0000-0000000000e2', '00000000-0000-0000-0000-0000000000d1', 'Extra peanut sauce', null, 90, 'Extras', 14, true),
-  ('00000000-0000-0000-0000-0000000000e3', '00000000-0000-0000-0000-0000000000d1', 'Extra mango sauce', null, 90, 'Extras', 15, true),
-  ('00000000-0000-0000-0000-0000000000dd', '00000000-0000-0000-0000-0000000000d1', 'Bò kho (beef stew)', null, 1650, 'Vietnamese stews', 16, true),
-  ('00000000-0000-0000-0000-0000000000de', '00000000-0000-0000-0000-0000000000d1', 'Gà cà ri (chicken stew)', null, 1650, 'Vietnamese stews', 17, true),
-  ('00000000-0000-0000-0000-0000000000df', '00000000-0000-0000-0000-0000000000d1', 'Bánh mì without filling', null, 150, 'Bánh mì without filling', 18, true)
+  ('00000000-0000-0000-0000-0000000000e0', '00000000-0000-0000-0000-0000000000d1', 'With coriander', null, 0, 'Choose coriander', 12, true),
+  ('00000000-0000-0000-0000-0000000000e5', '00000000-0000-0000-0000-0000000000d1', 'No coriander', null, 0, 'Choose coriander', 13, true),
+  ('00000000-0000-0000-0000-0000000000e6', '00000000-0000-0000-0000-0000000000d1', 'Not spicy', null, 0, 'Choose how spicy', 14, true),
+  ('00000000-0000-0000-0000-0000000000e1', '00000000-0000-0000-0000-0000000000d1', 'Spicy', null, 0, 'Choose how spicy', 15, true),
+  ('00000000-0000-0000-0000-0000000000e2', '00000000-0000-0000-0000-0000000000d1', 'Extra peanut sauce', null, 90, 'Extras', 16, true),
+  ('00000000-0000-0000-0000-0000000000e3', '00000000-0000-0000-0000-0000000000d1', 'Extra mango sauce', null, 90, 'Extras', 17, true),
+  ('00000000-0000-0000-0000-0000000000dd', '00000000-0000-0000-0000-0000000000d1', 'Bò kho (beef stew)', null, 1650, 'Vietnamese stews', 18, true),
+  ('00000000-0000-0000-0000-0000000000de', '00000000-0000-0000-0000-0000000000d1', 'Gà cà ri (chicken stew)', null, 1650, 'Vietnamese stews', 19, true),
+  ('00000000-0000-0000-0000-0000000000df', '00000000-0000-0000-0000-0000000000d1', 'Bánh mì without filling', null, 150, 'Bánh mì without filling', 20, true)
 on conflict (id) do update set
   name = excluded.name,
   description = excluded.description,
@@ -47,16 +49,20 @@ on conflict (id) do update set
   available = excluded.available;
 
 -- Options (0017_item_options.sql): picked on the item's own page, not the
--- menu. A group whose name starts with "Choose" is pick-one (the sauce
--- that comes with springrolls); the rest are switched on one by one, free
--- (coriander, spicy) or paid (extra sauce).
+-- menu. A group whose name starts with "Choose" is pick-one, its first
+-- option picked unless the customer changes it: the sauce that comes with
+-- springrolls, with or without coriander, spicy or not (0041). The rest
+-- are switched on one by one (extra sauce).
 update public.menu_items set add_on_for = '{Springrolls}'
   where id in (
     '00000000-0000-0000-0000-0000000000dc', '00000000-0000-0000-0000-0000000000db',
     '00000000-0000-0000-0000-0000000000e2', '00000000-0000-0000-0000-0000000000e3'
   );
 update public.menu_items set add_on_for = '{Bánh mì,Springrolls}'
-  where id in ('00000000-0000-0000-0000-0000000000e0', '00000000-0000-0000-0000-0000000000e1');
+  where id in (
+    '00000000-0000-0000-0000-0000000000e0', '00000000-0000-0000-0000-0000000000e5',
+    '00000000-0000-0000-0000-0000000000e6', '00000000-0000-0000-0000-0000000000e1'
+  );
 -- "Additional protein" was an option until 0039.
 delete from public.menu_items where id = '00000000-0000-0000-0000-0000000000da';
 
@@ -79,7 +85,9 @@ delete from public.menu_items where id = '00000000-0000-0000-0000-0000000000da';
 -- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000e4';  -- Springrolls, salmon
 -- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000dc';  -- Peanut sauce
 -- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000db';  -- Mango sauce
--- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000e0';  -- Coriander
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000e0';  -- With coriander
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000e5';  -- No coriander
+-- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000e6';  -- Not spicy
 -- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000e1';  -- Spicy
 -- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000e2';  -- Extra peanut sauce
 -- update public.menu_items set allergens = '{…}' where id = '00000000-0000-0000-0000-0000000000e3';  -- Extra mango sauce

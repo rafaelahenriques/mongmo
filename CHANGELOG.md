@@ -28,8 +28,8 @@ the release workflow publishes that section as the GitHub release notes.
   way, with a code typed into the app.
 - A note for the kitchen at checkout, and a last "Place this order?" before
   an order you pay at pickup goes through.
-- Coriander and spicy on bánh mì and springrolls; peanut or mango sauce
-  with springrolls, and more of either.
+- Bánh mì and springrolls: with or without coriander, spicy or not; peanut
+  or mango sauce with springrolls, and more of either.
 - Settings → Your data: see what's held about you, download a copy,
   correct it, or delete your account and all its data.
 - Privacy policy in the app and on the web.
