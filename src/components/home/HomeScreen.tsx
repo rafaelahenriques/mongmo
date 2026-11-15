@@ -23,6 +23,7 @@ import { CardShadow, PageInset, Paper, Radius } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveOrder } from '@/hooks/useActiveOrder';
 import { useEvents } from '@/hooks/useEvents';
+import { useIsGuest } from '@/hooks/useIsGuest';
 import { useLevel } from '@/hooks/useLevel';
 import { useMenu } from '@/hooks/useMenu';
 import { useNotificationsFeed } from '@/hooks/useNotificationsFeed';
@@ -50,6 +51,8 @@ import { stampCard } from '@/utils/stamps';
 import type { PopUpEvent } from '@/types';
 import { BrandPhotos, popUpImage } from '@/constants/brandPhotos';
 import PhotosOfTheWeek from '@/components/home/PhotosOfTheWeek';
+import { GuestLock } from '@/components/guest/GuestLock';
+import { JOIN } from '@/components/guest/joinCopy';
 import { ErrorState } from '@/components/ui/LoadState';
 import { Sticker } from '@/components/ui/Sticker';
 
@@ -74,6 +77,7 @@ export default function HomeScreen() {
   const cartLocation = useCartStore((state) => state.location);
   const tabBarInset = useTabBarInset();
   const insets = useSafeAreaInsets();
+  const guest = useIsGuest();
   const { height } = useWindowDimensions();
 
   // The menu shown on Home: where you're ordering from, else the café's.
@@ -96,12 +100,16 @@ export default function HomeScreen() {
   // The best reward your points already cover: worth a card of its own.
   const claimable = bestClaimableReward(rewards, summary.points, level.unlocked);
   const stamps = stampCard(summary.points, goal);
+  const progress = goal
+    ? `${stamps.earned} of ${stamps.total} stamps · ${goal.costPoints - summary.points} points to ${goal.title.charAt(0).toLowerCase()}${goal.title.slice(1)}`
+    : 'Your points cover a reward: redeem it in Wallet.';
 
   // Three things to start an order with, each with its own photo.
   const picks = useMemo(() => menuPicks(menu.data ?? []), [menu.data]);
 
   // "rafaela.henriques" (a name made from an email) greets as "Rafaela".
-  const firstName = profile.data?.name ? shortName(profile.data.name).split(' ')[0] : '';
+  // A guest has no name of their own ("Mongmo fan"): "Hello there".
+  const firstName = profile.data?.name && !guest ? shortName(profile.data.name).split(' ')[0] : '';
   const order = activeOrder.data;
   const openEvent = (id: string) => router.push({ pathname: '/(popups)/event/[id]', params: { id } });
   const openOrder = () => router.navigate('/(orders)');
@@ -301,17 +309,22 @@ export default function HomeScreen() {
           </View>
         ) : null}
 
-        {/* Your stamp card: the stamps, how far to the next reward. */}
+        {/* Your stamp card: the stamps, how far to the next reward. A guest
+            sees it dimmed, under a card to make an account. */}
         <View style={styles.section}>
-          <Chapter number="03" title="Your stamp card" link="WALLET" onPress={() => router.navigate('/(wallet)')} />
-          <View style={styles.stampRow}>
-            <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
-          </View>
-          <ThemedText type="small" themeColor="textSecondary">
-            {goal
-              ? `${stamps.earned} of ${stamps.total} stamps · ${goal.costPoints - summary.points} points to ${goal.title.charAt(0).toLowerCase()}${goal.title.slice(1)}`
-              : 'Your points cover a reward: redeem it in Wallet.'}
-          </ThemedText>
+          <Chapter
+            number="03"
+            title="Your stamp card"
+            link={guest ? undefined : 'WALLET'}
+            onPress={guest ? undefined : () => router.navigate('/(wallet)')}
+          />
+          {guest ? (
+            <GuestLock inline {...JOIN.stamps}>
+              <StampCard stamps={stamps}>{progress}</StampCard>
+            </GuestLock>
+          ) : (
+            <StampCard stamps={stamps}>{progress}</StampCard>
+          )}
         </View>
 
         <View style={styles.section}>
@@ -345,6 +358,20 @@ export default function HomeScreen() {
 }
 
 const PICK_WIDTH = 200;
+
+/** The stamp line, and under it how far to the next reward. */
+function StampCard({ stamps, children }: { stamps: ReturnType<typeof stampCard>; children: string }) {
+  return (
+    <View style={styles.stampCard}>
+      <View style={styles.stampRow}>
+        <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
+      </View>
+      <ThemedText type="small" themeColor="textSecondary">
+        {children}
+      </ThemedText>
+    </View>
+  );
+}
 
 function liveNow(event: PopUpEvent) {
   return getEventPhase(event.startsAt, event.endsAt) === 'live';
@@ -538,6 +565,10 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  // The section's own gap, as when these were its children.
+  stampCard: {
+    gap: 14,
   },
   stampRow: {
     paddingVertical: 4,

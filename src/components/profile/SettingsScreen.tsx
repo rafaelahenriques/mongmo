@@ -11,6 +11,7 @@ import { Segmented } from '@/components/ui/Segmented';
 import { Toggle } from '@/components/ui/Toggle';
 import { CardShadow, PageInset, Radius } from '@/constants/theme';
 import { useAuthUser } from '@/hooks/useAuthUser';
+import { useIsGuest } from '@/hooks/useIsGuest';
 import { useProfile, useSetLeaderboardVisible } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
@@ -85,8 +86,8 @@ export default function SettingsScreen() {
   const setCrashReports = useSettingsStore((state) => state.setCrashReports);
   const profile = useProfile();
   const setLeaderboardVisible = useSetLeaderboardVisible();
-  const account = useAuthUser();
-  const email = account.data?.email;
+  const email = useAuthUser().data?.email;
+  const guest = useIsGuest();
 
   // Re-read on every visit: they may have just flipped it in the phone's settings.
   const [permission, setPermission] = useState<NotificationPermission | null>(null);
@@ -170,11 +171,12 @@ export default function SettingsScreen() {
         />
         <ListRow
           title="Show me on the leaderboard"
-          subtitle="Off keeps your points private"
+          subtitle={guest ? 'Make an account to be on the leaderboard' : 'Off keeps your points private'}
           trailing={
             <Toggle
-              value={profile.data?.leaderboardVisible ?? false}
+              value={guest ? false : (profile.data?.leaderboardVisible ?? false)}
               onValueChange={(value) => setLeaderboardVisible.mutate(value)}
+              disabled={guest}
               accessibilityLabel="Show me on the leaderboard"
             />
           }
@@ -208,14 +210,10 @@ export default function SettingsScreen() {
       </Group>
 
       <Group number="04" title="Account">
-        <ListRow
-          title="Email"
-          subtitle={email ?? (account.data?.isGuest ? 'None yet: you’re a guest' : ' ')}
-          chevron={false}
-        />
+        <ListRow title="Email" subtitle={email ?? (guest ? 'None yet: you’re a guest' : ' ')} chevron={false} />
         {email ? <ListRow title="Change password" onPress={() => router.push('/(profile)/password')} /> : null}
         <ListRow title="Help" subtitle={HELP_EMAIL} onPress={() => void Linking.openURL(`mailto:${HELP_EMAIL}`)} />
-        <ListRow title="Log out" onPress={confirmLogOut} chevron={false} />
+        <ListRow title="Log out" onPress={() => void confirmLogOut(guest)} chevron={false} />
         <ListRow title="Delete account" onPress={() => void confirmDeleteAccount()} chevron={false} danger last />
       </Group>
 

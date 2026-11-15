@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,10 +19,11 @@ import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/lib/supabase';
 import { authErrorMessage, MIN_PASSWORD_LENGTH } from '@/services/authMessages';
 import { alreadyRegistered } from '@/services/emailConfirmation';
+import { clearWelcomeMode, welcomeMode, type AuthMode } from '@/services/guest';
 import { haptics } from '@/services/haptics';
 import { useSettingsStore } from '@/state/settingsStore';
 
-type Mode = 'sign-in' | 'sign-up';
+type Mode = AuthMode;
 
 /**
  * Everything a signed-out user can reach, rendered in place of the tabs:
@@ -32,7 +33,9 @@ type Mode = 'sign-in' | 'sign-up';
 export default function SignInScreen() {
   const openingSeen = useSettingsStore((state) => state.openingSeen);
   const markOpeningSeen = useSettingsStore((state) => state.markOpeningSeen);
-  const [mode, setMode] = useState<Mode>('sign-in');
+  // A guest who tapped "Create an account" or "Sign in" lands on that form.
+  const [mode, setMode] = useState<Mode>(welcomeMode);
+  useEffect(() => clearWelcomeMode(), []);
 
   if (!openingSeen) {
     return (
@@ -233,7 +236,7 @@ function WelcomeScreen({ mode, onModeChange }: { mode: Mode; onModeChange: (mode
               onPress={onGuest}
               loading={pending === 'guest'}
               disabled={pending === 'account'}
-              accessibilityHint="Look around without an account. You can create one later to keep your points."
+              accessibilityHint="Look around the pop-ups and the menu. Make an account to order and collect points."
             />
 
             <LegalLinks />

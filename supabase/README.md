@@ -81,6 +81,7 @@ left, per "no hardcoded/mock data."
 | `0032_cancel_my_order.sql` | `cancel_my_order()`: customers cancel their own order until staff accept it. A reward used on a cancelled order (by the customer or staff) comes back unused. |
 | `0040_owner_picks_photos.sql` | Photos of the week are picked by staff: `set_photo_shared()` now offers a photo, `offered_photos()` lists what members offer (staff only, no names), `set_photo_featured()` picks one for 7 days or takes it out. `photos_of_the_week()`, `report_photo()` and the storage rule follow the pick (`photos.featured_at`); a member can't set it. The data export says when a photo was picked. |
 | `0041_coriander_and_spicy_choices.sql` | Coriander and spicy become two separate pick-one choices on bánh mì and springrolls ("Choose coriander": with / no coriander; "Choose how spicy": not spicy / spicy), the first of each picked unless changed. Same rows as `base.sql`. |
+| `0042_guests_look_only.sql` | Guests (anonymous sign-ins) look around but don't take part: `is_guest()` reads the token, and `refuse_guests()` triggers stop a guest's order, check-in, challenge completion, photo, reward, photo report and profile change (`42501`, "Make an account to do this."). A restrictive storage policy stops a guest's uploads. The app shows these locked (`GuestLock`). |
 
 ### Points ledger, not a running total
 

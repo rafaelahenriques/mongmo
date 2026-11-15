@@ -99,7 +99,10 @@ it's copied, and who wins when they differ.
 ## Key flows
 
 - **Sign-in:** Supabase Auth; the session is kept in the Keychain or
-  Keystore (`src/lib/secureStorage.ts`). Guests are anonymous accounts.
+  Keystore (`src/lib/secureStorage.ts`). Guests are anonymous accounts:
+  they see Home, the pop-ups and the menu; ordering, check-in, the Wallet,
+  achievements and the profile show dimmed under a card to make an account
+  (`GuestLock`, `GuestGate`), and the database refuses them too (0042).
 - **Ordering:** the cart is on the phone; `create_order` prices it on the
   server from current menu prices and returns the order; status changes
   arrive over Realtime.

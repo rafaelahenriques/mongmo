@@ -6,12 +6,14 @@ import { confirm, showError } from '@/services/confirm';
 /**
  * Asks before signing out. Signing out ends the Supabase session, which
  * useSession picks up to swap the tabs for the sign-in screen (and clear the
- * query cache).
+ * query cache). A guest has no points or badges to keep.
  */
-export async function confirmLogOut(): Promise<void> {
+export async function confirmLogOut(guest = false): Promise<void> {
   const yes = await confirm(
     'Log out?',
-    'You can sign back in any time — your points and badges are saved.',
+    guest
+      ? 'You can look around as a guest again any time, or make an account.'
+      : 'You can sign back in any time — your points and badges are saved.',
     'Log out',
     { destructive: true },
   );

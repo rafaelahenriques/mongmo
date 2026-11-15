@@ -3,6 +3,8 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatInTimeZone } from 'date-fns-tz';
 
+import { GuestLock } from '@/components/guest/GuestLock';
+import { JOIN } from '@/components/guest/joinCopy';
 import { Avatar } from '@/components/profile/Avatar';
 import PhotoGallery from '@/components/profile/PhotoGallery';
 import { ThemedText } from '@/components/ThemedText';
@@ -15,6 +17,7 @@ import { TopBar } from '@/components/ui/TopBar';
 import { CardShadow, Radius, Spacing } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useAuthUser } from '@/hooks/useAuthUser';
+import { useIsGuest } from '@/hooks/useIsGuest';
 import { useMyOrders } from '@/hooks/useMyOrders';
 import { useMyPhotos } from '@/hooks/usePhotos';
 import { useProfile } from '@/hooks/useProfile';
@@ -39,6 +42,7 @@ export default function ProfileScreen() {
   const orders = useMyOrders();
   const back = () => (router.canGoBack() ? router.back() : router.replace('/(home)'));
   const photos = useMyPhotos();
+  const guest = useIsGuest();
 
   const openAchievements = useCallback(() => router.push('/(achievements)/achievements'), [router]);
   const ownerView = useOwnerView();
@@ -75,7 +79,7 @@ export default function ProfileScreen() {
         <Button label="Try again" variant="primary" size="medium" onPress={() => profile.refetch()} />
         {/* Settings (and its Log out) live below the profile card, so without
             this a failed load would leave no way to sign out at all. */}
-        <Button label="Log out" variant="ghost" size="medium" onPress={confirmLogOut} />
+        <Button label="Log out" variant="ghost" size="medium" onPress={() => void confirmLogOut(guest)} />
       </View>
     );
   }
@@ -85,28 +89,56 @@ export default function ProfileScreen() {
   const badgeCount = achievements.query.data?.badges.length ?? 0;
   const current = (orders.data ?? []).filter((order) => ['placed', 'preparing', 'ready'].includes(order.status));
 
+  const identity = (
+    <View style={[styles.identity, { backgroundColor: theme.backgroundSelected }]}>
+      <Avatar name={user.name} url={user.avatarUrl} cacheKey={user.avatarPath} />
+      <View style={styles.identityTexts}>
+        <ThemedText type="title" numberOfLines={2} accessibilityRole="header">
+          {user.name}
+        </ThemedText>
+        {email ? (
+          <ThemedText type="captionBold" numberOfLines={1} selectable>
+            {email}
+          </ThemedText>
+        ) : null}
+        <ThemedText type="caption" themeColor="textSecondary">
+          {[user.homeCity, `Since ${memberSince}`, user.role === 'owner' ? 'Owner' : null].filter(Boolean).join(' · ')}
+        </ThemedText>
+      </View>
+    </View>
+  );
+  const settings = <ListRow title="Settings" onPress={() => router.push('/(profile)/settings')} last />;
+
+  // A guest sees their account dimmed, under a card to make one; Settings
+  // (appearance, alerts, the legal pages, log out) still works.
+  if (guest) {
+    return (
+      <View style={[styles.screen, { backgroundColor: theme.background }]}>
+        <TopBar title="Account" onBack={back} />
+        <ScreenScroll>
+          <GuestLock inline {...JOIN.account}>
+            <View style={styles.preview}>
+              {identity}
+              <View style={[styles.card, { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }]}>
+                <ListRow title="Achievements" onPress={openAchievements} />
+                <ListRow title="My orders" onPress={() => router.push('/(profile)/orders')} />
+                <ListRow title="Edit profile" onPress={() => router.push('/(profile)/edit')} last />
+              </View>
+            </View>
+          </GuestLock>
+          <View style={[styles.card, { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }]}>
+            {settings}
+          </View>
+        </ScreenScroll>
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
       <TopBar title="Account" onBack={back} />
       <ScreenScroll>
-        <View style={[styles.identity, { backgroundColor: theme.backgroundSelected }]}>
-          <Avatar name={user.name} url={user.avatarUrl} cacheKey={user.avatarPath} />
-          <View style={styles.identityTexts}>
-            <ThemedText type="title" numberOfLines={2} accessibilityRole="header">
-              {user.name}
-            </ThemedText>
-            {email ? (
-              <ThemedText type="captionBold" numberOfLines={1} selectable>
-                {email}
-              </ThemedText>
-            ) : null}
-            <ThemedText type="caption" themeColor="textSecondary">
-              {[user.homeCity, `Since ${memberSince}`, user.role === 'owner' ? 'Owner' : null]
-                .filter(Boolean)
-                .join(' · ')}
-            </ThemedText>
-          </View>
-        </View>
+        {identity}
 
         <View style={[styles.card, { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }]}>
           <ListRow
@@ -127,7 +159,7 @@ export default function ProfileScreen() {
             )
           ) : null}
           <ListRow title="Edit profile" onPress={() => router.push('/(profile)/edit')} />
-          <ListRow title="Settings" onPress={() => router.push('/(profile)/settings')} last />
+          {settings}
         </View>
 
         <Chapter title="Your photos" />
@@ -158,6 +190,9 @@ const styles = StyleSheet.create({
     borderRadius: Radius.card,
     paddingHorizontal: 16,
     overflow: 'hidden',
+  },
+  preview: {
+    gap: Spacing.three,
   },
   identityTexts: {
     flex: 1,
