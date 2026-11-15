@@ -7,7 +7,7 @@
 const FULL_SCREEN = [
   /^\/order\/(item|cart|checkout|location)/,
   /^\/check-in/,
-  /^\/owner\/(event\/new|challenge\/|order\/)/,
+  /^\/owner\/(event\/new|challenge\/|order\/|menu\/)/,
 ];
 
 export function isTabBarHidden(pathname: string): boolean {

@@ -16,16 +16,6 @@ export default function ProfileLayout() {
       {/* My orders lives under Account: opening it never switches you to the Order tab. */}
       <Stack.Screen name="orders" options={{ headerTitle: 'My orders' }} />
       <Stack.Screen name="order/[id]" options={{ headerShown: false }} />
-      <Stack.Screen name="owner/index" options={{ headerTitle: 'Owner tools' }} />
-      <Stack.Screen name="owner/events" options={{ headerTitle: 'Manage pop-ups' }} />
-      <Stack.Screen name="owner/event/new" options={{ headerTitle: 'New pop-up' }} />
-      <Stack.Screen name="owner/event/[id]" options={{ headerTitle: 'Manage pop-up' }} />
-      <Stack.Screen name="owner/challenge/new" options={{ headerTitle: 'New challenge' }} />
-      <Stack.Screen name="owner/challenge/[id]" options={{ headerTitle: 'Edit challenge' }} />
-      <Stack.Screen name="owner/orders" options={{ headerTitle: 'Orders' }} />
-      <Stack.Screen name="owner/photos" options={{ headerTitle: 'Photos of the week' }} />
-      <Stack.Screen name="owner/reports" options={{ headerTitle: 'Reported photos' }} />
-      <Stack.Screen name="owner/order/[id]" options={{ headerShown: false }} />
     </Stack>
   );
 }

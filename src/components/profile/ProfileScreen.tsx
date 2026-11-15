@@ -18,7 +18,9 @@ import { useAuthUser } from '@/hooks/useAuthUser';
 import { useMyOrders } from '@/hooks/useMyOrders';
 import { useMyPhotos } from '@/hooks/usePhotos';
 import { useProfile } from '@/hooks/useProfile';
+import { useOwnerView } from '@/hooks/useOwnerView';
 import { useTheme } from '@/hooks/useTheme';
+import { useSettingsStore } from '@/state/settingsStore';
 import { confirmLogOut } from '@/services/auth';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 
@@ -39,7 +41,14 @@ export default function ProfileScreen() {
   const photos = useMyPhotos();
 
   const openAchievements = useCallback(() => router.push('/(achievements)/achievements'), [router]);
-  const openOwnerTools = useCallback(() => router.push('/(profile)/owner'), [router]);
+  const ownerView = useOwnerView();
+  const setCustomerView = useSettingsStore((state) => state.setCustomerView);
+  /**
+   * Staff: to the customer's view of the app, or back to the owner's. The
+   * tab bar takes it from there (IconNav): the other view opens on its
+   * first tab.
+   */
+  const switchView = useCallback(() => setCustomerView(ownerView), [ownerView, setCustomerView]);
 
   if (profile.isPending) {
     return (
@@ -111,7 +120,11 @@ export default function ProfileScreen() {
             onPress={() => router.push('/(profile)/orders')}
           />
           {user.role === 'owner' ? (
-            <ListRow title="Owner tools" subtitle="Pop-ups, challenges and orders" onPress={openOwnerTools} />
+            ownerView ? (
+              <ListRow title="Customer view" subtitle="See the app the way customers do" onPress={switchView} />
+            ) : (
+              <ListRow title="Owner view" subtitle="Orders, pop-ups, the menu and photos" onPress={switchView} />
+            )
           ) : null}
           <ListRow title="Edit profile" onPress={() => router.push('/(profile)/edit')} />
           <ListRow title="Settings" onPress={() => router.push('/(profile)/settings')} last />

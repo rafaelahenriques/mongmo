@@ -52,7 +52,7 @@ export function useReportPhoto() {
   });
 }
 
-/** Staff: photos members are offering for Photos of the week (Owner tools). */
+/** Staff: photos members are offering for Photos of the week (the owner’s view). */
 export function useOfferedPhotos() {
   return useQuery({ queryKey: ['photos', 'offered'], queryFn: getOfferedPhotos });
 }
@@ -66,7 +66,7 @@ export function useSetPhotoFeatured() {
   });
 }
 
-/** Staff: reported photos waiting for a decision (Owner tools). */
+/** Staff: reported photos waiting for a decision (the owner’s view). */
 export function useReportedPhotos(enabled = true) {
   return useQuery({ queryKey: ['photos', 'reported'], queryFn: getReportedPhotos, enabled });
 }

@@ -1,6 +1,6 @@
 -- The café's real data, for every project: production, staging and local.
 -- The menu, the Kortrijk café, the badges and the rewards. No pop-ups:
--- staff create real ones in the app (Owner tools → New pop-up).
+-- staff create real ones in the app (the owner’s view → Pop-ups → Create new pop-up).
 --
 -- Run it once on a new project, after the migrations: paste it into the
 -- dashboard's SQL Editor and Run (`supabase db push` doesn't run it). It's

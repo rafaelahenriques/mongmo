@@ -486,33 +486,36 @@ if (process.env.OWNER_EMAIL && process.env.OWNER_PASSWORD) {
   await owner.getByPlaceholder('Password').fill(process.env.OWNER_PASSWORD);
   await button(owner, 'Sign in').click();
   await owner.waitForTimeout(WAIT);
-  const ownerTools = async () => {
-    await owner.goBack();
-    await owner.waitForTimeout(1200);
-  };
-  await step(owner, 'Owner tools', async () => {
+  // Staff land in the owner's view: Today, Orders, Pop-ups and Menu.
+  await step(owner, 'Owner: today', async () => {
     const notNow = button(owner, 'Not now');
     if (await notNow.count()) await notNow.click();
-    await button(owner, 'Account').click();
-    await owner.waitForTimeout(1200);
-    await button(owner, /^Owner tools/).click();
+    await tab(owner, 'Today').waitFor();
   });
-  await step(owner, 'Owner: orders', () => button(owner, /Manage orders/).click());
-  await step(owner, 'Owner: pop-ups', async () => {
-    await ownerTools();
-    await button(owner, /^Manage pop-ups/).click();
+  await step(owner, 'Owner: orders', () => tab(owner, 'Orders').click());
+  await step(owner, 'Owner: pop-ups', () => tab(owner, 'Pop-ups').click());
+  await step(owner, 'Owner: new pop-up', () => button(owner, /^Create a new pop-up/).click());
+  await step(owner, 'Owner: menu', async () => {
+    await back(owner);
+    await tab(owner, 'Menu').click();
   });
-  await step(owner, 'Owner: new pop-up', async () => {
-    await ownerTools();
-    await button(owner, /^New pop-up/).click();
+  await step(owner, 'Owner: menu item', () => button(owner, /^Bánh mì, /).click());
+  await step(owner, 'Owner: new menu item', async () => {
+    await back(owner);
+    await button(owner, 'Add an item').click();
   });
   await step(owner, 'Owner: photos of the week', async () => {
-    await ownerTools();
+    await back(owner);
+    await tab(owner, 'Today').click();
     await button(owner, /^Photos of the week/).click();
   });
   await step(owner, 'Owner: reported photos', async () => {
-    await ownerTools();
+    await back(owner);
     await button(owner, /^Reported photos/).click();
+  });
+  await step(owner, 'Owner: account', async () => {
+    await back(owner);
+    await button(owner, 'Account').click();
   });
 }
 

@@ -18,8 +18,12 @@ the release workflow publishes that section as the GitHub release notes.
   live order status.
 - Points, levels (Dough, Rising, Golden, Crisp), badges, rewards and a
   membership card in the Wallet; a weekly leaderboard you can opt out of.
-- Owner screens: create and run pop-ups, manage challenges and handle
-  incoming orders.
+- An owner's view of the app for staff, with its own tabs: Today (orders at
+  a glance, photos to pick and review), Orders, Pop-ups (and their
+  challenges) and Menu. Account switches to the customer's view and back.
+- Menu, in the owner's view: add and change items, their prices, sections
+  and options, fill in allergens, and switch an item off when it's sold
+  out.
 - Reset your password with an emailed code; confirm a new account the same
   way, with a code typed into the app.
 - A note for the kitchen at checkout, and a last "Place this order?" before
@@ -36,9 +40,9 @@ the release workflow publishes that section as the GitHub release notes.
   week without your name. Stop sharing from Account, or report someone
   else's.
 - Pop-ups without a picture of their own show Mongmo's photos.
-- Owner tools → Photos of the week: staff pick which shared photos show on
+- Staff pick which shared photos show in Photos of the week on
   Home, and take one out again.
-- Owner tools → Reported photos: staff put a reported photo back, keep it
+- Reported photos: staff put a reported photo back, keep it
   down, or delete it for good. Reports are deleted once decided.
 
 - Settings → Contrast: medium and high contrast colours, from the
@@ -58,7 +62,7 @@ the release workflow publishes that section as the GitHub release notes.
   deleted.
 - Tap someone's photo on the leaderboard to see it bigger, and report it
   if it isn't right: it's hidden straight away. Staff put it back or
-  remove it in Owner tools → Reported photos.
+  remove it under Reported photos.
 - Allergens on every dish's page, dips and extras included, with a way to
   ask us by email. A dish whose allergens aren't filled in yet says so.
 - "Prices include VAT" on the menu, cart and checkout.

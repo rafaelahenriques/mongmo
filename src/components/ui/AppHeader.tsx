@@ -9,6 +9,7 @@ import { Icon, type IconName } from '@/components/ui/Icon';
 import { ScreenReaderTitle } from '@/components/ui/ScreenReaderTitle';
 import { PageInset, Radius } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
+import { useOwnerView } from '@/hooks/useOwnerView';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 
@@ -18,12 +19,33 @@ import { haptics } from '@/services/haptics';
  * in a dark pill (to Wallet), achievements (the trophy) and your account
  * (the person) in round stone buttons on the right. Something of the screen's own can sit next to the
  * wordmark (`left`).
+ *
+ * In the owner's view the bar says so ("Owner") and keeps only the
+ * account button: points and achievements are the customer's.
  */
 export function AppHeader({ title, left }: { title: string; left?: ReactNode }) {
   const theme = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const points = useAchievements().summary.points;
+  const ownerView = useOwnerView();
+
+  if (ownerView) {
+    return (
+      <View style={[styles.bar, { backgroundColor: theme.background, paddingTop: insets.top + 10 }]}>
+        <View style={styles.left}>
+          <Wordmark height={28} color={theme.brand} />
+          <ScreenReaderTitle>{title}</ScreenReaderTitle>
+          <View style={[styles.tag, { backgroundColor: theme.surfaceDark }]}>
+            <ThemedText type="captionBold" style={{ color: theme.onSurfaceDark }}>
+              Owner
+            </ThemedText>
+          </View>
+        </View>
+        <HeaderIcon icon="person" label="Account" onPress={() => router.push('/(profile)')} />
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.bar, { backgroundColor: theme.background, paddingTop: insets.top + 10 }]}>
@@ -95,6 +117,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: Radius.pill,
     marginRight: 2,
+  },
+  tag: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: Radius.pill,
   },
   icon: {
     width: 44,

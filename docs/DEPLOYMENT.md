@@ -133,7 +133,7 @@ mode for production:
    Go.
 
 Refunds come out of the Stripe balance; if a refund fails, staff see it
-under Owner tools → Orders, with **Send refund again**, and it can also be
+in the owner’s Orders tab, with **Send refund again**, and it can also be
 refunded in the Stripe Dashboard.
 
 ### One-time setup

@@ -39,7 +39,7 @@ export default function OwnerChallengesManager({ eventId, timeZone }: OwnerChall
                   icon={CHALLENGE_TYPES[challenge.type].icon}
                   onPress={() =>
                     router.push({
-                      pathname: '/(profile)/owner/challenge/[id]',
+                      pathname: '/(popups)/owner/challenge/[id]',
                       params: { id: challenge.id, eventId },
                     })
                   }
@@ -59,7 +59,7 @@ export default function OwnerChallengesManager({ eventId, timeZone }: OwnerChall
         label="Add a challenge"
         variant="primary"
         icon="add"
-        onPress={() => router.push({ pathname: '/(profile)/owner/challenge/new', params: { eventId } })}
+        onPress={() => router.push({ pathname: '/(popups)/owner/challenge/new', params: { eventId } })}
       />
     </View>
   );
