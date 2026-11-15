@@ -36,13 +36,48 @@ file's whole contents into its template:
 Keep **Email OTP length** at 6 and its expiry at 3600 seconds (Sign In /
 Providers → Email): the app and the emails say six digits and one hour.
 
-The emails come from Supabase's own sender until you connect your email
-provider (Authentication → Emails → SMTP settings), with the sender name
-`Mongmo` and an address at mongmo-store.com. **This has to be done before
-launch.** The built-in sender is for testing only: it writes only to
-people on the project's Supabase team, a few emails an hour. Anyone else
-who signs up or asks for a password reset gets no email (the app says "We
-can't send emails to that address yet").
+### Sending the emails: Resend
+
+Supabase's own sender is for testing only: it writes only to people on the
+project's Supabase team, a few emails an hour. Anyone else who signs up or
+asks for a password reset gets no email (the app says "We can't send emails
+to that address yet"). **Both projects send through Resend instead; this has
+to be in place before launch.**
+
+**The domain.** Resend sends from `mail.mongmo-store.com` (a subdomain, as
+Resend recommends, so the app's emails keep their own reputation apart from
+the café's Google mail). It's set up in Resend → Domains, region EU
+(Ireland), with open and click tracking off. Resend checks four DNS records
+at the domain's DNS host (Squarespace), all under `mail`; the exact values
+are on the domain's page in Resend:
+
+| Type | Host | Purpose |
+|---|---|---|
+| TXT | `resend._domainkey.mail` | DKIM: proves the email is from us |
+| MX | `send.mail` (priority 10) | Bounces come back to Resend |
+| TXT | `send.mail` | SPF for the bounce address |
+| CNAME | `rsend.mail` | Resend's sending infrastructure |
+
+Nothing at the root domain changes: the café's Google mail, Odoo's SPF
+record and the DMARC record stay as they are.
+
+**Each Supabase project** (production, then staging): Authentication →
+Emails → SMTP Settings → Enable custom SMTP.
+
+| Setting | Value |
+|---|---|
+| Sender email | `no-reply@mail.mongmo-store.com` |
+| Sender name | `Mongmo` (staging: `Mongmo staging`) |
+| Host | `smtp.resend.com` |
+| Port | `465` |
+| Username | `resend` |
+| Password | A Resend API key: Resend → API Keys → Create, **Sending access**, domain `mail.mongmo-store.com`, one key per project (named after it). Resend shows it once: paste it straight into Supabase and nowhere else. |
+
+Once custom SMTP is on, Supabase allows 30 of these emails an hour
+(Authentication → Rate Limits). Resend's free plan sends 100 a day and
+3,000 a month; its Pro plan ($20 a month, 50,000 emails) has no daily
+limit. To change the key, create a new one, paste it into Supabase, then
+delete the old one in Resend.
 
 Change the templates and ship the app version that asks for a code
 together: an older app expects the link, the new one the code.

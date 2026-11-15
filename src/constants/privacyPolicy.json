@@ -33,6 +33,7 @@
       "heading": "Who else handles it",
       "paragraphs": [
         "Supabase hosts our database, sign-in and photo storage, as our processor.",
+        "Resend (Plus Five Five, Inc., United States) sends the emails with your code to confirm your account or reset your password, as our processor. It receives your email address and the email itself. We don't track whether you open the email or what you click. Resend is certified under the EU–US Data Privacy Framework.",
         "Sentry receives crash reports, only if you said yes, as our processor.",
         "Stripe (Stripe Payments Europe, Ireland) handles payments in the app, as our payment provider. Stripe also uses payment data under its own privacy policy, for example to prevent fraud and to meet its legal duties (stripe.com/privacy).",
         "Expo (650 Industries, United States) delivers small fixes to the app between store updates, as our processor. When the app opens, it asks Expo's server whether there is a newer version. The request carries your phone's system (iOS or Android), the app's version and a random token for this installation: not your account, and no device identifier. Expo is certified under the EU–US Data Privacy Framework.",
