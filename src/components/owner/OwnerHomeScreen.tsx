@@ -9,7 +9,7 @@ import { TaskCard } from '@/components/ui/TaskCard';
 import { CardShadow, PageInset } from '@/constants/theme';
 import { useOwnerEvents } from '@/hooks/useOwnerEvents';
 import { useOwnerOrders } from '@/hooks/useOwnerOrders';
-import { useReportedPhotos } from '@/hooks/usePhotos';
+import { useOfferedPhotos, useReportedPhotos } from '@/hooks/usePhotos';
 import { useReportedProfilePhotos } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
@@ -18,7 +18,9 @@ import { useRefreshControl } from '@/components/ui/LoadState';
 /**
  * A-01 Owner tools: today's orders as three big numbers (new ones are the
  * loudest), MANAGE ORDERS, then pop-ups — a new one, or the ones you have —
- * and reported photos (Photos of the week, profile photos) waiting for a decision.
+ * then members' photos: the ones shared for Photos of the week, to pick
+ * from, and reported photos (Photos of the week, profile photos) waiting
+ * for a decision.
  */
 export default function OwnerHomeScreen() {
   const theme = useTheme();
@@ -27,9 +29,15 @@ export default function OwnerHomeScreen() {
   const tabBarInset = useTabBarInset();
   const { orders } = useOwnerOrders();
   const eventsQuery = useOwnerEvents();
+  const offered = useOfferedPhotos();
   const reported = useReportedPhotos();
   const reportedProfiles = useReportedProfilePhotos();
   const toReview = (reported.data?.length ?? 0) + (reportedProfiles.data?.length ?? 0);
+  const toPick = offered.data?.filter((photo) => !photo.showing).length ?? 0;
+  const onHome = (offered.data?.length ?? 0) - toPick;
+  const picks = !offered.data
+    ? 'Pick what shows on Home'
+    : `${toPick === 0 ? 'Nothing new to pick from' : `${toPick} to pick from`}, ${onHome} showing`;
 
   const counts = useMemo(
     () => ({
@@ -92,6 +100,13 @@ export default function OwnerHomeScreen() {
       <ThemedText type="subtitle" accessibilityRole="header">
         Members’ photos
       </ThemedText>
+      <TaskCard
+        icon="star"
+        title="Photos of the week"
+        subtitle={picks}
+        state="arrow"
+        onPress={() => router.push('/(profile)/owner/photos')}
+      />
       <TaskCard
         icon="photo"
         title="Reported photos"

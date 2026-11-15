@@ -110,7 +110,7 @@ jobs:
         run: |
           EXPO_PUBLIC_SUPABASE_URL="$SUPABASE_URL" EXPO_PUBLIC_SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
             npx expo export --platform web --output-dir dist
-      - name: An owner account, and a reported photo for it to review
+      - name: An owner account, with shared photos to pick from and a reported one to review
         run: node tests/a11y/seed-owner.mjs
       - name: Install the browser
         run: npx playwright install --with-deps chromium

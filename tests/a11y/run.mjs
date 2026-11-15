@@ -506,6 +506,10 @@ if (process.env.OWNER_EMAIL && process.env.OWNER_PASSWORD) {
     await ownerTools();
     await button(owner, /^New pop-up/).click();
   });
+  await step(owner, 'Owner: photos of the week', async () => {
+    await ownerTools();
+    await button(owner, /^Photos of the week/).click();
+  });
   await step(owner, 'Owner: reported photos', async () => {
     await ownerTools();
     await button(owner, /^Reported photos/).click();
