@@ -266,7 +266,7 @@ function ItemForm({ menus, existing }: { menus: OwnerMenu[]; existing?: OwnerMen
                 {allergens === null
                   ? 'Off: customers see “Not listed yet”.'
                   : allergens.length === 0
-                    ? 'Customers see “None of the 14 main allergens”.'
+                    ? 'Pick what it contains. Nothing picked: customers see “None of the 14 main allergens”.'
                     : 'Customers see the ones you pick.'}
               </ThemedText>
             </View>
@@ -277,7 +277,7 @@ function ItemForm({ menus, existing }: { menus: OwnerMenu[]; existing?: OwnerMen
             />
           </View>
           {allergens !== null ? (
-            <View style={styles.pills} accessibilityLabel="It contains">
+            <View style={styles.pills}>
               {(Object.keys(ALLERGENS) as Allergen[]).map((key) => (
                 <OptionPill
                   key={key}

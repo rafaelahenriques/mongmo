@@ -503,6 +503,12 @@ if (process.env.OWNER_EMAIL && process.env.OWNER_PASSWORD) {
   await step(owner, 'Owner: new menu item', async () => {
     await back(owner);
     await button(owner, 'Add an item').click();
+    // With the allergen list open, so its fourteen choices are checked too.
+    await owner
+      .getByRole('switch', { name: 'Allergens checked with the kitchen' })
+      .filter({ visible: true })
+      .first()
+      .click();
   });
   await step(owner, 'Owner: photos of the week', async () => {
     await back(owner);
