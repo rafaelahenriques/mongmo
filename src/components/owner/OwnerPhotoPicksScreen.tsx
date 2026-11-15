@@ -146,7 +146,7 @@ function PickRow({
           <Button
             label="Take it out"
             variant="secondary"
-            size="small"
+            size="medium"
             loading={busy}
             onPress={() => onChange(false)}
             // Starts with the words on the button, so voice control finds it.
@@ -157,7 +157,7 @@ function PickRow({
           <Button
             label="Show for a week"
             variant="brand"
-            size="small"
+            size="medium"
             loading={busy}
             onPress={() => onChange(true)}
             accessibilityLabel={`Show for a week: photo from ${photo.eventTitle}`}
