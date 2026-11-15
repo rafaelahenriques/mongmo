@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { formatInTimeZone } from 'date-fns-tz';
 
 import { updateProfile } from '@/api/endpoints';
+import { ORDER_NOTE_MAX } from '@/api/orders';
 import { PickupHeader } from '@/components/order/PickupHeader';
 import { DayStrip } from '@/components/order/DayStrip';
 import { TimePills } from '@/components/order/TimePills';
@@ -36,8 +37,10 @@ import { discountOff } from '@/utils/rewards';
 /**
  * O-04 Checkout: where (the bakery or the live pop-up), when (today or
  * tomorrow, only times it's open), your name if you came in as a guest,
- * how to pay (now, with Stripe, or at pickup), and the button with the
- * total. The server prices it.
+ * a note for the kitchen, how to pay (now, with Stripe, or at pickup), and
+ * the button with the total. Paying at pickup asks once more before the
+ * order goes to the kitchen; paying now has Stripe's own sheet for that.
+ * The server prices it.
  */
 export default function CheckoutScreen() {
   const theme = useTheme();
@@ -59,6 +62,7 @@ export default function CheckoutScreen() {
   // Re-reads the clock each minute: times that have passed drop off.
   const now = useNow();
   const [name, setName] = useState('');
+  const [note, setNote] = useState('');
   const [error, setError] = useState<string | null>(null);
   const canPayOnline = onlinePaymentAvailable();
   const [payment, setPayment] = useState<PaymentChoice>(canPayOnline ? 'online' : 'at_pickup');
@@ -112,6 +116,19 @@ export default function CheckoutScreen() {
   const onPlace = async () => {
     if (!location || !pickupAt) return;
     setError(null);
+    const due = subtotal - off;
+    if (payment === 'at_pickup' || due <= 0) {
+      const when = `${formatInTimeZone(pickupAt, zone, 'HH:mm')}, ${dayWords}`;
+      const yes = await confirm(
+        'Place this order?',
+        due > 0
+          ? `Pick up at ${place?.name ?? 'Mongmo'} at ${when}. You pay €${formatCents(due)} at the counter.`
+          : `Pick up at ${place?.name ?? 'Mongmo'} at ${when}. Nothing to pay.`,
+        'Place order',
+        { cancelLabel: 'Not yet' },
+      );
+      if (!yes) return;
+    }
     if (needsName && name.trim()) {
       // Staff call the order by name; a guest's profile is "Mongmo fan".
       await updateProfile({
@@ -132,7 +149,7 @@ export default function CheckoutScreen() {
     // The same cart, place and time as the order already made: use it again.
     const cart = JSON.stringify(input);
     placeOrder.mutate(
-      { ...input, payment, draft: draft?.cart === cart ? draft : null },
+      { ...input, payment, note, draft: draft?.cart === cart ? draft : null },
       {
         onSuccess: ({ order, outcome }) => {
           if (outcome === 'cancelled') {
@@ -231,7 +248,23 @@ export default function CheckoutScreen() {
         ) : null}
 
         <View style={styles.group}>
-          <Chapter number={needsName ? '04' : '03'} title="Pay" />
+          <Chapter number={needsName ? '04' : '03'} title="Note" />
+          <TextField
+            label="Note for the kitchen"
+            hideLabel
+            placeholder="Anything we should know? (optional)"
+            value={note}
+            onChangeText={setNote}
+            maxLength={ORDER_NOTE_MAX}
+            returnKeyType="done"
+          />
+          <ThemedText type="caption" themeColor="textSecondary">
+            We’ll do our best. For an allergy, please also tell us at the counter.
+          </ThemedText>
+        </View>
+
+        <View style={styles.group}>
+          <Chapter number={needsName ? '05' : '04'} title="Pay" />
           {canPayOnline ? (
             <Segmented
               look="blocks"

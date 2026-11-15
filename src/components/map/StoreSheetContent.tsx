@@ -1,7 +1,6 @@
 import { Linking, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
-import CapacityMeter from '@/components/events/CapacityMeter';
 import { ThemedText } from '@/components/ThemedText';
 import { Button } from '@/components/ui/Button';
 import { ButtonRow } from '@/components/ui/ButtonRow';
@@ -12,19 +11,19 @@ import { useTheme } from '@/hooks/useTheme';
 import { openDirections } from '@/services/directions';
 import { switchPickup } from '@/services/switchPickup';
 import { WEEKDAY_LABELS, WEEKDAY_ORDER, formatHoursRange, getCurrentWeekday, getStoreStatus } from '@/utils/dateTime';
-import type { BusyState, Store } from '@/types';
+import type { Store } from '@/types';
 
 export type StoreSheetContentProps = {
   store: Store;
-  busy: BusyState;
   onClose: () => void;
 };
 
 /**
- * Store sheet body: open/closed, live "inside now", the order / directions /
- * call actions, weekly hours (today marked) and amenities.
+ * Store sheet body: open/closed, the order / directions / call actions,
+ * weekly hours (today marked) and amenities. No "inside now": nothing
+ * counts people at the café (pop-ups count check-ins).
  */
-export default function StoreSheetContent({ store, busy, onClose }: StoreSheetContentProps) {
+export default function StoreSheetContent({ store, onClose }: StoreSheetContentProps) {
   const theme = useTheme();
   const router = useRouter();
   const status = getStoreStatus(store.hours, store.timeZone);
@@ -43,10 +42,6 @@ export default function StoreSheetContent({ store, busy, onClose }: StoreSheetCo
   return (
     <View style={styles.container}>
       <Chip label={status.label} tone={status.isOpen ? 'success' : 'neutral'} icon="clock" />
-
-      <Card tone="muted">
-        <CapacityMeter occupancy={busy.occupancy} capacity={busy.capacity} label="Inside now" />
-      </Card>
 
       <Button
         label="Order for pickup"

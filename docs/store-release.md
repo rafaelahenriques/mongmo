@@ -31,7 +31,7 @@ changes, change these answers in both consoles too.
       (KBO/BCE) and VAT number to "Who we are" in
       `src/constants/termsOfUse.json`. Belgian law asks for both wherever
       you sell to consumers online.
-- [ ] **Allergens filled in** for every menu item, dips and extras
+- [ ] **Allergens filled in** for every menu item, sauces and other options
       included, from the kitchen's recipes (template in
       `supabase/base.sql`). EU food law requires them before someone
       orders; until then the app says they aren't listed and to ask.

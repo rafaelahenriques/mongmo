@@ -13,7 +13,7 @@ export type OrderMenuItem = {
   imageUrl: string | null;
   /** The menu's section ("savoury", "drinks"); items without one go last. */
   category: string | null;
-  /** The sections this is an option for (a dip, extra protein); null for a normal item. */
+  /** The sections this is an option for (a sauce, coriander); null for a normal item. */
   addOnFor: string[] | null;
   /** Which of the 14 EU allergens it contains; null when not filled in yet, [] for none. */
   allergens: string[] | null;
@@ -95,6 +95,15 @@ export async function placeAtPickup(orderId: string): Promise<OrderRow> {
   const { data, error } = await supabase.rpc('place_order', { p_order_id: orderId });
   if (error) throw toApiError(error);
   return data;
+}
+
+/** The longest note the server takes with an order. */
+export const ORDER_NOTE_MAX = 200;
+
+/** Sets the note for the kitchen on a draft order, or clears it. */
+export async function setOrderNote(orderId: string, note: string | null): Promise<void> {
+  const { error } = await supabase.rpc('set_order_note', { p_order_id: orderId, p_note: note });
+  if (error) throw toApiError(error);
 }
 
 /** Creates the order and places it, to be paid at the counter on pickup. */

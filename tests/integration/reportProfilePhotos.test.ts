@@ -1,4 +1,4 @@
-import { admin, deleteAccount, signUp, signUpOwner, type Customer } from './helpers';
+import { admin, deleteAccount, givePoints, signUp, signUpOwner, type Customer } from './helpers';
 
 /**
  * Reporting a profile photo (0034): a report hides it from the leaderboard
@@ -13,6 +13,8 @@ beforeAll(async () => {
   [alice, bob, staff] = await Promise.all([signUp(), signUp(), signUpOwner()]);
   for (const person of [alice, bob]) {
     await person.client.from('profiles').update({ leaderboard_visible: true }).eq('id', person.userId);
+    // The leaderboard lists people with points (0039).
+    await givePoints(person.userId, 10);
   }
 });
 afterAll(async () => {

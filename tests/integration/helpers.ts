@@ -19,8 +19,12 @@ export const SEED = {
   storeId: '00000000-0000-0000-0000-000000000001',
   banhMiPork: '00000000-0000-0000-0000-0000000000d3',
   springrollsTofu: '00000000-0000-0000-0000-0000000000d8',
-  extraProtein: '00000000-0000-0000-0000-0000000000da',
-  mangoDip: '00000000-0000-0000-0000-0000000000db',
+  /** The sauce that comes with springrolls: free, pick one. */
+  mangoSauce: '00000000-0000-0000-0000-0000000000db',
+  /** Free, on bánh mì and springrolls. */
+  coriander: '00000000-0000-0000-0000-0000000000e0',
+  /** €0.90, springrolls only. */
+  extraPeanutSauce: '00000000-0000-0000-0000-0000000000e2',
   /** €2 off an order, 400 points. */
   discountReward: '00000000-0000-0000-0000-0000000000a2',
   toteReward: '00000000-0000-0000-0000-0000000000a5',

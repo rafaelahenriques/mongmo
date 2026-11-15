@@ -206,6 +206,7 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
                 value={formatCents(line.line_total_cents)}
               />
             ))}
+            {data.note ? <ListRow title="Your note" subtitle={data.note} /> : null}
             {data.discount_cents ? <ListRow title="Reward" value={`−${formatCents(data.discount_cents)}`} /> : null}
             <ListRow
               title="Total"

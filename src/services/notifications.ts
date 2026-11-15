@@ -145,18 +145,6 @@ export async function notifyNow({ title, body, channel, url }: LocalNotification
   }
 }
 
-/** Settings → "Send a test notification": proves permission + presentation work. */
-export async function sendTestNotification(): Promise<boolean> {
-  const granted = await ensureNotificationPermission();
-  if (!granted) return false;
-  await notifyNow({
-    title: 'Notifications are on',
-    body: 'You’ll hear about nearby pop-ups, your orders and new badges.',
-    channel: 'orders',
-  });
-  return true;
-}
-
 /** Content for a "you're near a pop-up" alert (geofence task and foreground check). */
 export function nearbyNotification(event: { id: string; title: string; city: string }): LocalNotification {
   return {
