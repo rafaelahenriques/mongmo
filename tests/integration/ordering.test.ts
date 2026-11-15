@@ -32,23 +32,24 @@ async function orderPointsEarned(orderId: string): Promise<number> {
 describe('placing an order', () => {
   it('prices it on the server from the menu, options included, and places it to pay at pickup', async () => {
     const order = await placeOrder(customer, [
-      { menu_item_id: SEED.banhMiPork, quantity: 2, options: [SEED.coriander] },
+      { menu_item_id: SEED.banhMiPork, quantity: 2, options: [SEED.noCoriander, SEED.spicy] },
       {
         menu_item_id: SEED.springrollsTofu,
         quantity: 1,
-        options: [SEED.mangoSauce, SEED.coriander, SEED.extraPeanutSauce],
+        options: [SEED.mangoSauce, SEED.coriander, SEED.notSpicy, SEED.extraPeanutSauce],
       },
     ]);
     expect(order.status).toBe('placed');
     expect(order).toMatchObject({ payment: 'at_pickup', paid_at: null, note: null });
-    // Coriander and the sauce that comes with it are free; more sauce is €0.90.
+    // Coriander, spice and the sauce that comes with it are free; more sauce is €0.90.
     expect(order.total_cents).toBe(1050 * 2 + (500 + 90));
 
+    // The kitchen sees every choice spelled out, the default ones too.
     const { data: lines } = await customer.client.from('order_items').select('*').eq('order_id', order.id);
     expect(lines).toHaveLength(2);
     expect(lines!.map((line) => line.options_snapshot).sort()).toEqual([
-      'Coriander',
-      'Mango sauce, Coriander, Extra peanut sauce',
+      'Mango sauce, With coriander, Not spicy, Extra peanut sauce',
+      'No coriander, Spicy',
     ]);
   });
 

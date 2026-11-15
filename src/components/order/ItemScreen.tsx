@@ -37,7 +37,7 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
   const [quantity, setQuantity] = useState(1);
   /** Chosen option per pick-one group (the sauce), by group; none means its first one. */
   const [choices, setChoices] = useState<Record<string, string>>({});
-  /** Options switched on (coriander, spicy, extra sauce). */
+  /** Options switched on (extra sauce). */
   const [extras, setExtras] = useState<string[]>([]);
   const item = menu.data?.find((row) => row.id === itemId);
   const groups = useMemo(() => optionGroupsFor(item, menu.data ?? []), [item, menu.data]);
