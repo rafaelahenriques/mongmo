@@ -14,6 +14,8 @@
 //   heading        exactly one h1, and no level skipped below it
 //   target-size    every control is at least 24 × 24 CSS px (WCAG 2.5.8)
 //   keyboard       every control can be reached with Tab, and nothing traps focus
+//   hidden-focus   nothing hidden from screen readers (a tab that isn't
+//                  showing) can still take the keyboard's focus
 //   focus-visible  the focused control shows a focus ring
 //   reflow         no sideways scrolling at 320 px wide (200%–400% zoom)
 //   text-200       with every font at twice its size (the phone's largest
@@ -96,6 +98,19 @@ function staticChecks() {
         target: `${describe(el)} is ${Math.round(rect.width)}×${Math.round(rect.height)}`,
       });
     }
+  }
+
+  // A screen that's hidden from screen readers but still takes Tab makes
+  // keyboard users walk through things they can't see. One line is enough.
+  const stray = [...document.querySelectorAll('a[href], button, input, textarea, select, [tabindex="0"]')].filter(
+    (el) => {
+      if (!el.closest('[aria-hidden="true"]') || el.closest('[inert]') || el.disabled) return false;
+      const style = getComputedStyle(el);
+      return el.getClientRects().length > 0 && style.visibility !== 'hidden' && style.display !== 'none';
+    },
+  );
+  if (stray.length) {
+    out.push({ rule: 'hidden-focus', target: `${stray.length} controls, the first ${describe(stray[0])}` });
   }
 
   const headings = [...document.querySelectorAll('h1, h2, h3, h4, h5, h6, [role=heading]')]
