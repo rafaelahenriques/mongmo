@@ -245,7 +245,7 @@ Copyright (c) 2015-present 650 Industries, Inc. (aka Expo). MIT licence (full te
 | @sinclair/typebox | 0.34.52 | MIT | Copyright (c) 2017-2026 Haydn Paterson |
 | @sinonjs/commons | 3.0.1 | BSD-3-Clause | Copyright (c) 2018, Sinon.JS |
 | @sinonjs/fake-timers | 15.4.0 | BSD-3-Clause | Copyright (c) 2010-2014, Christian Johansen, christian@cjohansen.no. All rights reserved. |
-| @stripe/stripe-react-native | 0.81.0 | MIT | Copyright (c) 2020 stripe |
+| @stripe/stripe-react-native | 0.82.0 | MIT | Copyright (c) 2020 stripe |
 | @supabase/auth-js | 2.119.0 | MIT | Copyright (c) 2020 Supabase |
 | @supabase/functions-js | 2.119.0 | MIT | Copyright (c) 2020 Supabase |
 | @supabase/phoenix | 0.4.5 | MIT | Copyright (c) 2014 Chris McCord |
