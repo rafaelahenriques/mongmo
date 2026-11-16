@@ -51,6 +51,8 @@ import { stampCard } from '@/utils/stamps';
 import type { PopUpEvent } from '@/types';
 import { BrandPhotos, popUpImage } from '@/constants/brandPhotos';
 import PhotosOfTheWeek from '@/components/home/PhotosOfTheWeek';
+import { CateringCard } from '@/components/home/CateringCard';
+import { INSTAGRAM_HANDLE, INSTAGRAM_URL, openLink } from '@/constants/links';
 import { GuestLock } from '@/components/guest/GuestLock';
 import { JOIN } from '@/components/guest/joinCopy';
 import { ErrorState } from '@/components/ui/LoadState';
@@ -352,6 +354,25 @@ export default function HomeScreen() {
         </View>
 
         <PhotosOfTheWeek style={styles.section} />
+
+        <View style={styles.section}>
+          <Chapter number="06" title="Catering" />
+          <CateringCard />
+        </View>
+
+        {/* Where the pop-ups are announced first. */}
+        <Pressable
+          onPress={() => openLink(INSTAGRAM_URL)}
+          accessibilityRole="link"
+          accessibilityLabel={`Follow us on Instagram, ${INSTAGRAM_HANDLE}`}
+          style={({ pressed }) => [styles.instagram, { opacity: pressed ? 0.6 : 1 }]}
+        >
+          <Icon name="camera" size={18} color={theme.text} />
+          <ThemedText type="smallBold">Follow us on Instagram</ThemedText>
+          <ThemedText type="small" themeColor="textSecondary">
+            {INSTAGRAM_HANDLE}
+          </ThemedText>
+        </Pressable>
       </ScrollView>
     </View>
   );
@@ -569,6 +590,17 @@ const styles = StyleSheet.create({
   // The section's own gap, as when these were its children.
   stampCard: {
     gap: 14,
+  },
+  // At least 44 tall to tap; centred under the last section.
+  instagram: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    minHeight: 44,
+    marginTop: 28,
+    paddingHorizontal: PageInset,
   },
   stampRow: {
     paddingVertical: 4,
