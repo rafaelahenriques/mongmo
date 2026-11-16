@@ -11,6 +11,7 @@ import { Segmented } from '@/components/ui/Segmented';
 import { Toggle } from '@/components/ui/Toggle';
 import { CardShadow, PageInset, Radius } from '@/constants/theme';
 import { useAuthUser } from '@/hooks/useAuthUser';
+import { CATERING_URL, INSTAGRAM_HANDLE, INSTAGRAM_URL, openLink } from '@/constants/links';
 import { useIsGuest } from '@/hooks/useIsGuest';
 import { useProfile, useSetLeaderboardVisible } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
@@ -215,6 +216,15 @@ export default function SettingsScreen() {
         <ListRow title="Help" subtitle={HELP_EMAIL} onPress={() => void Linking.openURL(`mailto:${HELP_EMAIL}`)} />
         <ListRow title="Log out" onPress={() => void confirmLogOut(guest)} chevron={false} />
         <ListRow title="Delete account" onPress={() => void confirmDeleteAccount()} chevron={false} danger last />
+      </Group>
+
+      <Group number="05" title="Mongmo">
+        <ListRow
+          title="Catering & events"
+          subtitle="Mongmo at your party, office or festival"
+          onPress={() => openLink(CATERING_URL)}
+        />
+        <ListRow title="Instagram" subtitle={INSTAGRAM_HANDLE} onPress={() => openLink(INSTAGRAM_URL)} last />
       </Group>
 
       <ThemedText type="small" style={{ color: theme.textSecondary }}>
