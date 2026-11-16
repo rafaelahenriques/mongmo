@@ -18,7 +18,13 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  if (made.length) await admin.from('events').delete().in('id', made);
+  // The order goes first: an order keeps its pop-up from being deleted.
+  if (made.length) {
+    const orders = await admin.from('orders').delete().in('event_id', made);
+    if (orders.error) throw orders.error;
+    const events = await admin.from('events').delete().in('id', made);
+    if (events.error) throw events.error;
+  }
   await Promise.all([owner, member].map((person) => deleteAccount(person)));
 });
 
