@@ -82,6 +82,7 @@ left, per "no hardcoded/mock data."
 | `0040_owner_picks_photos.sql` | Photos of the week are picked by staff: `set_photo_shared()` now offers a photo, `offered_photos()` lists what members offer (staff only, no names), `set_photo_featured()` picks one for 7 days or takes it out. `photos_of_the_week()`, `report_photo()` and the storage rule follow the pick (`photos.featured_at`); a member can't set it. The data export says when a photo was picked. |
 | `0041_coriander_and_spicy_choices.sql` | Coriander and spicy become two separate pick-one choices on bánh mì and springrolls ("Choose coriander": with / no coriander; "Choose how spicy": not spicy / spicy), the first of each picked unless changed. Same rows as `base.sql`. |
 | `0042_guests_look_only.sql` | Guests (anonymous sign-ins) look around but don't take part: `is_guest()` reads the token, and `refuse_guests()` triggers stop a guest's order, check-in, challenge completion, photo, reward, photo report and profile change (`42501`, "Make an account to do this."). A restrictive storage policy stops a guest's uploads. The app shows these locked (`GuestLock`). |
+| `0043_popups_get_the_menu.sql` | A new pop-up gets the café's menu as it's made (`events_attach_default_menu` trigger); pop-ups still to come with no menu get it now. Pop-ups made in the app had none, so ordering there failed with "No menu is available for this location". The owner can still swap menus on the pop-up's page. |
 
 ### Points ledger, not a running total
 
