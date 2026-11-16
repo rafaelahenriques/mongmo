@@ -130,6 +130,9 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Fixed
 
+- Ordering at a pop-up made in the app works: a new pop-up sells the
+  café's menu unless the owner picks another. Before, it had no menu, and
+  ordering there failed.
 - On the web, sending a photo failed: the site's security rules stopped
   the app reading the photo you had just picked.
 - Owner tools: the orders board kept every order ever placed, getting
