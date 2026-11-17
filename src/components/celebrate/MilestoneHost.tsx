@@ -23,8 +23,10 @@ import { useCelebrationStore, type Milestone } from '@/state/celebrationStore';
  */
 export function MilestoneHost() {
   const shown = useCelebrationStore((state) => state.queue[0]);
+  const appShown = useCelebrationStore((state) => state.appShown);
   const dismiss = useCelebrationStore((state) => state.dismiss);
-  if (!shown) return null;
+  // Not over the opening logo animation: once the app is on screen.
+  if (!shown || !appShown) return null;
   return <MilestoneScreen key={shown.id} milestone={shown} onClose={dismiss} />;
 }
 

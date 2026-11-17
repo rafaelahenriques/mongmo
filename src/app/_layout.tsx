@@ -17,6 +17,7 @@ import { useWatchSystemContrast } from '@/hooks/useWatchSystemContrast';
 import { useNavigationTheme } from '@/hooks/useNavigationTheme';
 import { useSession } from '@/hooks/useSession';
 import { useResolvedScheme } from '@/hooks/useTheme';
+import { useCelebrationStore } from '@/state/celebrationStore';
 import { useSettingsStore } from '@/state/settingsStore';
 
 // Crash reporting starts as early as possible, but only once the person
@@ -38,7 +39,10 @@ function RootLayout() {
   const ready = session !== undefined && (fontsLoaded || fontError !== null);
   const [introDone, setIntroDone] = useState(false);
   const permissionsAsked = useSettingsStore((state) => state.permissionsAsked);
-  const finishIntro = useCallback(() => setIntroDone(true), []);
+  const finishIntro = useCallback(() => {
+    setIntroDone(true);
+    useCelebrationStore.getState().showApp();
+  }, []);
 
   return (
     <Providers session={session}>

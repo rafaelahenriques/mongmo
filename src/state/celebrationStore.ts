@@ -24,14 +24,19 @@ export type Milestone = {
 };
 
 type CelebrationState = {
+  /** The app is on screen: the opening logo animation has finished. Nothing celebrates before. */
+  appShown: boolean;
   queue: Milestone[];
+  showApp: () => void;
   celebrate: (milestone: Milestone) => void;
   /** Closes the one showing. */
   dismiss: () => void;
 };
 
 export const useCelebrationStore = create<CelebrationState>((set, get) => ({
+  appShown: false,
   queue: [],
+  showApp: () => set({ appShown: true }),
   celebrate: (milestone) =>
     set((state) =>
       state.queue.some((queued) => queued.id === milestone.id) ? state : { queue: [...state.queue, milestone] },

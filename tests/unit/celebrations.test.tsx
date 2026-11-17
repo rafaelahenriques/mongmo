@@ -22,6 +22,12 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ push: mockPush, back: jest.fn() }),
   useIsFocused: () => mockFocused,
 }));
+let mockOnScreen = true;
+jest.mock('@/components/ui/onScreen', () => ({
+  onScreen: (_view: unknown, then: () => void) => {
+    if (mockOnScreen) then();
+  },
+}));
 jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }),
 }));
@@ -38,7 +44,8 @@ const LEVEL = {
 beforeEach(() => {
   jest.clearAllMocks();
   mockFocused = true;
-  useCelebrationStore.setState({ queue: [] });
+  mockOnScreen = true;
+  useCelebrationStore.setState({ queue: [], appShown: true });
   useSettingsStore.setState({ stampsSeen: null });
 });
 
@@ -85,6 +92,15 @@ describe('the milestone screen', () => {
     expect(useCelebrationStore.getState().queue).toEqual([]);
   });
 
+  it('waits for the opening animation before showing', async () => {
+    useCelebrationStore.setState({ appShown: false });
+    await render(<MilestoneHost />);
+    await act(async () => useCelebrationStore.getState().celebrate(LEVEL));
+    expect(screen.queryByText('Welcome to Rising')).toBeNull();
+    await act(async () => useCelebrationStore.getState().showApp());
+    expect(screen.getByText('Welcome to Rising')).toBeOnTheScreen();
+  });
+
   it('shows the next one after the first is closed', async () => {
     await render(<MilestoneHost />);
     await act(async () => {
@@ -111,6 +127,27 @@ describe('stamps landing', () => {
 
     useSettingsStore.setState({ stampsSeen: 5 });
     await render(<LiveStampRow earned={1} total={6} />);
+    expect(useSettingsStore.getState().stampsSeen).toBe(1);
+  });
+
+  it('waits until the card is scrolled into view', async () => {
+    mockOnScreen = false;
+    useSettingsStore.setState({ stampsSeen: 1 });
+    await render(<LiveStampRow earned={3} total={6} />);
+    expect(useSettingsStore.getState().stampsSeen).toBe(1);
+  });
+
+  it('waits for the opening animation to finish', async () => {
+    useCelebrationStore.setState({ appShown: false });
+    useSettingsStore.setState({ stampsSeen: 1 });
+    await render(<LiveStampRow earned={3} total={6} />);
+    expect(useSettingsStore.getState().stampsSeen).toBe(1);
+  });
+
+  it('waits while a new level or badge covers the screen', async () => {
+    useCelebrationStore.getState().celebrate(LEVEL);
+    useSettingsStore.setState({ stampsSeen: 1 });
+    await render(<LiveStampRow earned={3} total={6} />);
     expect(useSettingsStore.getState().stampsSeen).toBe(1);
   });
 

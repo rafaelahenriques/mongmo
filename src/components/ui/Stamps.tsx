@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ComponentRef, type ReactNode } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useIsFocused } from 'expo-router';
 import Animated, {
@@ -17,7 +17,9 @@ import { Stickers } from '@/constants/stickers';
 import { Paper } from '@/constants/theme';
 import { useSettingsHydrated } from '@/hooks/useSettingsHydrated';
 import { useTheme } from '@/hooks/useTheme';
+import { onScreen } from '@/components/ui/onScreen';
 import { Sticker } from '@/components/ui/Sticker';
+import { useCelebrationStore } from '@/state/celebrationStore';
 import { useSettingsStore } from '@/state/settingsStore';
 
 /** The first new stamp waits for the screen to settle (ms); each after it follows this much later. */
@@ -40,6 +42,7 @@ export function StampRow({
   onBrand = false,
   onReward = false,
   freshFrom,
+  pendingFrom,
   style,
 }: {
   earned: number;
@@ -52,6 +55,8 @@ export function StampRow({
   onReward?: boolean;
   /** Stamps from this one on are new: they land, one after another. */
   freshFrom?: number;
+  /** Stamps from this one on are earned but not landed yet: empty slots for now. */
+  pendingFrom?: number;
   style?: StyleProp<ViewStyle>;
 }) {
   const theme = useTheme();
@@ -64,12 +69,13 @@ export function StampRow({
     <View style={[styles.row, style]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       {Array.from({ length: total }, (_, index) => (
         <View key={index} style={styles.slot}>
-          {index < filled ? (
+          {index < filled && (pendingFrom === undefined || index < pendingFrom) ? (
             <Landing
               fresh={freshFrom !== undefined && index >= freshFrom}
               delay={LAND_DELAY_MS + (index - (freshFrom ?? 0)) * LAND_STAGGER_MS}
               tilt={TILT[index % TILT.length]}
               burst={[theme.brand, theme.text, theme.tertiary]}
+              slot={slot}
             >
               <Sticker source={onBrand || onReward ? Stickers.oMarkInk : Stickers.oMark} style={styles.stamp} />
             </Landing>
@@ -86,26 +92,45 @@ export function StampRow({
 
 /**
  * The stamp card where stamps are earned (Home, Wallet): a stamp earned
- * since the card was last on screen lands on it, pressed down like a
- * rubber stamp with a small burst, the next time the card is showing.
+ * since the card was last seen waits as an empty slot until the card is on
+ * screen (its tab showing, scrolled into view, nothing over it), then lands,
+ * pressed down like a rubber stamp with a small burst. Seen once, it stays.
  */
-export function LiveStampRow(props: Omit<Parameters<typeof StampRow>[0], 'freshFrom'>) {
+export function LiveStampRow(props: Omit<Parameters<typeof StampRow>[0], 'freshFrom' | 'pendingFrom'>) {
   const filled = Math.max(0, Math.min(props.total ?? 6, Math.round(props.earned)));
   const focused = useIsFocused();
   const hydrated = useSettingsHydrated();
   const seen = useSettingsStore((state) => state.stampsSeen);
-  /** Where the new stamps start, for as long as this card is up. */
+  // The opening animation, or a new level or badge on the whole screen: wait for it.
+  const covered = useCelebrationStore((state) => !state.appShown || state.queue.length > 0);
+  const row = useRef<ComponentRef<typeof View>>(null);
+  /** Where the landing stamps start, for as long as this card is up. */
   const [freshFrom, setFreshFrom] = useState<number | undefined>(undefined);
-  const arriving = focused && hydrated && seen !== null && filled > seen ? seen : undefined;
-  if (arriving !== undefined && freshFrom === undefined) setFreshFrom(arriving);
+  const waiting = hydrated && seen !== null && filled > seen;
 
   useEffect(() => {
-    if (!focused || !hydrated || seen === filled) return;
+    if (!hydrated || !focused || seen === filled) return;
     // The first card ever shown, or a reward spent: nothing to land, just remember.
-    useSettingsStore.getState().setStampsSeen(filled);
-  }, [focused, hydrated, seen, filled]);
+    if (seen === null || filled < seen) {
+      useSettingsStore.getState().setStampsSeen(filled);
+      return;
+    }
+    if (covered) return;
+    const land = () => {
+      setFreshFrom(seen);
+      useSettingsStore.getState().setStampsSeen(filled);
+    };
+    const check = () => onScreen(row.current, land);
+    check();
+    const timer = setInterval(check, 500);
+    return () => clearInterval(timer);
+  }, [hydrated, focused, covered, seen, filled]);
 
-  return <StampRow {...props} freshFrom={freshFrom} />;
+  return (
+    <View ref={row} collapsable={false}>
+      <StampRow {...props} freshFrom={freshFrom} pendingFrom={waiting ? (seen ?? undefined) : undefined} />
+    </View>
+  );
 }
 
 /** A stamp: tilted as if pressed by hand; a new one presses down from above. */
@@ -114,12 +139,15 @@ function Landing({
   delay,
   tilt,
   burst,
+  slot,
   children,
 }: {
   fresh: boolean;
   delay: number;
   tilt: number;
   burst: string[];
+  /** The empty slot's colour: it stays until the stamp lands on it. */
+  slot: string;
   children: ReactNode;
 }) {
   const calm = useCalm();
@@ -127,6 +155,7 @@ function Landing({
   const scale = useSharedValue(play ? 1.9 : 1);
   const opacity = useSharedValue(play ? 0 : 1);
   const turn = useSharedValue(play ? tilt + 24 : tilt);
+  const waiting = useSharedValue(play ? 1 : 0);
 
   useEffect(() => {
     if (!play) return;
@@ -134,6 +163,7 @@ function Landing({
     opacity.value = withDelay(delay, withTiming(1, { duration: 120, reduceMotion }));
     scale.value = withDelay(delay, withSpring(1, { damping: 11, stiffness: 260, mass: 0.7, reduceMotion }));
     turn.value = withDelay(delay, withSpring(tilt, { damping: 12, stiffness: 200, reduceMotion }));
+    waiting.value = withDelay(delay + 60, withTiming(0, { duration: 120, reduceMotion }));
     // Lands once, when it first shows.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -142,8 +172,10 @@ function Landing({
     opacity: opacity.value,
     transform: [{ scale: scale.value }, { rotate: `${turn.value}deg` }],
   }));
+  const emptySlot = useAnimatedStyle(() => ({ opacity: waiting.value }));
   return (
     <View style={styles.fill}>
+      {play ? <Animated.View style={[styles.empty, styles.under, { borderColor: slot }, emptySlot]} /> : null}
       {play ? <Burst colors={burst} count={8} distance={44} delay={delay + 80} /> : null}
       <Animated.View style={[styles.fill, animated]}>{children}</Animated.View>
     </View>
@@ -177,7 +209,7 @@ function ProgressRing({ fill, color }: { fill: number; color: string }) {
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 8,
   },
   // Up to 52 pt each; ten still fit a phone's width, smaller.
   slot: {
@@ -196,6 +228,10 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  // The empty slot under a stamp that hasn't landed yet.
+  under: {
+    position: 'absolute',
   },
   empty: {
     width: '84%',
