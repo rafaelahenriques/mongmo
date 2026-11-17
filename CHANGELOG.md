@@ -10,6 +10,11 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Added
 
+- Catering and events: a card on Home, and a row in Settings, open
+  Mongmo's catering page to book the food truck for a party, office or
+  festival.
+- Mongmo on Instagram (@mongmo_store), from the bottom of Home and from
+  Settings.
 - Pop-ups near you on a map and in a list, with live occupancy, and alerts
   when you're within 500 m of a live one.
 - Check in at a pop-up with its QR code; challenges (photo, vote, taste,
