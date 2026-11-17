@@ -14,11 +14,13 @@ export type ChipProps = {
    */
   tone?: 'neutral' | 'dark' | 'live' | 'info' | 'success' | 'danger' | 'warning';
   icon?: IconName;
+  /** How many lines the label may take before it's cut short. */
+  lines?: number;
   style?: StyleProp<ViewStyle>;
 };
 
 /** Small pill for status and metadata. */
-function ChipComponent({ label, tone = 'neutral', icon, style }: ChipProps) {
+function ChipComponent({ label, tone = 'neutral', icon, lines = 1, style }: ChipProps) {
   const theme = useTheme();
   const background =
     tone === 'dark'
@@ -42,7 +44,7 @@ function ChipComponent({ label, tone = 'neutral', icon, style }: ChipProps) {
   return (
     <View style={[styles.chip, { backgroundColor: background }, style]}>
       {icon ? <Icon name={icon} size={12} color={color} /> : null}
-      <ThemedText type="captionBold" numberOfLines={1} style={{ color }}>
+      <ThemedText type="captionBold" numberOfLines={lines} style={[styles.label, { color }]}>
         {label}
       </ThemedText>
     </View>
@@ -60,5 +62,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: Spacing.one,
     alignSelf: 'flex-start',
+  },
+  // Wraps inside the chip when it may take more than one line.
+  label: {
+    flexShrink: 1,
   },
 });

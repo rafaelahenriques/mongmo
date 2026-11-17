@@ -509,7 +509,12 @@ if (process.env.OWNER_EMAIL && process.env.OWNER_PASSWORD) {
   });
   await step(owner, 'Owner: orders', () => tab(owner, 'Orders').click());
   await step(owner, 'Owner: pop-ups', () => tab(owner, 'Pop-ups').click());
-  await step(owner, 'Owner: new pop-up', () => button(owner, /^Create a new pop-up/).click());
+  // One pop-up's page: its QR, challenges, menu and how many of each dish.
+  await step(owner, 'Owner: pop-up', () => button(owner, /^(Live now|Upcoming)/).click());
+  await step(owner, 'Owner: new pop-up', async () => {
+    await back(owner);
+    await button(owner, /^Create a new pop-up/).click();
+  });
   await step(owner, 'Owner: menu', async () => {
     await back(owner);
     await tab(owner, 'Menu').click();
@@ -524,6 +529,10 @@ if (process.env.OWNER_EMAIL && process.env.OWNER_PASSWORD) {
       .filter({ visible: true })
       .first()
       .click();
+  });
+  await step(owner, 'Owner: how many a day', async () => {
+    await back(owner);
+    await button(owner, 'How many a day').click();
   });
   await step(owner, 'Owner: photos of the week', async () => {
     await back(owner);

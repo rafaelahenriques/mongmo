@@ -1,7 +1,7 @@
 import { formatInTimeZone } from 'date-fns-tz';
 
 import type { WeeklyHours } from '@/types';
-import { pickupDays, pickupSlots, STORE_DAYS_AHEAD, type PickupPlace } from '@/utils/pickupSlots';
+import { dayPhrase, pickupDays, pickupSlots, STORE_DAYS_AHEAD, type PickupPlace } from '@/utils/pickupSlots';
 
 const ZONE = 'Europe/Brussels';
 const HOURS: WeeklyHours = {
@@ -93,5 +93,14 @@ describe('pickupDays', () => {
     const days = pickupDays(night, thursdayAt('12:00'));
     expect(days.map((day) => day.ymd)).toEqual(['2026-11-06', '2026-11-07']);
     expect(local(days[1]!.slots.at(-1)!)).toBe('Sat 01:45');
+  });
+});
+
+describe('dayPhrase', () => {
+  it('says today, tomorrow, or the date, in the place’s time zone', () => {
+    const now = thursdayAt('23:30');
+    expect(dayPhrase('2026-11-05', ZONE, now)).toBe('today');
+    expect(dayPhrase('2026-11-06', ZONE, now)).toBe('tomorrow');
+    expect(dayPhrase('2026-11-10', ZONE, now)).toBe('on Tue 10 Nov');
   });
 });

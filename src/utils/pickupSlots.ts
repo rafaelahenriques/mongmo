@@ -74,3 +74,14 @@ export function pickupDays(place: PickupPlace, now: Date = new Date()): PickupCa
     return { ymd, slots: storeSlotsOn(place, ymd, now) };
   });
 }
+
+/**
+ * A pickup day (yyyy-MM-dd, the place's time zone) as words: "today",
+ * "tomorrow" or "on Fri 21 Nov" ("on Fri" when `short`, for a day in the
+ * coming week).
+ */
+export function dayPhrase(ymd: string, timeZone: string, now: Date = new Date(), short = false): string {
+  if (ymd === formatInTimeZone(now, timeZone, 'yyyy-MM-dd')) return 'today';
+  if (ymd === formatInTimeZone(addDays(now, 1), timeZone, 'yyyy-MM-dd')) return 'tomorrow';
+  return `on ${formatInTimeZone(fromZonedTime(`${ymd}T12:00:00`, timeZone), timeZone, short ? 'EEE' : 'EEE d MMM')}`;
+}

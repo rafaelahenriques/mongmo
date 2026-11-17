@@ -55,7 +55,23 @@ describe('paying at pickup', () => {
     expect(placed.outcome).toBe('placed');
     expect(useCartStore.getState().items).toEqual([]);
     const refreshed = invalidate.mock.calls.map(([filters]) => filters?.queryKey?.[0]);
-    expect(refreshed).toEqual(expect.arrayContaining(['orders', 'active-order', 'points', 'rewards', 'user-rewards']));
+    expect(refreshed).toEqual(
+      expect.arrayContaining(['orders', 'active-order', 'points', 'rewards', 'user-rewards', 'dish-stock']),
+    );
+  });
+
+  it('counts again what is left of each dish when the order is turned down', async () => {
+    jest.mocked(createDraftOrder).mockRejectedValue(new Error('Only 1 left of Bánh mì. Order 1 or fewer.'));
+    const { result, invalidate } = await setup();
+
+    await expect(
+      result.current.mutateAsync({ location: CAFE, items: ITEMS, pickupAt: null, payment: 'at_pickup' }),
+    ).rejects.toThrow('Only 1 left');
+
+    await waitFor(() =>
+      expect(invalidate.mock.calls.map(([filters]) => filters?.queryKey?.[0])).toContain('dish-stock'),
+    );
+    expect(useCartStore.getState().items).toHaveLength(1);
   });
 
   it('keeps the cart when the order fails', async () => {

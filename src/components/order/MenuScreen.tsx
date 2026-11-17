@@ -30,7 +30,7 @@ import { cartItemCount, cartSubtotalCents, useCartStore } from '@/state/cartStor
 import { nameFromContent } from '@/utils/a11y';
 import { DISPLAY_TIME_ZONE } from '@/utils/dateTime';
 import { formatCents } from '@/utils/orderFormat';
-import { pickupSlots } from '@/utils/pickupSlots';
+import { dayPhrase, pickupDays } from '@/utils/pickupSlots';
 import { useRefreshControl } from '@/components/ui/LoadState';
 
 type Section = { name: string; items: OrderMenuItem[] };
@@ -74,13 +74,14 @@ export default function MenuScreen() {
   const count = cartItemCount(items);
   const total = cartSubtotalCents(items);
 
-  // Checkout picks the time; until then, the soonest one.
+  // Checkout picks the time; until then, the soonest one (a pop-up that
+  // starts tomorrow: tomorrow, from when it starts).
   const soonest = useMemo(() => {
     if (!place) return null;
-    const today = pickupSlots(place.pickup, 'today')[0];
-    if (today) return { day: 'Today', at: today };
-    const tomorrow = pickupSlots(place.pickup, 'tomorrow')[0];
-    return tomorrow ? { day: 'Tomorrow', at: tomorrow } : null;
+    const first = pickupDays(place.pickup).find((entry) => entry.slots.length);
+    if (!first?.slots[0]) return null;
+    const words = dayPhrase(first.ymd, place.timeZone).replace(/^on /, '');
+    return { day: words.charAt(0).toUpperCase() + words.slice(1), at: first.slots[0] };
   }, [place]);
   const when = !place
     ? ' '
