@@ -9,6 +9,7 @@ import * as Notifications from 'expo-notifications';
 import { useRouter, type Href } from 'expo-router';
 import type { Session } from '@supabase/supabase-js';
 
+import { MilestoneHost } from '@/components/celebrate/MilestoneHost';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { queryClient } from '@/api/queryClient';
 import { PERSIST_BUSTER, PERSIST_MAX_AGE_MS } from '@/constants/config';
@@ -16,6 +17,7 @@ import { useEvents } from '@/hooks/useEvents';
 import { useBadgeUnlockNotifications } from '@/hooks/useBadgeUnlockNotifications';
 import { useCartReminder } from '@/hooks/useCartReminder';
 import { useGeofencing } from '@/hooks/useGeofencing';
+import { useLevelCelebration } from '@/hooks/useLevelCelebration';
 import { GuestContext } from '@/hooks/useIsGuest';
 import { useNearbyAlerts } from '@/hooks/useNearbyAlerts';
 import { useOrderStatusNotifications } from '@/hooks/useOrderStatusNotifications';
@@ -87,6 +89,7 @@ function AppServices({ children }: PropsWithChildren) {
   useGeofencing(allEvents);
   useNearbyAlerts(allEvents);
   useBadgeUnlockNotifications();
+  useLevelCelebration();
 
   useEffect(() => {
     configureNotifications();
@@ -102,6 +105,8 @@ function AppServices({ children }: PropsWithChildren) {
           (getLastNotificationResponse) throws there during render. */}
       {Platform.OS !== 'web' ? <NotificationNavigation /> : null}
       {children}
+      {/* A new level or badge, over everything. */}
+      <MilestoneHost />
     </>
   );
 }

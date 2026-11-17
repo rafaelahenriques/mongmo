@@ -158,7 +158,7 @@ export default function CheckoutScreen() {
           setDraft(null);
           haptics.success();
           router.dismissTo('/(orders)');
-          router.push({ pathname: '/(orders)/order/status/[id]', params: { id: order.id } });
+          router.push({ pathname: '/(orders)/order/status/[id]', params: { id: order.id, placed: '1' } });
         },
         onError: (mutationError) => {
           haptics.error();

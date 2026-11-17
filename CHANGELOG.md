@@ -81,6 +81,12 @@ the release workflow publishes that section as the GitHub release notes.
 - Pre-order at a pop-up from 24 hours before it starts, for a time during
   it. Pre-orders count toward its limits.
 
+- Celebrations, sized to the moment. Placing an order, checking in and
+  finishing a challenge pop in with a short burst; a stamp you've earned
+  lands on your stamp card the next time you see it; a new level or badge
+  gets the whole screen, which you can skip. With less motion turned on,
+  they're simply there.
+
 ### Changed
 
 - Signing in is shorter. The first screen has three ways in: create an

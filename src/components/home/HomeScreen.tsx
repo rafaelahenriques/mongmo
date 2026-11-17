@@ -15,10 +15,10 @@ import { ScreenReaderTitle } from '@/components/ui/ScreenReaderTitle';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { usePullToRefresh } from '@/components/ui/Screen';
 import { ripple } from '@/components/ui/ripple';
-import { StampRow } from '@/components/ui/Stamps';
+import { LiveStampRow } from '@/components/ui/Stamps';
 import { StepBar } from '@/components/ui/StepBar';
 import { productPhoto } from '@/constants/productPhotos';
-import { levelSticker, rewardSticker, Stickers, type StickerName } from '@/constants/stickers';
+import { rewardSticker, Stickers, type StickerName } from '@/constants/stickers';
 import { CardShadow, PageInset, Paper, Radius } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveOrder } from '@/hooks/useActiveOrder';
@@ -34,7 +34,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { switchPickup } from '@/services/switchPickup';
 import { useCartStore, type CartLocation } from '@/state/cartStore';
 import { useLocationStore } from '@/state/locationStore';
-import { useSettingsStore } from '@/state/settingsStore';
 import { nameFromContent } from '@/utils/a11y';
 import { getEventPhase } from '@/utils/dateTime';
 import {
@@ -93,10 +92,6 @@ export default function HomeScreen() {
   );
 
   const level = useLevel();
-  const levelSeen = useSettingsStore((state) => state.levelSeen);
-  const markLevelSeen = useSettingsStore((state) => state.markLevelSeen);
-  // A level you've just reached gets one welcome card (Dough is where everyone starts).
-  const newLevel = level.current.minPoints > 0 && levelSeen !== level.current.key ? level.current : null;
   const rewards = achievements.data?.rewards ?? [];
   const goal = nextReward(rewards, summary.points, level.unlocked);
   // The best reward your points already cover: worth a card of its own.
@@ -153,20 +148,6 @@ export default function HomeScreen() {
         icon="gift"
         image={stickerImage(rewardSticker(claimable.title))}
         onPress={() => router.navigate('/(wallet)')}
-      />
-    ) : null,
-    newLevel ? (
-      <Notice
-        key="level"
-        eyebrow="NEW LEVEL"
-        title={`Welcome to ${newLevel.name}`}
-        text={`${newLevel.perk.charAt(0).toUpperCase()}${newLevel.perk.slice(1)}`}
-        icon="trophy"
-        image={stickerImage(levelSticker(newLevel.key))}
-        onPress={() => {
-          markLevelSeen(newLevel.key);
-          router.push('/(wallet)/levels');
-        }}
       />
     ) : null,
   ].filter(Boolean);
@@ -235,7 +216,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* What needs you now (an order, a reward, a level), over the photo's edge. */}
+        {/* What needs you now (an order, a reward), over the photo's edge. */}
         {notices.length ? <View style={styles.notices}>{notices}</View> : null}
 
         {featured ? (
@@ -388,7 +369,7 @@ function StampCard({ stamps, children }: { stamps: ReturnType<typeof stampCard>;
   return (
     <View style={styles.stampCard}>
       <View style={styles.stampRow}>
-        <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
+        <LiveStampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
       </View>
       <ThemedText type="small" themeColor="textSecondary">
         {children}

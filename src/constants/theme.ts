@@ -77,6 +77,11 @@ export const Colors = {
     /** Cream, the theme's secondary colour: small highlights. */
     accent: '#F1E4B2',
     onAccent: '#2F302B',
+    /** Rewards: points, stamps, badges and levels sit on cream, with ink on
+     *  it (11:1). Sage is for acting and for "live", so a reward never looks
+     *  like a button. */
+    rewardFill: '#F1E4B2',
+    onReward: '#2F302B',
     /** Dusty rose, the theme's third colour (tertiary container), with its
      *  text colour (4.6:1). */
     tertiary: '#B88F8C',
@@ -115,6 +120,8 @@ export const Colors = {
     primaryText: Sage,
     accent: '#F1E4B2',
     onAccent: '#22231E',
+    rewardFill: '#F1E4B2',
+    onReward: '#22231E',
     tertiary: '#B88F8C',
     onTertiary: '#462928',
     success: '#3BB16F',
@@ -151,6 +158,7 @@ const CONTRAST_OVERRIDES: Record<Exclude<ContrastLevel, 'standard'>, Record<'lig
       onBrand: Ink,
       onBrandSoft: Ink,
       onAccent: Ink,
+      onReward: Ink,
       tertiary: '#896461',
       onTertiary: Paper,
       success: '#17502F',
@@ -183,6 +191,7 @@ const CONTRAST_OVERRIDES: Record<Exclude<ContrastLevel, 'standard'>, Record<'lig
       onBrand: Ink,
       onBrandSoft: Ink,
       onAccent: Ink,
+      onReward: Ink,
       tertiary: '#61413F',
       onTertiary: Paper,
       success: '#123F25',

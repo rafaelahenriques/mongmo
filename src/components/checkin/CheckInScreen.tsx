@@ -13,7 +13,8 @@ import { Button } from '@/components/ui/Button';
 import { TaskCard } from '@/components/ui/TaskCard';
 import { TopBar } from '@/components/ui/TopBar';
 import { GEOFENCE_RADIUS_M } from '@/constants/config';
-import { PageInset, Radius } from '@/constants/theme';
+import { Celebrated } from '@/components/celebrate/Celebrated';
+import { PageInset, Paper, Radius } from '@/constants/theme';
 import { useChallenges } from '@/hooks/useChallenges';
 import { useCheckIn } from '@/hooks/useCheckIn';
 import { useCheckInMutation } from '@/hooks/useCheckInMutation';
@@ -105,7 +106,7 @@ export default function CheckInScreen({ eventId }: { eventId: string }) {
         : null;
 
   if (result && 'done' in result) {
-    return <CheckedIn event={event} at={result.at} />;
+    return <CheckedIn event={event} at={result.at} justNow />;
   }
   if (existing.data && !result) {
     return <CheckedIn event={event} at={new Date(existing.data.checked_in_at)} />;
@@ -222,8 +223,11 @@ function Corners({ color }: { color: string }) {
   );
 }
 
-/** K-03: full sage, heavy title, the pop-up's photo, a dark button. */
-function CheckedIn({ event, at }: { event: PopUpEvent; at: Date }) {
+/**
+ * K-03: full sage, heavy title, the pop-up's photo, a dark button. Just
+ * checked in, the title pops in with a burst.
+ */
+function CheckedIn({ event, at, justNow = false }: { event: PopUpEvent; at: Date; justNow?: boolean }) {
   const theme = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -236,9 +240,11 @@ function CheckedIn({ event, at }: { event: PopUpEvent; at: Date }) {
       style={{ flex: 1, backgroundColor: theme.brandFill }}
       contentContainerStyle={[styles.done, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 16 }]}
     >
-      <ThemedText type="display" style={[styles.doneTitle, { color: theme.onBrand }]} accessibilityRole="header">
-        You&apos;re in.
-      </ThemedText>
+      <Celebrated play={justNow} colors={[theme.onBrand, Paper, theme.rewardFill, theme.tertiary]} from={0.7}>
+        <ThemedText type="display" style={[styles.doneTitle, { color: theme.onBrand }]} accessibilityRole="header">
+          You&apos;re in.
+        </ThemedText>
+      </Celebrated>
       <Image
         accessible={false}
         accessibilityLabel=""

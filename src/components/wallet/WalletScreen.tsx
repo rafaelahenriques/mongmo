@@ -9,7 +9,7 @@ import { Icon, type IconName } from '@/components/ui/Icon';
 import { ListRow } from '@/components/ui/ListRow';
 import { usePullToRefresh } from '@/components/ui/Screen';
 import { SquareIconButton } from '@/components/ui/SquareIconButton';
-import { StampRow } from '@/components/ui/Stamps';
+import { LiveStampRow } from '@/components/ui/Stamps';
 import { Sticker } from '@/components/ui/Sticker';
 import { Chapter } from '@/components/ui/Chapter';
 import { ripple } from '@/components/ui/ripple';
@@ -115,7 +115,7 @@ export default function WalletScreen() {
             <ThemedText type="title">
               {goal ? goal.title : rewards.length ? 'Full: redeem a reward below' : 'Earn points at every pop-up'}
             </ThemedText>
-            <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
+            <LiveStampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
             {goal ? (
               <ThemedText type="small" themeColor="textSecondary">
                 {`${stamps.earned} of ${stampsLabel(stamps.total)} · ${goal.costPoints - points} points to go`}
