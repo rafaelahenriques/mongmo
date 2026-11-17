@@ -118,7 +118,7 @@ export default function WalletScreen() {
             <View style={[styles.stampCard, { backgroundColor: theme.rewardFill }]}>
               <LiveStampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} onReward />
               {goal ? (
-                <ThemedText type="small" style={{ color: theme.onRewardSoft }}>
+                <ThemedText type="caption" style={{ color: theme.onRewardSoft }}>
                   {`${stamps.earned} of ${stampsLabel(stamps.total)} · ${goal.costPoints - points} points to go`}
                 </ThemedText>
               ) : null}
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   page: {
     paddingHorizontal: PageInset,
     paddingTop: 16,
-    gap: 14,
+    gap: 16,
   },
   // Grows with the text (large font sizes) instead of clipping it.
   hero: {
@@ -283,8 +283,8 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderRadius: Radius.pill,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   heroNumber: {
     gap: 0,
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: 12,
-    paddingTop: 22,
+    paddingTop: 24,
   },
   // The stamps on a card of their own, cream like a paper stamp card.
   stampCard: {
@@ -313,14 +313,14 @@ const styles = StyleSheet.create({
   earnTile: {
     flexGrow: 1,
     flexBasis: 96,
-    padding: 14,
+    padding: 16,
     gap: 4,
     borderRadius: Radius.card,
   },
   reward: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
+    gap: 16,
     paddingVertical: 12,
   },
   rewardTile: {
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   level: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
+    gap: 16,
   },
   levelTile: {
     width: 76,
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
   levelTexts: {
     flex: 1,
     minWidth: 0,
-    gap: 6,
+    gap: 8,
   },
   roundGo: {
     width: 40,

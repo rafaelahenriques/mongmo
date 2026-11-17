@@ -144,7 +144,7 @@ export default function CartScreen() {
           accessibilityLiveRegion="polite"
           accessibilityRole="alert"
         >
-          <ThemedText type="small" style={[styles.flex, { color: theme.onSurfaceDark }]}>
+          <ThemedText type="caption" style={[styles.flex, { color: theme.onSurfaceDark }]}>
             Product removed
           </ThemedText>
           <Pressable
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     gap: 12,
     marginHorizontal: 12,
     marginTop: 8,
-    paddingLeft: 18,
+    paddingLeft: 20,
     paddingRight: 8,
     paddingVertical: 4,
     borderRadius: Radius.pill,
@@ -340,15 +340,15 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: PageInset,
-    paddingTop: 18,
+    paddingTop: 20,
     paddingBottom: 24,
     gap: 16,
   },
   line: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 14,
-    paddingBottom: 14,
+    gap: 16,
+    paddingBottom: 16,
     borderBottomWidth: 1,
   },
   // A rounded photo, like the programme lines on Home and Pop-ups.
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
   lineTop: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 10,
+    gap: 12,
   },
   // Each a 44 × 44 target, not just the size of "+1".
   lineButton: {
@@ -381,13 +381,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 16,
     borderRadius: Radius.card,
   },
   earn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
   },
   more: {
     gap: 12,

@@ -88,7 +88,7 @@ export default function OwnerReportsScreen() {
       refreshControl={refreshControl}
     >
       <Chapter number="01" title="Photos of the week" />
-      <ThemedText type="small" themeColor="textSecondary">
+      <ThemedText type="caption" themeColor="textSecondary">
         A reported photo comes down from Photos of the week straight away. Put it back if it’s fine; keep it down if it
         shouldn’t be shared (the person keeps it privately); delete it if it’s unlawful or harmful.
       </ThemedText>
@@ -111,7 +111,7 @@ export default function OwnerReportsScreen() {
       )}
 
       <Chapter number="02" title="Profile photos" style={styles.chapter} />
-      <ThemedText type="small" themeColor="textSecondary">
+      <ThemedText type="caption" themeColor="textSecondary">
         A reported profile photo is hidden from the leaderboard straight away. Put it back if it’s fine; remove it if it
         shouldn’t be shown.
       </ThemedText>
@@ -158,7 +158,7 @@ function ReportCard({
         />
       ) : (
         <View style={[styles.photo, styles.noPhoto, { backgroundColor: theme.backgroundSelected }]}>
-          <ThemedText type="small" themeColor="textSecondary">
+          <ThemedText type="caption" themeColor="textSecondary">
             This photo can’t be shown.
           </ThemedText>
         </View>
@@ -201,7 +201,7 @@ function ProfileReportCard({
         />
       ) : (
         <View style={[styles.profilePhoto, styles.noPhoto, { backgroundColor: theme.backgroundSelected }]}>
-          <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
+          <ThemedText type="caption" themeColor="textSecondary" style={styles.center}>
             {photo.path ? 'This photo can’t be shown.' : 'They’ve removed it since.'}
           </ThemedText>
         </View>

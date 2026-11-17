@@ -42,7 +42,7 @@ export function ErrorState({
     <Card tone="muted" style={[styles.box, style]}>
       <View accessible accessibilityRole="alert" style={styles.inner}>
         <IconBadge name="alert" tone="card" size={44} />
-        <ThemedText type="small" style={styles.center}>
+        <ThemedText type="caption" style={styles.center}>
           {message} Check your connection and try again.
         </ThemedText>
       </View>
@@ -76,7 +76,7 @@ export function EmptyState({
         ) : (
           <IconBadge name={icon} tone="card" size={52} />
         )}
-        <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
+        <ThemedText type="caption" themeColor="textSecondary" style={styles.center}>
           {text}
         </ThemedText>
       </View>

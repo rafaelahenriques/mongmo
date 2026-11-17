@@ -58,7 +58,7 @@ export default function ProfileScreen() {
     return (
       <View style={[styles.state, { backgroundColor: theme.background }]}>
         <ActivityIndicator accessibilityLabel="Loading" size="large" color={theme.text} />
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           Loading your profile…
         </ThemedText>
       </View>
@@ -70,7 +70,7 @@ export default function ProfileScreen() {
       <View style={[styles.state, { backgroundColor: theme.background }]}>
         <IconBadge name="alert" size={56} />
         <ThemedText type="section">Couldn’t load your profile</ThemedText>
-        <ThemedText type="small" themeColor="textSecondary" style={styles.stateBody}>
+        <ThemedText type="caption" themeColor="textSecondary" style={styles.stateBody}>
           {/* The raw server message (e.g. "permission denied for table
               profiles") is what makes a backend setup problem fixable, but
               it's not for customers' eyes. */}
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.three,
-    padding: 18,
+    padding: 20,
     borderRadius: Radius.tile,
   },
   // The menu rows on one rounded white card, like Settings.

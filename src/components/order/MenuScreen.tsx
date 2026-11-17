@@ -114,7 +114,7 @@ export default function MenuScreen() {
               Pick up at
             </ThemedText>
             <ThemedText type="section">{place?.name ?? ' '}</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
+            <ThemedText type="caption" themeColor="textSecondary">
               {when}
             </ThemedText>
           </View>
@@ -198,7 +198,7 @@ export default function MenuScreen() {
                       <ThemedText type="title" style={onPhoto}>
                         {section.name}
                       </ThemedText>
-                      <ThemedText type="small" style={onPhotoSoft}>
+                      <ThemedText type="caption" style={onPhotoSoft}>
                         {`From ${formatCents(from)}`}
                       </ThemedText>
                     </View>
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
   },
   // A soft pill on the stone card, not a link: the whole card opens the places.
   change: {
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: Radius.pill,
   },
@@ -312,12 +312,12 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: PageInset,
     paddingTop: 20,
-    gap: 18,
+    gap: 20,
   },
   pickup: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
+    gap: 16,
     padding: 16,
     borderRadius: Radius.card,
   },
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     marginVertical: 24,
   },
   message: {
-    paddingVertical: 14,
+    paddingVertical: 16,
     gap: 8,
   },
   sections: {
@@ -342,7 +342,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: 60,
+    paddingBottom: 64,
   },
   sectionRow: {
     flexDirection: 'row',
@@ -363,15 +363,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   orders: {
-    gap: 10,
+    gap: 12,
   },
   order: {
     overflow: 'hidden',
     borderRadius: Radius.card,
   },
   orderBody: {
-    gap: 3,
-    paddingHorizontal: 14,
+    gap: 4,
+    paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 8,
   },
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   orderTotal: {
-    paddingLeft: 14,
+    paddingLeft: 16,
   },
   footer: {
     position: 'absolute',

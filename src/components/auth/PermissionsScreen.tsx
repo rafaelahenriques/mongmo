@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   actions: {
-    gap: 10,
+    gap: 12,
     marginTop: 4,
   },
   notNow: {

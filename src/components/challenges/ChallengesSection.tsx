@@ -62,7 +62,7 @@ export default function ChallengesSection({ event, checkedIn, phase, opensAt }: 
 const styles = StyleSheet.create({
   section: {
     marginTop: 8,
-    gap: 10,
+    gap: 12,
   },
   header: {
     flexDirection: 'row',

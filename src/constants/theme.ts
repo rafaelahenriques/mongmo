@@ -305,6 +305,14 @@ export const CardShadow = '0px 6px 9px rgba(46, 46, 43, 0.10)';
 /** Page side margin. */
 export const PageInset = 20;
 
+/**
+ * Every gap, padding and margin in the app is one of these (points), so the
+ * rhythm is the same on every screen: tight inside a group, roomier
+ * between groups. 2 is for hairline nudges. tests/unit/spacingScale checks
+ * the screens keep to it; layout offsets over 64 aren't spacing.
+ */
+export const SPACING_SCALE = [0, 2, 4, 8, 12, 16, 20, 24, 32, 48, 64] as const;
+
 export const Spacing = {
   half: 2,
   one: 4,

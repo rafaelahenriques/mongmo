@@ -67,8 +67,8 @@ const styles = StyleSheet.create({
     gap: Spacing.one + 2,
     borderRadius: Radius.pill,
     borderWidth: 1.5,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     minHeight: 36,
     // A long label (an allergen's full name, at a large text size) wraps
     // inside the pill instead of running out of its row.

@@ -353,7 +353,7 @@ export default function HomeScreen() {
         >
           <Icon name="camera" size={18} color={theme.text} />
           <ThemedText type="smallBold">Follow us on Instagram</ThemedText>
-          <ThemedText type="small" themeColor="textSecondary">
+          <ThemedText type="caption" themeColor="textSecondary">
             {INSTAGRAM_HANDLE}
           </ThemedText>
         </Pressable>
@@ -372,7 +372,7 @@ function StampCard({ stamps, children }: { stamps: ReturnType<typeof stampCard>;
       <View style={styles.stampRow}>
         <LiveStampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} onReward />
       </View>
-      <ThemedText type="small" style={{ color: theme.onRewardSoft }}>
+      <ThemedText type="caption" style={{ color: theme.onRewardSoft }}>
         {children}
       </ThemedText>
     </View>
@@ -485,35 +485,35 @@ const styles = StyleSheet.create({
   },
   heroText: {
     paddingHorizontal: PageInset,
-    paddingBottom: 28,
-    gap: 6,
+    paddingBottom: 32,
+    gap: 8,
     alignItems: 'flex-start',
   },
   glass,
   pointsChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     minHeight: 36,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     borderRadius: Radius.pill,
     marginTop: 2,
   },
   heroPills: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 12,
     marginTop: 12,
   },
   notices: {
     paddingHorizontal: PageInset,
     marginTop: -18,
-    gap: 10,
+    gap: 12,
   },
   notice: {
     borderRadius: Radius.card,
     padding: 12,
-    gap: 10,
+    gap: 12,
   },
   noticeRow: {
     flexDirection: 'row',
@@ -540,15 +540,15 @@ const styles = StyleSheet.create({
   },
   section: {
     paddingHorizontal: PageInset,
-    paddingTop: 36,
-    gap: 14,
+    paddingTop: 32,
+    gap: 16,
   },
   picksScroller: {
     marginHorizontal: -PageInset,
   },
   picks: {
     paddingHorizontal: PageInset,
-    gap: 14,
+    gap: 16,
   },
   pick: {
     width: PICK_WIDTH,
@@ -559,7 +559,7 @@ const styles = StyleSheet.create({
     aspectRatio: 0.8,
     borderRadius: Radius.card,
     overflow: 'hidden',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   pickAdd: {
     position: 'absolute',
@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     minHeight: 44,
-    marginTop: 28,
+    marginTop: 32,
     paddingHorizontal: PageInset,
   },
   stampRow: {

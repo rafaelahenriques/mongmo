@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   listHeader: {
-    gap: 14,
+    gap: 16,
     paddingTop: 16,
   },
   titleRow: {
@@ -327,14 +327,14 @@ const styles = StyleSheet.create({
   },
   panel: {
     paddingHorizontal: PageInset,
-    gap: 10,
+    gap: 12,
     maxHeight: '60%',
   },
   panelScroll: {
     flexGrow: 0,
   },
   panelContent: {
-    gap: 10,
+    gap: 12,
   },
   handle: {
     minHeight: 24,
@@ -354,12 +354,12 @@ const styles = StyleSheet.create({
   },
   live: {
     gap: 12,
-    paddingTop: 6,
+    paddingTop: 8,
   },
   liveRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
+    gap: 16,
   },
   livePhoto: {
     width: 84,
@@ -370,7 +370,7 @@ const styles = StyleSheet.create({
   liveTexts: {
     flex: 1,
     minWidth: 0,
-    gap: 3,
+    gap: 4,
     alignItems: 'flex-start',
   },
   actions: {
@@ -378,10 +378,10 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   nextLabel: {
-    paddingTop: 10,
+    paddingTop: 12,
   },
   message: {
-    paddingVertical: 14,
+    paddingVertical: 16,
     gap: 8,
   },
 });

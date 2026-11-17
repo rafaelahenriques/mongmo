@@ -207,8 +207,8 @@ const styles = StyleSheet.create({
   center: {
     flex: 1,
     alignItems: 'center',
-    gap: 28,
-    paddingTop: 18,
+    gap: 32,
+    paddingTop: 20,
   },
   heading: {
     fontSize: 40,

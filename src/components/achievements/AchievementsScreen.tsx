@@ -129,7 +129,7 @@ export default function AchievementsScreen() {
               />
             </View>
             {next ? (
-              <ThemedText type="small" style={{ color: theme.onReward }}>
+              <ThemedText type="caption" style={{ color: theme.onReward }}>
                 {`Next: ${next.badge.title} · ${next.step.current} of ${next.step.target}`}
               </ThemedText>
             ) : null}
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingHorizontal: PageInset,
-    paddingTop: 6,
+    paddingTop: 8,
     gap: 16,
   },
   hero: {
@@ -229,14 +229,14 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 12,
   },
   tile: {
     flexGrow: 1,
     flexBasis: 150,
     borderRadius: Radius.card,
-    padding: 14,
-    gap: 6,
+    padding: 16,
+    gap: 8,
   },
   tileText: {
     flexGrow: 1,

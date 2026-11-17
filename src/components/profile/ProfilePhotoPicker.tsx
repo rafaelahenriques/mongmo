@@ -108,13 +108,13 @@ export function ProfilePhotoPicker({ profile, name }: { profile: UserProfile; na
           ) : null}
         </View>
       ) : (
-        <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
+        <ThemedText type="caption" themeColor="textSecondary" style={styles.center}>
           {UPDATE_APP_MESSAGE}
         </ThemedText>
       )}
 
       {profile.avatarHidden ? (
-        <ThemedText type="small" themeColor="textSecondary" style={styles.center} accessibilityRole="alert">
+        <ThemedText type="caption" themeColor="textSecondary" style={styles.center} accessibilityRole="alert">
           Someone reported your photo, so it’s hidden from the leaderboard while Mongmo staff look at it. You can still
           change or remove it.
         </ThemedText>
@@ -125,7 +125,7 @@ export function ProfilePhotoPicker({ profile, name }: { profile: UserProfile; na
       )}
 
       {problem ? (
-        <ThemedText type="small" themeColor="danger" accessibilityRole="alert" style={styles.center}>
+        <ThemedText type="caption" themeColor="danger" accessibilityRole="alert" style={styles.center}>
           {problem}
         </ThemedText>
       ) : null}

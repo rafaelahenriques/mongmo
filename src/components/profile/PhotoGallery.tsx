@@ -36,7 +36,7 @@ export default function PhotoGallery({ photos, emptyText, own = false }: PhotoGa
       <Card tone="muted" style={styles.empty}>
         <View accessible accessibilityRole="text" accessibilityLabel={emptyText} style={styles.emptyInner}>
           <IconBadge name="photo" tone="card" size={52} />
-          <ThemedText type="small" themeColor="textSecondary" style={styles.emptyText}>
+          <ThemedText type="caption" themeColor="textSecondary" style={styles.emptyText}>
             {emptyText}
           </ThemedText>
         </View>
@@ -98,21 +98,21 @@ function ShareToggle({ photo, onDone }: { photo: Photo; onDone: () => void }) {
   const setShared = useSetPhotoShared();
   if (photo.takenDown) {
     return (
-      <ThemedText type="small" style={styles.light}>
+      <ThemedText type="caption" style={styles.light}>
         Someone reported this photo, so it was taken out of Photos of the week. It stays private to you.
       </ThemedText>
     );
   }
   if (!photo.shared && !photo.canShare) {
     return (
-      <ThemedText type="small" style={styles.light}>
+      <ThemedText type="caption" style={styles.light}>
         Only photos from the last week can be shared for Photos of the week.
       </ThemedText>
     );
   }
   return (
     <>
-      <ThemedText type="small" style={styles.light}>
+      <ThemedText type="caption" style={styles.light}>
         {photo.showing
           ? 'In Photos of the week: other members see it on Home, without your name.'
           : photo.shared

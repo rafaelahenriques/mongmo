@@ -60,7 +60,7 @@ export default function ConfirmChallenge({
         </View>
       ) : null}
       {blockedReason ? (
-        <ThemedText type="small" themeColor="danger" accessibilityRole="alert">
+        <ThemedText type="caption" themeColor="danger" accessibilityRole="alert">
           {blockedReason}
         </ThemedText>
       ) : null}
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    paddingRight: 14,
+    paddingRight: 16,
     marginTop: 8,
   },
   ruleIcon: {

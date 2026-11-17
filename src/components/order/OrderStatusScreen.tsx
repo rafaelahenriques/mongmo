@@ -159,7 +159,7 @@ export default function OrderStatusScreen({ orderId, justPlaced = false }: { ord
               >
                 {code}
               </ThemedText>
-              <ThemedText type="small" style={{ color: theme.onBrand }}>
+              <ThemedText type="caption" style={{ color: theme.onBrand }}>
                 Show this at the counter
               </ThemedText>
             </View>
@@ -172,7 +172,7 @@ export default function OrderStatusScreen({ orderId, justPlaced = false }: { ord
               <ThemedText type="title" accessibilityRole="header" style={{ color: theme.onBrand }}>
                 {confirming ? 'Confirming' : ORDER_STATUS_TITLE[data.status]}
               </ThemedText>
-              <ThemedText type="small" style={{ color: theme.onBrand }}>
+              <ThemedText type="caption" style={{ color: theme.onBrand }}>
                 {data.status === 'cancelled'
                   ? 'This order was cancelled.'
                   : confirming
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   ticketTop: {
-    paddingHorizontal: 22,
+    paddingHorizontal: 24,
     paddingTop: 20,
     paddingBottom: 16,
     gap: 2,
@@ -301,14 +301,14 @@ const styles = StyleSheet.create({
     right: -12,
   },
   ticketBottom: {
-    paddingHorizontal: 22,
-    paddingTop: 10,
-    paddingBottom: 22,
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 24,
     gap: 2,
   },
   steps: {
     marginHorizontal: PageInset,
-    marginTop: 18,
+    marginTop: 20,
   },
   page: {
     paddingHorizontal: PageInset,

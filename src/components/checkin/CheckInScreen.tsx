@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
   scanBody: {
     flex: 1,
     paddingHorizontal: PageInset,
-    gap: 14,
+    gap: 16,
   },
   viewfinder: {
     flex: 1,
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
   },
   done: {
     paddingHorizontal: PageInset + 4,
-    gap: 18,
+    gap: 20,
     flexGrow: 1,
   },
   doneTitle: {
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
   failBody: {
     flex: 1,
     paddingHorizontal: PageInset,
-    gap: 14,
+    gap: 16,
   },
   failText: {
     fontSize: 15,

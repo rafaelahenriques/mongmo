@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: PageInset,
     paddingTop: 24,
-    gap: 14,
+    gap: 16,
   },
   list: {
     gap: 8,

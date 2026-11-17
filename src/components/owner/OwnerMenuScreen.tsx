@@ -61,7 +61,7 @@ export default function OwnerMenuScreen() {
         accessibilityHint="The most of each dish the café sells in a day"
         onPress={() => router.push('/(wallet)/owner/menu/limits')}
       />
-      <ThemedText type="small" themeColor="textSecondary">
+      <ThemedText type="caption" themeColor="textSecondary">
         What customers can order. Switch an item off to take it off the menu (sold out, not today). Tap one to change
         it.
       </ThemedText>
@@ -231,9 +231,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
     minHeight: 56,
-    paddingVertical: 10,
+    paddingVertical: 12,
   },
   texts: {
     flex: 1,

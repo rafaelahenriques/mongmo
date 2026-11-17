@@ -45,7 +45,7 @@ export function Sheet({ visible, title, subtitle, onClose, children }: SheetProp
                 {title}
               </ThemedText>
               {subtitle ? (
-                <ThemedText type="small" themeColor="textSecondary">
+                <ThemedText type="caption" themeColor="textSecondary">
                   {subtitle}
                 </ThemedText>
               ) : null}

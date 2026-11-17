@@ -32,7 +32,7 @@ function CapacityMeterComponent({ occupancy, capacity, label }: CapacityMeterPro
       style={styles.wrap}
     >
       <View style={styles.header}>
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           {label}
         </ThemedText>
         <ThemedText type="smallBold" style={{ color: isFull ? theme.danger : theme.text }}>

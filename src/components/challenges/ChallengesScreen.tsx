@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   },
   head: {
     gap: 4,
-    paddingTop: 6,
+    paddingTop: 8,
   },
   track: {
     height: 3,

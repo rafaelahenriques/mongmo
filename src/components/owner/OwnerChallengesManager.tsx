@@ -50,7 +50,7 @@ export default function OwnerChallengesManager({ eventId, timeZone }: OwnerChall
           })}
         </Card>
       ) : (
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           No challenges yet. Add one to give people something to do (and points to earn).
         </ThemedText>
       )}

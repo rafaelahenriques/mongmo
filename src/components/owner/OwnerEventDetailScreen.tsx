@@ -113,13 +113,13 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
         </ThemedText>
         <View style={styles.meta}>
           <Icon name="clock" size={14} color={theme.textSecondary} />
-          <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
+          <ThemedText type="caption" themeColor="textSecondary" style={styles.flex}>
             {formatEventWindow(event.starts_at, event.ends_at, event.time_zone)}
           </ThemedText>
         </View>
         <View style={styles.meta}>
           <Icon name="pin" size={14} color={theme.textSecondary} />
-          <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
+          <ThemedText type="caption" themeColor="textSecondary" style={styles.flex}>
             {event.venue}, {event.city}
           </ThemedText>
         </View>

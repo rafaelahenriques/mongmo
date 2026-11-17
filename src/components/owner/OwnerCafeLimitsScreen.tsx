@@ -39,7 +39,7 @@ export default function OwnerCafeLimitsScreen() {
 const styles = StyleSheet.create({
   content: {
     paddingHorizontal: PageInset,
-    paddingTop: 18,
+    paddingTop: 20,
     gap: 16,
   },
 });

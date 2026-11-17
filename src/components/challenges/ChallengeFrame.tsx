@@ -84,16 +84,16 @@ const styles = StyleSheet.create({
   },
   body: {
     paddingHorizontal: PageInset,
-    paddingBottom: 14,
-    gap: 14,
+    paddingBottom: 16,
+    gap: 16,
   },
   scrollBody: {
     paddingHorizontal: PageInset,
     paddingBottom: 24,
-    gap: 14,
+    gap: 16,
   },
   head: {
-    gap: 6,
-    paddingTop: 6,
+    gap: 8,
+    paddingTop: 8,
   },
 });

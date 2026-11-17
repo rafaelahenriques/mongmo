@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     width: WIDTH,
     height: HEIGHT,
     borderRadius: HEIGHT / 2,
-    padding: 3,
+    padding: 4,
   },
   knob: {
     width: KNOB,

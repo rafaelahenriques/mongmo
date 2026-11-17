@@ -138,13 +138,13 @@ function TabPin({ color }: { color: string }) {
 const styles = StyleSheet.create({
   dock: {
     paddingHorizontal: 16,
-    paddingTop: 6,
+    paddingTop: 8,
   },
   bar: {
     flexDirection: 'row',
     alignItems: 'stretch',
     borderRadius: Radius.pill,
-    padding: 6,
+    padding: 8,
     gap: 4,
   },
   tab: {

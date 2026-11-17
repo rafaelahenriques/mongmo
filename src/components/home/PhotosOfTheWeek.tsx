@@ -51,7 +51,7 @@ export default function PhotosOfTheWeek({ style }: { style?: StyleProp<ViewStyle
     <View style={style}>
       <View>
         <Chapter number="05" title="Photos of the week" />
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           Picked by Mongmo from photos members shared
         </ThemedText>
       </View>
@@ -105,7 +105,7 @@ function PhotoActions({ photo, onDone }: { photo: WeekPhoto; onDone: () => void 
   if (guest) {
     return (
       <>
-        <ThemedText type="small" style={styles.light}>
+        <ThemedText type="caption" style={styles.light}>
           Something wrong with this photo? Make an account to report it.
         </ThemedText>
         <Button label="Create an account" variant="secondary" onPress={() => void startAccount('sign-up')} />
@@ -116,7 +116,7 @@ function PhotoActions({ photo, onDone }: { photo: WeekPhoto; onDone: () => void 
   if (photo.mine) {
     return (
       <>
-        <ThemedText type="small" style={styles.light}>
+        <ThemedText type="caption" style={styles.light}>
           Your photo. Other members see it without your name.
         </ThemedText>
         <Button

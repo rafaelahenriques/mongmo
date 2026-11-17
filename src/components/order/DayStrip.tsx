@@ -90,8 +90,8 @@ const styles = StyleSheet.create({
   },
   day: {
     minWidth: 68,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
     borderRadius: Radius.large,
     borderWidth: 2,
     alignItems: 'center',

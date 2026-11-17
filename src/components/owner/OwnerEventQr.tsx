@@ -28,7 +28,7 @@ export default function OwnerEventQr({ eventId }: OwnerEventQrProps) {
 
   if (!query.data) {
     return (
-      <ThemedText type="small" themeColor="danger">
+      <ThemedText type="caption" themeColor="danger">
         Couldn&apos;t load the QR code.
       </ThemedText>
     );
@@ -41,7 +41,7 @@ export default function OwnerEventQr({ eventId }: OwnerEventQrProps) {
       <ThemedText type="label" style={styles.token}>
         Scan to check in
       </ThemedText>
-      <ThemedText type="small" style={styles.token} selectable>
+      <ThemedText type="caption" style={styles.token} selectable>
         {query.data}
       </ThemedText>
     </View>

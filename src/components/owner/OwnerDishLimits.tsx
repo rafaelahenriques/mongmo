@@ -78,7 +78,7 @@ export default function OwnerDishLimits({
 
   return (
     <View style={styles.wrap}>
-      <ThemedText type="small" themeColor="textSecondary">
+      <ThemedText type="caption" themeColor="textSecondary">
         {perDay
           ? 'The most of each dish the café sells in a day. Leave it empty for no limit.'
           : 'The most of each dish this pop-up sells, pre-orders included. Leave it empty for no limit.'}{' '}

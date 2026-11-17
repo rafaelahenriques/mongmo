@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   },
   body: {
     alignItems: 'center',
-    gap: 28,
+    gap: 32,
     paddingHorizontal: PageInset,
     paddingTop: 12,
     paddingBottom: 24,
@@ -113,6 +113,6 @@ const styles = StyleSheet.create({
   },
   badge: {
     marginHorizontal: PageInset,
-    marginBottom: 14,
+    marginBottom: 16,
   },
 });

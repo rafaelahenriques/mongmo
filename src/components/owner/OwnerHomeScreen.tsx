@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 18,
+    paddingBottom: 20,
   },
   count: {
     flex: 1,

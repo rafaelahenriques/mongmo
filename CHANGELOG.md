@@ -89,6 +89,8 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Changed
 
+- Spacing follows one scale everywhere, so screens share the same rhythm:
+  tight inside a group, roomier between groups.
 - Each colour has one job. Sage is for what you can do and what's live;
   rewards are cream: your points (in Wallet and at the top of each tab),
   the stamp card, earned badges, your level and the points on a

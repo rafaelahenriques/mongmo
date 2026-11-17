@@ -34,7 +34,7 @@ export function CateringCard() {
         <ThemedText type="title" style={onPhoto}>
           Mongmo at your event
         </ThemedText>
-        <ThemedText type="small" style={onPhotoSoft}>
+        <ThemedText type="caption" style={onPhotoSoft}>
           Bánh mì and springrolls from our food truck, for your party, office or festival.
         </ThemedText>
       </View>
@@ -63,13 +63,13 @@ const styles = StyleSheet.create({
   },
   text: {
     paddingHorizontal: 20,
-    paddingTop: 18,
-    gap: 6,
+    paddingTop: 20,
+    gap: 8,
   },
   actions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     padding: 20,
-    paddingTop: 14,
+    paddingTop: 16,
   },
 });

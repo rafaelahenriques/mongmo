@@ -77,12 +77,12 @@ export default function StoreSheetContent({ store, onClose }: StoreSheetContentP
             const isToday = weekday === today;
             return (
               <View key={weekday} style={[styles.hoursRow, isToday && { backgroundColor: theme.backgroundElement }]}>
-                <ThemedText type={isToday ? 'smallBold' : 'small'} style={styles.flex}>
+                <ThemedText type={isToday ? 'captionBold' : 'caption'} style={styles.flex}>
                   {WEEKDAY_LABELS[weekday]}
                   {isToday ? ' · today' : ''}
                 </ThemedText>
                 <ThemedText
-                  type={isToday ? 'smallBold' : 'small'}
+                  type={isToday ? 'captionBold' : 'caption'}
                   themeColor={store.hours[weekday] ? 'text' : 'textSecondary'}
                 >
                   {formatHoursRange(store.hours[weekday])}

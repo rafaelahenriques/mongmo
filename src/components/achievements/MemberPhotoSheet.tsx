@@ -57,7 +57,7 @@ export function MemberPhotoSheet({ row, onClose }: { row: LeaderboardRow | null;
             contentFit="cover"
             accessibilityLabel={`${name}’s photo`}
           />
-          <ThemedText type="small" themeColor="textSecondary">
+          <ThemedText type="caption" themeColor="textSecondary">
             If this photo isn’t right to show here, report it. It’s hidden straight away and Mongmo staff look at it.
           </ThemedText>
           <Button

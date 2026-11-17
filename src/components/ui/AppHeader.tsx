@@ -99,9 +99,9 @@ const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     paddingHorizontal: PageInset,
-    paddingBottom: 10,
+    paddingBottom: 12,
     zIndex: 1,
   },
   left: {
@@ -113,14 +113,14 @@ const styles = StyleSheet.create({
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 4,
     minHeight: 44,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     borderRadius: Radius.pill,
     marginRight: 2,
   },
   tag: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: Radius.pill,
   },

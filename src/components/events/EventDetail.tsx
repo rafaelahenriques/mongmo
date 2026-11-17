@@ -286,7 +286,7 @@ function StateCard({
           <ThemedText type="section" accessibilityRole="header" headingLevel={1} style={styles.center}>
             {title}
           </ThemedText>
-          <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
+          <ThemedText type="caption" themeColor="textSecondary" style={styles.center}>
             {body}
           </ThemedText>
         </View>
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   about: {
-    gap: 6,
+    gap: 8,
   },
   busy: {
     gap: 8,
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 16,
-    padding: 18,
+    padding: 20,
     borderRadius: Radius.card,
   },
   cell: {
@@ -351,7 +351,7 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: 'row',
-    gap: 6,
+    gap: 8,
   },
   flex: {
     flex: 1,
@@ -397,7 +397,7 @@ function TicketCell({ label, value, sub }: { label: string; value: string; sub?:
       </ThemedText>
       <ThemedText type="smallBold">{value}</ThemedText>
       {sub ? (
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           {sub}
         </ThemedText>
       ) : null}
@@ -414,7 +414,7 @@ function Fact({ icon, title, subtitle }: { icon: IconName; title: string; subtit
       <View style={styles.flex}>
         <ThemedText type="smallBold">{title}</ThemedText>
         {subtitle ? (
-          <ThemedText type="small" themeColor="textSecondary">
+          <ThemedText type="caption" themeColor="textSecondary">
             {subtitle}
           </ThemedText>
         ) : null}

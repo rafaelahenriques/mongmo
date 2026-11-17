@@ -14,7 +14,6 @@ export type ThemedTextProps = TextProps & {
     | 'label'
     | 'item'
     | 'button'
-    | 'small'
     | 'smallBold'
     | 'caption'
     | 'captionBold'
@@ -132,12 +131,6 @@ const styles = StyleSheet.create({
     ...BodyFont.regular,
     fontSize: 16,
     lineHeight: 24,
-  },
-  /** Secondary lines: times, places, hints (same as caption). */
-  small: {
-    ...BodyFont.regular,
-    fontSize: 14,
-    lineHeight: 19,
   },
   /** Row titles, names, values. */
   smallBold: {

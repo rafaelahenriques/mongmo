@@ -75,7 +75,7 @@ export default function LeaderboardList({
         <Card tone="muted" style={styles.hiddenNote}>
           <View style={styles.hiddenText}>
             <Icon name="eye" size={18} color={theme.textSecondary} />
-            <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
+            <ThemedText type="caption" themeColor="textSecondary" style={styles.flex}>
               You’re not on the leaderboard. Join to show your name, photo and points to other members; leave any time
               in Settings. Your points count for badges and rewards either way.
             </ThemedText>
@@ -85,12 +85,12 @@ export default function LeaderboardList({
       ) : null}
 
       {loading && rows.length === 0 ? (
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           Loading the leaderboard…
         </ThemedText>
       ) : failed && rows.length === 0 ? (
         <View style={styles.message}>
-          <ThemedText type="small" themeColor="textSecondary">
+          <ThemedText type="caption" themeColor="textSecondary">
             Couldn’t load the leaderboard.
           </ThemedText>
           {onRetry ? <Button label="Try again" variant="ghost" size="small" onPress={onRetry} /> : null}
@@ -124,7 +124,7 @@ export default function LeaderboardList({
           ) : null}
         </>
       ) : !hidden ? (
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           No scores yet — check in to claim the top spot.
         </ThemedText>
       ) : null}
@@ -277,7 +277,7 @@ function TopRow({
         <ThemedText type="item" numberOfLines={1}>
           {row.isMe ? 'You' : shortName(row.name)}
         </ThemedText>
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           {note}
         </ThemedText>
       </View>
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   spot: {
     gap: 16,
     paddingHorizontal: 20,
-    paddingTop: 22,
+    paddingTop: 24,
     paddingBottom: 20,
     borderRadius: Radius.tile,
   },
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   top: {
-    gap: 10,
+    gap: 12,
   },
   topRow: {
     flexDirection: 'row',
@@ -387,8 +387,8 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
-    paddingVertical: 9,
+    gap: 16,
+    paddingVertical: 8,
   },
   rank: {
     minWidth: 30,

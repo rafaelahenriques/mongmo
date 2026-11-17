@@ -69,7 +69,7 @@ export default function MyOrdersScreen() {
             <ThemedText type="title" style={{ color: theme.onBrand }}>
               {ORDER_STATUS_TITLE[order.status]}
             </ThemedText>
-            <ThemedText type="small" style={{ color: theme.onBrand }}>
+            <ThemedText type="caption" style={{ color: theme.onBrand }}>
               {[
                 pickupCode(order.id),
                 formatCents(order.total_cents),
@@ -111,7 +111,7 @@ export default function MyOrdersScreen() {
           ))
         )}
         {(orders.data?.length ?? 0) >= MY_ORDERS_LIMIT ? (
-          <ThemedText type="small" themeColor="textSecondary">
+          <ThemedText type="caption" themeColor="textSecondary">
             Your latest {MY_ORDERS_LIMIT} orders. Every order is in Settings → Your data.
           </ThemedText>
         ) : null}
@@ -130,9 +130,9 @@ const styles = StyleSheet.create({
     gap: 12,
     marginHorizontal: PageInset,
     marginTop: 8,
-    marginBottom: 10,
+    marginBottom: 12,
     paddingHorizontal: 20,
-    paddingVertical: 18,
+    paddingVertical: 20,
     borderRadius: Radius.tile,
   },
   arrow: {
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   page: {
     paddingHorizontal: PageInset,
     paddingTop: 16,
-    gap: 10,
+    gap: 12,
   },
   loader: {
     marginVertical: 24,

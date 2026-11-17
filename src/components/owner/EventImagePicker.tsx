@@ -69,7 +69,7 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
         ) : (
           <View style={styles.placeholder}>
             <IconBadge name="photo" tone="card" size={52} />
-            <ThemedText type="small" themeColor="textSecondary">
+            <ThemedText type="caption" themeColor="textSecondary">
               No photo yet
             </ThemedText>
           </View>
@@ -82,7 +82,7 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
       </View>
 
       {!available ? (
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           {UPDATE_APP_MESSAGE}
         </ThemedText>
       ) : null}
@@ -120,7 +120,7 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
         />
       ) : removed ? (
         <View style={styles.undo} accessibilityLiveRegion="polite">
-          <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
+          <ThemedText type="caption" themeColor="textSecondary" style={styles.flex}>
             Photo removed.
           </ThemedText>
           <Button
@@ -136,7 +136,7 @@ export function EventImagePicker({ value, onChange }: { value: string; onChange:
       ) : null}
 
       {problem ? (
-        <ThemedText type="small" themeColor="danger" accessibilityRole="alert">
+        <ThemedText type="caption" themeColor="danger" accessibilityRole="alert">
           {problem}
         </ThemedText>
       ) : null}

@@ -280,7 +280,7 @@ export default function CheckoutScreen() {
         </View>
 
         {error ? (
-          <ThemedText type="small" themeColor="danger" accessibilityRole="alert">
+          <ThemedText type="caption" themeColor="danger" accessibilityRole="alert">
             {error}
           </ThemedText>
         ) : null}
@@ -306,11 +306,11 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: PageInset,
-    paddingTop: 18,
+    paddingTop: 20,
     paddingBottom: 24,
-    gap: 26,
+    gap: 24,
   },
   group: {
-    gap: 10,
+    gap: 12,
   },
 });

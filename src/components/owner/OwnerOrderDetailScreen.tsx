@@ -177,7 +177,7 @@ export default function OwnerOrderDetailScreen({ orderId }: { orderId: string })
 const styles = StyleSheet.create({
   note: {
     gap: 4,
-    padding: 14,
+    padding: 16,
     borderRadius: Radius.medium,
   },
   screen: {
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   },
   page: {
     paddingHorizontal: PageInset,
-    paddingTop: 18,
+    paddingTop: 20,
     gap: 8,
   },
 });

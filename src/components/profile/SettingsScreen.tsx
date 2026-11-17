@@ -227,7 +227,7 @@ export default function SettingsScreen() {
         <ListRow title="Instagram" subtitle={INSTAGRAM_HANDLE} onPress={() => openLink(INSTAGRAM_URL)} last />
       </Group>
 
-      <ThemedText type="small" style={{ color: theme.textSecondary }}>
+      <ThemedText type="caption" style={{ color: theme.textSecondary }}>
         {VERSION_LABEL}
       </ThemedText>
     </ScrollView>
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: PageInset,
     paddingTop: 8,
-    gap: 26,
+    gap: 24,
   },
   group: {
     gap: 8,
@@ -250,8 +250,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   notice: {
-    padding: 14,
-    gap: 10,
+    padding: 16,
+    gap: 12,
     marginTop: 12,
     marginBottom: 4,
     borderRadius: Radius.large,

@@ -60,7 +60,7 @@ export function ChallengeRulesFields({ rules, onChange, timeZone }: ChallengeRul
   switch (rules.type) {
     case 'check_in':
       return (
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           Nothing to set: scanning the event QR code completes it.
         </ThemedText>
       );
@@ -250,6 +250,6 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   optionRemove: {
-    marginBottom: 5,
+    marginBottom: 4,
   },
 });

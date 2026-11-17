@@ -187,8 +187,8 @@ const styles = StyleSheet.create({
   },
   chip: {
     minHeight: 32,
-    paddingHorizontal: 14,
-    paddingVertical: 5,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
     borderRadius: 16,
     borderWidth: 1.5,
     alignItems: 'center',
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
     alignSelf: 'flex-start',
     borderRadius: 18,
-    padding: 3,
+    padding: 4,
   },
   switchOption: {
     flexDirection: 'row',
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
     borderRadius: 15,
     paddingHorizontal: Spacing.three,
-    paddingVertical: 6,
+    paddingVertical: 8,
   },
   blocks: {
     flexDirection: 'row',
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 8,
     borderWidth: 2,
     borderRadius: Radius.pill,

@@ -26,15 +26,15 @@ export function LocationPicker(props: LocationPickerProps) {
         onPress={locate}
       />
       {problem ? (
-        <ThemedText type="small" themeColor="danger" accessibilityRole="alert">
+        <ThemedText type="caption" themeColor="danger" accessibilityRole="alert">
           {problem}
         </ThemedText>
       ) : note ? (
-        <ThemedText type="small" themeColor="success" accessibilityLiveRegion="polite">
+        <ThemedText type="caption" themeColor="success" accessibilityLiveRegion="polite">
           {note}
         </ThemedText>
       ) : (
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           The map pin is in the iOS and Android app.
         </ThemedText>
       )}

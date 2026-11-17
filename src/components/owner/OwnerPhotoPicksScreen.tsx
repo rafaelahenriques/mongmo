@@ -68,7 +68,7 @@ export default function OwnerPhotoPicksScreen() {
       contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + 32 }]}
       refreshControl={refreshControl}
     >
-      <ThemedText type="small" themeColor="textSecondary">
+      <ThemedText type="caption" themeColor="textSecondary">
         Pick the photos that show on Home. A picked photo shows for a week, without the member’s name. Members can stop
         sharing a photo at any time.
       </ThemedText>

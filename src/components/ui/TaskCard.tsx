@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   iconBlock: {
     width: 60,
     height: 60,
-    margin: 10,
+    margin: 12,
     borderRadius: Radius.large,
     alignItems: 'center',
     justifyContent: 'center',
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     gap: 2,
     paddingLeft: 4,
     paddingRight: 8,
-    paddingVertical: 10,
+    paddingVertical: 12,
   },
   box: {
     width: 44,
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   valueBox: {
     width: 'auto',
     minWidth: 44,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
   },
   arrowBox: {
     width: 40,

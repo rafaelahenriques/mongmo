@@ -55,12 +55,12 @@ export default function LevelsScreen() {
                 ]}
               />
             </View>
-            <ThemedText type="small" style={{ color: theme.onReward }}>
+            <ThemedText type="caption" style={{ color: theme.onReward }}>
               {`${level.toNext} points to ${level.next.name}`}
             </ThemedText>
           </>
         ) : (
-          <ThemedText type="small" style={{ color: theme.onReward }}>
+          <ThemedText type="caption" style={{ color: theme.onReward }}>
             The top level. Thank you for coming back.
           </ThemedText>
         )}
@@ -90,7 +90,7 @@ export default function LevelsScreen() {
         ))}
       </View>
 
-      <ThemedText type="small" themeColor="textSecondary">
+      <ThemedText type="caption" themeColor="textSecondary">
         Your level counts every point you&apos;ve ever earned: orders, challenges and badges. Redeeming a reward spends
         points but never takes you down a level.
       </ThemedText>
@@ -149,7 +149,7 @@ function LevelRow({
         <ThemedText type="label" themeColor="textSecondary">
           {step.minPoints === 0 ? 'From the start' : `From ${step.minPoints} points`}
         </ThemedText>
-        <ThemedText type="small">{step.perk}</ThemedText>
+        <ThemedText type="caption">{step.perk}</ThemedText>
         <ThemedText type="captionBold" style={{ color: state === 'locked' ? theme.textSecondary : theme.primaryText }}>
           {status}
         </ThemedText>
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   },
   hero: {
     padding: 20,
-    gap: 6,
+    gap: 8,
   },
   track: {
     height: 8,
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   ladder: {
-    gap: 10,
+    gap: 12,
   },
   row: {
     flexDirection: 'row',
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
   texts: {
     flex: 1,
     minWidth: 0,
-    padding: 14,
+    padding: 16,
     gap: 2,
   },
 });

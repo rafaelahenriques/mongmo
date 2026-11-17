@@ -108,11 +108,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 12,
     paddingHorizontal: PageInset,
-    paddingVertical: 18,
+    paddingVertical: 20,
   },
   compact: {
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 16,
     gap: 8,
   },
   label: {

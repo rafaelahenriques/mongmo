@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   count: {
     minWidth: 44,
     height: 44,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',

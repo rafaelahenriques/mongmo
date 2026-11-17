@@ -141,13 +141,13 @@ const styles = StyleSheet.create({
   texts: {
     flex: 1,
     gap: 4,
-    paddingHorizontal: 6,
-    paddingTop: 10,
+    paddingHorizontal: 8,
+    paddingTop: 12,
     paddingBottom: 4,
   },
   foot: {
     marginTop: 'auto',
-    paddingTop: 6,
+    paddingTop: 8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

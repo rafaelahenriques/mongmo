@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 8,
   },
   stateBox: {
     alignSelf: 'stretch',
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
     height: 150,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 30,
+    marginTop: 32,
   },
   back: {
     position: 'absolute',
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
   page: {
     paddingHorizontal: PageInset,
     paddingTop: 24,
-    gap: 10,
+    gap: 12,
   },
   title: {
     gap: 8,
@@ -343,14 +343,14 @@ const styles = StyleSheet.create({
   },
   stock: {
     alignItems: 'flex-start',
-    gap: 6,
+    gap: 8,
   },
   flex: {
     flex: 1,
   },
   group: {
     gap: 8,
-    marginTop: 10,
+    marginTop: 12,
   },
   row: {
     flexDirection: 'row',
@@ -359,6 +359,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderBottomWidth: 1,
     paddingVertical: 12,
-    marginTop: 10,
+    marginTop: 12,
   },
 });
