@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { levelSticker, Stickers } from '@/constants/stickers';
-import { CardShadow, PageInset, Paper } from '@/constants/theme';
+import { CardShadow, PageInset } from '@/constants/theme';
 import { useLevel } from '@/hooks/useLevel';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
@@ -30,34 +30,37 @@ export default function LevelsScreen() {
       contentContainerStyle={[styles.content, { paddingBottom: tabBarInset + 32 }]}
     >
       <View
-        style={[styles.hero, { backgroundColor: theme.brandFill }]}
+        style={[styles.hero, { backgroundColor: theme.rewardFill }]}
         accessible
         accessibilityLabel={`Your level: ${level.current.name}. ${level.lifetime} points earned.${
           level.next ? ` ${level.toNext} more to ${level.next.name}.` : ' The top level.'
         }`}
       >
-        <ThemedText type="label" style={{ color: theme.onBrand }}>
+        <ThemedText type="label" style={{ color: theme.onReward }}>
           Your level
         </ThemedText>
-        <ThemedText type="name" style={{ color: theme.onBrand }}>
+        <ThemedText type="name" style={{ color: theme.onReward }}>
           {level.current.name}
         </ThemedText>
-        <ThemedText type="smallBold" style={{ color: theme.onBrand }}>
+        <ThemedText type="smallBold" style={{ color: theme.onReward }}>
           {`${level.lifetime} points earned`}
         </ThemedText>
         {level.next ? (
           <>
-            <View style={[styles.track, { backgroundColor: Paper }]}>
+            <View style={[styles.track, { backgroundColor: theme.background }]}>
               <View
-                style={[styles.fill, { width: `${Math.round(level.progress * 100)}%`, backgroundColor: theme.onBrand }]}
+                style={[
+                  styles.fill,
+                  { width: `${Math.round(level.progress * 100)}%`, backgroundColor: theme.onReward },
+                ]}
               />
             </View>
-            <ThemedText type="small" style={{ color: theme.onBrand }}>
+            <ThemedText type="small" style={{ color: theme.onReward }}>
               {`${level.toNext} points to ${level.next.name}`}
             </ThemedText>
           </>
         ) : (
-          <ThemedText type="small" style={{ color: theme.onBrand }}>
+          <ThemedText type="small" style={{ color: theme.onReward }}>
             The top level. Thank you for coming back.
           </ThemedText>
         )}
@@ -110,7 +113,7 @@ function LevelRow({
   const theme = useTheme();
   const square: { icon: IconName; background: string; color: string } =
     state === 'current'
-      ? { icon: 'star', background: theme.brandFill, color: theme.onBrand }
+      ? { icon: 'star', background: theme.rewardFill, color: theme.onReward }
       : state === 'reached'
         ? { icon: 'check', background: theme.surfaceDark, color: theme.onSurfaceDark }
         : { icon: 'lock', background: theme.backgroundSelected, color: theme.textSecondary };

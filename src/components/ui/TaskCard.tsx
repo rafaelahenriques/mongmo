@@ -18,9 +18,9 @@ export type TaskCardProps = {
   subtitle?: string;
   /**
    * What sits on the right edge:
-   * - `value`: a sage square with the reward ("+20").
+   * - `value`: a cream square with the reward ("+20"): rewards are cream.
    * - `arrow`: a sage square with a chevron (goes somewhere).
-   * - `done`: a light stone square with a tick; the icon block turns sage.
+   * - `done`: a light stone square with a tick; the icon block turns cream (earned).
    * - `plain`: just the value in grey ("+20", "now", "−30").
    */
   state?: 'value' | 'arrow' | 'done' | 'plain';
@@ -56,11 +56,11 @@ export function TaskCard({
 
   const content = (
     <>
-      <View style={[styles.iconBlock, { backgroundColor: done ? theme.brandFill : theme.backgroundSelected }]}>
+      <View style={[styles.iconBlock, { backgroundColor: done ? theme.rewardFill : theme.backgroundSelected }]}>
         {image ? (
           <Sticker source={image} style={styles.image} />
         ) : (
-          <Icon name={icon} size={24} color={done ? theme.onBrand : theme.text} />
+          <Icon name={icon} size={24} color={done ? theme.onReward : theme.text} />
         )}
       </View>
       <View style={styles.texts}>
@@ -75,8 +75,8 @@ export function TaskCard({
         {extra}
       </View>
       {state === 'value' ? (
-        <View style={[styles.box, styles.valueBox, { backgroundColor: theme.brandFill }]}>
-          <ThemedText type="label" numberOfLines={1} style={{ color: theme.onBrand }}>
+        <View style={[styles.box, styles.valueBox, { backgroundColor: theme.rewardFill }]}>
+          <ThemedText type="label" numberOfLines={1} style={{ color: theme.onReward }}>
             {value}
           </ThemedText>
         </View>

@@ -82,6 +82,8 @@ export const Colors = {
      *  like a button. */
     rewardFill: '#F1E4B2',
     onReward: '#2F302B',
+    /** Quieter words and empty stamp slots on cream (4.9:1). */
+    onRewardSoft: '#6B5F3F',
     /** Dusty rose, the theme's third colour (tertiary container), with its
      *  text colour (4.6:1). */
     tertiary: '#B88F8C',
@@ -122,6 +124,7 @@ export const Colors = {
     onAccent: '#22231E',
     rewardFill: '#F1E4B2',
     onReward: '#22231E',
+    onRewardSoft: '#6B5F3F',
     tertiary: '#B88F8C',
     onTertiary: '#462928',
     success: '#3BB16F',
@@ -159,6 +162,7 @@ const CONTRAST_OVERRIDES: Record<Exclude<ContrastLevel, 'standard'>, Record<'lig
       onBrandSoft: Ink,
       onAccent: Ink,
       onReward: Ink,
+      onRewardSoft: Ink,
       tertiary: '#896461',
       onTertiary: Paper,
       success: '#17502F',
@@ -192,6 +196,7 @@ const CONTRAST_OVERRIDES: Record<Exclude<ContrastLevel, 'standard'>, Record<'lig
       onBrandSoft: Ink,
       onAccent: Ink,
       onReward: Ink,
+      onRewardSoft: Ink,
       tertiary: '#61413F',
       onTertiary: Paper,
       success: '#123F25',

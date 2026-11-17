@@ -30,14 +30,15 @@ const TILT = [-8, 6, -3, 9, -6, 4, -9, 3, 7, -4];
 /**
  * The stamp card: a slot per stamp. Each stamp earned is the Ô sticker; the
  * rest are dashed circles, and the next one fills its ring with the points
- * toward it. Ink stamps on a sage card (`onBrand`). Decorative: say the
- * count in text.
+ * toward it. Ink stamps on a sage card (`onBrand`) or on the cream of a
+ * stamp card (`onReward`). Decorative: say the count in text.
  */
 export function StampRow({
   earned,
   total = 6,
   partial = 0,
   onBrand = false,
+  onReward = false,
   freshFrom,
   style,
 }: {
@@ -47,6 +48,8 @@ export function StampRow({
   partial?: number;
   /** On a sage card: ink stamps, paper slots. */
   onBrand?: boolean;
+  /** On a cream stamp card: ink stamps, soft brown slots. */
+  onReward?: boolean;
   /** Stamps from this one on are new: they land, one after another. */
   freshFrom?: number;
   style?: StyleProp<ViewStyle>;
@@ -54,8 +57,8 @@ export function StampRow({
   const theme = useTheme();
   const filled = Math.max(0, Math.min(total, Math.round(earned)));
   const fill = Math.max(0, Math.min(1, partial));
-  const slot = onBrand ? Paper : theme.outline;
-  const ring = onBrand ? theme.onBrand : theme.primaryText;
+  const slot = onBrand ? Paper : onReward ? theme.onRewardSoft : theme.outline;
+  const ring = onBrand ? theme.onBrand : onReward ? theme.onReward : theme.primaryText;
 
   return (
     <View style={[styles.row, style]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
@@ -68,7 +71,7 @@ export function StampRow({
               tilt={TILT[index % TILT.length]}
               burst={[theme.brand, theme.text, theme.tertiary]}
             >
-              <Sticker source={onBrand ? Stickers.oMarkInk : Stickers.oMark} style={styles.stamp} />
+              <Sticker source={onBrand || onReward ? Stickers.oMarkInk : Stickers.oMark} style={styles.stamp} />
             </Landing>
           ) : (
             <View style={[styles.empty, { borderColor: slot }]}>

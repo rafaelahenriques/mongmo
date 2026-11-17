@@ -364,14 +364,15 @@ export default function HomeScreen() {
 
 const PICK_WIDTH = 200;
 
-/** The stamp line, and under it how far to the next reward. */
+/** The stamp card: cream, like a real one, the stamps in ink, and how far to the next reward. */
 function StampCard({ stamps, children }: { stamps: ReturnType<typeof stampCard>; children: string }) {
+  const theme = useTheme();
   return (
-    <View style={styles.stampCard}>
+    <View style={[styles.stampCard, { backgroundColor: theme.rewardFill }]}>
       <View style={styles.stampRow}>
-        <LiveStampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
+        <LiveStampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} onReward />
       </View>
-      <ThemedText type="small" themeColor="textSecondary">
+      <ThemedText type="small" style={{ color: theme.onRewardSoft }}>
         {children}
       </ThemedText>
     </View>
@@ -571,9 +572,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // The section's own gap, as when these were its children.
+  // A card of its own, like a paper stamp card.
   stampCard: {
-    gap: 14,
+    gap: 16,
+    padding: 16,
+    borderRadius: Radius.card,
   },
   // At least 44 tall to tap; centred under the last section.
   instagram: {

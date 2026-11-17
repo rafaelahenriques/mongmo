@@ -89,6 +89,10 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Changed
 
+- Each colour has one job. Sage is for what you can do and what's live;
+  rewards are cream: your points (in Wallet and at the top of each tab),
+  the stamp card, earned badges, your level and the points on a
+  challenge. A reward never looks like a button.
 - The bold headline type is for headlines again: screen titles, section
   headings, names and big numbers. Titles in cards and lists, small labels
   and text links are in the body type, bold, so a screen's headline

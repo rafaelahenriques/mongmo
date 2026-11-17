@@ -74,8 +74,8 @@ export default function WalletScreen() {
         refreshControl={<RefreshControl refreshing={refresh.refreshing} onRefresh={refresh.onRefresh} />}
       >
         <View style={styles.page}>
-          {/* Your points: a big sage card, your name on it, the QR in its corner. */}
-          <View style={[styles.hero, { backgroundColor: theme.brandFill }]}>
+          {/* Your points: a big cream card (rewards are cream), your name on it, the QR in its corner. */}
+          <View style={[styles.hero, { backgroundColor: theme.rewardFill }]}>
             <View style={styles.heroTop}>
               {profile.data?.name ? (
                 <View style={[styles.chip, { backgroundColor: theme.surfaceDark }]}>
@@ -99,11 +99,11 @@ export default function WalletScreen() {
                 type="display"
                 numberOfLines={1}
                 adjustsFontSizeToFit
-                style={[styles.number, numberSize(points), { color: theme.onBrand }]}
+                style={[styles.number, numberSize(points), { color: theme.onReward }]}
               >
                 {points}
               </ThemedText>
-              <ThemedText type="title" style={{ color: theme.onBrand }}>
+              <ThemedText type="title" style={{ color: theme.onReward }}>
                 points
               </ThemedText>
             </View>
@@ -115,12 +115,14 @@ export default function WalletScreen() {
             <ThemedText type="title">
               {goal ? goal.title : rewards.length ? 'Full: redeem a reward below' : 'Earn points at every pop-up'}
             </ThemedText>
-            <LiveStampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
-            {goal ? (
-              <ThemedText type="small" themeColor="textSecondary">
-                {`${stamps.earned} of ${stampsLabel(stamps.total)} · ${goal.costPoints - points} points to go`}
-              </ThemedText>
-            ) : null}
+            <View style={[styles.stampCard, { backgroundColor: theme.rewardFill }]}>
+              <LiveStampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} onReward />
+              {goal ? (
+                <ThemedText type="small" style={{ color: theme.onRewardSoft }}>
+                  {`${stamps.earned} of ${stampsLabel(stamps.total)} · ${goal.costPoints - points} points to go`}
+                </ThemedText>
+              ) : null}
+            </View>
           </View>
 
           {/* Your level: its sticker, how far to the next and what it brings; opens the levels. */}
@@ -148,7 +150,7 @@ export default function WalletScreen() {
                       <View
                         style={[
                           styles.levelFill,
-                          { width: `${Math.round(level.progress * 100)}%`, backgroundColor: theme.primaryText },
+                          { width: `${Math.round(level.progress * 100)}%`, backgroundColor: theme.text },
                         ]}
                       />
                     </View>
@@ -296,6 +298,12 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingTop: 22,
   },
+  // The stamps on a card of their own, cream like a paper stamp card.
+  stampCard: {
+    gap: 16,
+    padding: 16,
+    borderRadius: Radius.card,
+  },
   // Three across on a phone; they wrap onto more rows with large text.
   earnTiles: {
     flexDirection: 'row',
@@ -433,7 +441,13 @@ function RewardRow({
   const theme = useTheme();
   const body = (
     <>
-      <View style={[styles.rewardTile, { backgroundColor: theme.backgroundSelected }]}>
+      <View
+        style={[
+          styles.rewardTile,
+          // A reward you can get is cream; one locked behind a level stays stone.
+          { backgroundColor: icon === 'lock' ? theme.backgroundSelected : theme.rewardFill },
+        ]}
+      >
         {image ? (
           <Sticker source={image} style={styles.rewardSticker} />
         ) : (

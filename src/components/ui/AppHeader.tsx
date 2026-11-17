@@ -63,10 +63,11 @@ export function AppHeader({ title, left }: { title: string; left?: ReactNode }) 
         accessibilityRole="button"
         accessibilityLabel={`${points} points. Open Wallet.`}
         hitSlop={6}
-        style={({ pressed }) => [styles.pill, { backgroundColor: theme.surfaceDark, opacity: pressed ? 0.7 : 1 }]}
+        // Points are a reward: cream, like the points card in Wallet.
+        style={({ pressed }) => [styles.pill, { backgroundColor: theme.rewardFill, opacity: pressed ? 0.7 : 1 }]}
       >
-        <Icon name="star" size={14} color={theme.onSurfaceDark} weight="bold" />
-        <ThemedText type="smallBold" style={{ color: theme.onSurfaceDark }}>
+        <Icon name="star" size={14} color={theme.onReward} weight="bold" />
+        <ThemedText type="smallBold" style={{ color: theme.onReward }}>
           {points}
         </ThemedText>
       </Pressable>
