@@ -21,6 +21,7 @@ import { PageInset, Radius } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useLevel } from '@/hooks/useLevel';
 import { useMenu } from '@/hooks/useMenu';
+import { useMenuStock } from '@/hooks/useMenuStock';
 import { usePickupPlace } from '@/hooks/usePickupPlace';
 import { useTheme } from '@/hooks/useTheme';
 import { confirm, showError } from '@/services/confirm';
@@ -47,6 +48,7 @@ export default function CartScreen() {
   const userRewardId = useCartStore((state) => state.userRewardId);
   const place = usePickupPlace();
   const menu = useMenu(location);
+  const stock = useMenuStock();
   const { query, summary, usableRewards, redeemRewardAsync } = useAchievements();
   const level = useLevel();
   const [removed, setRemoved] = useState<{ line: CartItem; index: number } | null>(null);
@@ -65,9 +67,11 @@ export default function CartScreen() {
   const suggestions = useMemo(() => {
     const inCart = new Set(items.map((line) => byId.get(line.menuItemId)?.category));
     return (menu.data ?? [])
-      .filter((item) => item.priceCents > 0 && !item.addOnFor && !inCart.has(item.category))
+      .filter(
+        (item) => item.priceCents > 0 && !item.addOnFor && !inCart.has(item.category) && stock.left[item.id] !== 0,
+      )
       .slice(0, 6);
-  }, [menu.data, items, byId]);
+  }, [menu.data, items, byId, stock.left]);
 
   // Only discount rewards come off an order; free items are handed over at pickup.
   // Already redeemed (and unused): switch it on. Enough points: switching it
@@ -284,6 +288,7 @@ export default function CartScreen() {
                       key={item.id}
                       item={item}
                       withSection
+                      stock={stock.note(item.id)}
                       style={styles.moreCard}
                       onPress={() => router.push({ pathname: '/(orders)/order/item/[id]', params: { id: item.id } })}
                     />

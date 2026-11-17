@@ -34,6 +34,7 @@ import { useBusyStore } from '@/state/busyStore';
 import { useLocationStore } from '@/state/locationStore';
 import { distanceInMeters, formatDistance } from '@/utils/distance';
 import { formatEventWindow, getEventPhase } from '@/utils/dateTime';
+import { orderWindow, preordersOpenAt } from '@/utils/popUps';
 import { popUpImage } from '@/constants/brandPhotos';
 
 export type EventDetailProps = {
@@ -42,7 +43,8 @@ export type EventDetailProps = {
 
 /**
  * Full-screen pop-up event detail: photo, when and where, live "how busy",
- * check in / order, the menu and the event's challenges.
+ * check in / order, the menu and the event's challenges. From a day before
+ * it starts you can pre-order, for a time during it.
  */
 export default function EventDetail({ eventId }: EventDetailProps) {
   const theme = useTheme();
@@ -142,6 +144,8 @@ export default function EventDetail({ eventId }: EventDetailProps) {
   const busy = busyFromStore ?? event.busy;
   const phase = getEventPhase(event.startsAt, event.endsAt, now);
   const opensAt = formatInTimeZone(event.startsAt, event.timeZone, "EEE d MMM 'at' HH:mm");
+  const ordering = orderWindow(event, now);
+  const preordersAt = formatInTimeZone(preordersOpenAt(event), event.timeZone, "EEE d MMM 'at' HH:mm");
   const distance = userCoordinates ? distanceInMeters(userCoordinates, event.coordinates) : null;
   const timeLabel = formatEventWindow(event.startsAt, event.endsAt, event.timeZone);
   const busyShare = busy.capacity > 0 ? Math.min(1, busy.occupancy / busy.capacity) : 0;
@@ -180,7 +184,11 @@ export default function EventDetail({ eventId }: EventDetailProps) {
           <Fact
             icon="clock"
             title={`Check-in opens ${opensAt}`}
-            subtitle="Check in, order and do the challenges once it starts."
+            subtitle={
+              ordering === 'preorder'
+                ? 'Pre-order now, for a time during the pop-up. Check in and do the challenges once it starts.'
+                : `Pre-orders open ${preordersAt}. Check in and do the challenges once it starts.`
+            }
           />
         ) : phase === 'ended' ? (
           <Fact icon="clock" title="This pop-up has ended" subtitle="Keep an eye on Pop-ups for the next one." />
@@ -224,6 +232,10 @@ export default function EventDetail({ eventId }: EventDetailProps) {
               disabled={event.menu.length === 0}
               style={styles.flex}
             />
+          </View>
+        ) : ordering === 'preorder' && event.menu.length > 0 ? (
+          <View style={styles.actions}>
+            <Button label="Pre-order" variant="brand" onPress={openOrder} style={styles.flex} />
           </View>
         ) : null}
 

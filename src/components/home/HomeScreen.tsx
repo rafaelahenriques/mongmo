@@ -45,7 +45,7 @@ import {
   pickupCode,
   shortItemName,
 } from '@/utils/orderFormat';
-import { featuredPopUps } from '@/utils/popUps';
+import { featuredPopUps, takesOrders } from '@/utils/popUps';
 import { bestClaimableReward, nextReward } from '@/utils/rewards';
 import { stampCard } from '@/utils/stamps';
 import type { PopUpEvent } from '@/types';
@@ -256,10 +256,13 @@ export default function HomeScreen() {
                   ) : (
                     <PhotoPill label="Details" tone="brand" onPress={() => openEvent(featured.id)} />
                   )}
-                  <PhotoPill
-                    label={liveNow(featured) ? 'Order here' : 'Order ahead'}
-                    onPress={() => orderAt(featured)}
-                  />
+                  {/* While it's on, or from a day before (a pre-order); before that, its page says when. */}
+                  {takesOrders(featured) ? (
+                    <PhotoPill
+                      label={liveNow(featured) ? 'Order here' : 'Pre-order'}
+                      onPress={() => orderAt(featured)}
+                    />
+                  ) : null}
                 </>
               }
             />

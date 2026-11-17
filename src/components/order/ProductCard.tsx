@@ -4,28 +4,35 @@ import { Image } from 'expo-image';
 import type { OrderMenuItem } from '@/api/orders';
 import { CategoryIcon } from '@/components/order/CategoryIcon';
 import { ThemedText } from '@/components/ThemedText';
+import Chip from '@/components/ui/Chip';
 import { Icon } from '@/components/ui/Icon';
 import { PRODUCT_PHOTO_POSITION, productPhoto } from '@/constants/productPhotos';
 import { CardShadow, Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { nameFromContent } from '@/utils/a11y';
+import type { StockNote } from '@/utils/dishStock';
 import { formatCents, shortItemName } from '@/utils/orderFormat';
 
 /**
  * A product as a rounded card: its photo in a rounded frame (or the
  * section's sticker until there's a photo), the name, what's in it, and the
  * price big beside a round sage "+". The section grid and "You may also like".
+ * When few are left, it says so on the photo ("Hurry, only 4 left"); sold
+ * out, the photo dims and the "+" goes.
  */
 export function ProductCard({
   item,
   withSection = false,
+  stock = null,
   onPress,
   style,
 }: {
   item: OrderMenuItem;
   /** Away from its section ("You may also like"): say which, over the name. */
   withSection?: boolean;
+  /** How many are left, when that's worth saying. */
+  stock?: StockNote | null;
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
 }) {
@@ -41,7 +48,7 @@ export function ProductCard({
       }}
       accessibilityRole="button"
       {...nameFromContent(
-        `${item.name}, ${formatCents(item.priceCents)} euro${item.description ? `. ${item.description}` : ''}`,
+        `${item.name}, ${formatCents(item.priceCents)} euro${stock ? `. ${stock.label}` : ''}${item.description ? `. ${item.description}` : ''}`,
       )}
       style={({ pressed }) => [
         styles.card,
@@ -49,7 +56,7 @@ export function ProductCard({
         style,
       ]}
     >
-      <View style={[styles.photoBox, { backgroundColor: theme.backgroundSelected }]}>
+      <View style={[styles.photoBox, { backgroundColor: theme.backgroundSelected }, stock?.soldOut && styles.soldOut]}>
         {photo ? (
           <Image
             accessible={false}
@@ -83,11 +90,18 @@ export function ProductCard({
         <View style={styles.foot}>
           <ThemedText type="section">{formatCents(item.priceCents)}</ThemedText>
           {/* Says "add": the whole card is the button. */}
-          <View style={[styles.add, { backgroundColor: theme.brandFill }]}>
-            <Icon name="add" size={18} color={theme.onBrand} weight="bold" />
-          </View>
+          {stock?.soldOut ? null : (
+            <View style={[styles.add, { backgroundColor: theme.brandFill }]}>
+              <Icon name="add" size={18} color={theme.onBrand} weight="bold" />
+            </View>
+          )}
         </View>
       </View>
+      {/* On the photo's corner, not in it: the photo dims when sold out, the
+          label doesn't. Last, so the card's name starts with the dish. */}
+      {stock ? (
+        <Chip label={stock.label} tone={stock.soldOut ? 'dark' : 'warning'} lines={2} style={styles.stock} />
+      ) : null}
     </Pressable>
   );
 }
@@ -104,6 +118,17 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  soldOut: {
+    opacity: 0.45,
+  },
+  stock: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    maxWidth: '85%',
+    // Two lines look like a tag, not a stretched pill.
+    borderRadius: Radius.medium,
   },
   plate: {
     width: '70%',

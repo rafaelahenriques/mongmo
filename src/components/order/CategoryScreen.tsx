@@ -9,6 +9,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { TopBar } from '@/components/ui/TopBar';
 import { PageInset } from '@/constants/theme';
 import { useMenu } from '@/hooks/useMenu';
+import { useMenuStock } from '@/hooks/useMenuStock';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
 import { useTheme } from '@/hooks/useTheme';
 import { cartItemCount, cartSubtotalCents, useCartStore } from '@/state/cartStore';
@@ -25,6 +26,7 @@ export default function CategoryScreen({ name }: { name: string }) {
   const location = useCartStore((state) => state.location);
   const items = useCartStore((state) => state.items);
   const menu = useMenu(location);
+  const stock = useMenuStock();
   const section = sectionsOf((menu.data ?? []).filter((item) => !item.addOnFor)).find(
     (candidate) => candidate.name.toLowerCase() === name.toLowerCase(),
   );
@@ -62,6 +64,7 @@ export default function CategoryScreen({ name }: { name: string }) {
               <ProductCard
                 key={item.id}
                 item={item}
+                stock={stock.note(item.id)}
                 style={styles.cell}
                 onPress={() => router.push({ pathname: '/(orders)/order/item/[id]', params: { id: item.id } })}
               />

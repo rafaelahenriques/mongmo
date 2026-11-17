@@ -75,6 +75,11 @@ the release workflow publishes that section as the GitHub release notes.
 - Pay in the app: card, Apple Pay, Google Pay or Bancontact, through
   Stripe, or still at the counter. Cancelling an order you paid for gives
   the money back. Staff see which orders are paid.
+- How many of each dish: staff set the most of a dish a pop-up sells, or
+  the café sells in a day. From 10 left, the menu says "Hurry, only N
+  left"; at none, "Sold out", and checkout won't take more than there is.
+- Pre-order at a pop-up from 24 hours before it starts, for a time during
+  it. Pre-orders count toward its limits.
 
 ### Changed
 
@@ -138,6 +143,10 @@ the release workflow publishes that section as the GitHub release notes.
 - Ordering at a pop-up made in the app works: a new pop-up sells the
   café's menu unless the owner picks another. Before, it had no menu, and
   ordering there failed.
+- Owner tools: the buttons to end or cancel a pop-up are read out by their
+  own words ("End pop-up", "Cancel pop-up").
+- The Order tab says when the café next takes pickups, even when that's
+  more than a day away, and a pop-up that starts tomorrow says tomorrow.
 - On the web, sending a photo failed: the site's security rules stopped
   the app reading the photo you had just picked.
 - Owner tools: the orders board kept every order ever placed, getting
