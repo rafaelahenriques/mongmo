@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { formatInTimeZone } from 'date-fns-tz';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ScreenScroll } from '@/components/ui/Screen';
@@ -10,11 +11,13 @@ import { useEventsWithMenu } from '@/hooks/useEventsWithMenu';
 import { useStore } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
 import { switchPickup } from '@/services/switchPickup';
-import { getEventPhase, getStoreStatus } from '@/utils/dateTime';
+import { getStoreStatus } from '@/utils/dateTime';
+import { orderWindow, takesOrders } from '@/utils/popUps';
 
 /**
- * Where to pick up: the bakery, or a pop-up that's on now with a menu.
- * Choosing one goes back to its menu (a new place starts a new cart).
+ * Where to pick up: the bakery, or a pop-up with a menu that's on now or
+ * starts within a day (a pre-order, for a time during it). Choosing one
+ * goes back to its menu (a new place starts a new cart).
  */
 export default function OrderLocationScreen() {
   const theme = useTheme();
@@ -23,12 +26,9 @@ export default function OrderLocationScreen() {
   const eventsQuery = useEvents('all');
   const eventsWithMenu = useEventsWithMenu();
 
-  // Only pop-ups that are on right now take orders (the server agrees).
+  // Pop-ups take orders while they're on, and pre-orders from a day before (the server agrees).
   const eventOptions = useMemo(
-    () =>
-      (eventsQuery.data ?? []).filter(
-        (event) => eventsWithMenu.data?.includes(event.id) && getEventPhase(event.startsAt, event.endsAt) === 'live',
-      ),
+    () => (eventsQuery.data ?? []).filter((event) => eventsWithMenu.data?.includes(event.id) && takesOrders(event)),
     [eventsQuery.data, eventsWithMenu.data],
   );
 
@@ -72,7 +72,11 @@ export default function OrderLocationScreen() {
           key={event.id}
           icon="pin"
           title={event.title}
-          subtitle={`Live now · ${event.venue}`}
+          subtitle={
+            orderWindow(event) === 'open'
+              ? `Live now · ${event.venue}`
+              : `Pre-order · starts ${formatInTimeZone(event.startsAt, event.timeZone, "EEE 'at' HH:mm")} · ${event.venue}`
+          }
           state="arrow"
           onPress={() => chooseEvent(event.id, event.title)}
         />

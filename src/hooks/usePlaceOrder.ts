@@ -54,6 +54,9 @@ export function usePlaceOrder() {
       if (outcome === 'cancelled') return { order: order as OrderRow, outcome };
       return { order: await waitForPayment(order.id), outcome: 'paid' };
     },
+    // What's left of each dish changes with every order, and an order turned
+    // down for one there aren't enough of means the app's count was old.
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['dish-stock'] }),
     onSuccess: ({ outcome }) => {
       if (outcome === 'cancelled') return;
       useCartStore.getState().clear();
