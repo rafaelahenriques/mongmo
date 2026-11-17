@@ -451,7 +451,7 @@ function RewardRow({
         {image ? (
           <Sticker source={image} style={styles.rewardSticker} />
         ) : (
-          <Icon name={icon} size={22} color={theme.textSecondary} />
+          <Icon name={icon} size={22} color={icon === 'lock' ? theme.textSecondary : theme.onReward} />
         )}
       </View>
       <View style={styles.rewardTexts}>

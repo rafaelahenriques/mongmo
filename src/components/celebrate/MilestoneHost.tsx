@@ -95,8 +95,10 @@ function MilestoneScreen({ milestone, onClose }: { milestone: Milestone; onClose
           </ThemedText>
         </ScrollView>
         <View style={[styles.actions, { paddingBottom: insets.bottom + 16 }]}>
-          <Button label="Nice!" variant="primary" onPress={onClose} />
-          {milestone.link ? <TextLink label={milestone.link.label} onPress={open} style={styles.link} /> : null}
+          <Button label="Nice!" variant="ink" onPress={onClose} />
+          {milestone.link ? (
+            <TextLink label={milestone.link.label} onPress={open} color={theme.onReward} style={styles.link} />
+          ) : null}
         </View>
       </View>
     </Modal>

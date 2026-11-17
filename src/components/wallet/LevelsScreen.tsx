@@ -47,7 +47,7 @@ export default function LevelsScreen() {
         </ThemedText>
         {level.next ? (
           <>
-            <View style={[styles.track, { backgroundColor: theme.background }]}>
+            <View style={[styles.track, { backgroundColor: `${theme.onRewardSoft}40` }]}>
               <View
                 style={[
                   styles.fill,

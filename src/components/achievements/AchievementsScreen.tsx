@@ -156,8 +156,15 @@ export default function AchievementsScreen() {
                   accessibilityLabel={`${badge.title}. ${badge.description}. ${status}.`}
                 >
                   <Coin icon={badgeIcon(badge.key)} earned={Boolean(got)} size={56} />
-                  <ThemedText type="smallBold">{badge.title}</ThemedText>
-                  <ThemedText type="caption" themeColor="textSecondary" style={styles.tileText}>
+                  {/* Cream stays cream in dark mode, so its words stay ink. */}
+                  <ThemedText type="smallBold" style={got && { color: theme.onReward }}>
+                    {badge.title}
+                  </ThemedText>
+                  <ThemedText
+                    type="caption"
+                    themeColor="textSecondary"
+                    style={[styles.tileText, got && { color: theme.onRewardSoft }]}
+                  >
                     {badge.description}
                   </ThemedText>
                   {!got && step ? (
@@ -173,7 +180,7 @@ export default function AchievementsScreen() {
                       />
                     </View>
                   ) : null}
-                  <ThemedText type="captionBold" style={{ color: got ? theme.primaryText : theme.text }}>
+                  <ThemedText type="captionBold" style={{ color: got ? theme.onReward : theme.text }}>
                     {status}
                   </ThemedText>
                 </View>
