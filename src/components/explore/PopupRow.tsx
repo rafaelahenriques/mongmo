@@ -152,7 +152,7 @@ function PopupRowComponent({ event, last, onPress }: { event: PopUpEvent; last: 
         />
       </View>
       <View style={styles.rowTexts}>
-        <ThemedText type="card" numberOfLines={2}>
+        <ThemedText type="smallBold" numberOfLines={2}>
           {event.title}
         </ThemedText>
         <ThemedText type="caption" themeColor="textSecondary" numberOfLines={1}>

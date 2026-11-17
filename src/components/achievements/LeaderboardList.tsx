@@ -268,7 +268,7 @@ function TopRow({
       <View>
         <Avatar name={row.name} url={row.photoUrl} cacheKey={row.photoPath} size={80} shape="rounded" decorative />
         <View style={[styles.medal, { backgroundColor: medal.fill, borderColor: theme.backgroundElement }]}>
-          <ThemedText type="card" style={{ color: medal.ink }}>
+          <ThemedText type="smallBold" style={{ color: medal.ink }}>
             {row.rank}
           </ThemedText>
         </View>
@@ -302,7 +302,7 @@ function RankRow({ row, last, onOpen }: { row: LeaderboardRow; last: boolean; on
       <View style={[styles.rowPhoto, row.isMe && { borderColor: theme.brand }]}>
         <Avatar name={row.name} url={row.photoUrl} cacheKey={row.photoPath} size={44} shape="rounded" decorative />
       </View>
-      <ThemedText type="card" style={[styles.flex, { color }]} numberOfLines={1}>
+      <ThemedText type="smallBold" style={[styles.flex, { color }]} numberOfLines={1}>
         {row.isMe ? 'You' : shortName(row.name)}
       </ThemedText>
       <ThemedText type="smallBold" style={{ color }}>

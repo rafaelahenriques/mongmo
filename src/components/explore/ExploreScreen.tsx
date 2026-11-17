@@ -266,7 +266,7 @@ function LiveNow({
         </View>
         <View style={styles.liveTexts}>
           <Chip label="Live now" tone="live" />
-          <ThemedText type="card" numberOfLines={2}>
+          <ThemedText type="smallBold" numberOfLines={2}>
             {event.title}
           </ThemedText>
           <ThemedText type="caption" themeColor="textSecondary">

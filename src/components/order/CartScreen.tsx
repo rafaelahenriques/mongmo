@@ -197,7 +197,7 @@ export default function CartScreen() {
                   </View>
                   <View style={styles.flex}>
                     <View style={styles.lineTop}>
-                      <ThemedText type="card" style={styles.flex}>
+                      <ThemedText type="smallBold" style={styles.flex}>
                         {line.quantity > 1 ? `${line.quantity} × ` : ''}
                         {titled ? item.category : line.name}
                       </ThemedText>

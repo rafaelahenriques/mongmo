@@ -79,7 +79,7 @@ export function ProductCard({
             {section}
           </ThemedText>
         ) : null}
-        <ThemedText type="card" numberOfLines={2}>
+        <ThemedText type="smallBold" numberOfLines={2}>
           {name}
         </ThemedText>
         {item.description ? (

@@ -89,6 +89,10 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Changed
 
+- The bold headline type is for headlines again: screen titles, section
+  headings, names and big numbers. Titles in cards and lists, small labels
+  and text links are in the body type, bold, so a screen's headline
+  stands out.
 - Signing in is shorter. The first screen has three ways in: create an
   account, sign in, or skip to look around as a guest. The form after it
   is just your email and password, with the other form a tap away.

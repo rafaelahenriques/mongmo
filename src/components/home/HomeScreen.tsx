@@ -282,7 +282,7 @@ export default function HomeScreen() {
                   <View style={[styles.pickAdd, { backgroundColor: theme.brandFill, borderColor: theme.background }]}>
                     <Icon name="add" size={18} color={theme.onBrand} weight="bold" />
                   </View>
-                  <ThemedText type="card" numberOfLines={1}>
+                  <ThemedText type="smallBold" numberOfLines={1}>
                     {item.category ?? item.name}
                   </ThemedText>
                   <ThemedText type="caption" themeColor="textSecondary" numberOfLines={1}>
@@ -424,7 +424,7 @@ function Notice({
           <ThemedText type="label" style={{ color: theme.primaryText }}>
             {eyebrow}
           </ThemedText>
-          <ThemedText type="card" numberOfLines={2}>
+          <ThemedText type="smallBold" numberOfLines={2}>
             {title}
           </ThemedText>
           <ThemedText type="caption" themeColor="textSecondary" numberOfLines={2}>

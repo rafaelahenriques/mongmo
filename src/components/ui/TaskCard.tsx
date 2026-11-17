@@ -64,7 +64,7 @@ export function TaskCard({
         )}
       </View>
       <View style={styles.texts}>
-        <ThemedText type="card" numberOfLines={2}>
+        <ThemedText type="smallBold" numberOfLines={2}>
           {title}
         </ThemedText>
         {subtitle ? (

@@ -11,7 +11,6 @@ export type ThemedTextProps = TextProps & {
     | 'title'
     | 'subtitle'
     | 'section'
-    | 'card'
     | 'label'
     | 'item'
     | 'button'
@@ -37,7 +36,6 @@ export type ThemedTextProps = TextProps & {
 const HEADING_LEVEL: Partial<Record<NonNullable<ThemedTextProps['type']>, 1 | 2 | 3>> = {
   display: 1,
   name: 1,
-  card: 1,
   title: 2,
   subtitle: 2,
   section: 2,
@@ -108,25 +106,19 @@ const styles = StyleSheet.create({
     lineHeight: 26,
     letterSpacing: 0,
   },
-  /** Titles on cards and rows ("Rate the best dish"). */
-  card: {
-    fontFamily: FontFamily.heavy,
-    fontSize: 15,
-    lineHeight: 20,
-  },
-  /** Uppercase labels: the tab bar, top bars, block buttons, segments. */
+  /** Small uppercase labels over a title ("PICK UP AT", "COMING UP") and text links. */
   label: {
-    fontFamily: FontFamily.heavy,
+    ...BodyFont.bold,
     fontSize: 14,
     lineHeight: 18,
-    letterSpacing: tracking(14, 2),
+    letterSpacing: tracking(14, 5),
     textTransform: 'uppercase',
   },
-  /** Menu item names and prices on the menu board. */
+  /** A name in a list, a size up from rows (the levels, the leaderboard). */
   item: {
-    fontFamily: FontFamily.heavy,
-    fontSize: 24,
-    lineHeight: 30,
+    ...BodyFont.bold,
+    fontSize: 20,
+    lineHeight: 26,
     letterSpacing: 0,
   },
   /** Button labels: heavy, in normal case, on pill buttons. */

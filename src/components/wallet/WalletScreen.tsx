@@ -441,7 +441,7 @@ function RewardRow({
         )}
       </View>
       <View style={styles.rewardTexts}>
-        <ThemedText type="card">{title}</ThemedText>
+        <ThemedText type="smallBold">{title}</ThemedText>
         <ThemedText type="caption" themeColor="textSecondary">
           {subtitle}
         </ThemedText>

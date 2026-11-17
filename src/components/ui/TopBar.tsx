@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/ThemedText';
 import { Icon, type IconName } from '@/components/ui/Icon';
-import { PageInset, Spacing } from '@/constants/theme';
+import { FontFamily, PageInset, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 
@@ -56,7 +56,13 @@ export function TopBar({
           <Icon name={backIcon} size={22} color={color} weight="semibold" />
         </Pressable>
       ) : null}
-      <ThemedText type="card" numberOfLines={1} style={[styles.title, { color }]} accessibilityRole="header">
+      <ThemedText
+        type="smallBold"
+        numberOfLines={1}
+        style={[styles.title, { color }]}
+        accessibilityRole="header"
+        headingLevel={1}
+      >
         {title}
       </ThemedText>
       {value ? (
@@ -85,7 +91,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // The screen's name: a heading, so the headline face, small.
   title: {
     flex: 1,
+    fontFamily: FontFamily.display,
+    fontSize: 15,
+    lineHeight: 20,
   },
 });

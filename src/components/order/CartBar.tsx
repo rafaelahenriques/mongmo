@@ -31,7 +31,7 @@ export function CartBar({ count, totalCents, onPress }: { count: number; totalCe
       ]}
     >
       <View style={[styles.count, { backgroundColor: theme.surfaceDark }]}>
-        <ThemedText type="card" style={{ color: theme.brand }}>
+        <ThemedText type="smallBold" style={{ color: theme.brand }}>
           {count}
         </ThemedText>
       </View>

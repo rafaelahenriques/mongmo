@@ -261,7 +261,9 @@ function Reorder({ placeName, onDone }: { placeName?: string; onDone: () => void
           style={[styles.order, { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }]}
         >
           <View style={styles.orderBody}>
-            <ThemedText type="card">{formatInTimeZone(order.created_at, DISPLAY_TIME_ZONE, 'EEE d MMM')}</ThemedText>
+            <ThemedText type="smallBold">
+              {formatInTimeZone(order.created_at, DISPLAY_TIME_ZONE, 'EEE d MMM')}
+            </ThemedText>
             <ThemedText type="caption" themeColor="textSecondary" numberOfLines={2}>
               {(lines.data?.[order.id] ?? []).join(', ') || ' '}
             </ThemedText>

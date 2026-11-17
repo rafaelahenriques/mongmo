@@ -158,7 +158,7 @@ export default function AchievementsScreen() {
                   accessibilityLabel={`${badge.title}. ${badge.description}. ${status}.`}
                 >
                   <Coin icon={badgeIcon(badge.key)} earned={Boolean(got)} size={56} />
-                  <ThemedText type="card">{badge.title}</ThemedText>
+                  <ThemedText type="smallBold">{badge.title}</ThemedText>
                   <ThemedText type="caption" themeColor="textSecondary" style={styles.tileText}>
                     {badge.description}
                   </ThemedText>
