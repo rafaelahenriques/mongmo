@@ -84,7 +84,7 @@ export default function NotificationsScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    gap: 22,
+    gap: 24,
   },
   group: {
     gap: 8,

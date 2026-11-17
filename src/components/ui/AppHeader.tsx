@@ -63,10 +63,11 @@ export function AppHeader({ title, left }: { title: string; left?: ReactNode }) 
         accessibilityRole="button"
         accessibilityLabel={`${points} points. Open Wallet.`}
         hitSlop={6}
-        style={({ pressed }) => [styles.pill, { backgroundColor: theme.surfaceDark, opacity: pressed ? 0.7 : 1 }]}
+        // Points are a reward: cream, like the points card in Wallet.
+        style={({ pressed }) => [styles.pill, { backgroundColor: theme.rewardFill, opacity: pressed ? 0.7 : 1 }]}
       >
-        <Icon name="star" size={14} color={theme.onSurfaceDark} weight="bold" />
-        <ThemedText type="smallBold" style={{ color: theme.onSurfaceDark }}>
+        <Icon name="star" size={14} color={theme.onReward} weight="bold" />
+        <ThemedText type="smallBold" style={{ color: theme.onReward }}>
           {points}
         </ThemedText>
       </Pressable>
@@ -98,9 +99,9 @@ const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     paddingHorizontal: PageInset,
-    paddingBottom: 10,
+    paddingBottom: 12,
     zIndex: 1,
   },
   left: {
@@ -112,14 +113,14 @@ const styles = StyleSheet.create({
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 4,
     minHeight: 44,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     borderRadius: Radius.pill,
     marginRight: 2,
   },
   tag: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: Radius.pill,
   },

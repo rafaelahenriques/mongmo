@@ -15,10 +15,10 @@ import { ScreenReaderTitle } from '@/components/ui/ScreenReaderTitle';
 import { Icon, type IconName } from '@/components/ui/Icon';
 import { usePullToRefresh } from '@/components/ui/Screen';
 import { ripple } from '@/components/ui/ripple';
-import { StampRow } from '@/components/ui/Stamps';
+import { LiveStampRow } from '@/components/ui/Stamps';
 import { StepBar } from '@/components/ui/StepBar';
 import { productPhoto } from '@/constants/productPhotos';
-import { levelSticker, rewardSticker, Stickers, type StickerName } from '@/constants/stickers';
+import { rewardSticker, Stickers, type StickerName } from '@/constants/stickers';
 import { CardShadow, PageInset, Paper, Radius } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useActiveOrder } from '@/hooks/useActiveOrder';
@@ -34,7 +34,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { switchPickup } from '@/services/switchPickup';
 import { useCartStore, type CartLocation } from '@/state/cartStore';
 import { useLocationStore } from '@/state/locationStore';
-import { useSettingsStore } from '@/state/settingsStore';
 import { nameFromContent } from '@/utils/a11y';
 import { getEventPhase } from '@/utils/dateTime';
 import {
@@ -45,12 +44,14 @@ import {
   pickupCode,
   shortItemName,
 } from '@/utils/orderFormat';
-import { featuredPopUps } from '@/utils/popUps';
+import { featuredPopUps, takesOrders } from '@/utils/popUps';
 import { bestClaimableReward, nextReward } from '@/utils/rewards';
 import { stampCard } from '@/utils/stamps';
 import type { PopUpEvent } from '@/types';
 import { BrandPhotos, popUpImage } from '@/constants/brandPhotos';
 import PhotosOfTheWeek from '@/components/home/PhotosOfTheWeek';
+import { CateringCard } from '@/components/home/CateringCard';
+import { INSTAGRAM_HANDLE, INSTAGRAM_URL, openLink } from '@/constants/links';
 import { GuestLock } from '@/components/guest/GuestLock';
 import { JOIN } from '@/components/guest/joinCopy';
 import { ErrorState } from '@/components/ui/LoadState';
@@ -91,10 +92,6 @@ export default function HomeScreen() {
   );
 
   const level = useLevel();
-  const levelSeen = useSettingsStore((state) => state.levelSeen);
-  const markLevelSeen = useSettingsStore((state) => state.markLevelSeen);
-  // A level you've just reached gets one welcome card (Dough is where everyone starts).
-  const newLevel = level.current.minPoints > 0 && levelSeen !== level.current.key ? level.current : null;
   const rewards = achievements.data?.rewards ?? [];
   const goal = nextReward(rewards, summary.points, level.unlocked);
   // The best reward your points already cover: worth a card of its own.
@@ -151,20 +148,6 @@ export default function HomeScreen() {
         icon="gift"
         image={stickerImage(rewardSticker(claimable.title))}
         onPress={() => router.navigate('/(wallet)')}
-      />
-    ) : null,
-    newLevel ? (
-      <Notice
-        key="level"
-        eyebrow="NEW LEVEL"
-        title={`Welcome to ${newLevel.name}`}
-        text={`${newLevel.perk.charAt(0).toUpperCase()}${newLevel.perk.slice(1)}`}
-        icon="trophy"
-        image={stickerImage(levelSticker(newLevel.key))}
-        onPress={() => {
-          markLevelSeen(newLevel.key);
-          router.push('/(wallet)/levels');
-        }}
       />
     ) : null,
   ].filter(Boolean);
@@ -233,7 +216,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* What needs you now (an order, a reward, a level), over the photo's edge. */}
+        {/* What needs you now (an order, a reward), over the photo's edge. */}
         {notices.length ? <View style={styles.notices}>{notices}</View> : null}
 
         {featured ? (
@@ -254,10 +237,13 @@ export default function HomeScreen() {
                   ) : (
                     <PhotoPill label="Details" tone="brand" onPress={() => openEvent(featured.id)} />
                   )}
-                  <PhotoPill
-                    label={liveNow(featured) ? 'Order here' : 'Order ahead'}
-                    onPress={() => orderAt(featured)}
-                  />
+                  {/* While it's on, or from a day before (a pre-order); before that, its page says when. */}
+                  {takesOrders(featured) ? (
+                    <PhotoPill
+                      label={liveNow(featured) ? 'Order here' : 'Pre-order'}
+                      onPress={() => orderAt(featured)}
+                    />
+                  ) : null}
                 </>
               }
             />
@@ -296,7 +282,7 @@ export default function HomeScreen() {
                   <View style={[styles.pickAdd, { backgroundColor: theme.brandFill, borderColor: theme.background }]}>
                     <Icon name="add" size={18} color={theme.onBrand} weight="bold" />
                   </View>
-                  <ThemedText type="card" numberOfLines={1}>
+                  <ThemedText type="smallBold" numberOfLines={1}>
                     {item.category ?? item.name}
                   </ThemedText>
                   <ThemedText type="caption" themeColor="textSecondary" numberOfLines={1}>
@@ -352,6 +338,25 @@ export default function HomeScreen() {
         </View>
 
         <PhotosOfTheWeek style={styles.section} />
+
+        <View style={styles.section}>
+          <Chapter number="06" title="Catering" />
+          <CateringCard />
+        </View>
+
+        {/* Where the pop-ups are announced first. */}
+        <Pressable
+          onPress={() => openLink(INSTAGRAM_URL)}
+          accessibilityRole="link"
+          accessibilityLabel={`Follow us on Instagram, ${INSTAGRAM_HANDLE}`}
+          style={({ pressed }) => [styles.instagram, { opacity: pressed ? 0.6 : 1 }]}
+        >
+          <Icon name="camera" size={18} color={theme.text} />
+          <ThemedText type="smallBold">Follow us on Instagram</ThemedText>
+          <ThemedText type="caption" themeColor="textSecondary">
+            {INSTAGRAM_HANDLE}
+          </ThemedText>
+        </Pressable>
       </ScrollView>
     </View>
   );
@@ -359,14 +364,15 @@ export default function HomeScreen() {
 
 const PICK_WIDTH = 200;
 
-/** The stamp line, and under it how far to the next reward. */
+/** The stamp card: cream, like a real one, the stamps in ink, and how far to the next reward. */
 function StampCard({ stamps, children }: { stamps: ReturnType<typeof stampCard>; children: string }) {
+  const theme = useTheme();
   return (
-    <View style={styles.stampCard}>
+    <View style={[styles.stampCard, { backgroundColor: theme.rewardFill }]}>
       <View style={styles.stampRow}>
-        <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
+        <LiveStampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} onReward />
       </View>
-      <ThemedText type="small" themeColor="textSecondary">
+      <ThemedText type="caption" style={{ color: theme.onRewardSoft }}>
         {children}
       </ThemedText>
     </View>
@@ -419,7 +425,7 @@ function Notice({
           <ThemedText type="label" style={{ color: theme.primaryText }}>
             {eyebrow}
           </ThemedText>
-          <ThemedText type="card" numberOfLines={2}>
+          <ThemedText type="smallBold" numberOfLines={2}>
             {title}
           </ThemedText>
           <ThemedText type="caption" themeColor="textSecondary" numberOfLines={2}>
@@ -479,35 +485,35 @@ const styles = StyleSheet.create({
   },
   heroText: {
     paddingHorizontal: PageInset,
-    paddingBottom: 28,
-    gap: 6,
+    paddingBottom: 32,
+    gap: 8,
     alignItems: 'flex-start',
   },
   glass,
   pointsChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     minHeight: 36,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     borderRadius: Radius.pill,
     marginTop: 2,
   },
   heroPills: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 12,
     marginTop: 12,
   },
   notices: {
     paddingHorizontal: PageInset,
     marginTop: -18,
-    gap: 10,
+    gap: 12,
   },
   notice: {
     borderRadius: Radius.card,
     padding: 12,
-    gap: 10,
+    gap: 12,
   },
   noticeRow: {
     flexDirection: 'row',
@@ -534,15 +540,15 @@ const styles = StyleSheet.create({
   },
   section: {
     paddingHorizontal: PageInset,
-    paddingTop: 36,
-    gap: 14,
+    paddingTop: 32,
+    gap: 16,
   },
   picksScroller: {
     marginHorizontal: -PageInset,
   },
   picks: {
     paddingHorizontal: PageInset,
-    gap: 14,
+    gap: 16,
   },
   pick: {
     width: PICK_WIDTH,
@@ -553,7 +559,7 @@ const styles = StyleSheet.create({
     aspectRatio: 0.8,
     borderRadius: Radius.card,
     overflow: 'hidden',
-    marginBottom: 10,
+    marginBottom: 12,
   },
   pickAdd: {
     position: 'absolute',
@@ -566,9 +572,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // The section's own gap, as when these were its children.
+  // A card of its own, like a paper stamp card.
   stampCard: {
-    gap: 14,
+    gap: 16,
+    padding: 16,
+    borderRadius: Radius.card,
+  },
+  // At least 44 tall to tap; centred under the last section.
+  instagram: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    minHeight: 44,
+    marginTop: 32,
+    paddingHorizontal: PageInset,
   },
   stampRow: {
     paddingVertical: 4,

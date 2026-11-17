@@ -50,7 +50,7 @@ export function ConfirmEmailForm({ email, onBack }: { email: string; onBack: () 
       <ThemedText type="subtitle" accessibilityRole="header">
         Check your email
       </ThemedText>
-      <ThemedText type="small" accessibilityLiveRegion="polite">
+      <ThemedText type="caption" accessibilityLiveRegion="polite">
         {resent
           ? `We’ve sent a new code to ${email}. The older one no longer works.`
           : `We’ve emailed a 6-digit code to ${email}. Enter it here to finish.`}

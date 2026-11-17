@@ -18,9 +18,9 @@ export type TaskCardProps = {
   subtitle?: string;
   /**
    * What sits on the right edge:
-   * - `value`: a sage square with the reward ("+20").
+   * - `value`: a cream square with the reward ("+20"): rewards are cream.
    * - `arrow`: a sage square with a chevron (goes somewhere).
-   * - `done`: a light stone square with a tick; the icon block turns sage.
+   * - `done`: a light stone square with a tick; the icon block turns cream (earned).
    * - `plain`: just the value in grey ("+20", "now", "−30").
    */
   state?: 'value' | 'arrow' | 'done' | 'plain';
@@ -56,15 +56,15 @@ export function TaskCard({
 
   const content = (
     <>
-      <View style={[styles.iconBlock, { backgroundColor: done ? theme.brandFill : theme.backgroundSelected }]}>
+      <View style={[styles.iconBlock, { backgroundColor: done ? theme.rewardFill : theme.backgroundSelected }]}>
         {image ? (
           <Sticker source={image} style={styles.image} />
         ) : (
-          <Icon name={icon} size={24} color={done ? theme.onBrand : theme.text} />
+          <Icon name={icon} size={24} color={done ? theme.onReward : theme.text} />
         )}
       </View>
       <View style={styles.texts}>
-        <ThemedText type="card" numberOfLines={2}>
+        <ThemedText type="smallBold" numberOfLines={2}>
           {title}
         </ThemedText>
         {subtitle ? (
@@ -75,8 +75,8 @@ export function TaskCard({
         {extra}
       </View>
       {state === 'value' ? (
-        <View style={[styles.box, styles.valueBox, { backgroundColor: theme.brandFill }]}>
-          <ThemedText type="label" numberOfLines={1} style={{ color: theme.onBrand }}>
+        <View style={[styles.box, styles.valueBox, { backgroundColor: theme.rewardFill }]}>
+          <ThemedText type="label" numberOfLines={1} style={{ color: theme.onReward }}>
             {value}
           </ThemedText>
         </View>
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   iconBlock: {
     width: 60,
     height: 60,
-    margin: 10,
+    margin: 12,
     borderRadius: Radius.large,
     alignItems: 'center',
     justifyContent: 'center',
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     gap: 2,
     paddingLeft: 4,
     paddingRight: 8,
-    paddingVertical: 10,
+    paddingVertical: 12,
   },
   box: {
     width: 44,
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   valueBox: {
     width: 'auto',
     minWidth: 44,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
   },
   arrowBox: {
     width: 40,

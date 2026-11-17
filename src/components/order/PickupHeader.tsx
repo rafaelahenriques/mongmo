@@ -66,8 +66,8 @@ const styles = StyleSheet.create({
   },
   texts: {
     paddingHorizontal: PageInset,
-    paddingTop: 34,
-    paddingBottom: 22,
+    paddingTop: 32,
+    paddingBottom: 24,
     gap: 4,
   },
 });

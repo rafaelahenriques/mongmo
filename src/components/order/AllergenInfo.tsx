@@ -26,18 +26,18 @@ export function AllergenInfo({ item, options }: { item: OrderMenuItem; options: 
       <ThemedText type="section" accessibilityRole="header">
         Allergens
       </ThemedText>
-      <ThemedText type="small">{allergenText(item.allergens)}</ThemedText>
+      <ThemedText type="caption">{allergenText(item.allergens)}</ThemedText>
       {listed.map((option) => (
-        <ThemedText key={option.id} type="small" themeColor="textSecondary">
+        <ThemedText key={option.id} type="caption" themeColor="textSecondary">
           {`${shortItemName(option.name, option.category)}: ${allergenText(option.allergens)}`}
         </ThemedText>
       ))}
       {unlisted.length ? (
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           {`Not listed yet: ${unlisted.join(', ')}.`}
         </ThemedText>
       ) : null}
-      <ThemedText type="small" themeColor="textSecondary">
+      <ThemedText type="caption" themeColor="textSecondary">
         {missing
           ? 'Some allergens aren’t listed yet. If you have an allergy, ask us before you order.'
           : 'Have an allergy? Ask us before you order.'}
@@ -60,11 +60,11 @@ export function AllergenInfo({ item, options }: { item: OrderMenuItem; options: 
 const styles = StyleSheet.create({
   // Outlined, so the stone email button shows on it.
   box: {
-    gap: 6,
+    gap: 8,
     padding: 16,
     borderWidth: 1,
     borderRadius: Radius.large,
-    marginTop: 6,
+    marginTop: 8,
   },
   ask: {
     alignItems: 'flex-start',

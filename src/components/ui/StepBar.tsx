@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   },
   step: {
     flex: 1,
-    gap: 5,
+    gap: 4,
   },
   rule: {
     height: 2,

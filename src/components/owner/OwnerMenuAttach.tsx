@@ -19,7 +19,7 @@ export default function OwnerMenuAttach({ eventId }: OwnerMenuAttachProps) {
 
   if (menus.length === 0) {
     return (
-      <ThemedText type="small" themeColor="textSecondary">
+      <ThemedText type="caption" themeColor="textSecondary">
         No menus in the catalog yet.
       </ThemedText>
     );

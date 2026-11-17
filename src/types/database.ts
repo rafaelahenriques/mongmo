@@ -332,6 +332,20 @@ export type Database = {
         }[];
       };
       delete_my_account: { Args: Record<string, never>; Returns: undefined };
+      /** What's left of each dish with a limit at a place (0044); `sold` only for staff. */
+      dish_stock: {
+        Args: { p_store_id: string | null; p_event_id: string | null; p_day?: string | null };
+        Returns: { menu_item_id: string; max_quantity: number; sold: number | null; remaining: number }[];
+      };
+      /** Staff: the most of each dish a place can sell; a null max takes the limit away. */
+      set_dish_limits: {
+        Args: {
+          p_store_id: string | null;
+          p_event_id: string | null;
+          p_limits: { menu_item_id: string; max_quantity: number | null }[];
+        };
+        Returns: undefined;
+      };
       ensure_profile: { Args: Record<string, never>; Returns: undefined };
       my_badge_progress: {
         Args: Record<string, never>;

@@ -28,8 +28,10 @@ type SettingsState = {
   notificationsSeenAt: string | null;
   /** The location and notification switches were offered after sign-in. */
   permissionsAsked: boolean;
-  /** The level whose "Welcome to …" banner Home last showed (a level key). */
+  /** The level last celebrated (a level key). */
   levelSeen: string | null;
+  /** How many stamps the stamp card last showed, so new ones land once; null before the first. */
+  stampsSeen: number | null;
   /** Crash reports: nothing is sent until the person says yes ('on'). */
   crashReports: CrashReportsChoice;
   contrast: ContrastMode;
@@ -45,6 +47,7 @@ type SettingsState = {
   markNotificationsSeen: () => void;
   markPermissionsAsked: () => void;
   markLevelSeen: (key: string) => void;
+  setStampsSeen: (count: number) => void;
   setCrashReports: (choice: 'on' | 'off') => void;
   setContrast: (mode: ContrastMode) => void;
   setStaff: (staff: boolean) => void;
@@ -66,6 +69,7 @@ const DEFAULTS = {
   notificationsSeenAt: null as string | null,
   permissionsAsked: false,
   levelSeen: null as string | null,
+  stampsSeen: null as number | null,
   crashReports: 'unasked' as CrashReportsChoice,
   contrast: 'system' as ContrastMode,
   staff: false,
@@ -87,6 +91,7 @@ export const useSettingsStore = create<SettingsState>()(
       markNotificationsSeen: () => set({ notificationsSeenAt: new Date().toISOString() }),
       markPermissionsAsked: () => set({ permissionsAsked: true }),
       markLevelSeen: (key) => set({ levelSeen: key }),
+      setStampsSeen: (count) => set({ stampsSeen: count }),
       setCrashReports: (choice) => set({ crashReports: choice }),
       setContrast: (mode) => set({ contrast: mode }),
       // Not staff (any more): the customer's view is the only one.

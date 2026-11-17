@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: PageInset,
     paddingTop: 4,
-    gap: 10,
+    gap: 12,
   },
   loader: {
     marginVertical: 24,
@@ -183,9 +183,9 @@ const styles = StyleSheet.create({
   },
   ticketBody: {
     gap: 2,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 10,
+    paddingBottom: 12,
   },
   ticketTop: {
     flexDirection: 'row',
@@ -199,6 +199,6 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   until: {
-    paddingLeft: 14,
+    paddingLeft: 16,
   },
 });

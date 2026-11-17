@@ -32,6 +32,7 @@ import {
   refundNote,
 } from '@/utils/orderFormat';
 import { ErrorState, useRefreshControl } from '@/components/ui/LoadState';
+import { Celebrated } from '@/components/celebrate/Celebrated';
 import { cancelMyOrder } from '@/api/orders';
 import { Button } from '@/components/ui/Button';
 import { confirm, showError } from '@/services/confirm';
@@ -39,9 +40,10 @@ import { confirm, showError } from '@/services/confirm';
 /**
  * O-05 Order status: the pickup code big with the faded word, how far it
  * is (Confirmed · Being made · Ready), where to pick it up, and what's in
- * it. A collected order can be ordered again.
+ * it. A collected order can be ordered again. Straight after checkout, the
+ * ticket pops in with a burst: it went through.
  */
-export default function OrderStatusScreen({ orderId }: { orderId: string }) {
+export default function OrderStatusScreen({ orderId, justPlaced = false }: { orderId: string; justPlaced?: boolean }) {
   const theme = useTheme();
   const router = useRouter();
   const tabBarInset = useTabBarInset();
@@ -139,45 +141,47 @@ export default function OrderStatusScreen({ orderId }: { orderId: string }) {
         refreshControl={refreshControl}
       >
         {/* The pickup code as a ticket: sage, the code big, a tear line, where. */}
-        <View style={[styles.ticket, { backgroundColor: theme.brandFill }]}>
-          <View
-            accessible
-            accessibilityLabel={`Pickup code ${code.split('').join(' ')}. Show this at the counter.`}
-            style={styles.ticketTop}
-          >
-            <ThemedText type="label" style={{ color: theme.onBrand }}>
-              Pickup code
-            </ThemedText>
-            <ThemedText
-              type="display"
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              style={[styles.codeText, { color: theme.onBrand }]}
+        <Celebrated play={justPlaced} colors={[theme.brand, theme.text, theme.tertiary, theme.rewardFill]}>
+          <View style={[styles.ticket, { backgroundColor: theme.brandFill }]}>
+            <View
+              accessible
+              accessibilityLabel={`Pickup code ${code.split('').join(' ')}. Show this at the counter.`}
+              style={styles.ticketTop}
             >
-              {code}
-            </ThemedText>
-            <ThemedText type="small" style={{ color: theme.onBrand }}>
-              Show this at the counter
-            </ThemedText>
+              <ThemedText type="label" style={{ color: theme.onBrand }}>
+                Pickup code
+              </ThemedText>
+              <ThemedText
+                type="display"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                style={[styles.codeText, { color: theme.onBrand }]}
+              >
+                {code}
+              </ThemedText>
+              <ThemedText type="caption" style={{ color: theme.onBrand }}>
+                Show this at the counter
+              </ThemedText>
+            </View>
+            <View style={styles.tear} aria-hidden>
+              <View style={[styles.notch, styles.notchLeft, { backgroundColor: theme.background }]} />
+              <View style={[styles.tearLine, { borderColor: theme.onBrand }]} />
+              <View style={[styles.notch, styles.notchRight, { backgroundColor: theme.background }]} />
+            </View>
+            <View style={styles.ticketBottom}>
+              <ThemedText type="title" accessibilityRole="header" style={{ color: theme.onBrand }}>
+                {confirming ? 'Confirming' : ORDER_STATUS_TITLE[data.status]}
+              </ThemedText>
+              <ThemedText type="caption" style={{ color: theme.onBrand }}>
+                {data.status === 'cancelled'
+                  ? 'This order was cancelled.'
+                  : confirming
+                    ? 'Your payment is being confirmed. This takes a few seconds.'
+                    : pickup}
+              </ThemedText>
+            </View>
           </View>
-          <View style={styles.tear} aria-hidden>
-            <View style={[styles.notch, styles.notchLeft, { backgroundColor: theme.background }]} />
-            <View style={[styles.tearLine, { borderColor: theme.onBrand }]} />
-            <View style={[styles.notch, styles.notchRight, { backgroundColor: theme.background }]} />
-          </View>
-          <View style={styles.ticketBottom}>
-            <ThemedText type="title" accessibilityRole="header" style={{ color: theme.onBrand }}>
-              {confirming ? 'Confirming' : ORDER_STATUS_TITLE[data.status]}
-            </ThemedText>
-            <ThemedText type="small" style={{ color: theme.onBrand }}>
-              {data.status === 'cancelled'
-                ? 'This order was cancelled.'
-                : confirming
-                  ? 'Your payment is being confirmed. This takes a few seconds.'
-                  : pickup}
-            </ThemedText>
-          </View>
-        </View>
+        </Celebrated>
 
         {data.status !== 'cancelled' ? (
           <View style={styles.steps}>
@@ -264,7 +268,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   ticketTop: {
-    paddingHorizontal: 22,
+    paddingHorizontal: 24,
     paddingTop: 20,
     paddingBottom: 16,
     gap: 2,
@@ -297,14 +301,14 @@ const styles = StyleSheet.create({
     right: -12,
   },
   ticketBottom: {
-    paddingHorizontal: 22,
-    paddingTop: 10,
-    paddingBottom: 22,
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 24,
     gap: 2,
   },
   steps: {
     marginHorizontal: PageInset,
-    marginTop: 18,
+    marginTop: 20,
   },
   page: {
     paddingHorizontal: PageInset,

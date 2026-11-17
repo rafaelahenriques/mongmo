@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'baseline',
     flexWrap: 'wrap',
-    columnGap: 6,
+    columnGap: 8,
   },
   stacked: {
     alignItems: 'flex-start',

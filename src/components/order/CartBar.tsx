@@ -31,7 +31,7 @@ export function CartBar({ count, totalCents, onPress }: { count: number; totalCe
       ]}
     >
       <View style={[styles.count, { backgroundColor: theme.surfaceDark }]}>
-        <ThemedText type="card" style={{ color: theme.brand }}>
+        <ThemedText type="smallBold" style={{ color: theme.brand }}>
           {count}
         </ThemedText>
       </View>
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   count: {
     minWidth: 44,
     height: 44,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',

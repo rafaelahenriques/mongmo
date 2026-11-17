@@ -138,7 +138,7 @@ function JoinCard({
       )}
       <View style={styles.texts}>
         {compact ? null : heading}
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           {text}
         </ThemedText>
       </View>

@@ -73,7 +73,7 @@ export default function MembershipCardScreen() {
             <ThemedText type="section" numberOfLines={1} style={{ color: Ink }}>
               {name ? shortName(name) : ' '}
             </ThemedText>
-            <ThemedText type="small" style={{ color: Ink }}>
+            <ThemedText type="caption" style={{ color: Ink }}>
               {[`${level.current.name} level`, since ? `member since ${since}` : null].filter(Boolean).join(' · ')}
             </ThemedText>
           </View>
@@ -81,14 +81,14 @@ export default function MembershipCardScreen() {
             <ThemedText type="section" style={{ color: Ink }}>
               {points}
             </ThemedText>
-            <ThemedText type="small" style={{ color: Ink }}>
+            <ThemedText type="caption" style={{ color: Ink }}>
               points
             </ThemedText>
           </View>
         </View>
       </View>
 
-      <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
+      <ThemedText type="caption" themeColor="textSecondary" style={styles.center}>
         Show this at the counter or at a pop-up to collect your points.
       </ThemedText>
 
@@ -100,7 +100,7 @@ export default function MembershipCardScreen() {
           <ThemedText type="smallBold">{STAMP_VALUE_LABEL}</ThemedText>
         </View>
         <StampRow earned={stamps.earned} total={stamps.total} partial={stamps.partial} />
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           {nextReward
             ? `${stamps.earned} of ${stampsLabel(stamps.total)}. ${nextReward.costPoints - points} more points to: ${nextReward.title}.`
             : 'Card full: redeem a reward in Wallet.'}
@@ -118,8 +118,8 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 20,
-    padding: 18,
-    gap: 18,
+    padding: 20,
+    gap: 20,
   },
   cardTop: {
     flexDirection: 'row',
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   },
   qr: {
     alignSelf: 'center',
-    padding: 14,
+    padding: 16,
     borderRadius: 14,
     backgroundColor: Paper,
     minWidth: 228,

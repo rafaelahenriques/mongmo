@@ -80,7 +80,7 @@ export function PopUpPoster({
         <ThemedText type="title" numberOfLines={3} style={onPhoto}>
           {event.title}
         </ThemedText>
-        <ThemedText type="small" style={onPhotoSoft}>
+        <ThemedText type="caption" style={onPhotoSoft}>
           {meta}
         </ThemedText>
         {live && busy.capacity > 0 ? <BusyLine occupancy={busy.occupancy} capacity={busy.capacity} /> : null}
@@ -152,7 +152,7 @@ function PopupRowComponent({ event, last, onPress }: { event: PopUpEvent; last: 
         />
       </View>
       <View style={styles.rowTexts}>
-        <ThemedText type="card" numberOfLines={2}>
+        <ThemedText type="smallBold" numberOfLines={2}>
           {event.title}
         </ThemedText>
         <ThemedText type="caption" themeColor="textSecondary" numberOfLines={1}>
@@ -175,13 +175,13 @@ const styles = StyleSheet.create({
   posterText: {
     paddingHorizontal: 20,
     paddingTop: 20,
-    gap: 6,
+    gap: 8,
     alignItems: 'flex-start',
   },
   busy: {
     alignSelf: 'stretch',
-    gap: 6,
-    paddingTop: 6,
+    gap: 8,
+    paddingTop: 8,
   },
   busyTrack: {
     height: 4,
@@ -196,15 +196,15 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 12,
     padding: 20,
-    paddingTop: 14,
+    paddingTop: 16,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
-    paddingVertical: 14,
+    gap: 16,
+    paddingVertical: 16,
   },
   // At least 44 wide, and wider when large text needs it ("NOV" never cut).
   date: {

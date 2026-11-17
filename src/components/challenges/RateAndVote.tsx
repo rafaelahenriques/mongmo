@@ -142,10 +142,10 @@ const styles = StyleSheet.create({
   tag: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     maxWidth: '100%',
-    paddingHorizontal: 10,
-    paddingVertical: 7,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   tagText: {
     flexShrink: 1,
@@ -156,6 +156,6 @@ const styles = StyleSheet.create({
   },
   stamps: {
     flexDirection: 'row',
-    gap: 14,
+    gap: 16,
   },
 });

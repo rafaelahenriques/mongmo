@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { badgeIcon } from '@/components/achievements/badgeIcons';
+import { Celebrated } from '@/components/celebrate/Celebrated';
 import { ThemedText } from '@/components/ThemedText';
 import { BlockButton } from '@/components/ui/BlockButton';
 import { Coin } from '@/components/ui/Coin';
@@ -25,8 +26,8 @@ export type ChallengeResult = {
 
 /**
  * X-05 Points earned: the points big with the faded word under them, a
- * sage coin with a tick, the new balance, any badge it unlocked, and the
- * next challenge.
+ * sage coin with a tick (popping in with a burst: done), the new balance,
+ * any badge it unlocked, and the next challenge.
  */
 export default function PointsEarned({
   result,
@@ -58,7 +59,9 @@ export default function PointsEarned({
             DONE
           </ThemedText>
         )}
-        <Coin icon="checkSquare" size={150} />
+        <Celebrated play colors={[theme.brand, theme.text, theme.tertiary, theme.rewardFill]} from={0.5}>
+          <Coin icon="checkSquare" size={150} />
+        </Celebrated>
         <ThemedText type="default" style={styles.text}>
           {result.title}, done.
           {result.balance !== null
@@ -95,7 +98,7 @@ const styles = StyleSheet.create({
   },
   body: {
     alignItems: 'center',
-    gap: 28,
+    gap: 32,
     paddingHorizontal: PageInset,
     paddingTop: 12,
     paddingBottom: 24,
@@ -110,6 +113,6 @@ const styles = StyleSheet.create({
   },
   badge: {
     marginHorizontal: PageInset,
-    marginBottom: 14,
+    marginBottom: 16,
   },
 });

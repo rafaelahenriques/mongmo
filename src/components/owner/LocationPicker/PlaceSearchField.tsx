@@ -84,19 +84,19 @@ export function PlaceSearchField({ onPick, onSubmitText, searching = false }: Pl
                   {suggestion.title}
                 </ThemedText>
                 {suggestion.subtitle ? (
-                  <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
+                  <ThemedText type="caption" themeColor="textSecondary" numberOfLines={1}>
                     {suggestion.subtitle}
                   </ThemedText>
                 ) : null}
               </View>
             </Pressable>
           ))}
-          <ThemedText type="small" themeColor="textSecondary" style={styles.attribution}>
+          <ThemedText type="caption" themeColor="textSecondary" style={styles.attribution}>
             {PLACE_SEARCH_ATTRIBUTION}
           </ThemedText>
         </View>
       ) : failed ? (
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           Suggestions aren’t available right now
           {onSubmitText ? ' — press search on the keyboard to look the address up.' : '.'}
         </ThemedText>

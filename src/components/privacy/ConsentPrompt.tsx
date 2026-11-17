@@ -36,7 +36,7 @@ export function ConsentPrompt({ onOpenPolicy }: { onOpenPolicy?: () => void }) {
       <ThemedText type="section" accessibilityRole="header">
         Help us fix crashes?
       </ThemedText>
-      <ThemedText type="small">
+      <ThemedText type="caption">
         If the app crashes, it can send us a report: what went wrong in the code, your phone model and the app version.
         Never your name, email, location or anything you type. You can change this any time in Settings.
       </ThemedText>

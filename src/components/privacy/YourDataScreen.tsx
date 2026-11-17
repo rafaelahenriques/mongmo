@@ -84,11 +84,11 @@ export default function YourDataScreen() {
 
       <View style={styles.actions}>
         <Button label="Download a copy" variant="primary" onPress={download} loading={downloading} />
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           A file with all of the above, to keep or take elsewhere.
         </ThemedText>
         {problem ? (
-          <ThemedText type="small" themeColor="danger" accessibilityRole="alert">
+          <ThemedText type="caption" themeColor="danger" accessibilityRole="alert">
             {problem}
           </ThemedText>
         ) : null}

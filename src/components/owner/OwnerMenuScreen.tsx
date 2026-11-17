@@ -23,7 +23,8 @@ import { formatCents } from '@/utils/orderFormat';
  * The owner's Menu tab: everything customers can order, section by
  * section, then the options (extras, sauces). A switch takes an item off
  * the menu or puts it back; tapping one opens it to change its name,
- * price, section and allergens. New items are added from the top.
+ * price, section and allergens. New items are added from the top, and
+ * "How many a day" sets the most of each dish the café sells in a day.
  */
 export default function OwnerMenuScreen() {
   const theme = useTheme();
@@ -53,7 +54,14 @@ export default function OwnerMenuScreen() {
       refreshControl={refreshControl}
     >
       <Button label="Add an item" variant="brand" icon="add" onPress={() => router.push('/(wallet)/owner/menu/new')} />
-      <ThemedText type="small" themeColor="textSecondary">
+      <Button
+        label="How many a day"
+        variant="ghost"
+        icon="list"
+        accessibilityHint="The most of each dish the café sells in a day"
+        onPress={() => router.push('/(wallet)/owner/menu/limits')}
+      />
+      <ThemedText type="caption" themeColor="textSecondary">
         What customers can order. Switch an item off to take it off the menu (sold out, not today). Tap one to change
         it.
       </ThemedText>
@@ -223,9 +231,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
     minHeight: 56,
-    paddingVertical: 10,
+    paddingVertical: 12,
   },
   texts: {
     flex: 1,

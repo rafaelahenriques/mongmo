@@ -76,11 +76,11 @@ export function LocationPicker(props: LocationPickerProps) {
       ) : null}
 
       {problem ? (
-        <ThemedText type="small" themeColor="danger" accessibilityRole="alert">
+        <ThemedText type="caption" themeColor="danger" accessibilityRole="alert">
           {problem}
         </ThemedText>
       ) : note ? (
-        <ThemedText type="small" themeColor="success" accessibilityLiveRegion="polite">
+        <ThemedText type="caption" themeColor="success" accessibilityLiveRegion="polite">
           {note} {point && LIVE_MAP ? 'Drag the pin to fine-tune.' : ''}
         </ThemedText>
       ) : null}
@@ -102,7 +102,7 @@ export function LocationPicker(props: LocationPickerProps) {
         hitSlop={8}
       >
         <Icon name="pin" size={14} color={theme.textSecondary} />
-        <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
+        <ThemedText type="caption" themeColor="textSecondary" style={styles.flex}>
           {point ? `${point.latitude.toFixed(5)}, ${point.longitude.toFixed(5)}` : 'No coordinates yet'}
         </ThemedText>
         <ThemedText type="smallBold" themeColor="primaryText">

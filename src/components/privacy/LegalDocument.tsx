@@ -44,7 +44,7 @@ export function LegalDocument({
           {text.title}
         </ThemedText>
       ) : null}
-      <ThemedText type="small" themeColor="textSecondary">{`Last updated ${text.updated}`}</ThemedText>
+      <ThemedText type="caption" themeColor="textSecondary">{`Last updated ${text.updated}`}</ThemedText>
       <ThemedText>{text.intro}</ThemedText>
       {text.sections.map((section) => (
         <View key={section.heading} style={styles.section}>

@@ -165,7 +165,7 @@ function ChallengeForm({
             />
           ))}
         </View>
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           {CHALLENGE_TYPES[rules.type].hint}
         </ThemedText>
 

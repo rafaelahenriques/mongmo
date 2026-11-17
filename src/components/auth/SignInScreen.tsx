@@ -170,7 +170,7 @@ function AccountForm({
             {copy.title}
           </ThemedText>
           {onForm ? (
-            <ThemedText type="small" themeColor="textSecondary">
+            <ThemedText type="caption" themeColor="textSecondary">
               {copy.line}
             </ThemedText>
           ) : null}
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   heading: {
-    gap: 6,
+    gap: 8,
   },
   form: {
     gap: 16,

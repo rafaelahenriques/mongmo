@@ -21,6 +21,7 @@ import { PageInset, Radius } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useLevel } from '@/hooks/useLevel';
 import { useMenu } from '@/hooks/useMenu';
+import { useMenuStock } from '@/hooks/useMenuStock';
 import { usePickupPlace } from '@/hooks/usePickupPlace';
 import { useTheme } from '@/hooks/useTheme';
 import { confirm, showError } from '@/services/confirm';
@@ -47,6 +48,7 @@ export default function CartScreen() {
   const userRewardId = useCartStore((state) => state.userRewardId);
   const place = usePickupPlace();
   const menu = useMenu(location);
+  const stock = useMenuStock();
   const { query, summary, usableRewards, redeemRewardAsync } = useAchievements();
   const level = useLevel();
   const [removed, setRemoved] = useState<{ line: CartItem; index: number } | null>(null);
@@ -65,9 +67,11 @@ export default function CartScreen() {
   const suggestions = useMemo(() => {
     const inCart = new Set(items.map((line) => byId.get(line.menuItemId)?.category));
     return (menu.data ?? [])
-      .filter((item) => item.priceCents > 0 && !item.addOnFor && !inCart.has(item.category))
+      .filter(
+        (item) => item.priceCents > 0 && !item.addOnFor && !inCart.has(item.category) && stock.left[item.id] !== 0,
+      )
       .slice(0, 6);
-  }, [menu.data, items, byId]);
+  }, [menu.data, items, byId, stock.left]);
 
   // Only discount rewards come off an order; free items are handed over at pickup.
   // Already redeemed (and unused): switch it on. Enough points: switching it
@@ -140,7 +144,7 @@ export default function CartScreen() {
           accessibilityLiveRegion="polite"
           accessibilityRole="alert"
         >
-          <ThemedText type="small" style={[styles.flex, { color: theme.onSurfaceDark }]}>
+          <ThemedText type="caption" style={[styles.flex, { color: theme.onSurfaceDark }]}>
             Product removed
           </ThemedText>
           <Pressable
@@ -193,7 +197,7 @@ export default function CartScreen() {
                   </View>
                   <View style={styles.flex}>
                     <View style={styles.lineTop}>
-                      <ThemedText type="card" style={styles.flex}>
+                      <ThemedText type="smallBold" style={styles.flex}>
                         {line.quantity > 1 ? `${line.quantity} × ` : ''}
                         {titled ? item.category : line.name}
                       </ThemedText>
@@ -284,6 +288,7 @@ export default function CartScreen() {
                       key={item.id}
                       item={item}
                       withSection
+                      stock={stock.note(item.id)}
                       style={styles.moreCard}
                       onPress={() => router.push({ pathname: '/(orders)/order/item/[id]', params: { id: item.id } })}
                     />
@@ -318,7 +323,7 @@ const styles = StyleSheet.create({
     gap: 12,
     marginHorizontal: 12,
     marginTop: 8,
-    paddingLeft: 18,
+    paddingLeft: 20,
     paddingRight: 8,
     paddingVertical: 4,
     borderRadius: Radius.pill,
@@ -335,15 +340,15 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: PageInset,
-    paddingTop: 18,
+    paddingTop: 20,
     paddingBottom: 24,
     gap: 16,
   },
   line: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 14,
-    paddingBottom: 14,
+    gap: 16,
+    paddingBottom: 16,
     borderBottomWidth: 1,
   },
   // A rounded photo, like the programme lines on Home and Pop-ups.
@@ -358,7 +363,7 @@ const styles = StyleSheet.create({
   lineTop: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 10,
+    gap: 12,
   },
   // Each a 44 × 44 target, not just the size of "+1".
   lineButton: {
@@ -376,13 +381,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 16,
     borderRadius: Radius.card,
   },
   earn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
   },
   more: {
     gap: 12,

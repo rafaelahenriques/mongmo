@@ -216,7 +216,7 @@ function ItemForm({ menus, existing }: { menus: OwnerMenu[]; existing?: OwnerMen
             <>
               <ThemedText type="smallBold">Offered with</ThemedText>
               {sections.length === 0 ? (
-                <ThemedText type="small" themeColor="textSecondary">
+                <ThemedText type="caption" themeColor="textSecondary">
                   Add a dish or drink first: an option is offered with a section of the menu.
                 </ThemedText>
               ) : (

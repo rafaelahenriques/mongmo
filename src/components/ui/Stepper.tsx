@@ -64,7 +64,7 @@ export function Stepper({
           <Icon name={removes ? 'trash' : 'remove'} size={18} color={theme.text} />
         </Pressable>
         <ThemedText
-          type="card"
+          type="smallBold"
           style={styles.pillValue}
           accessibilityLabel={`${label}: ${formatValue(value)}`}
           accessibilityLiveRegion="polite"

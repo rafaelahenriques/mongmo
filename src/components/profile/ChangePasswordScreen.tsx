@@ -75,7 +75,7 @@ export default function ChangePasswordScreen() {
         {done ? (
           <View style={styles.done} accessibilityLiveRegion="polite">
             <ThemedText type="section">Password changed</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
+            <ThemedText type="caption" themeColor="textSecondary">
               Use your new password next time you sign in.
             </ThemedText>
             <Button label="Done" variant="brand" onPress={() => router.back()} />

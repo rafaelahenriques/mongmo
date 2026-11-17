@@ -166,7 +166,7 @@ export default function ListMode({
                 <ThemedText type="title" style={onPhoto}>
                   {store.name}
                 </ThemedText>
-                <ThemedText type="small" style={onPhotoSoft}>
+                <ThemedText type="caption" style={onPhotoSoft}>
                   {store.address}
                 </ThemedText>
               </View>

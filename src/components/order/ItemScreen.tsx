@@ -10,6 +10,7 @@ import { GuestLock } from '@/components/guest/GuestLock';
 import { JOIN } from '@/components/guest/joinCopy';
 import { ThemedText } from '@/components/ThemedText';
 import { BlockButton } from '@/components/ui/BlockButton';
+import Chip from '@/components/ui/Chip';
 import { SquareIconButton } from '@/components/ui/SquareIconButton';
 import { OptionPill } from '@/components/ui/OptionPill';
 import { Segmented } from '@/components/ui/Segmented';
@@ -18,6 +19,7 @@ import { PRODUCT_PHOTO_POSITION, productPhoto } from '@/constants/productPhotos'
 import { PageInset, Radius } from '@/constants/theme';
 import { useIsGuest } from '@/hooks/useIsGuest';
 import { useMenu } from '@/hooks/useMenu';
+import { useMenuStock } from '@/hooks/useMenuStock';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/services/haptics';
 import { useCartStore, type CartOption } from '@/state/cartStore';
@@ -26,9 +28,15 @@ import { formatCents, shortItemName } from '@/utils/orderFormat';
 import { useMotion } from '@/constants/motion';
 import { ErrorState } from '@/components/ui/LoadState';
 
+/** The most of one item a cart line takes at once. */
+const MOST_AT_ONCE = 20;
+
 /**
  * O-02 Item: the photo, the name big in uppercase with its price, what's
- * in it, how many, and ADD TO ORDER with the total at the bottom.
+ * in it, how many, and ADD TO ORDER with the total at the bottom. When few
+ * are left it says so. At a pop-up you can't add more than are left (none
+ * when it's sold out); at the café the limit is per day, so it says which
+ * day and checkout checks the day you pick.
  */
 export default function ItemScreen({ itemId }: { itemId: string }) {
   const theme = useTheme();
@@ -38,6 +46,10 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
   const insets = useSafeAreaInsets();
   const location = useCartStore((state) => state.location);
   const menu = useMenu(location);
+  const stock = useMenuStock();
+  const inCart = useCartStore((state) =>
+    state.items.filter((line) => line.menuItemId === itemId).reduce((sum, line) => sum + line.quantity, 0),
+  );
   const [quantity, setQuantity] = useState(1);
   /** Chosen option per pick-one group (the sauce), by group; none means its first one. */
   const [choices, setChoices] = useState<Record<string, string>>({});
@@ -81,10 +93,18 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
     .map((option) => ({ id: option.id, name: option.name, priceCents: option.priceCents }));
   const unit = item.priceCents + chosen.reduce((sum, option) => sum + option.priceCents, 0);
 
+  const note = stock.note(item.id);
+  // At a pop-up, what's left is all there is; what's in your cart already counts.
+  const atPopUp = location?.type === 'event';
+  const room = atPopUp && stock.left[item.id] !== undefined ? stock.left[item.id] - inCart : MOST_AT_ONCE;
+  const most = Math.max(1, Math.min(MOST_AT_ONCE, room));
+  const count = Math.min(quantity, most);
+  const canAdd = room > 0;
+
   const onAdd = () => {
     useCartStore
       .getState()
-      .addItem({ menuItemId: item.id, name: item.name, priceCents: item.priceCents, options: chosen }, quantity);
+      .addItem({ menuItemId: item.id, name: item.name, priceCents: item.priceCents, options: chosen }, count);
     haptics.success();
     back();
   };
@@ -92,13 +112,14 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
   const addBar = (
     <View style={styles.bar}>
       <View style={styles.quantity}>
-        <Stepper value={quantity} onChange={setQuantity} min={1} max={20} label={item.name} />
+        <Stepper value={count} onChange={setQuantity} min={1} max={most} label={item.name} />
       </View>
       <BlockButton
-        label="Add to cart"
-        value={formatCents(unit * quantity)}
+        label={canAdd ? 'Add to cart' : note?.soldOut ? 'Sold out' : 'All left are in your cart'}
+        value={canAdd ? formatCents(unit * count) : undefined}
         onPress={onAdd}
-        accessibilityHint={`Adds ${quantity} to your cart`}
+        disabled={!canAdd}
+        accessibilityHint={canAdd ? `Adds ${count} to your cart` : undefined}
         style={styles.add}
       />
     </View>
@@ -156,6 +177,16 @@ export default function ItemScreen({ itemId }: { itemId: string }) {
               <ThemedText type="default" themeColor="textSecondary">
                 {item.description}
               </ThemedText>
+            ) : null}
+            {note ? (
+              <View style={styles.stock}>
+                <Chip label={note.label} tone={note.soldOut ? 'dark' : 'warning'} />
+                {note.soldOut && !atPopUp ? (
+                  <ThemedText type="caption" themeColor="textSecondary">
+                    You can still order it for another day: pick the day at checkout.
+                  </ThemedText>
+                ) : null}
+              </View>
             ) : null}
           </View>
           <AllergenInfo item={item} options={groups.flatMap((group) => group.items)} />
@@ -233,7 +264,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 8,
   },
   stateBox: {
     alignSelf: 'stretch',
@@ -278,7 +309,7 @@ const styles = StyleSheet.create({
     height: 150,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 30,
+    marginTop: 32,
   },
   back: {
     position: 'absolute',
@@ -287,7 +318,7 @@ const styles = StyleSheet.create({
   page: {
     paddingHorizontal: PageInset,
     paddingTop: 24,
-    gap: 10,
+    gap: 12,
   },
   title: {
     gap: 8,
@@ -310,12 +341,16 @@ const styles = StyleSheet.create({
   price: {
     flexShrink: 0,
   },
+  stock: {
+    alignItems: 'flex-start',
+    gap: 8,
+  },
   flex: {
     flex: 1,
   },
   group: {
     gap: 8,
-    marginTop: 10,
+    marginTop: 12,
   },
   row: {
     flexDirection: 'row',
@@ -324,6 +359,6 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderBottomWidth: 1,
     paddingVertical: 12,
-    marginTop: 10,
+    marginTop: 12,
   },
 });

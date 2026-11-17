@@ -77,6 +77,13 @@ export const Colors = {
     /** Cream, the theme's secondary colour: small highlights. */
     accent: '#F1E4B2',
     onAccent: '#2F302B',
+    /** Rewards: points, stamps, badges and levels sit on cream, with ink on
+     *  it (11:1). Sage is for acting and for "live", so a reward never looks
+     *  like a button. */
+    rewardFill: '#F1E4B2',
+    onReward: '#2F302B',
+    /** Quieter words and empty stamp slots on cream (4.9:1). */
+    onRewardSoft: '#6B5F3F',
     /** Dusty rose, the theme's third colour (tertiary container), with its
      *  text colour (4.6:1). */
     tertiary: '#B88F8C',
@@ -115,6 +122,9 @@ export const Colors = {
     primaryText: Sage,
     accent: '#F1E4B2',
     onAccent: '#22231E',
+    rewardFill: '#F1E4B2',
+    onReward: '#22231E',
+    onRewardSoft: '#6B5F3F',
     tertiary: '#B88F8C',
     onTertiary: '#462928',
     success: '#3BB16F',
@@ -151,6 +161,8 @@ const CONTRAST_OVERRIDES: Record<Exclude<ContrastLevel, 'standard'>, Record<'lig
       onBrand: Ink,
       onBrandSoft: Ink,
       onAccent: Ink,
+      onReward: Ink,
+      onRewardSoft: Ink,
       tertiary: '#896461',
       onTertiary: Paper,
       success: '#17502F',
@@ -183,6 +195,8 @@ const CONTRAST_OVERRIDES: Record<Exclude<ContrastLevel, 'standard'>, Record<'lig
       onBrand: Ink,
       onBrandSoft: Ink,
       onAccent: Ink,
+      onReward: Ink,
+      onRewardSoft: Ink,
       tertiary: '#61413F',
       onTertiary: Paper,
       success: '#123F25',
@@ -290,6 +304,14 @@ export const CardShadow = '0px 6px 9px rgba(46, 46, 43, 0.10)';
 
 /** Page side margin. */
 export const PageInset = 20;
+
+/**
+ * Every gap, padding and margin in the app is one of these (points), so the
+ * rhythm is the same on every screen: tight inside a group, roomier
+ * between groups. 2 is for hairline nudges. tests/unit/spacingScale checks
+ * the screens keep to it; layout offsets over 64 aren't spacing.
+ */
+export const SPACING_SCALE = [0, 2, 4, 8, 12, 16, 20, 24, 32, 48, 64] as const;
 
 export const Spacing = {
   half: 2,

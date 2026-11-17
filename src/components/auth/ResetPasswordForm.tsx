@@ -54,7 +54,7 @@ export function ResetPasswordForm({ initialEmail, onDone }: { initialEmail: stri
       </ThemedText>
       {codeSent ? (
         <>
-          <ThemedText type="small" accessibilityLiveRegion="polite">
+          <ThemedText type="caption" accessibilityLiveRegion="polite">
             {`If there’s an account for ${email.trim()}, we’ve emailed it a 6-digit code. It works for an hour.`}
           </ThemedText>
           <TextField

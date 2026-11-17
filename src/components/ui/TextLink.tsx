@@ -14,6 +14,7 @@ export function TextLink({
   icon,
   onPress,
   accessibilityHint,
+  color,
   style,
 }: {
   label: string;
@@ -21,9 +22,12 @@ export function TextLink({
   icon?: IconName;
   onPress: () => void;
   accessibilityHint?: string;
+  /** On a coloured surface that stays the same in dark mode (cream): its ink. */
+  color?: string;
   style?: StyleProp<ViewStyle>;
 }) {
   const theme = useTheme();
+  const ink = color ?? theme.text;
   return (
     <Pressable
       onPress={() => {
@@ -36,9 +40,11 @@ export function TextLink({
       hitSlop={10}
       style={({ pressed }) => [styles.link, { opacity: pressed ? 0.6 : 1 }, style]}
     >
-      {icon ? <Icon name={icon} size={18} color={theme.text} weight="semibold" /> : null}
-      <ThemedText type="label">{label}</ThemedText>
-      {icon ? null : <Icon name="arrowRight" size={16} color={theme.text} weight="bold" />}
+      {icon ? <Icon name={icon} size={18} color={ink} weight="semibold" /> : null}
+      <ThemedText type="label" style={{ color: ink }}>
+        {label}
+      </ThemedText>
+      {icon ? null : <Icon name="arrowRight" size={16} color={ink} weight="bold" />}
     </Pressable>
   );
 }
@@ -48,7 +54,7 @@ const styles = StyleSheet.create({
   link: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     minHeight: 44,
   },
 });

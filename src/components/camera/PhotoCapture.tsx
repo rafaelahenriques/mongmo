@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   },
   permission: {
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
     paddingHorizontal: 32,
   },
   permissionText: {

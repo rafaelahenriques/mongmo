@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { formatInTimeZone } from 'date-fns-tz';
 
+import { placeOf } from '@/api/dishLimits';
 import { ORDER_NOTE_MAX } from '@/api/orders';
 import { PickupHeader } from '@/components/order/PickupHeader';
 import { DayStrip } from '@/components/order/DayStrip';
@@ -15,6 +16,7 @@ import { Chapter } from '@/components/ui/Chapter';
 import { TextField } from '@/components/ui/TextField';
 import { PageInset } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
+import { leftById, useDishStock } from '@/hooks/useDishStock';
 import { useEvents } from '@/hooks/useEvents';
 import { useEventsWithMenu } from '@/hooks/useEventsWithMenu';
 import { usePickupPlace } from '@/hooks/usePickupPlace';
@@ -26,18 +28,21 @@ import { confirm, errorMessage } from '@/services/confirm';
 import { haptics } from '@/services/haptics';
 import { onlinePaymentAvailable } from '@/services/payments';
 import { cartSubtotalCents, useCartStore } from '@/state/cartStore';
-import { getEventPhase } from '@/utils/dateTime';
+import { shortLineMessage, shortLines } from '@/utils/dishStock';
 import { formatCents } from '@/utils/orderFormat';
-import { pickupDays } from '@/utils/pickupSlots';
+import { dayPhrase, pickupDays } from '@/utils/pickupSlots';
+import { orderWindow, takesOrders } from '@/utils/popUps';
 import { discountOff } from '@/utils/rewards';
 
 /**
- * O-04 Checkout: where (the bakery or the live pop-up), when (today or
- * tomorrow, only times it's open), a note for the kitchen, how to pay
+ * O-04 Checkout: where (the bakery or a pop-up that's on, or starts within
+ * a day), when (only times it's open), a note for the kitchen, how to pay
  * (now, with Stripe, or at pickup), and the button with the total. Paying
  * at pickup asks once more before the order goes to the kitchen; paying
- * now has Stripe's own sheet for that. The server prices it. Guests don't
- * get here: ordering needs an account (GuestGate).
+ * now has Stripe's own sheet for that. A dish there aren't enough of (that
+ * day, at the café) is named before the button, which waits until it's
+ * sorted. The server prices it. Guests don't get here: ordering needs an
+ * account (GuestGate).
  */
 export default function CheckoutScreen() {
   const theme = useTheme();
@@ -47,7 +52,7 @@ export default function CheckoutScreen() {
   const userRewardId = useCartStore((state) => state.userRewardId);
   const place = usePickupPlace();
   const store = useStore();
-  const events = useEvents('today');
+  const events = useEvents('all');
   const withMenu = useEventsWithMenu();
   const { usableRewards } = useAchievements();
   const placeOrder = usePlaceOrder();
@@ -65,10 +70,10 @@ export default function CheckoutScreen() {
 
   const back = () => (router.canGoBack() ? router.back() : router.replace('/(orders)'));
 
-  // The live pop-up that takes orders, if there is one.
-  const livePopUp = (events.data ?? []).find(
-    (event) => withMenu.data?.includes(event.id) && getEventPhase(event.startsAt, event.endsAt) === 'live',
-  );
+  // A pop-up that takes orders, if there is one: one that's on, else one starting within a day.
+  const ordering = (events.data ?? []).filter((event) => withMenu.data?.includes(event.id) && takesOrders(event, now));
+  const livePopUp = ordering.find((event) => orderWindow(event, now) === 'open') ?? ordering[0];
+  const popUpLabel = livePopUp && orderWindow(livePopUp, now) === 'preorder' ? 'Pop-up' : 'Live pop-up';
 
   const days = useMemo(() => (place ? pickupDays(place.pickup, now) : []), [place, now]);
   const zone = place?.timeZone ?? 'Europe/Brussels';
@@ -85,6 +90,14 @@ export default function CheckoutScreen() {
       : chosenDay.ymd === tomorrowYmd
         ? 'tomorrow'
         : formatInTimeZone(chosenDay.slots[0], zone, 'EEE d MMM');
+
+  // Enough of each dish: at the café on the day picked, at a pop-up over all of it.
+  const stock = useDishStock(
+    location ? placeOf(location) : null,
+    location?.type === 'store' ? chosenDay?.ymd : undefined,
+  );
+  const short = shortLines(items, leftById(stock.data));
+  const shortDay = location?.type === 'store' && chosenDay ? dayPhrase(chosenDay.ymd, zone, now) : undefined;
 
   const discount = usableRewards.find(({ userRewardId: id, reward }) => id === userRewardId && reward.discountCents);
   const subtotal = cartSubtotalCents(items);
@@ -145,7 +158,7 @@ export default function CheckoutScreen() {
           setDraft(null);
           haptics.success();
           router.dismissTo('/(orders)');
-          router.push({ pathname: '/(orders)/order/status/[id]', params: { id: order.id } });
+          router.push({ pathname: '/(orders)/order/status/[id]', params: { id: order.id, placed: '1' } });
         },
         onError: (mutationError) => {
           haptics.error();
@@ -179,7 +192,7 @@ export default function CheckoutScreen() {
               onChange={(kind) => void switchTo(kind)}
               options={[
                 { value: 'store', label: 'Bakery' },
-                { value: 'event', label: 'Live pop-up' },
+                { value: 'event', label: popUpLabel },
               ]}
             />
           ) : (
@@ -215,6 +228,11 @@ export default function CheckoutScreen() {
                 : ' '}
             </ThemedText>
           )}
+          {short.map((line) => (
+            <ThemedText key={line.menuItemId} type="caption" themeColor="danger" accessibilityRole="alert">
+              {shortLineMessage(line, shortDay)}
+            </ThemedText>
+          ))}
         </View>
 
         <View style={styles.group}>
@@ -262,7 +280,7 @@ export default function CheckoutScreen() {
         </View>
 
         {error ? (
-          <ThemedText type="small" themeColor="danger" accessibilityRole="alert">
+          <ThemedText type="caption" themeColor="danger" accessibilityRole="alert">
             {error}
           </ThemedText>
         ) : null}
@@ -272,7 +290,7 @@ export default function CheckoutScreen() {
         value={formatCents(subtotal - off)}
         onPress={() => void onPlace()}
         loading={placeOrder.isPending}
-        disabled={!pickupAt}
+        disabled={!pickupAt || short.length > 0}
         bottomInset
       />
     </View>
@@ -288,11 +306,11 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: PageInset,
-    paddingTop: 18,
+    paddingTop: 20,
     paddingBottom: 24,
-    gap: 26,
+    gap: 24,
   },
   group: {
-    gap: 10,
+    gap: 12,
   },
 });

@@ -61,7 +61,7 @@ export function OpeningScreen({ onCreateAccount, onSignIn, onGuest, guestPending
         <View style={styles.brand}>
           <Wordmark height={56} />
           <ScreenReaderTitle>Mongmo</ScreenReaderTitle>
-          <ThemedText type="small" style={[styles.center, { color: paperAlpha(0.88) }]}>
+          <ThemedText type="caption" style={[styles.center, { color: paperAlpha(0.88) }]}>
             Bánh mì, pop-ups and rewards from Kortrijk.
           </ThemedText>
         </View>
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   },
   brand: {
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
   },
   center: {
     textAlign: 'center',

@@ -29,6 +29,8 @@ describe.each(['light', 'dark'] as const)('%s palettes', (scheme) => {
     expect(lowest(p, p.outline)).toBeGreaterThanOrEqual(3);
     expect(ratio(p.onBrand, p.brandFill)).toBeGreaterThanOrEqual(4.5);
     expect(ratio(p.onAccent, p.accent)).toBeGreaterThanOrEqual(4.5);
+    expect(ratio(p.onReward, p.rewardFill)).toBeGreaterThanOrEqual(TEXT_TARGET[level]);
+    expect(ratio(p.onRewardSoft, p.rewardFill)).toBeGreaterThanOrEqual(4.5);
     expect(ratio(p.onTertiary, p.tertiary)).toBeGreaterThanOrEqual(4.5);
   });
 

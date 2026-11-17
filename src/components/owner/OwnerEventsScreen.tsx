@@ -136,10 +136,10 @@ function OwnerEventRow({
         <ThemedText type="section" numberOfLines={2}>
           {event.title}
         </ThemedText>
-        <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
+        <ThemedText type="caption" themeColor="textSecondary" numberOfLines={1}>
           {formatEventWindow(event.startsAt, event.endsAt, event.timeZone)}
         </ThemedText>
-        <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
+        <ThemedText type="caption" themeColor="textSecondary" numberOfLines={2}>
           {event.venue}, {event.city}
         </ThemedText>
       </View>

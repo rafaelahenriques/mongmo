@@ -11,6 +11,7 @@ import { Segmented } from '@/components/ui/Segmented';
 import { Toggle } from '@/components/ui/Toggle';
 import { CardShadow, PageInset, Radius } from '@/constants/theme';
 import { useAuthUser } from '@/hooks/useAuthUser';
+import { CATERING_URL, INSTAGRAM_HANDLE, INSTAGRAM_URL, openLink } from '@/constants/links';
 import { useIsGuest } from '@/hooks/useIsGuest';
 import { useProfile, useSetLeaderboardVisible } from '@/hooks/useProfile';
 import { useTabBarInset } from '@/hooks/useTabBarInset';
@@ -217,7 +218,16 @@ export default function SettingsScreen() {
         <ListRow title="Delete account" onPress={() => void confirmDeleteAccount()} chevron={false} danger last />
       </Group>
 
-      <ThemedText type="small" style={{ color: theme.textSecondary }}>
+      <Group number="05" title="Mongmo">
+        <ListRow
+          title="Catering & events"
+          subtitle="Mongmo at your party, office or festival"
+          onPress={() => openLink(CATERING_URL)}
+        />
+        <ListRow title="Instagram" subtitle={INSTAGRAM_HANDLE} onPress={() => openLink(INSTAGRAM_URL)} last />
+      </Group>
+
+      <ThemedText type="caption" style={{ color: theme.textSecondary }}>
         {VERSION_LABEL}
       </ThemedText>
     </ScrollView>
@@ -228,7 +238,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: PageInset,
     paddingTop: 8,
-    gap: 26,
+    gap: 24,
   },
   group: {
     gap: 8,
@@ -240,8 +250,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   notice: {
-    padding: 14,
-    gap: 10,
+    padding: 16,
+    gap: 12,
     marginTop: 12,
     marginBottom: 4,
     borderRadius: Radius.large,

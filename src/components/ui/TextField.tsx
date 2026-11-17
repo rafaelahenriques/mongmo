@@ -59,7 +59,7 @@ export function TextField({
         ]}
       />
       {hint ? (
-        <ThemedText type="small" themeColor="textSecondary">
+        <ThemedText type="caption" themeColor="textSecondary">
           {hint}
         </ThemedText>
       ) : null}
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     minHeight: 46,
     borderRadius: Radius.medium + 2,
     borderWidth: 1,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     ...BodyFont.regular,
     fontSize: 14,
   },

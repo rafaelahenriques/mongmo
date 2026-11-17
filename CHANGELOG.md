@@ -10,6 +10,11 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Added
 
+- Catering and events: a card on Home, and a row in Settings, open
+  Mongmo's catering page to book the food truck for a party, office or
+  festival.
+- Mongmo on Instagram (@mongmo_store), from the bottom of Home and from
+  Settings.
 - Pop-ups near you on a map and in a list, with live occupancy, and alerts
   when you're within 500 m of a live one.
 - Check in at a pop-up with its QR code; challenges (photo, vote, taste,
@@ -70,9 +75,30 @@ the release workflow publishes that section as the GitHub release notes.
 - Pay in the app: card, Apple Pay, Google Pay or Bancontact, through
   Stripe, or still at the counter. Cancelling an order you paid for gives
   the money back. Staff see which orders are paid.
+- How many of each dish: staff set the most of a dish a pop-up sells, or
+  the café sells in a day. From 10 left, the menu says "Hurry, only N
+  left"; at none, "Sold out", and checkout won't take more than there is.
+- Pre-order at a pop-up from 24 hours before it starts, for a time during
+  it. Pre-orders count toward its limits.
+
+- Celebrations, sized to the moment. Placing an order, checking in and
+  finishing a challenge pop in with a short burst; a stamp you've earned
+  lands on your stamp card the next time you see it; a new level or badge
+  gets the whole screen, which you can skip. With less motion turned on,
+  they're simply there.
 
 ### Changed
 
+- Spacing follows one scale everywhere, so screens share the same rhythm:
+  tight inside a group, roomier between groups.
+- Each colour has one job. Sage is for what you can do and what's live;
+  rewards are cream: your points (in Wallet and at the top of each tab),
+  the stamp card, earned badges, your level and the points on a
+  challenge. A reward never looks like a button.
+- The bold headline type is for headlines again: screen titles, section
+  headings, names and big numbers. Titles in cards and lists, small labels
+  and text links are in the body type, bold, so a screen's headline
+  stands out.
 - Signing in is shorter. The first screen has three ways in: create an
   account, sign in, or skip to look around as a guest. The form after it
   is just your email and password, with the other form a tap away.
@@ -130,6 +156,13 @@ the release workflow publishes that section as the GitHub release notes.
 
 ### Fixed
 
+- Ordering at a pop-up made in the app works: a new pop-up sells the
+  café's menu unless the owner picks another. Before, it had no menu, and
+  ordering there failed.
+- Owner tools: the buttons to end or cancel a pop-up are read out by their
+  own words ("End pop-up", "Cancel pop-up").
+- The Order tab says when the café next takes pickups, even when that's
+  more than a day away, and a pop-up that starts tomorrow says tomorrow.
 - On the web, sending a photo failed: the site's security rules stopped
   the app reading the photo you had just picked.
 - Owner tools: the orders board kept every order ever placed, getting

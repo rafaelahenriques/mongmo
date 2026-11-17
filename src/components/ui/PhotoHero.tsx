@@ -116,8 +116,8 @@ const styles = StyleSheet.create({
   },
   bottom: {
     paddingHorizontal: PageInset,
-    paddingBottom: 26,
-    gap: 10,
+    paddingBottom: 24,
+    gap: 12,
   },
   nameRow: {
     flexDirection: 'row',
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     lineHeight: 36,
   },
   meta: {
-    marginTop: 3,
+    marginTop: 4,
     flexShrink: 0,
   },
 });

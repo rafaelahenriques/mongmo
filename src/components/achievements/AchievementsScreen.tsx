@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Coin } from '@/components/ui/Coin';
 import { Segmented } from '@/components/ui/Segmented';
 import { TopBar } from '@/components/ui/TopBar';
-import { CardShadow, PageInset, Radius } from '@/constants/theme';
+import { PageInset, Radius } from '@/constants/theme';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { useSetLeaderboardVisible } from '@/hooks/useProfile';
@@ -100,42 +100,42 @@ export default function AchievementsScreen() {
         >
           {/* How far you are: badges earned out of all, and the closest one to get. */}
           <View
-            style={[styles.hero, { backgroundColor: theme.brandFill }]}
+            style={[styles.hero, { backgroundColor: theme.rewardFill }]}
             accessible
             accessibilityLabel={`${earned.size} of ${badges.length} badges earned.${
               next ? ` Next: ${next.badge.title}, ${next.step.current} of ${next.step.target}.` : ''
             }`}
           >
-            <ThemedText type="label" style={{ color: theme.onBrand }}>
+            <ThemedText type="label" style={{ color: theme.onReward }}>
               Badges
             </ThemedText>
             <View style={styles.heroNumber}>
-              <ThemedText type="display" style={[styles.heroCount, { color: theme.onBrand }]}>
+              <ThemedText type="display" style={[styles.heroCount, { color: theme.onReward }]}>
                 {earned.size}
               </ThemedText>
-              <ThemedText type="title" style={{ color: theme.onBrandSoft }}>
+              <ThemedText type="title" style={{ color: theme.onRewardSoft }}>
                 {`of ${badges.length}`}
               </ThemedText>
             </View>
-            <View style={[styles.heroTrack, { backgroundColor: theme.onBrandSoft + '40' }]}>
+            <View style={[styles.heroTrack, { backgroundColor: theme.onRewardSoft + '40' }]}>
               <View
                 style={[
                   styles.fill,
                   {
                     width: `${badges.length ? (earned.size / badges.length) * 100 : 0}%`,
-                    backgroundColor: theme.onBrand,
+                    backgroundColor: theme.onReward,
                   },
                 ]}
               />
             </View>
             {next ? (
-              <ThemedText type="small" style={{ color: theme.onBrand }}>
+              <ThemedText type="caption" style={{ color: theme.onReward }}>
                 {`Next: ${next.badge.title} · ${next.step.current} of ${next.step.target}`}
               </ThemedText>
             ) : null}
           </View>
 
-          {/* Every badge as a tile, two to a row: white once earned, stone until then. */}
+          {/* Every badge as a tile, two to a row: cream once earned (a reward), stone until then. */}
           <View style={styles.grid}>
             {badges.map((badge) => {
               const got = earned.get(badge.id);
@@ -150,16 +150,21 @@ export default function AchievementsScreen() {
                   key={badge.id}
                   style={[
                     styles.tile,
-                    got
-                      ? { backgroundColor: theme.backgroundElement, boxShadow: CardShadow }
-                      : { backgroundColor: theme.backgroundSelected },
+                    got ? { backgroundColor: theme.rewardFill } : { backgroundColor: theme.backgroundSelected },
                   ]}
                   accessible
                   accessibilityLabel={`${badge.title}. ${badge.description}. ${status}.`}
                 >
                   <Coin icon={badgeIcon(badge.key)} earned={Boolean(got)} size={56} />
-                  <ThemedText type="card">{badge.title}</ThemedText>
-                  <ThemedText type="caption" themeColor="textSecondary" style={styles.tileText}>
+                  {/* Cream stays cream in dark mode, so its words stay ink. */}
+                  <ThemedText type="smallBold" style={got && { color: theme.onReward }}>
+                    {badge.title}
+                  </ThemedText>
+                  <ThemedText
+                    type="caption"
+                    themeColor="textSecondary"
+                    style={[styles.tileText, got && { color: theme.onRewardSoft }]}
+                  >
                     {badge.description}
                   </ThemedText>
                   {!got && step ? (
@@ -175,7 +180,7 @@ export default function AchievementsScreen() {
                       />
                     </View>
                   ) : null}
-                  <ThemedText type="captionBold" style={{ color: got ? theme.primaryText : theme.text }}>
+                  <ThemedText type="captionBold" style={{ color: got ? theme.onReward : theme.text }}>
                     {status}
                   </ThemedText>
                 </View>
@@ -205,7 +210,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingHorizontal: PageInset,
-    paddingTop: 6,
+    paddingTop: 8,
     gap: 16,
   },
   hero: {
@@ -231,14 +236,14 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: 12,
   },
   tile: {
     flexGrow: 1,
     flexBasis: 150,
     borderRadius: Radius.card,
-    padding: 14,
-    gap: 6,
+    padding: 16,
+    gap: 8,
   },
   tileText: {
     flexGrow: 1,

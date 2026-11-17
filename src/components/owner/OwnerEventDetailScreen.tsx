@@ -2,6 +2,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import OwnerChallengesManager from '@/components/owner/OwnerChallengesManager';
+import OwnerDishLimits from '@/components/owner/OwnerDishLimits';
 import OwnerEventForm from '@/components/owner/OwnerEventForm';
 import OwnerEventQr from '@/components/owner/OwnerEventQr';
 import OwnerMenuAttach from '@/components/owner/OwnerMenuAttach';
@@ -31,7 +32,8 @@ export type OwnerEventDetailScreenProps = {
 
 /**
  * Owner: manage one pop-up, in the order it's needed on the day — the QR to
- * put up, challenges and menu, then editing the details, then wrapping up.
+ * put up, challenges, the menu and how many of each dish, then editing the
+ * details, then wrapping up.
  */
 export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScreenProps) {
   const theme = useTheme();
@@ -111,13 +113,13 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
         </ThemedText>
         <View style={styles.meta}>
           <Icon name="clock" size={14} color={theme.textSecondary} />
-          <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
+          <ThemedText type="caption" themeColor="textSecondary" style={styles.flex}>
             {formatEventWindow(event.starts_at, event.ends_at, event.time_zone)}
           </ThemedText>
         </View>
         <View style={styles.meta}>
           <Icon name="pin" size={14} color={theme.textSecondary} />
-          <ThemedText type="small" themeColor="textSecondary" style={styles.flex}>
+          <ThemedText type="caption" themeColor="textSecondary" style={styles.flex}>
             {event.venue}, {event.city}
           </ThemedText>
         </View>
@@ -143,6 +145,13 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
       <SectionHeader title="Menu" />
       <OwnerMenuAttach eventId={eventId} />
 
+      <SectionHeader title="How many of each" />
+      <OwnerDishLimits
+        place={{ eventId }}
+        menuLocation={{ type: 'event', eventId, eventTitle: event.title }}
+        perDay={false}
+      />
+
       <SectionHeader title="Edit details" />
       <OwnerEventForm
         initial={{
@@ -167,17 +176,9 @@ export default function OwnerEventDetailScreen({ eventId }: OwnerEventDetailScre
 
       <SectionHeader title="Wrap up" />
       <ButtonRow>
-        <Button
-          label="End pop-up"
-          accessibilityLabel="End this event"
-          variant="secondary"
-          icon="check"
-          onPress={onEndEvent}
-          disabled={finished}
-        />
+        <Button label="End pop-up" variant="secondary" icon="check" onPress={onEndEvent} disabled={finished} />
         <Button
           label="Cancel pop-up"
-          accessibilityLabel="Cancel this event"
           variant="danger"
           icon="close"
           onPress={onCancelEvent}
